@@ -43,4 +43,4 @@ To publish or update the shared pathway after editing content:
 npm run publish-pathway
 ```
 
-Run `supabase/migrations/002_shared_pathway.sql` once so the pathway is stored in Supabase (otherwise the app serves `public/main-pathway.json`).
+Run `supabase/migrations/002_shared_pathway.sql` in the Postgres editor after applying the above changes (if done so).
