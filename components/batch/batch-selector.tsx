@@ -46,6 +46,8 @@ import { cn } from "@/lib/utils";
 import { CreateIslandDialog } from "@/components/ai/create-island-dialog";
 import { CreateManualIslandDialog } from "@/components/islands/create-manual-island-dialog";
 import { AskButton } from "@/components/ai/ask-button";
+import { BulkRateDialog } from "@/components/library/bulk-rate-dialog";
+import { rateIslandSentences } from "@/lib/services/bulk-rating-service";
 
 export function BatchSelector() {
   const searchParams = useSearchParams();
@@ -81,6 +83,8 @@ export function BatchSelector() {
   );
   const [subtopic, setSubtopic] = useState<string>("all");
   const [sourceType, setSourceType] = useState<"pathway" | "island">(initialSource);
+  const [islandRateOpen, setIslandRateOpen] = useState(false);
+  const [islandRateLoading, setIslandRateLoading] = useState(false);
 
   const pathwayStats = useMemo(
     () => (dataset ? getPathwayBatchStats(dataset, progress) : []),
@@ -133,6 +137,31 @@ export function BatchSelector() {
       toast.error("No sentences available in this batch. Try another batch or island.");
     } else {
       toast.success(`Batch started with ${count} sentences`);
+    }
+  };
+
+  const islandRateCount = useMemo(() => {
+    if (!island) return 0;
+    if (subtopic === "all") return island.sentences.length;
+    return island.sentences.filter((s) => s.subtopic === subtopic).length;
+  }, [island, subtopic]);
+
+  const handleRateEntireIsland = async (rating: number) => {
+    if (!dataset || !islandKey) return;
+    setIslandRateLoading(true);
+    try {
+      const result = rateIslandSentences(dataset, progress, islandKey, rating, {
+        subtopic: subtopic === "all" ? null : subtopic,
+      });
+      await setProgress(result.progress);
+      const label = formatLabel(islandKey);
+      toast.success(
+        `Rated ${result.updatedCount} sentence${result.updatedCount === 1 ? "" : "s"} in ${label}`
+      );
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not rate island");
+    } finally {
+      setIslandRateLoading(false);
     }
   };
 
@@ -276,21 +305,31 @@ export function BatchSelector() {
             )}
 
             {islandSummaries.length > 0 && (
-              <Button
-                className="w-full"
-                onClick={() =>
-                  applyBatch({
-                    sourceType: "island",
-                    pathwayBatchNumber: null,
-                    islandKey,
-                    subtopic: subtopic === "all" ? null : subtopic,
-                    batchSize: clampBatchSize(batchSize),
-                  })
-                }
-                disabled={!islandKey}
-              >
-                Start island batch
-              </Button>
+              <>
+                <Button
+                  variant="secondary"
+                  className="w-full"
+                  onClick={() => setIslandRateOpen(true)}
+                  disabled={!islandKey || islandRateCount === 0}
+                >
+                  Rate entire island
+                </Button>
+                <Button
+                  className="w-full"
+                  onClick={() =>
+                    applyBatch({
+                      sourceType: "island",
+                      pathwayBatchNumber: null,
+                      islandKey,
+                      subtopic: subtopic === "all" ? null : subtopic,
+                      batchSize: clampBatchSize(batchSize),
+                    })
+                  }
+                  disabled={!islandKey}
+                >
+                  Start island batch
+                </Button>
+              </>
             )}
           </TabsContent>
         </Tabs>
@@ -308,6 +347,19 @@ export function BatchSelector() {
         )}
 
         <ActiveBatchList sentences={activeSentences} progress={progress} />
+
+        <BulkRateDialog
+          open={islandRateOpen}
+          onOpenChange={setIslandRateOpen}
+          sentenceCount={islandRateCount}
+          label={
+            islandKey
+              ? `${formatLabel(islandKey)}${subtopic !== "all" ? ` · ${formatLabel(subtopic)}` : ""}`
+              : undefined
+          }
+          loading={islandRateLoading}
+          onConfirm={handleRateEntireIsland}
+        />
       </PageShell>
     </AppGate>
   );

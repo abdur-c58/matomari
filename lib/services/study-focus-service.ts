@@ -25,6 +25,7 @@ export interface IslandSummary {
   description: string;
   sentenceCount: number;
   studiedCount: number;
+  complete: boolean;
   subtopics: string[];
 }
 
@@ -53,6 +54,16 @@ function isSentenceComplete(
   const sp = progress.sentences[sentenceId];
   if (!sp) return false;
   return sp.batchStatus === "retired" || (sp.rating !== null && sp.rating >= 4);
+}
+
+export function isIslandComplete(
+  dataset: Dataset,
+  progress: UserProgress,
+  islandKey: string
+): boolean {
+  const island = dataset.islands[islandKey];
+  if (!island || island.sentences.length === 0) return false;
+  return island.sentences.every((s) => isSentenceComplete(s.id, progress));
 }
 
 export function isPathwayBatchComplete(
@@ -116,6 +127,9 @@ export function getIslandSummaries(
     description: island.description,
     sentenceCount: island.sentences.length,
     studiedCount: island.sentences.filter((s) => isSentenceStudied(s.id, progress)).length,
+    complete:
+      progress.completedIslands.includes(key) ||
+      isIslandComplete(dataset, progress, key),
     subtopics: island.subtopics,
   }));
 }
@@ -178,6 +192,20 @@ export function maybeMarkPathwayBatchComplete(
     completedPathwayBatches: [...progress.completedPathwayBatches, batchNumber].sort(
       (a, b) => a - b
     ),
+  };
+}
+
+export function maybeMarkIslandComplete(
+  dataset: Dataset,
+  progress: UserProgress,
+  islandKey: string
+): UserProgress {
+  if (progress.completedIslands.includes(islandKey)) return progress;
+  if (!isIslandComplete(dataset, progress, islandKey)) return progress;
+
+  return {
+    ...progress,
+    completedIslands: [...progress.completedIslands, islandKey].sort(),
   };
 }
 

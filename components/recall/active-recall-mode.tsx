@@ -191,7 +191,7 @@ export function ActiveRecallMode() {
     );
   }
 
-  if (translateStatus === "loading" || translateStatus === "idle") {
+  if (translateStatus === "loading") {
     return (
       <AppGate>
         <PreparingSentences />

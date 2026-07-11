@@ -19,6 +19,8 @@ export async function getProgress(): Promise<UserProgress> {
         dialectChosen: progress.settings?.dialectChosen ?? false,
         notifications: normalizeNotificationPreferences(progress.settings?.notifications),
       },
+      completedPathwayBatches: progress.completedPathwayBatches ?? [],
+      completedIslands: progress.completedIslands ?? [],
     };
   } catch {
     return { ...DEFAULT_PROGRESS };

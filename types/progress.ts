@@ -49,4 +49,5 @@ export interface UserProgress {
   batchConfig: BatchConfig | null;
   settings: AppSettings;
   completedPathwayBatches: number[];
+  completedIslands: string[];
 }

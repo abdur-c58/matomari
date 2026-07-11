@@ -35,10 +35,36 @@ export const viewport: Viewport = {
   ],
 };
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: APP_FULL_TITLE,
   description: APP_DESCRIPTION,
   manifest: "/manifest.json",
+  openGraph: {
+    title: APP_FULL_TITLE,
+    description: APP_DESCRIPTION,
+    siteName: APP_SHORT_TITLE,
+    type: "website",
+    locale: "en_US",
+    images: [
+      {
+        url: "/og.png",
+        width: 1200,
+        height: 630,
+        alt: "Kotoshima — 言島 · Japanese Learning",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: APP_FULL_TITLE,
+    description: APP_DESCRIPTION,
+    images: ["/og.png"],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",

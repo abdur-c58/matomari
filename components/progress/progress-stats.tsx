@@ -66,6 +66,7 @@ export function ProgressStats() {
       weak,
       avgDaysToMastery,
       completedBatches: progress.completedPathwayBatches.length,
+      completedIslands: progress.completedIslands.length,
       modeChart,
       weakTrend,
       activeThisWeek,
@@ -77,7 +78,7 @@ export function ProgressStats() {
       <PageShell>
         <PageHeader title="Progress" subtitle="Meaningful study metrics" />
 
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
           <StatCard title="Mastered" value={`${metrics.mastered}/${metrics.total}`} accent="success" />
           <StatCard title="Weak" value={String(metrics.weak)} accent="destructive" />
           <StatCard
@@ -86,6 +87,7 @@ export function ProgressStats() {
             accent="foreground"
           />
           <StatCard title="Batches done" value={String(metrics.completedBatches)} accent="listen" />
+          <StatCard title="Islands done" value={String(metrics.completedIslands)} accent="meaning" />
         </div>
 
         <Card className="mt-4">
@@ -162,13 +164,14 @@ function StatCard({
 }: {
   title: string;
   value: string;
-  accent: "foreground" | "success" | "destructive" | "listen";
+  accent: "foreground" | "success" | "destructive" | "listen" | "meaning";
 }) {
   const accentMap = {
     foreground: "text-foreground",
     success: "text-success",
     destructive: "text-destructive",
     listen: "text-mode-listen",
+    meaning: "text-mode-meaning",
   };
 
   return (

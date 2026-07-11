@@ -274,7 +274,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       sentenceIds: string[],
       options?: { onProgress?: TranslationProgressCallback }
     ): Promise<{ translatedCount: number; total: number }> => {
-      if (!isDialectConfigured(progress.settings)) {
+      const dialect = progress.settings.dialect;
+      const dialectChosen = progress.settings.dialectChosen;
+
+      if (!isDialectConfigured({ dialectChosen })) {
         if (typeof window !== "undefined") {
           window.location.assign(
             preferencesPathWithReturn(window.location.pathname + window.location.search)
@@ -312,7 +315,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const { translatedCount } = await translateSentences(current, untranslatedIds, {
           onProgress,
           persist,
-          dialect: progress.settings.dialect,
+          dialect,
         });
 
         return { translatedCount, total };
@@ -321,7 +324,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         throw e;
       }
     },
-    [progress.settings]
+    [progress.settings.dialect, progress.settings.dialectChosen]
   );
 
   const translateAllUntranslated = useCallback(

@@ -46,7 +46,10 @@ export function IslandPicker({
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-foreground">{island.title}</p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-semibold text-foreground">{island.title}</p>
+                      {island.complete && <Badge variant="success">Complete</Badge>}
+                    </div>
                     <p className="mt-1 line-clamp-2 text-sm text-muted">{island.description}</p>
                   </div>
                   <Badge variant="secondary" className="shrink-0">

@@ -9,7 +9,8 @@
     "lint": "eslint",
     "regenerate-audio": "npx tsx --env-file=.env.local scripts/regenerate-audio.ts",
     "publish-pathway": "npx tsx --env-file=.env.local scripts/publish-pathway.ts",
-    "generate-icons": "npx tsx scripts/generate-icons.ts"
+    "generate-icons": "npx tsx scripts/generate-icons.ts",
+    "generate-og-image": "npx tsx scripts/generate-og-image.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1084.0",

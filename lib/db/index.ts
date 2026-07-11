@@ -81,6 +81,7 @@ export const DEFAULT_PROGRESS: UserProgress = {
     notifications: { ...DEFAULT_NOTIFICATION_PREFERENCES, lastSent: {} },
   },
   completedPathwayBatches: [],
+  completedIslands: [],
 };
 
 export const DEFAULT_STATS: AppStats = {

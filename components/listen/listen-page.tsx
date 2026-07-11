@@ -70,7 +70,7 @@ export function ListenPage() {
     );
   }
 
-  if (status === "loading" || status === "idle") {
+  if (status === "loading") {
     return (
       <AppGate>
         <PreparingSentences />

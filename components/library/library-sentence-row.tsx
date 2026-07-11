@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { getDialectLabel } from "@/lib/constants/dialect";
 import { MotionCollapse } from "@/components/motion/motion-collapse";
-import { ChevronDown, Star } from "lucide-react";
+import { ChevronDown, Star, Check } from "lucide-react";
 
 function RatingPill({ rating }: { rating: number | null }) {
   if (rating === null) {
@@ -34,12 +34,20 @@ export function LibrarySentenceRow({
   isActive,
   suggestedRating,
   onRate,
+  selectionMode = false,
+  selectable = false,
+  selected = false,
+  onToggleSelect,
 }: {
   sentence: Sentence;
   progress?: SentenceProgress | null;
   isActive: boolean;
   suggestedRating: number | null;
   onRate: (rating: number) => void;
+  selectionMode?: boolean;
+  selectable?: boolean;
+  selected?: boolean;
+  onToggleSelect?: () => void;
 }) {
   const { retranslateSentence, sentenceNeedsRetranslation, progress: userProgress } = useApp();
   const [expanded, setExpanded] = useState(false);
@@ -61,18 +69,43 @@ export function LibrarySentenceRow({
     }
   };
 
+  const handleRowClick = () => {
+    if (selectionMode && selectable && onToggleSelect) {
+      onToggleSelect();
+      return;
+    }
+    setExpanded((v) => !v);
+  };
+
   return (
     <div
       className={cn(
         "border-b border-border/60 last:border-b-0",
-        isActive && "bg-foreground/[0.03]"
+        isActive && "bg-foreground/[0.03]",
+        selectionMode && selected && "bg-mode-meaning/5"
       )}
     >
       <div className="flex w-full items-start gap-1 px-1 py-2.5">
+        {selectionMode && selectable && (
+          <button
+            type="button"
+            className={cn(
+              "mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border touch-manipulation",
+              selected
+                ? "border-mode-meaning bg-mode-meaning text-white"
+                : "border-border bg-surface text-transparent"
+            )}
+            onClick={onToggleSelect}
+            aria-label={selected ? "Deselect sentence" : "Select sentence"}
+            aria-pressed={selected}
+          >
+            <Check className="h-3.5 w-3.5" strokeWidth={3} />
+          </button>
+        )}
         <button
           type="button"
           className="flex min-w-0 flex-1 items-start gap-2 text-left touch-manipulation"
-          onClick={() => setExpanded((v) => !v)}
+          onClick={handleRowClick}
           aria-expanded={expanded}
         >
           <div className="flex w-8 shrink-0 flex-col items-center pt-0.5">
@@ -122,7 +155,13 @@ export function LibrarySentenceRow({
         <button
           type="button"
           className="mt-0.5 shrink-0 rounded-lg p-1 text-muted touch-manipulation hover:text-foreground"
-          onClick={() => setExpanded((v) => !v)}
+          onClick={() => {
+            if (selectionMode && selectable && onToggleSelect) {
+              onToggleSelect();
+              return;
+            }
+            setExpanded((v) => !v);
+          }}
           aria-expanded={expanded}
           aria-label={expanded ? "Collapse sentence" : "Expand sentence"}
         >
@@ -135,7 +174,7 @@ export function LibrarySentenceRow({
         </button>
       </div>
 
-      <MotionCollapse open={expanded} className="border-t border-border/40">
+      <MotionCollapse open={expanded && !selectionMode} className="border-t border-border/40">
         <div className="space-y-2 px-1 pb-3 pt-2 pl-10">
           {translated && sentence.reading && (
             <p className="font-japanese text-xs text-muted">{sentence.reading}</p>

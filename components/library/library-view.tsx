@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useApp } from "@/components/providers/app-provider";
 import { AppGate, EmptyState } from "@/components/layout/empty-state";
@@ -24,16 +24,29 @@ import {
   type LibraryFilters,
 } from "@/lib/services/library-service";
 import { getActiveBatchIds } from "@/lib/services/batch-service";
-import { suggestRating, applyRating } from "@/lib/services/rating-service";
-import { retireSentence, shouldRetire } from "@/lib/services/batch-service";
+import { bulkApplySentenceRatings } from "@/lib/services/bulk-rating-service";
+import { suggestRating } from "@/lib/services/rating-service";
+import { BulkRateDialog } from "./bulk-rate-dialog";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { listItem, smoothTransition, staggerContainer } from "@/lib/motion";
 import { TranslateAllButton } from "./translate-all-button";
+import { cn } from "@/lib/utils";
+
+function formatLabel(key: string): string {
+  return key.replace(/_/g, " ");
+}
 
 export function LibraryView() {
-  const { dataset, progress, updateProgress, setProgress } = useApp();
+  const { dataset, progress, setProgress } = useApp();
   const [filters, setFilters] = useState<LibraryFilters>(defaultLibraryFilters);
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkDialogOpen, setBulkDialogOpen] = useState(false);
+  const [bulkDialogIds, setBulkDialogIds] = useState<string[]>([]);
+  const [bulkDialogLabel, setBulkDialogLabel] = useState<string | undefined>();
+  const [bulkLoading, setBulkLoading] = useState(false);
 
   const allSentences = useMemo(
     () => (dataset ? getLibrarySentences(dataset) : []),
@@ -56,9 +69,77 @@ export function LibraryView() {
   }, [filtered, progress, filters.groupBy, dataset]);
 
   const activeIds = useMemo(() => new Set(getActiveBatchIds(progress)), [progress]);
-
   const activeFilterCount = countActiveFilters(filters);
   const activeLabels = meta ? describeActiveFilters(filters, meta) : [];
+
+  const canSelect =
+    filters.sourceType === "island" ||
+    filters.islandKey !== null ||
+    filters.groupBy === "island";
+
+  const exitSelectionMode = useCallback(() => {
+    setSelectionMode(false);
+    setSelectedIds(new Set());
+  }, []);
+
+  const toggleSelect = useCallback((id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const openBulkDialog = useCallback((ids: string[], label?: string) => {
+    if (ids.length === 0) {
+      toast.error("No sentences to rate");
+      return;
+    }
+    setBulkDialogIds(ids);
+    setBulkDialogLabel(label);
+    setBulkDialogOpen(true);
+  }, []);
+
+  const applyBulkRating = useCallback(
+    async (rating: number) => {
+      if (!dataset || bulkDialogIds.length === 0) return;
+      setBulkLoading(true);
+      try {
+        const result = bulkApplySentenceRatings(dataset, progress, bulkDialogIds, rating);
+        await setProgress(result.progress);
+        toast.success(
+          `Rated ${result.updatedCount} sentence${result.updatedCount === 1 ? "" : "s"}`
+        );
+        exitSelectionMode();
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "Could not apply rating");
+      } finally {
+        setBulkLoading(false);
+      }
+    },
+    [dataset, progress, bulkDialogIds, setProgress, exitSelectionMode]
+  );
+
+  const handleRate = useCallback(
+    async (sentenceId: string, rating: number) => {
+      if (!dataset) return;
+      const result = bulkApplySentenceRatings(dataset, progress, [sentenceId], rating);
+      await setProgress(result.progress);
+      toast.success(`Rated ${rating} stars`);
+    },
+    [dataset, progress, setProgress]
+  );
+
+  const handleRateEntireFilteredIsland = useCallback(() => {
+    if (!dataset || !filters.islandKey) return;
+    const island = dataset.islands[filters.islandKey];
+    if (!island) return;
+    openBulkDialog(
+      island.sentences.map((s) => s.id),
+      formatLabel(filters.islandKey)
+    );
+  }, [dataset, filters.islandKey, openBulkDialog]);
 
   const defaultProgress = (sentenceId: string) => ({
     sentenceId,
@@ -75,24 +156,34 @@ export function LibraryView() {
     sourceKey: "",
   });
 
-  const handleRate = async (sentenceId: string, rating: number) => {
-    if (!dataset) return;
-    const sp = progress.sentences[sentenceId];
-    const updated = applyRating(sp ?? defaultProgress(sentenceId), rating);
-    await updateProgress(sentenceId, updated);
-    if (shouldRetire(rating)) {
-      await setProgress(retireSentence(dataset, progress, sentenceId));
-    }
-    toast.success(`Rated ${rating} stars`);
-  };
-
   return (
     <AppGate>
-      <PageShell>
+      <PageShell className={cn(selectionMode && selectedIds.size > 0 && "pb-24")}>
         <PageHeader
           title="Library"
           subtitle={`${filtered.length} of ${allSentences.length} sentences`}
-          action={<TranslateAllButton />}
+          action={
+            <div className="flex items-center gap-2">
+              {canSelect && (
+                <Button
+                  variant={selectionMode ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => {
+                    if (selectionMode) exitSelectionMode();
+                    else setSelectionMode(true);
+                  }}
+                >
+                  {selectionMode ? "Done" : "Select"}
+                </Button>
+              )}
+              {filters.islandKey && !selectionMode && (
+                <Button variant="outline" size="sm" onClick={handleRateEntireFilteredIsland}>
+                  Rate island
+                </Button>
+              )}
+              {!selectionMode && <TranslateAllButton />}
+            </div>
+          }
         />
 
         <div className="sticky top-0 z-10 -mx-4 mb-3 bg-background/90 px-4 py-2 backdrop-blur-xl">
@@ -131,46 +222,105 @@ export function LibraryView() {
             key={`${filters.groupBy}-${filtered.length}-${filters.search}`}
           >
             <AnimatePresence mode="popLayout">
-              {groups.map((group) => (
-                <motion.section
-                  key={group.key}
-                  layout
-                  variants={listItem}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
-                  transition={smoothTransition}
-                >
-                  {filters.groupBy !== "none" && (
-                    <div className="mb-1 flex items-baseline justify-between px-1">
-                      <h2 className="font-display text-sm font-semibold text-foreground">
-                        {group.label}
-                      </h2>
-                      <span className="text-xs tabular-nums text-muted">
-                        {group.sentences.length}
-                      </span>
-                    </div>
-                  )}
-                  <Card className="overflow-hidden px-2 py-0">
-                    {group.sentences.map((s) => {
-                      const sp = progress.sentences[s.id] ?? defaultProgress(s.id);
-                      return (
-                        <LibrarySentenceRow
-                          key={s.id}
-                          sentence={s}
-                          progress={progress.sentences[s.id]}
-                          isActive={activeIds.has(s.id)}
-                          suggestedRating={suggestRating(sp)}
-                          onRate={(r) => handleRate(s.id, r)}
-                        />
-                      );
-                    })}
-                  </Card>
-                </motion.section>
-              ))}
+              {groups.map((group) => {
+                const isIslandGroup =
+                  filters.groupBy === "island" && group.key !== "main-pathway";
+                const groupIslandIds = group.sentences
+                  .filter((s) => s.sourceType === "island")
+                  .map((s) => s.id);
+
+                return (
+                  <motion.section
+                    key={group.key}
+                    layout
+                    variants={listItem}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    transition={smoothTransition}
+                  >
+                    {filters.groupBy !== "none" && (
+                      <div className="mb-1 flex items-baseline justify-between gap-2 px-1">
+                        <h2 className="font-display text-sm font-semibold text-foreground">
+                          {group.label}
+                        </h2>
+                        <div className="flex items-center gap-2">
+                          {isIslandGroup && groupIslandIds.length > 0 && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 px-2 text-xs"
+                              onClick={() =>
+                                openBulkDialog(groupIslandIds, formatLabel(group.key))
+                              }
+                            >
+                              Rate all
+                            </Button>
+                          )}
+                          <span className="text-xs tabular-nums text-muted">
+                            {group.sentences.length}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                    <Card className="overflow-hidden px-2 py-0">
+                      {group.sentences.map((s) => {
+                        const sp = progress.sentences[s.id] ?? defaultProgress(s.id);
+                        const isSelectable = s.sourceType === "island";
+                        return (
+                          <LibrarySentenceRow
+                            key={s.id}
+                            sentence={s}
+                            progress={progress.sentences[s.id]}
+                            isActive={activeIds.has(s.id)}
+                            suggestedRating={suggestRating(sp)}
+                            onRate={(r) => handleRate(s.id, r)}
+                            selectionMode={selectionMode && canSelect}
+                            selectable={isSelectable}
+                            selected={selectedIds.has(s.id)}
+                            onToggleSelect={() => toggleSelect(s.id)}
+                          />
+                        );
+                      })}
+                    </Card>
+                  </motion.section>
+                );
+              })}
             </AnimatePresence>
           </motion.div>
         )}
+
+        {selectionMode && selectedIds.size > 0 && (
+          <div className="fixed inset-x-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-30 mx-auto max-w-lg px-4 md:bottom-6">
+            <Card className="flex items-center gap-2 border-foreground/20 p-3 shadow-lg">
+              <span className="flex-1 text-sm font-medium tabular-nums">
+                {selectedIds.size} selected
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSelectedIds(new Set())}
+              >
+                Clear
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => openBulkDialog([...selectedIds])}
+              >
+                Rate
+              </Button>
+            </Card>
+          </div>
+        )}
+
+        <BulkRateDialog
+          open={bulkDialogOpen}
+          onOpenChange={setBulkDialogOpen}
+          sentenceCount={bulkDialogIds.length}
+          label={bulkDialogLabel}
+          loading={bulkLoading}
+          onConfirm={applyBulkRating}
+        />
       </PageShell>
     </AppGate>
   );
