@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
 import "@fontsource/red-hat-display/400.css";
 import "@fontsource/red-hat-display/500.css";
@@ -69,6 +70,7 @@ export default function RootLayout({
             <Toaster />
           </AppProvider>
         </AuthProvider>
+        <Analytics />
       </body>
     </html>
   );
