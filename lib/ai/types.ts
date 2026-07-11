@@ -56,3 +56,12 @@ export interface IslandSuggestion {
   theme: string;
   reason: string;
 }
+
+export interface SentenceReviewResult {
+  correctedEnglish: string;
+  grammarNotes: string[];
+  toneQuestions: string[];
+  suggestedRegister: "casual" | "polite" | "formal";
+  suggestedContextNotes?: string;
+  hasIssues: boolean;
+}

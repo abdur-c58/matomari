@@ -19,7 +19,7 @@ export function IslandPicker({
     return (
       <EmptyState
         title="No islands yet"
-        description="Create one with AI below, or import islands with your dataset later."
+        description="Create one with AI or manually below, or import islands with your dataset later."
       />
     );
   }

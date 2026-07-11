@@ -1,5 +1,6 @@
 import type { SentenceProgress, UserProgress } from "@/types/progress";
 import { DEFAULT_PROGRESS, getDB } from "./index";
+import { DEFAULT_DIALECT } from "@/lib/constants/dialect";
 
 const PROGRESS_KEY = "main";
 
@@ -7,7 +8,15 @@ export async function getProgress(): Promise<UserProgress> {
   try {
     const db = await getDB();
     const progress = await db.get("progress", PROGRESS_KEY);
-    return progress ?? { ...DEFAULT_PROGRESS };
+    if (!progress) return { ...DEFAULT_PROGRESS };
+    return {
+      ...progress,
+      settings: {
+        batchSize: progress.settings?.batchSize ?? DEFAULT_PROGRESS.settings.batchSize,
+        dialect: progress.settings?.dialect ?? DEFAULT_DIALECT,
+        dialectChosen: progress.settings?.dialectChosen ?? false,
+      },
+    };
   } catch {
     return { ...DEFAULT_PROGRESS };
   }

@@ -67,10 +67,13 @@ export function getDB() {
   return dbPromise;
 }
 
+import type { Dialect } from "@/lib/constants/dialect";
+import { DEFAULT_DIALECT } from "@/lib/constants/dialect";
+
 export const DEFAULT_PROGRESS: UserProgress = {
   sentences: {},
   batchConfig: null,
-  settings: { batchSize: 25 },
+  settings: { batchSize: 25, dialect: DEFAULT_DIALECT, dialectChosen: false },
   completedPathwayBatches: [],
 };
 

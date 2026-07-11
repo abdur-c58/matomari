@@ -85,10 +85,12 @@ export function AppGate({ children }: { children: React.ReactNode }) {
   if (!dataset) {
     return (
       <EmptyState
-        title="No dataset yet"
-        description="Import your Japanese sentence library to begin studying."
-        actionHref="/import"
-        actionLabel="Import JSON"
+        title="Pathway unavailable"
+        description="The shared main pathway could not be loaded. Check your connection and try again, or ask an admin to publish the pathway."
+        actionLabel="Retry"
+        onAction={() => refresh()}
+        icon={AlertCircle}
+        variant="error"
       />
     );
   }

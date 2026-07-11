@@ -1,3 +1,5 @@
+import type { Dialect } from "@/lib/constants/dialect";
+
 export type Register = "casual" | "polite" | "formal";
 
 export interface SeedSentence {
@@ -40,4 +42,13 @@ export interface Dataset {
     batches: PathwayBatch[];
   };
   islands: Record<string, Island>;
+}
+
+export type SentenceDialectTranslations = Partial<Record<Dialect, TranslatedFields>>;
+
+/** Per-user library stored locally and synced — islands only; pathway is public. */
+export interface UserLibrary {
+  islands: Record<string, Island>;
+  /** User-specific translations keyed by sentence id, then dialect. */
+  sentenceTranslations?: Record<string, SentenceDialectTranslations>;
 }

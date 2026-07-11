@@ -36,6 +36,7 @@ import { toast } from "sonner";
 import { Map, Compass } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CreateIslandDialog } from "@/components/ai/create-island-dialog";
+import { CreateManualIslandDialog } from "@/components/islands/create-manual-island-dialog";
 import { AskButton } from "@/components/ai/ask-button";
 import {
   MIN_BATCH_SIZE,
@@ -90,7 +91,7 @@ export function BatchSelector() {
     const result = initializeBatch(
       dataset,
       { ...config, batchSize },
-      { ...progress, settings: { batchSize } }
+      { ...progress, settings: { ...progress.settings, batchSize } }
     );
     await setProgress(result.progress);
     toast.success(`Batch started with ${result.config.activeSentenceIds.length} sentences`);
@@ -190,8 +191,14 @@ export function BatchSelector() {
           </TabsContent>
 
           <TabsContent value="island" className="space-y-4">
-            <div className="mb-4">
+            <div className="mb-4 space-y-0">
               <CreateIslandDialog
+                onCreated={(key) => {
+                  setIslandKey(key);
+                  setSourceType("island");
+                }}
+              />
+              <CreateManualIslandDialog
                 onCreated={(key) => {
                   setIslandKey(key);
                   setSourceType("island");

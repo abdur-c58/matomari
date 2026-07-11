@@ -16,6 +16,7 @@ import { TranslationProgress } from "@/components/layout/translation-progress";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
+import { useRequireDialectBeforeTranslate } from "@/hooks/use-require-dialect";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -40,6 +41,7 @@ async function readJsonFiles(
 
 export function ImportScreen() {
   const { importDatasets, translateAllUntranslated } = useApp();
+  const requireDialect = useRequireDialectBeforeTranslate();
   const router = useRouter();
   const [paste, setPaste] = useState("");
   const [phase, setPhase] = useState<ImportPhase>("idle");
@@ -53,11 +55,9 @@ export function ImportScreen() {
     (meta: ImportMeta, translatedCount: number) => {
       const filePart = meta.fileCount > 1 ? ` from ${meta.fileCount} files` : "";
       if (translatedCount > 0) {
-        toast.success(
-          `Imported ${meta.batchCount} batches, ${meta.islandCount} islands${filePart} — translated ${translatedCount} sentences`
-        );
+        toast.success(`Imported ${meta.islandCount} island${meta.islandCount === 1 ? "" : "s"}${filePart} — translated ${translatedCount} sentences`);
       } else {
-        toast.success(`Imported ${meta.batchCount} batches, ${meta.islandCount} islands${filePart}`);
+        toast.success(`Imported ${meta.islandCount} island${meta.islandCount === 1 ? "" : "s"}${filePart}`);
       }
       router.push("/");
     },
@@ -66,6 +66,8 @@ export function ImportScreen() {
 
   const runTranslation = useCallback(
     async (meta: ImportMeta) => {
+      if (!requireDialect()) return;
+
       setTranslateError(null);
       setPhase("translating");
 
@@ -85,7 +87,7 @@ export function ImportScreen() {
         setPhase("translating");
       }
     },
-    [translateAllUntranslated, finishImport]
+    [translateAllUntranslated, finishImport, requireDialect]
   );
 
   const handleImportPayloads = useCallback(
@@ -175,7 +177,7 @@ export function ImportScreen() {
   if (phase === "translating" || phase === "importing") {
     return (
       <PageShell>
-        <PageHeader title="Import" subtitle="Load your sentence dataset" backHref="/settings" />
+        <PageHeader title="Import" subtitle="Add personal language islands" backHref="/settings" />
         <TranslationProgress
           completed={translateProgress.completed}
           total={translateProgress.total}
@@ -194,7 +196,7 @@ export function ImportScreen() {
 
   return (
     <PageShell>
-      <PageHeader title="Import" subtitle="Load your sentence dataset" backHref="/settings" />
+      <PageHeader title="Import" subtitle="Add personal language islands" backHref="/settings" />
 
       <Card
         className={cn(
@@ -244,7 +246,7 @@ export function ImportScreen() {
       </div>
 
       <Textarea
-        placeholder='{"main_pathway": {...}, "islands": {...}} or a single island object'
+        placeholder='{"islands": {...}} or a single island object'
         value={paste}
         onChange={(e) => setPaste(e.target.value)}
         className="min-h-[160px] text-sm"

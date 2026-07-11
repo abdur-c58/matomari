@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { Download, Upload, Cloud, BookOpen, RefreshCw } from "lucide-react";
+import { Download, Upload, Cloud, BookOpen, RefreshCw, SlidersHorizontal } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useApp } from "@/components/providers/app-provider";
 import { PageShell } from "@/components/layout/page-shell";
@@ -22,6 +22,11 @@ import {
   MIN_BATCH_SIZE,
   MAX_BATCH_SIZE,
 } from "@/lib/constants/study";
+import {
+  APP_NAME,
+  EXPORT_FILENAME,
+} from "@/lib/constants/branding";
+import { getDialectLabel } from "@/lib/constants/dialect";
 import { toast } from "sonner";
 
 function formatManualSyncToast(result: ManualSyncResult) {
@@ -77,7 +82,7 @@ export function SettingsScreen() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "shima-dataset.json";
+    a.download = EXPORT_FILENAME;
     a.click();
     toast.success("Dataset exported");
   };
@@ -115,6 +120,25 @@ export function SettingsScreen() {
       <PageHeader title="Settings" backHref="/" />
 
       <AccountCard />
+
+      <Card className="mb-6 p-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <SlidersHorizontal className="h-5 w-5 shrink-0 text-foreground" />
+            <div>
+              <p className="font-medium">Preferences</p>
+              <p className="text-sm text-muted">
+                {progress.settings.dialectChosen
+                  ? `${getDialectLabel(progress.settings.dialect)} dialect`
+                  : "Choose a Japanese dialect before translating"}
+              </p>
+            </div>
+          </div>
+        </div>
+        <Button className="mt-4 w-full" variant="secondary" asChild>
+          <Link href="/settings/preferences">Open preferences</Link>
+        </Button>
+      </Card>
 
       <Card className="mb-6 p-4">
         <div className="flex items-start justify-between gap-3">
@@ -163,7 +187,7 @@ export function SettingsScreen() {
           onValueChange={async ([v]) => {
             await setProgress({
               ...progress,
-              settings: { batchSize: v },
+              settings: { ...progress.settings, batchSize: v },
             });
           }}
         />
@@ -181,7 +205,7 @@ export function SettingsScreen() {
         />
         <Button variant="secondary" className="w-full justify-start" asChild>
           <Link href="/guide">
-            <BookOpen className="mr-2 h-5 w-5" /> How to use Shima
+            <BookOpen className="mr-2 h-5 w-5" /> How to use {APP_NAME}
           </Link>
         </Button>
       </section>

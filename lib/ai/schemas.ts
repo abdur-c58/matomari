@@ -1,5 +1,20 @@
 import { z } from "zod";
 import { islandSchema, seedSentenceSchema, sentenceSchema } from "@/lib/validation/dataset-schema";
+import {
+  DEFAULT_ISLAND_FLUENCY_LEVEL,
+  DEFAULT_ISLAND_JLPT_LEVEL,
+  DEFAULT_ISLAND_LEVEL_MODE,
+} from "@/lib/constants/island-generation";
+
+const islandLevelModeSchema = z.enum(["fluency", "jlpt"]);
+const islandFluencyLevelSchema = z.enum([
+  "beginner",
+  "elementary",
+  "intermediate",
+  "upper_intermediate",
+  "advanced",
+]);
+const islandJlptLevelSchema = z.enum(["N5", "N4", "N3", "N2", "N1"]);
 
 const tutorContextSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("general") }),
@@ -70,6 +85,10 @@ export const islandRequestSchema = z.object({
   theme: z.string().min(2).max(200),
   sentenceCount: z.number().int().min(5).max(75).optional(),
   difficultyRange: z.tuple([z.number(), z.number()]).optional(),
+  levelMode: islandLevelModeSchema.optional().default(DEFAULT_ISLAND_LEVEL_MODE),
+  fluencyLevel: islandFluencyLevelSchema.optional().default(DEFAULT_ISLAND_FLUENCY_LEVEL),
+  jlptLevel: islandJlptLevelSchema.optional().default(DEFAULT_ISLAND_JLPT_LEVEL),
+  extraInstructions: z.string().max(500).optional(),
   sentenceCatalog: z.array(sentenceSchema),
   existingIslandKeys: z.array(z.string()).optional(),
 });
@@ -84,6 +103,7 @@ export const islandGenerationResponseSchema = z.object({
 
 export const translateRequestSchema = z.object({
   sentences: z.array(seedSentenceSchema).min(1).max(30),
+  dialect: z.enum(["standard", "kansai"]).optional().default("standard"),
 });
 
 export const translateResponseSchema = z.object({
@@ -115,6 +135,22 @@ export const islandSuggestionsResponseSchema = z.object({
 
 export const islandPreviewSchema = islandGenerationResponseSchema.extend({
   newCount: z.number(),
+});
+
+export const sentenceReviewRequestSchema = z.object({
+  english: z.string().min(1).max(500),
+  register: z.enum(["casual", "polite", "formal"]).optional(),
+  contextNotes: z.string().max(300).optional(),
+  islandName: z.string().max(120).optional(),
+});
+
+export const sentenceReviewResponseSchema = z.object({
+  correctedEnglish: z.string().min(1),
+  grammarNotes: z.array(z.string()).max(4),
+  toneQuestions: z.array(z.string()).max(3),
+  suggestedRegister: z.enum(["casual", "polite", "formal"]),
+  suggestedContextNotes: z.string().optional(),
+  hasIssues: z.boolean(),
 });
 
 export type ChatRequest = z.infer<typeof chatRequestSchema>;

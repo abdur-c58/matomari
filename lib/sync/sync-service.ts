@@ -1,11 +1,18 @@
-import type { Dataset } from "@/types/sentence";
+import type { Dataset, UserLibrary } from "@/types/sentence";
 import type { UserProgress } from "@/types/progress";
 import type { AppStats } from "@/types/stats";
 import type { SyncTable } from "@/lib/repositories/types";
 import {
-  getDataset,
-  saveDataset,
+  getUserLibrary,
+  saveUserLibrary,
+  getComposedDataset,
 } from "@/lib/db/dataset-repository";
+import {
+  extractUserLibrary,
+  isLegacyFullDataset,
+  normalizeStoredLibrary,
+  resolveComposedDataset,
+} from "@/lib/services/shared-pathway-service";
 import {
   getProgress,
   saveProgress,
@@ -107,29 +114,39 @@ async function queuePush(table: SyncTable, payload: unknown) {
   });
 }
 
+function normalizeRemoteLibrary(payload: unknown): UserLibrary {
+  const library = normalizeStoredLibrary(payload);
+  if (library) return library;
+  if (isLegacyFullDataset(payload)) {
+    return extractUserLibrary(payload);
+  }
+  return { islands: {} };
+}
+
 export async function loadLocalSnapshot() {
-  const [dataset, progress, stats, lastSyncedAt] = await Promise.all([
-    getDataset(),
+  const [library, progress, stats, lastSyncedAt] = await Promise.all([
+    getUserLibrary(),
     getProgress(),
     getStats(),
     getMeta("lastSyncedAt"),
   ]);
-  return { dataset, progress, stats, lastSyncedAt };
+  const dataset = await getComposedDataset();
+  return { dataset, library, progress, stats, lastSyncedAt };
 }
 
 /** Force-queue the latest local dataset, progress, and stats for cloud upload. */
 export async function enqueueLocalSnapshot(): Promise<boolean> {
-  const [dataset, progress, stats] = await Promise.all([
-    getDataset(),
+  const [library, progress, stats] = await Promise.all([
+    getUserLibrary(),
     getProgress(),
     getStats(),
   ]);
 
   const now = new Date().toISOString();
 
-  if (dataset) {
+  if (library) {
     await setMeta("datasetUpdatedAt", now);
-    await queuePush("user_datasets", dataset);
+    await queuePush("user_datasets", library);
   }
 
   await setMeta("progressUpdatedAt", now);
@@ -138,7 +155,7 @@ export async function enqueueLocalSnapshot(): Promise<boolean> {
   await setMeta("statsUpdatedAt", now);
   await queuePush("user_stats", stats);
 
-  return Boolean(dataset);
+  return Boolean(library);
 }
 
 async function requireCloudSession() {
@@ -267,7 +284,7 @@ export async function pullRemoteIfNewer(): Promise<boolean> {
   if (remote.dataset) {
     const localUpdated = await getMeta("datasetUpdatedAt");
     if (!localUpdated || remote.dataset.updatedAt > localUpdated) {
-      await saveDataset(remote.dataset.data);
+      await saveUserLibrary(normalizeRemoteLibrary(remote.dataset.data));
       await setMeta("datasetUpdatedAt", remote.dataset.updatedAt);
       changed = true;
     }
@@ -353,11 +370,11 @@ export async function manualSync(): Promise<ManualSyncResult> {
 
   setSyncStatus("syncing", "Syncing library to cloud…");
 
-  const hasDataset = await enqueueLocalSnapshot();
+  const hasLibrary = await enqueueLocalSnapshot();
   const supabaseOk = await syncAll();
 
   const snapshot = await loadLocalSnapshot();
-  const audio = hasDataset
+  const audio = snapshot.dataset
     ? await syncAudioToCloud(snapshot.dataset)
     : emptyAudio;
 
@@ -399,15 +416,16 @@ async function persistWithSync(
 }
 
 export async function getDatasetSynced(): Promise<Dataset | null> {
-  return getDataset();
+  return getComposedDataset();
 }
 
 export async function saveDatasetSynced(data: Dataset): Promise<void> {
+  const library = extractUserLibrary(data);
   await persistWithSync(
     "user_datasets",
-    () => saveDataset(data),
+    () => saveUserLibrary(library),
     "datasetUpdatedAt",
-    data
+    library
   );
 }
 

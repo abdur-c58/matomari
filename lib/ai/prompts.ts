@@ -1,6 +1,7 @@
 import type { DatasetSummary, TutorContext } from "./types";
+import { APP_NAME } from "@/lib/constants/branding";
 
-const METHOD_SUMMARY = `Shima is a Japanese learning app using a three-step method:
+const METHOD_SUMMARY = `${APP_NAME} is a Japanese learning app using a three-step method:
 1. Batch learning (~20-25 sentences from a pathway or language island)
 2. Listen & shadow at native speed after confirming meanings
 3. Active recall from English prompts with honest self-rating (1-5 stars)
@@ -11,7 +12,7 @@ export function buildTutorSystemPrompt(
   summary: DatasetSummary
 ): string {
   const parts = [
-    `You are a helpful Japanese language tutor for the Shima app.`,
+    `You are a helpful Japanese language tutor for the ${APP_NAME} app.`,
     METHOD_SUMMARY,
     `Answer in clear English. Include Japanese with reading when helpful.`,
     `Be concise and practical. Do not invent sentences not in the user's dataset when discussing specific content.`,
@@ -76,7 +77,11 @@ export function buildIslandGenerationPrompt(
     difficulty: number;
     category: string;
     japanese?: string;
-  }>
+  }>,
+  options?: {
+    levelDescription: string;
+    extraInstructions?: string;
+  }
 ): string {
   const catalogJson = JSON.stringify(
     catalog.slice(0, 200).map((s) => ({
@@ -88,12 +93,17 @@ export function buildIslandGenerationPrompt(
     }))
   );
 
-  return `Generate a language island for the Shima Japanese learning app.
+  const extraBlock = options?.extraInstructions?.trim()
+    ? `\nUSER PREFERENCES (follow closely):\n${options.extraInstructions.trim()}\n`
+    : "";
+
+  return `Generate a language island for the ${APP_NAME} Japanese learning app.
 
 Theme: "${theme}"
 Target sentence count: ${sentenceCount}
+Target level: ${options?.levelDescription ?? "Intermediate fluency"}
 Difficulty range: ${difficultyRange[0]} to ${difficultyRange[1]} (1=easiest, 5=hardest)
-
+${extraBlock}
 EXISTING SENTENCE CATALOG (reuse by exact id when thematically appropriate):
 ${catalogJson || "[]"}
 
@@ -123,9 +133,10 @@ RULES:
 4. Set translated: false on all new sentences.
 5. NO duplicate english text within the island.
 6. NO duplicate ids within the island.
-7. Prefer reusing 20-40% of catalog entries when they fit the theme.
-8. New English sentences must be practical, natural phrases for the theme.
-9. subtopics array should list all subtopics used in sentences.`;
+7. Prefer reusing 20-40% of catalog entries when they fit the theme AND match the target level.
+8. New English sentences must be practical, natural phrases for the theme at the target level.
+9. subtopics array should list all subtopics used in sentences.
+10. Match grammar complexity, sentence length, and vocabulary to the target level — do not exceed it.`;
 }
 
 export function buildIslandSuggestionsPrompt(input: {
@@ -133,7 +144,7 @@ export function buildIslandSuggestionsPrompt(input: {
   pathwayBatchTitles: string[];
   pathwaySubtopics: string[];
 }): string {
-  return `Suggest language island themes for the Shima Japanese learning app.
+  return `Suggest language island themes for the ${APP_NAME} Japanese learning app.
 
 The user has a main pathway (core curriculum) and optional topic islands (~20–75 situational sentence sets).
 
@@ -171,9 +182,23 @@ export function buildTranslationPrompt(
     subtopic: string;
     tags: string[];
     context_notes?: string;
-  }>
+  }>,
+  dialect: "standard" | "kansai" = "standard"
 ): string {
+  const dialectBlock =
+    dialect === "kansai"
+      ? `DIALECT: Kansai (Osaka/Kyoto ben)
+- Use natural Kansai Japanese, not standard hyōjungo with a few regional words sprinkled in
+- Prefer common Kansai patterns where they fit: へん/ひん, せえへん, ちゃう, おる, なんでや, ほんま, あかん, めっちゃ, 〜やねん, 〜やで, 〜へん?, etc. as appropriate to register
+- Keep the register field in mind — casual Kansai fits casual; polite lines can use softer Kansai-business tone without full keigo breakdown
+- reading must reflect Kansai pronunciation (e.g. ない → へん/ひん readings where spoken that way)`
+      : `DIALECT: Standard Japanese (hyōjungo)
+- Tokyo-based neutral Japanese understandable nationwide
+- Avoid regional dialect markers unless the English clearly calls for them`;
+
   return `Translate these English sentences into natural Japanese for a casual-first language learning app.
+
+${dialectBlock}
 
 PHILOSOPHY:
 - Prefer natural spoken Japanese over textbook-stiff phrasing
@@ -199,4 +224,37 @@ Include an entry for EVERY sentence id below. Omit literal_note unless genuinely
 
 SENTENCES:
 ${JSON.stringify(sentences, null, 2)}`;
+}
+
+export function buildSentenceReviewPrompt(input: {
+  english: string;
+  register?: string;
+  contextNotes?: string;
+  islandName?: string;
+}): string {
+  const context = [
+    input.islandName ? `Island theme: ${input.islandName}` : null,
+    input.register ? `User-selected register: ${input.register}` : null,
+    input.contextNotes ? `User context notes: ${input.contextNotes}` : null,
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  return `Review this English sentence for a Japanese language-learning app. The learner will translate it to Japanese later.
+
+${context ? `${context}\n` : ""}
+SENTENCE:
+"${input.english}"
+
+Return JSON only:
+{
+  "correctedEnglish": "grammar-corrected version; if already fine, return the original unchanged",
+  "grammarNotes": ["0-2 brief bullets on grammar fixes, or empty if none"],
+  "toneQuestions": ["0-2 short questions ONLY if tone/register/situation is ambiguous — e.g. 'Is this spoken to a friend or coworker?'"],
+  "suggestedRegister": "casual" | "polite" | "formal",
+  "suggestedContextNotes": "optional one-line situational note for the translator, or omit",
+  "hasIssues": true if grammar or clarity needs attention, else false
+}
+
+Be concise. Skip toneQuestions when the sentence is clear. Do not over-correct natural spoken English.`;
 }

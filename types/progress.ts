@@ -32,8 +32,14 @@ export interface BatchConfig {
   activeSentenceIds: string[];
 }
 
+import type { Dialect } from "@/lib/constants/dialect";
+import { DEFAULT_DIALECT } from "@/lib/constants/dialect";
+
 export interface AppSettings {
   batchSize: number;
+  dialect: Dialect;
+  /** False until the user explicitly picks a dialect in Preferences. */
+  dialectChosen: boolean;
 }
 
 export interface UserProgress {

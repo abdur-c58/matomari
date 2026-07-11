@@ -12,6 +12,7 @@ import { AskButton } from "@/components/ai/ask-button";
 import { SentencePlayButton } from "@/components/audio/sentence-play-button";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { getDialectLabel } from "@/lib/constants/dialect";
 import { MotionCollapse } from "@/components/motion/motion-collapse";
 import { ChevronDown, Star } from "lucide-react";
 
@@ -40,10 +41,12 @@ export function LibrarySentenceRow({
   suggestedRating: number | null;
   onRate: (rating: number) => void;
 }) {
-  const { retranslateSentence } = useApp();
+  const { retranslateSentence, sentenceNeedsRetranslation, progress: userProgress } = useApp();
   const [expanded, setExpanded] = useState(false);
   const [retranslating, setRetranslating] = useState(false);
   const translated = isTranslated(sentence);
+  const showRetranslate = sentenceNeedsRetranslation(sentence.id);
+  const dialectLabel = getDialectLabel(userProgress.settings.dialect);
   const rating = progress?.rating ?? null;
 
   const handleRetranslate = async () => {
@@ -158,7 +161,7 @@ export function LibrarySentenceRow({
               size="sm"
             />
             <div className="flex gap-1">
-              {translated && (
+              {showRetranslate && (
                 <Button
                   variant="ghost"
                   size="sm"
@@ -166,7 +169,7 @@ export function LibrarySentenceRow({
                   disabled={retranslating}
                   onClick={handleRetranslate}
                 >
-                  Retranslate
+                  Re-translate ({dialectLabel})
                 </Button>
               )}
               <AskButton

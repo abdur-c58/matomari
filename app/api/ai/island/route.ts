@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
 import { getOpenAIClient, getOpenAIModel, isOpenAIConfigured } from "@/lib/ai/openai";
-import { openAIErrorResponse } from "@/lib/ai/errors";import { buildIslandGenerationPrompt } from "@/lib/ai/prompts";
+import { openAIErrorResponse } from "@/lib/ai/errors";
+import { buildIslandGenerationPrompt } from "@/lib/ai/prompts";
 import { islandRequestSchema, islandGenerationResponseSchema } from "@/lib/ai/schemas";
 import { resolveIslandSentences, slugifyIslandKey } from "@/lib/services/dataset-mutation-service";
+import {
+  formatIslandLevelPrompt,
+  resolveIslandDifficultyRange,
+} from "@/lib/constants/island-generation";
 import type { Sentence } from "@/types/sentence";
 
 export async function POST(request: Request) {
@@ -16,17 +21,29 @@ export async function POST(request: Request) {
     const {
       theme,
       sentenceCount = 20,
-      difficultyRange = [1, 3],
+      difficultyRange,
+      levelMode,
+      fluencyLevel,
+      jlptLevel,
+      extraInstructions,
       sentenceCatalog,
       existingIslandKeys = [],
     } = parsed;
+
+    const resolvedDifficulty =
+      difficultyRange ??
+      resolveIslandDifficultyRange({ levelMode, fluencyLevel, jlptLevel });
 
     const openai = getOpenAIClient();
     const prompt = buildIslandGenerationPrompt(
       theme,
       sentenceCount,
-      difficultyRange,
-      sentenceCatalog
+      resolvedDifficulty,
+      sentenceCatalog,
+      {
+        levelDescription: formatIslandLevelPrompt({ levelMode, fluencyLevel, jlptLevel }),
+        extraInstructions,
+      }
     );
 
     const completion = await openai.chat.completions.create({

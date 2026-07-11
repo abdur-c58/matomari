@@ -1,4 +1,5 @@
 import type { TodayPlanType } from "@/types/today";
+import { APP_NAME, METHOD_NAME } from "@/lib/constants/branding";
 
 export type GuideAccent = TodayPlanType | "neutral";
 
@@ -31,10 +32,10 @@ export interface GuideStarLevel {
 }
 
 export const methodGuideHero = {
-  title: "The Shima Method",
+  title: METHOD_NAME,
   subtitle: "How to learn Japanese with this app",
   intro:
-    "Shima is built on Natural Language Learning — practical Japanese through real sentences, not grammar tables. You stockpile useful phrases, train your mouth with shadowing, and force your brain to retrieve Japanese under pressure. No streaks or points — just sentences moving from new → confident → mastered.",
+    `${APP_NAME} is built on Natural Language Learning — practical Japanese through real sentences, not grammar tables. You stockpile useful phrases, train your mouth with shadowing, and force your brain to retrieve Japanese under pressure. No streaks or points — just sentences moving from new → confident → mastered.`,
 };
 
 export interface GuidePurposePillar {
@@ -45,7 +46,7 @@ export interface GuidePurposePillar {
 export const methodPurpose = {
   title: "What this app is for",
   intro:
-    "Most learners stall because they collect passive knowledge — they understand shows and apps but freeze when speaking. Shima targets the skills you actually need in conversation: knowing what sentences mean, saying them with native rhythm, and producing Japanese instantly from English prompts.",
+    `Most learners stall because they collect passive knowledge — they understand shows and apps but freeze when speaking. ${APP_NAME} targets the skills you actually need in conversation: knowing what sentences mean, saying them with native rhythm, and producing Japanese instantly from English prompts.`,
   pillars: [
     {
       title: "Knowledge",
@@ -89,7 +90,7 @@ export const brainLearning = {
     },
     {
       title: "Consistency over marathons",
-      body: "30–45 minutes of deliberate daily practice outpaces occasional long sessions. Shima’s Today plan is sized for that rhythm — meaning, shadow, recall, review.",
+      body: `30–45 minutes of deliberate daily practice outpaces occasional long sessions. ${APP_NAME}'s Today plan is sized for that rhythm — meaning, shadow, recall, review.`,
     },
   ] satisfies GuideBrainPoint[],
 };

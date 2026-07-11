@@ -2,7 +2,12 @@ import type { Dataset } from "@/types/sentence";
 import type { UserProgress } from "@/types/progress";
 import { buildDatasetSummary } from "./context-builder";
 import { buildFullSentenceCatalog } from "@/lib/services/dataset-mutation-service";
-import type { ChatMessage, IslandGenerationPreview, IslandSuggestion, TutorContext } from "./types";
+import type { ChatMessage, IslandGenerationPreview, IslandSuggestion, SentenceReviewResult, TutorContext } from "./types";
+import type {
+  IslandFluencyLevel,
+  IslandJlptLevel,
+  IslandLevelMode,
+} from "@/lib/constants/island-generation";
 
 export class AIClientError extends Error {
   constructor(
@@ -53,6 +58,10 @@ export async function generateIsland(
   options?: {
     sentenceCount?: number;
     difficultyRange?: [number, number];
+    levelMode?: IslandLevelMode;
+    fluencyLevel?: IslandFluencyLevel;
+    jlptLevel?: IslandJlptLevel;
+    extraInstructions?: string;
   }
 ): Promise<IslandGenerationPreview> {
   const res = await fetch("/api/ai/island", {
@@ -61,7 +70,11 @@ export async function generateIsland(
     body: JSON.stringify({
       theme,
       sentenceCount: options?.sentenceCount ?? 20,
-      difficultyRange: options?.difficultyRange ?? [1, 3],
+      difficultyRange: options?.difficultyRange,
+      levelMode: options?.levelMode,
+      fluencyLevel: options?.fluencyLevel,
+      jlptLevel: options?.jlptLevel,
+      extraInstructions: options?.extraInstructions?.trim() || undefined,
       sentenceCatalog: buildFullSentenceCatalog(dataset),
       existingIslandKeys: Object.keys(dataset.islands),
     }),
@@ -106,6 +119,34 @@ export async function fetchIslandSuggestions(
 
   const data = (await res.json()) as { suggestions: IslandSuggestion[] };
   return data.suggestions;
+}
+
+export async function reviewSentence(input: {
+  english: string;
+  register?: "casual" | "polite" | "formal";
+  contextNotes?: string;
+  islandName?: string;
+}): Promise<SentenceReviewResult> {
+  const res = await fetch("/api/ai/sentence-review", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      english: input.english,
+      register: input.register,
+      contextNotes: input.contextNotes?.trim() || undefined,
+      islandName: input.islandName?.trim() || undefined,
+    }),
+  });
+
+  if (res.status === 503) {
+    throw new AIClientError("AI is not configured", "NOT_CONFIGURED");
+  }
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: "Request failed" }));
+    throw new AIClientError(err.error ?? "Review failed", "REQUEST_FAILED");
+  }
+
+  return res.json();
 }
 
 export { buildSentenceCatalog } from "./context-builder";

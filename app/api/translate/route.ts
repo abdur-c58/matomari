@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getOpenAIClient, getOpenAIModel, isOpenAIConfigured } from "@/lib/ai/openai";
-import { openAIErrorResponse } from "@/lib/ai/errors";import { buildTranslationPrompt } from "@/lib/ai/prompts";
+import { openAIErrorResponse } from "@/lib/ai/errors";
+import { buildTranslationPrompt } from "@/lib/ai/prompts";
 import { translateRequestSchema, translateResponseSchema } from "@/lib/ai/schemas";
 
 export async function POST(request: Request) {
@@ -10,14 +11,14 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { sentences } = translateRequestSchema.parse(body);
+    const { sentences, dialect } = translateRequestSchema.parse(body);
 
     if (sentences.length === 0) {
       return NextResponse.json({ translations: {} });
     }
 
     const openai = getOpenAIClient();
-    const prompt = buildTranslationPrompt(sentences);
+    const prompt = buildTranslationPrompt(sentences, dialect);
 
     const completion = await openai.chat.completions.create({
       model: getOpenAIModel(),

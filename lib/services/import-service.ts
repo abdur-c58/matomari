@@ -174,7 +174,7 @@ export function isIslandOnlyImport(dataset: Dataset): boolean {
   );
 }
 
-/** Single or multi-file import with sensible replace vs merge rules. */
+/** Single or multi-file import — main pathway is public; imports add islands only. */
 export function resolveImportDataset(
   payloads: { json: unknown; fileName?: string }[],
   existing: Dataset | null
@@ -183,16 +183,29 @@ export function resolveImportDataset(
     throw new ImportError("No files to import");
   }
 
+  const baseIslands = existing?.islands ?? {};
+
   if (payloads.length > 1) {
-    return combineImportPayloads(payloads, existing);
+    let mergedIslands = { ...baseIslands };
+    for (const payload of payloads) {
+      const incoming = parseImportPayload(payload.json, payload.fileName);
+      const next = mergeDatasets(
+        emptyPathwayDataset(mergedIslands),
+        emptyPathwayDataset(incoming.islands),
+        payload.fileName
+      );
+      mergedIslands = next.islands;
+    }
+    return emptyPathwayDataset(mergedIslands);
   }
 
   const incoming = parseImportPayload(payloads[0].json, payloads[0].fileName);
-  if (existing && isIslandOnlyImport(incoming)) {
-    return mergeDatasets(existing, incoming, payloads[0].fileName);
+
+  if (existing) {
+    return mergeDatasets(existing, emptyPathwayDataset(incoming.islands), payloads[0].fileName);
   }
 
-  return incoming;
+  return emptyPathwayDataset(incoming.islands);
 }
 
 export function summarizeDataset(dataset: Dataset) {

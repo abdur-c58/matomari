@@ -10,7 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import { useSession } from "next-auth/react";
-import type { Dataset, Island } from "@/types/sentence";
+import type { Dataset, Island, UserLibrary } from "@/types/sentence";
 import type { SentenceProgress, UserProgress } from "@/types/progress";
 import type { AppStats } from "@/types/stats";
 import type { AudioSessionState } from "@/types/audio";
@@ -43,10 +43,15 @@ import {
   translateSentences,
   type TranslationProgressCallback,
 } from "@/lib/services/translation-service";
+import { needsRetranslationForDialect } from "@/lib/services/dialect-translation-service";
 import {
   clearUploadProgress,
   reportTranslationProgress,
 } from "@/lib/upload-progress";
+import {
+  preferencesPathWithReturn,
+  isDialectConfigured,
+} from "@/lib/utils/dialect-preferences";
 
 interface AppContextValue {
   dataset: Dataset | null;
@@ -71,6 +76,8 @@ interface AppContextValue {
     onProgress?: TranslationProgressCallback;
   }) => Promise<{ translatedCount: number; total: number }>;
   retranslateSentence: (sentenceId: string) => Promise<void>;
+  sentenceNeedsRetranslation: (sentenceId: string) => boolean;
+  isDialectConfigured: boolean;
   updateProgress: (
     sentenceId: string,
     update: Partial<SentenceProgress> | ((prev: SentenceProgress) => SentenceProgress)
@@ -96,10 +103,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("idle");
   const [syncStatusMessage, setSyncStatusMessage] = useState<string | null>(null);
   const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
+  const [userLibrary, setUserLibrary] = useState<UserLibrary | null>(null);
 
   const applyLocalSnapshot = useCallback(
     async (snapshot: Awaited<ReturnType<typeof loadLocalSnapshot>>) => {
       setDataset(snapshot.dataset);
+      setUserLibrary(snapshot.library);
       setProgressState(snapshot.progress);
       setStatsState(snapshot.stats);
       setLastSyncedAt(snapshot.lastSyncedAt);
@@ -132,6 +141,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
       const d = await getDatasetSynced();
       const p = await getProgressSynced();
+
+      if (d) {
+        setDataset(d);
+        const local = await loadLocalSnapshot();
+        setUserLibrary(local.library);
+
+        const hasStoredTranslations =
+          local.library?.sentenceTranslations &&
+          Object.keys(local.library.sentenceTranslations).length > 0;
+        if (hasStoredTranslations && !p.settings.dialectChosen) {
+          const updated = {
+            ...p,
+            settings: { ...p.settings, dialectChosen: true },
+          };
+          await saveProgressSynced(updated);
+          setProgressState(updated);
+        }
+      }
 
       if (d) {
         const allIds = Object.keys(p.sentences);
@@ -247,6 +274,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
       sentenceIds: string[],
       options?: { onProgress?: TranslationProgressCallback }
     ): Promise<{ translatedCount: number; total: number }> => {
+      if (!isDialectConfigured(progress.settings)) {
+        if (typeof window !== "undefined") {
+          window.location.assign(
+            preferencesPathWithReturn(window.location.pathname + window.location.search)
+          );
+        }
+        return { translatedCount: 0, total: 0 };
+      }
+
       let current = await getDatasetSynced();
       if (!current || sentenceIds.length === 0) {
         return { translatedCount: 0, total: 0 };
@@ -263,6 +299,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         await saveDatasetSynced(next);
         current = next;
         setDataset(next);
+        const snapshot = await loadLocalSnapshot();
+        setUserLibrary(snapshot.library);
       };
 
       const onProgress: TranslationProgressCallback = (completed, progressTotal) => {
@@ -274,6 +312,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const { translatedCount } = await translateSentences(current, untranslatedIds, {
           onProgress,
           persist,
+          dialect: progress.settings.dialect,
         });
 
         return { translatedCount, total };
@@ -282,7 +321,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         throw e;
       }
     },
-    []
+    [progress.settings]
   );
 
   const translateAllUntranslated = useCallback(
@@ -310,11 +349,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (!dataset) throw new Error("No dataset loaded");
       const { dataset: next } = await translateSentences(dataset, [sentenceId], {
         force: true,
+        dialect: progress.settings.dialect,
       });
       await saveDatasetSynced(next);
       setDataset(next);
+      const snapshot = await loadLocalSnapshot();
+      setUserLibrary(snapshot.library);
     },
-    [dataset]
+    [dataset, progress.settings.dialect]
+  );
+
+  const sentenceNeedsRetranslation = useCallback(
+    (sentenceId: string) =>
+      needsRetranslationForDialect(
+        sentenceId,
+        progress.settings.dialect,
+        userLibrary?.sentenceTranslations
+      ),
+    [progress.settings.dialect, userLibrary?.sentenceTranslations]
   );
 
   const updateProgress = useCallback(
@@ -329,9 +381,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
 
   const setProgress = useCallback(async (p: UserProgress) => {
+    const previousDialect = progress.settings.dialect;
     await saveProgressSynced(p);
     setProgressState(p);
-  }, []);
+
+    if (p.settings.dialect !== previousDialect) {
+      const d = await getDatasetSynced();
+      if (d) setDataset(d);
+    }
+  }, [progress.settings.dialect]);
 
   const setStats = useCallback(async (s: AppStats) => {
     await saveStatsSynced(s);
@@ -369,6 +427,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       translateSentenceIds,
       translateAllUntranslated,
       retranslateSentence,
+      sentenceNeedsRetranslation,
+      isDialectConfigured: isDialectConfigured(progress.settings),
       updateProgress,
       setProgress,
       setStats,
@@ -394,6 +454,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       translateSentenceIds,
       translateAllUntranslated,
       retranslateSentence,
+      sentenceNeedsRetranslation,
+      progress.settings.dialectChosen,
       updateProgress,
       setProgress,
       setStats,

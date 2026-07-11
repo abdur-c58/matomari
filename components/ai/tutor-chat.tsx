@@ -7,6 +7,7 @@ import { getContextLabel } from "@/lib/ai/context-builder";
 import type { ChatMessage, TutorContext } from "@/lib/ai/types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { METHOD_NAME } from "@/lib/constants/branding";
 import { cn } from "@/lib/utils";
 import { streamChat, AIClientError } from "@/lib/ai/ai-client";
 
@@ -64,7 +65,7 @@ export function TutorChat({
       <div ref={scrollRef} className="flex-1 overflow-y-auto scroll-touch px-4 py-4">
         {messages.length === 0 && !error && (
           <p className="text-sm text-muted">
-            Ask anything about Japanese, the Shima method, or this{" "}
+            Ask anything about Japanese, {METHOD_NAME.toLowerCase()}, or this{" "}
             {context.type === "sentence"
               ? "sentence"
               : context.type === "island"

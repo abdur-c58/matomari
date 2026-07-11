@@ -1,4 +1,4 @@
-import type { Dataset } from "@/types/sentence";
+import type { Dataset, UserLibrary } from "@/types/sentence";
 import type { SyncTable } from "@/lib/repositories/types";
 import { getAllSentences } from "@/lib/validation/dataset-schema";
 
@@ -54,15 +54,28 @@ export function describeDatasetPayload(payload: unknown): {
     return { sentenceCount: 0, islandCount: 0 };
   }
 
-  const dataset = payload as Dataset;
-  if (!dataset.main_pathway && !dataset.islands) {
+  const data = payload as Dataset | UserLibrary;
+  const islands = data.islands ?? {};
+
+  if (!("main_pathway" in data) && Object.keys(islands).length === 0) {
     return { sentenceCount: 0, islandCount: 0 };
   }
 
   try {
+    if ("main_pathway" in data) {
+      return {
+        sentenceCount: getAllSentences(data as Dataset).size,
+        islandCount: Object.keys(islands).length,
+      };
+    }
+
+    const islandSentences = Object.values(islands).reduce(
+      (n, island) => n + island.sentences.length,
+      0
+    );
     return {
-      sentenceCount: getAllSentences(dataset as Dataset).size,
-      islandCount: Object.keys(dataset.islands ?? {}).length,
+      sentenceCount: islandSentences,
+      islandCount: Object.keys(islands).length,
     };
   } catch {
     return { sentenceCount: 0, islandCount: 0 };

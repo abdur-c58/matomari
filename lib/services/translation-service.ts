@@ -6,6 +6,8 @@ import {
   needsTranslation,
   toSeedPayload,
 } from "@/lib/sentence-utils";
+import type { Dialect } from "@/lib/constants/dialect";
+import { DEFAULT_DIALECT } from "@/lib/constants/dialect";
 import { isValidKanaReading } from "@/lib/audio/tts-text";
 
 const BATCH_SIZE = 30;
@@ -14,6 +16,7 @@ export type TranslationProgressCallback = (completed: number, total: number) => 
 
 export interface TranslateOptions {
   force?: boolean;
+  dialect?: Dialect;
   onProgress?: TranslationProgressCallback;
   persist?: (dataset: Dataset) => Promise<void>;
 }
@@ -39,17 +42,18 @@ export function getUntranslatedIds(dataset: Dataset): string[] {
 
 export async function fetchTranslations(
   seeds: SeedSentence[],
-  options?: { onProgress?: TranslationProgressCallback }
+  options?: { dialect?: Dialect; onProgress?: TranslationProgressCallback }
 ): Promise<Record<string, TranslatedFields>> {
   const merged: Record<string, TranslatedFields> = {};
   const total = seeds.length;
+  const dialect = options?.dialect ?? DEFAULT_DIALECT;
 
   for (let i = 0; i < seeds.length; i += BATCH_SIZE) {
     const chunk = seeds.slice(i, i + BATCH_SIZE);
     const res = await fetch("/api/translate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sentences: chunk }),
+      body: JSON.stringify({ sentences: chunk, dialect }),
     });
 
     if (res.status === 503) {
@@ -150,7 +154,7 @@ export async function translateSentences(
 
   for (let i = 0; i < toTranslate.length; i += BATCH_SIZE) {
     const chunk = toTranslate.slice(i, i + BATCH_SIZE);
-    const translations = await fetchTranslations(chunk);
+    const translations = await fetchTranslations(chunk, { dialect: options?.dialect });
     validateTranslations(chunk, translations);
 
     current = mergeTranslations(current, translations);

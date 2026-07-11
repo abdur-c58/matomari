@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SHORTCUTS_DISMISS_KEY } from "@/lib/constants/branding";
 import { cn } from "@/lib/utils";
 
-const STORAGE_KEY = "shima-shortcuts-dismissed";
+const STORAGE_KEY = SHORTCUTS_DISMISS_KEY;
 
 export function ShortcutsHint({
   shortcuts,
