@@ -1,4 +1,5 @@
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata, Viewport } from "next";
 import "@fontsource/red-hat-display/400.css";
 import "@fontsource/red-hat-display/500.css";
@@ -71,6 +72,7 @@ export default function RootLayout({
           </AppProvider>
         </AuthProvider>
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
