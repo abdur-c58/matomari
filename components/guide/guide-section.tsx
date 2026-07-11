@@ -23,7 +23,7 @@ export function GuideSection({
   className?: string;
 }) {
   return (
-    <section className={cn("mb-8", className)}>
+    <section className={cn("mb-0", className)}>
       <div className="mb-4 flex items-start gap-3">
         <span
           className={cn("mt-1 h-8 w-1 shrink-0 rounded-full", accentStripe[accent])}

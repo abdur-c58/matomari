@@ -34,7 +34,108 @@ export const methodGuideHero = {
   title: "The Shima Method",
   subtitle: "How to learn Japanese with this app",
   intro:
-    "Shima follows a three-step loop: build a small batch of sentences, listen and shadow at native speed, then actively recall Japanese from English. No streaks, no points — just sentences moving from new → confident → mastered.",
+    "Shima is built on Natural Language Learning — practical Japanese through real sentences, not grammar tables. You stockpile useful phrases, train your mouth with shadowing, and force your brain to retrieve Japanese under pressure. No streaks or points — just sentences moving from new → confident → mastered.",
+};
+
+export interface GuidePurposePillar {
+  title: string;
+  description: string;
+}
+
+export const methodPurpose = {
+  title: "What this app is for",
+  intro:
+    "Most learners stall because they collect passive knowledge — they understand shows and apps but freeze when speaking. Shima targets the skills you actually need in conversation: knowing what sentences mean, saying them with native rhythm, and producing Japanese instantly from English prompts.",
+  pillars: [
+    {
+      title: "Knowledge",
+      description:
+        "Build a rolling batch of high-value sentences — your pathway batches and topic islands — so vocabulary and grammar arrive in context, not isolation.",
+    },
+    {
+      title: "Retrieval",
+      description:
+        "Active recall turns passive recognition into words you can say on demand. This is where fluency is won or lost.",
+    },
+    {
+      title: "Articulation",
+      description:
+        "Shadowing at native speed trains pronunciation, rhythm, and muscle memory so Japanese feels natural in your mouth.",
+    },
+  ] satisfies GuidePurposePillar[],
+};
+
+export interface GuideBrainPoint {
+  title: string;
+  body: string;
+}
+
+export const brainLearning = {
+  title: "How your brain learns best",
+  intro:
+    "Language learning is physiology, not magic. Your brain rewires through focused effort — what NLL calls “spaced stress.” Passive input alone (watching, reading without producing) stores words you recognize but cannot use. Deliberate difficulty is what moves them into active memory.",
+  points: [
+    {
+      title: "Effort triggers change",
+      body: "Neuroplasticity kicks in when you repeat material under focus in a short window — not when you passively binge content. Structured reps on a sentence list beat casual immersion for speaking skills.",
+    },
+    {
+      title: "Struggle is the signal",
+      body: "When shadowing makes you sweat to keep up, or active recall forces you to hunt for a word before revealing the answer — that friction is the workout. Easy review feels good; hard retrieval builds memory.",
+    },
+    {
+      title: "Active beats passive",
+      body: "Understanding a sentence and producing it from scratch use different brain pathways. You need both, but production practice is what stops you from going blank in real conversation.",
+    },
+    {
+      title: "Consistency over marathons",
+      body: "30–45 minutes of deliberate daily practice outpaces occasional long sessions. Shima’s Today plan is sized for that rhythm — meaning, shadow, recall, review.",
+    },
+  ] satisfies GuideBrainPoint[],
+};
+
+export interface GuideDifficultyStep {
+  step: string;
+  level: string;
+  accent: GuideAccent;
+  whatHappens: string;
+  whyItWorks: string;
+}
+
+export const difficultyLadder = {
+  title: "Each step adds difficulty",
+  description:
+    "The daily loop mirrors how NLL stacks exercises — each layer is harder than the last, so your brain keeps adapting.",
+  steps: [
+    {
+      step: "Meaning check",
+      level: "Understand",
+      accent: "meaning_check",
+      whatHappens: "Read English and Japanese until you can explain the meaning without guessing.",
+      whyItWorks: "Comprehensible input first — never shadow audio you do not understand.",
+    },
+    {
+      step: "Listen & shadow",
+      level: "Articulate",
+      accent: "listen_shadow",
+      whatHappens: "Repeat in rhythm with native audio at full speed until the phrase flows.",
+      whyItWorks: "Simultaneous listen-and-speak builds pronunciation and pattern recognition through focused reps.",
+    },
+    {
+      step: "Active recall",
+      level: "Produce",
+      accent: "active_recall",
+      whatHappens: "See English only, say Japanese aloud, then reveal and self-correct.",
+      whyItWorks: "Forces retrieval under pressure — the hardest step and the one that locks sentences into speech.",
+    },
+    {
+      step: "Review",
+      level: "Consolidate",
+      accent: "review",
+      whatHappens: "Retired sentences return on a spaced schedule before you forget them.",
+      whyItWorks: "Spacing repeats the struggle at the right moment so memory sticks long-term.",
+    },
+  ] satisfies GuideDifficultyStep[],
 };
 
 export const methodOverview = {

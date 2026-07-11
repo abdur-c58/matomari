@@ -5,11 +5,14 @@ import { motion } from "framer-motion";
 import { Star } from "lucide-react";
 import {
   antiPatterns,
+  brainLearning,
   dailyChecklist,
+  difficultyLadder,
   howToSections,
   masterySignals,
   methodGuideHero,
   methodOverview,
+  methodPurpose,
   starGuide,
 } from "@/lib/content/method-guide";
 import { PageShell } from "@/components/layout/page-shell";
@@ -23,13 +26,91 @@ import { cn } from "@/lib/utils";
 
 export function MethodGuide() {
   return (
-    <PageShell>
+    <PageShell className="px-5 pb-[max(7rem,calc(5.5rem+env(safe-area-inset-bottom)))] sm:px-6 md:px-8 md:pb-12 lg:max-w-3xl lg:px-10">
       <PageHeader title={methodGuideHero.title} subtitle="Method guide" backHref="/settings" />
 
-      <motion.div variants={staggerContainer} initial="hidden" animate="visible">
-        <motion.p variants={fadeUp} className="mb-8 text-base text-muted leading-relaxed">
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        animate="visible"
+        className="space-y-10"
+      >
+        <motion.p variants={fadeUp} className="text-base text-muted leading-relaxed">
           {methodGuideHero.intro}
         </motion.p>
+
+        <motion.div variants={fadeUp}>
+          <GuideSection title={methodPurpose.title}>
+            <p className="mb-5 text-sm text-muted leading-relaxed">{methodPurpose.intro}</p>
+            <div className="space-y-3">
+              {methodPurpose.pillars.map((pillar) => (
+                <Card key={pillar.title} variant="default" className="p-4 sm:p-5">
+                  <h3 className="font-display font-semibold text-foreground">{pillar.title}</h3>
+                  <p className="mt-1.5 text-sm text-muted leading-relaxed">
+                    {pillar.description}
+                  </p>
+                </Card>
+              ))}
+            </div>
+          </GuideSection>
+        </motion.div>
+
+        <motion.div variants={fadeUp}>
+          <GuideSection title={brainLearning.title} accent="active_recall">
+            <p className="mb-5 text-sm text-muted leading-relaxed">{brainLearning.intro}</p>
+            <div className="space-y-3">
+              {brainLearning.points.map((point) => (
+                <Card key={point.title} variant="default" className="p-4 sm:p-5">
+                  <h3 className="font-display text-sm font-semibold text-foreground">
+                    {point.title}
+                  </h3>
+                  <p className="mt-1.5 text-sm text-muted leading-relaxed">{point.body}</p>
+                </Card>
+              ))}
+            </div>
+          </GuideSection>
+        </motion.div>
+
+        <motion.div variants={fadeUp}>
+          <GuideSection
+            title={difficultyLadder.title}
+            description={difficultyLadder.description}
+            accent="listen_shadow"
+          >
+            <div className="space-y-3">
+              {difficultyLadder.steps.map((step, index) => (
+                <Card key={step.step} variant="default" className="overflow-hidden p-0">
+                  <div
+                    className={cn(
+                      "border-l-4 p-4 sm:p-5",
+                      step.accent === "meaning_check"
+                        ? "border-l-mode-meaning"
+                        : step.accent === "listen_shadow"
+                          ? "border-l-mode-listen"
+                          : step.accent === "active_recall"
+                            ? "border-l-mode-recall"
+                            : "border-l-mode-review"
+                    )}
+                  >
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-foreground/10 text-xs font-bold text-foreground">
+                        {index + 1}
+                      </span>
+                      <h3 className="font-display font-semibold text-foreground">{step.step}</h3>
+                      <Badge variant="secondary" className="text-xs">
+                        {step.level}
+                      </Badge>
+                    </div>
+                    <p className="mt-2 text-sm text-foreground leading-relaxed">
+                      {step.whatHappens}
+                    </p>
+                    <p className="mt-2 text-sm text-muted leading-relaxed">{step.whyItWorks}</p>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </GuideSection>
+        </motion.div>
 
         <motion.div variants={fadeUp}>
           <GuideSection title={methodOverview.title}>
@@ -184,9 +265,18 @@ export function MethodGuide() {
           </GuideSection>
         </motion.div>
 
-        <motion.div variants={fadeUp} className="pb-4">
-          <p className="text-center text-sm text-muted">
-            Ready to start?{" "}
+        <motion.div variants={fadeUp}>
+          <p className="text-center text-sm text-muted leading-relaxed">
+            Method inspired by{" "}
+            <a
+              href="https://www.nll.coach/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-foreground underline underline-offset-2"
+            >
+              Natural Language Learning
+            </a>
+            . Ready to start?{" "}
             <Link href="/" className="font-medium text-foreground underline underline-offset-2">
               Go to Today
             </Link>
