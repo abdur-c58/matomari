@@ -69,11 +69,17 @@ export function getDB() {
 
 import type { Dialect } from "@/lib/constants/dialect";
 import { DEFAULT_DIALECT } from "@/lib/constants/dialect";
+import { DEFAULT_NOTIFICATION_PREFERENCES } from "@/lib/constants/notifications";
 
 export const DEFAULT_PROGRESS: UserProgress = {
   sentences: {},
   batchConfig: null,
-  settings: { batchSize: 25, dialect: DEFAULT_DIALECT, dialectChosen: false },
+  settings: {
+    batchSize: 25,
+    dialect: DEFAULT_DIALECT,
+    dialectChosen: false,
+    notifications: { ...DEFAULT_NOTIFICATION_PREFERENCES, lastSent: {} },
+  },
   completedPathwayBatches: [],
 };
 

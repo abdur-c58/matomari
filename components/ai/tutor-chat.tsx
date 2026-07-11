@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Loader2, Send } from "lucide-react";
 import { useApp } from "@/components/providers/app-provider";
 import { getContextLabel } from "@/lib/ai/context-builder";
@@ -8,8 +9,12 @@ import type { ChatMessage, TutorContext } from "@/lib/ai/types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { METHOD_NAME } from "@/lib/constants/branding";
+import { fadeUp, smoothTransition } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { streamChat, AIClientError } from "@/lib/ai/ai-client";
+import { useVisualViewportScroll } from "@/hooks/use-visual-viewport-scroll";
+
+const MAX_INPUT_HEIGHT = 120;
 
 export interface TutorChatProps {
   context: TutorContext;
@@ -23,6 +28,57 @@ export interface TutorChatProps {
   className?: string;
   inputClassName?: string;
   showHeader?: boolean;
+  mobile?: boolean;
+}
+
+function adjustTextareaHeight(el: HTMLTextAreaElement | null) {
+  if (!el) return;
+  el.style.height = "auto";
+  el.style.height = `${Math.min(el.scrollHeight, MAX_INPUT_HEIGHT)}px`;
+}
+
+function ChatBubble({
+  message,
+  streaming,
+  isLast,
+}: {
+  message: ChatMessage;
+  streaming: boolean;
+  isLast: boolean;
+}) {
+  const reduceMotion = useReducedMotion();
+  const isUser = message.role === "user";
+  const showTyping =
+    !isUser && isLast && streaming && !message.content.trim();
+
+  return (
+    <motion.div
+      layout={!reduceMotion}
+      variants={reduceMotion ? undefined : fadeUp}
+      initial={reduceMotion ? false : "hidden"}
+      animate={reduceMotion ? undefined : "visible"}
+      transition={smoothTransition}
+      className={cn("flex", isUser ? "justify-end" : "justify-start")}
+    >
+      <div
+        className={cn(
+          "max-w-[88%] rounded-2xl px-3.5 py-2.5 text-[15px] leading-relaxed shadow-sm",
+          isUser
+            ? "rounded-br-md bg-cta text-cta-foreground"
+            : "rounded-bl-md bg-surface-raised text-foreground"
+        )}
+      >
+        {showTyping ? (
+          <span className="inline-flex items-center gap-1.5 text-muted">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span className="text-sm">Thinking…</span>
+          </span>
+        ) : (
+          <span className="whitespace-pre-wrap break-words">{message.content}</span>
+        )}
+      </div>
+    </motion.div>
+  );
 }
 
 export function TutorChat({
@@ -37,24 +93,53 @@ export function TutorChat({
   className,
   inputClassName,
   showHeader = true,
+  mobile = false,
 }: TutorChatProps) {
   const { dataset } = useApp();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const contextLabel = getContextLabel(context, dataset);
+
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior });
+  }, []);
 
   useEffect(() => {
     if (open) {
-      scrollRef.current?.scrollTo({
-        top: scrollRef.current.scrollHeight,
-        behavior: "smooth",
-      });
+      scrollToBottom(messages.length > 0 ? "smooth" : "auto");
     }
-  }, [messages, streaming, open]);
+  }, [messages, streaming, open, scrollToBottom]);
+
+  useVisualViewportScroll(scrollRef, open && mobile, [messages.length, streaming]);
+
+  useEffect(() => {
+    adjustTextareaHeight(inputRef.current);
+  }, [input]);
+
+  const handleInputChange = (value: string) => {
+    onInputChange(value);
+    requestAnimationFrame(() => adjustTextareaHeight(inputRef.current));
+  };
+
+  const handleSend = () => {
+    if (!input.trim() || streaming || !dataset) return;
+    onSend();
+    requestAnimationFrame(() => adjustTextareaHeight(inputRef.current));
+  };
+
+  const contextHint =
+    context.type === "sentence"
+      ? "sentence"
+      : context.type === "island"
+        ? "island"
+        : "topic";
 
   return (
     <div className={cn("flex min-h-0 flex-1 flex-col", className)}>
       {showHeader && (
-        <div className="border-b border-border px-4 pb-3 pt-2">
+        <div className="shrink-0 border-b border-border px-4 pb-3 pt-2">
           <p className="font-display text-lg font-semibold text-foreground">AI Tutor</p>
           <Badge variant="secondary" className="mt-1 w-fit">
             {contextLabel}
@@ -62,59 +147,88 @@ export function TutorChat({
         </div>
       )}
 
-      <div ref={scrollRef} className="flex-1 overflow-y-auto scroll-touch px-4 py-4">
+      <div
+        ref={scrollRef}
+        className="min-h-0 flex-1 overflow-y-auto overscroll-contain scroll-touch px-4 py-4"
+      >
         {messages.length === 0 && !error && (
-          <p className="text-sm text-muted">
-            Ask anything about Japanese, {METHOD_NAME.toLowerCase()}, or this{" "}
-            {context.type === "sentence"
-              ? "sentence"
-              : context.type === "island"
-                ? "island"
-                : "topic"}
-            .
-          </p>
+          <motion.p
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={smoothTransition}
+            className="text-sm leading-relaxed text-muted"
+          >
+            Ask anything about Japanese, {METHOD_NAME.toLowerCase()}, or this {contextHint}.
+          </motion.p>
         )}
         {error && (
-          <p className="rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          <motion.p
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-3 rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+          >
             {error}
-          </p>
+          </motion.p>
         )}
         <div className="space-y-3">
-          {messages.map((m, i) => (
-            <div
-              key={i}
-              className={cn(
-                "max-w-[90%] rounded-2xl px-3 py-2 text-sm leading-relaxed",
-                m.role === "user"
-                  ? "ml-auto bg-cta text-cta-foreground"
-                  : "bg-surface-raised text-foreground"
-              )}
-            >
-              {m.content ||
-                (streaming && i === messages.length - 1 ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : null)}
-            </div>
-          ))}
+          <AnimatePresence initial={false}>
+            {messages.map((m, i) => (
+              <ChatBubble
+                key={`msg-${i}`}
+                message={m}
+                streaming={streaming}
+                isLast={i === messages.length - 1}
+              />
+            ))}
+          </AnimatePresence>
         </div>
       </div>
 
-      <div className={cn("border-t border-border p-4 pb-[max(1rem,env(safe-area-inset-bottom))] lg:pb-4", inputClassName)}>
-        <div className="flex gap-2">
-          <input
-            type="text"
+      <div
+        className={cn(
+          "shrink-0 border-t border-border bg-surface",
+          mobile
+            ? "px-3 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]"
+            : "p-4 pb-[max(1rem,env(safe-area-inset-bottom))] lg:pb-4",
+          inputClassName
+        )}
+      >
+        <div
+          className={cn(
+            "flex items-end gap-2",
+            mobile && "rounded-2xl border border-border bg-surface-raised p-1.5 pl-3 shadow-sm"
+          )}
+        >
+          <textarea
+            ref={inputRef}
+            rows={1}
             value={input}
-            onChange={(e) => onInputChange(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && onSend()}
+            onChange={(e) => handleInputChange(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+              }
+            }}
             placeholder="Ask a question…"
             disabled={!dataset || streaming}
-            className="flex-1 rounded-xl border border-border bg-surface px-3 py-2.5 text-base text-foreground placeholder:text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/20 disabled:opacity-50"
+            enterKeyHint="send"
+            autoComplete="off"
+            autoCorrect="on"
+            spellCheck
+            className={cn(
+              "flex-1 resize-none bg-transparent text-base text-foreground placeholder:text-muted focus-visible:outline-none disabled:opacity-50",
+              mobile
+                ? "max-h-[120px] min-h-[2.75rem] py-2 leading-snug"
+                : "min-h-[2.75rem] rounded-xl border border-border bg-surface px-3 py-2.5 focus-visible:ring-2 focus-visible:ring-foreground/20"
+            )}
           />
           <Button
             size="icon"
-            onClick={onSend}
+            className={cn("mb-0.5 shrink-0", mobile && "h-10 w-10 rounded-xl")}
+            onClick={handleSend}
             disabled={!input.trim() || streaming || !dataset}
-            aria-label="Send"
+            aria-label="Send message"
           >
             {streaming ? (
               <Loader2 className="h-5 w-5 animate-spin" />
@@ -123,6 +237,11 @@ export function TutorChat({
             )}
           </Button>
         </div>
+        {mobile && (
+          <p className="mt-1.5 text-center text-[11px] text-muted">
+            Enter to send · Shift+Enter for new line
+          </p>
+        )}
       </div>
     </div>
   );

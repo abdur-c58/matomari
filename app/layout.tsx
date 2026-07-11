@@ -11,10 +11,12 @@ import "@fontsource/noto-serif-jp/600.css";
 import "./globals.css";
 import { AppProvider } from "@/components/providers/app-provider";
 import { AuthProvider } from "@/components/providers/auth-provider";
+import { AuthGate } from "@/components/auth/auth-gate";
 import { TutorProvider } from "@/components/ai/tutor-provider";
 import { MobileShell } from "@/components/layout/mobile-shell";
 import { Toaster } from "@/components/ui/sonner";
 import { UploadProgressBar } from "@/components/layout/upload-progress-bar";
+import { NotificationProvider } from "@/components/notifications/notification-provider";
 import {
   APP_DESCRIPTION,
   APP_FULL_TITLE,
@@ -63,13 +65,17 @@ export default function RootLayout({
     <html lang="en" className="antialiased">
       <body className="bg-background text-foreground">
         <AuthProvider>
-          <AppProvider>
-            <UploadProgressBar />
-            <TutorProvider>
-              <MobileShell>{children}</MobileShell>
-            </TutorProvider>
-            <Toaster />
-          </AppProvider>
+          <AuthGate>
+            <AppProvider>
+              <NotificationProvider>
+                <UploadProgressBar />
+                <TutorProvider>
+                  <MobileShell>{children}</MobileShell>
+                </TutorProvider>
+                <Toaster />
+              </NotificationProvider>
+            </AppProvider>
+          </AuthGate>
         </AuthProvider>
         <Analytics />
         <SpeedInsights />

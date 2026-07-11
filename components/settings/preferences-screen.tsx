@@ -10,6 +10,11 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { DIALECT_OPTIONS } from "@/lib/constants/dialect";
 import type { Dialect } from "@/lib/constants/dialect";
+import {
+  DEFAULT_NOTIFICATION_PREFERENCES,
+  type NotificationPreferences,
+} from "@/lib/constants/notifications";
+import { NotificationPreferencesSection } from "@/components/settings/notification-preferences-section";
 import { parseReturnTo } from "@/lib/utils/dialect-preferences";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -17,13 +22,17 @@ import { toast } from "sonner";
 export function PreferencesScreen() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { progress, setProgress, refresh } = useApp();
+  const { dataset, progress, setProgress, refresh } = useApp();
   const [dialect, setDialect] = useState<Dialect>(progress.settings.dialect);
+  const [notifications, setNotifications] = useState<NotificationPreferences>(
+    progress.settings.notifications ?? DEFAULT_NOTIFICATION_PREFERENCES
+  );
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     setDialect(progress.settings.dialect);
-  }, [progress.settings.dialect]);
+    setNotifications(progress.settings.notifications ?? DEFAULT_NOTIFICATION_PREFERENCES);
+  }, [progress.settings.dialect, progress.settings.notifications]);
 
   const returnTo = parseReturnTo(searchParams);
 
@@ -36,6 +45,7 @@ export function PreferencesScreen() {
           ...progress.settings,
           dialect,
           dialectChosen: true,
+          notifications,
         },
       });
       await refresh();
@@ -46,13 +56,13 @@ export function PreferencesScreen() {
     } finally {
       setSaving(false);
     }
-  }, [dialect, progress, returnTo, router, setProgress, refresh]);
+  }, [dialect, notifications, progress, returnTo, router, setProgress, refresh]);
 
   return (
     <PageShell>
       <PageHeader title="Preferences" backHref="/settings" />
 
-      <Card className="p-4">
+      <Card className="mb-6 p-4">
         <Label className="text-base">Japanese dialect</Label>
         <p className="mt-1 text-sm text-muted leading-relaxed">
           Choose how sentences are translated and spoken.
@@ -78,7 +88,19 @@ export function PreferencesScreen() {
         </div>
       </Card>
 
-      <Button className="mt-6 w-full" onClick={handleSave} loading={saving}>
+      <Card className="mb-6 p-4">
+        <Label className="text-base">Notifications</Label>
+        <p className="mt-1 mb-4 text-sm text-muted leading-relaxed">
+          Daily study nudges, review reminders, and optional per-island alerts.
+        </p>
+        <NotificationPreferencesSection
+          notifications={notifications}
+          onChange={setNotifications}
+          dataset={dataset}
+        />
+      </Card>
+
+      <Button className="w-full" onClick={handleSave} loading={saving}>
         Save preferences
       </Button>
     </PageShell>

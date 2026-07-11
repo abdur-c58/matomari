@@ -34,12 +34,14 @@ export interface BatchConfig {
 
 import type { Dialect } from "@/lib/constants/dialect";
 import { DEFAULT_DIALECT } from "@/lib/constants/dialect";
+import type { NotificationPreferences } from "@/lib/constants/notifications";
 
 export interface AppSettings {
   batchSize: number;
   dialect: Dialect;
   /** False until the user explicitly picks a dialect in Preferences. */
   dialectChosen: boolean;
+  notifications: NotificationPreferences;
 }
 
 export interface UserProgress {

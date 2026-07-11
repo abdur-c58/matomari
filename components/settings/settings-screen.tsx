@@ -27,6 +27,7 @@ import {
   EXPORT_FILENAME,
 } from "@/lib/constants/branding";
 import { getDialectLabel } from "@/lib/constants/dialect";
+import { summarizeNotificationPreferences } from "@/lib/notifications/notification-summary";
 import { toast } from "sonner";
 
 function formatManualSyncToast(result: ManualSyncResult) {
@@ -131,6 +132,8 @@ export function SettingsScreen() {
                 {progress.settings.dialectChosen
                   ? `${getDialectLabel(progress.settings.dialect)} dialect`
                   : "Choose a Japanese dialect before translating"}
+                {" · "}
+                {summarizeNotificationPreferences(progress.settings.notifications)}
               </p>
             </div>
           </div>

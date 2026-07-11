@@ -1,6 +1,8 @@
 import type { SentenceProgress, UserProgress } from "@/types/progress";
 import { DEFAULT_PROGRESS, getDB } from "./index";
 import { DEFAULT_DIALECT } from "@/lib/constants/dialect";
+import { clampBatchSize } from "@/lib/services/batch-service";
+import { normalizeNotificationPreferences } from "@/lib/notifications/notification-service";
 
 const PROGRESS_KEY = "main";
 
@@ -12,9 +14,10 @@ export async function getProgress(): Promise<UserProgress> {
     return {
       ...progress,
       settings: {
-        batchSize: progress.settings?.batchSize ?? DEFAULT_PROGRESS.settings.batchSize,
+        batchSize: clampBatchSize(progress.settings?.batchSize),
         dialect: progress.settings?.dialect ?? DEFAULT_DIALECT,
         dialectChosen: progress.settings?.dialectChosen ?? false,
+        notifications: normalizeNotificationPreferences(progress.settings?.notifications),
       },
     };
   } catch {

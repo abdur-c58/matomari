@@ -5,9 +5,36 @@ import type {
   SentenceProgress,
   UserProgress,
 } from "@/types/progress";
+import {
+  DEFAULT_BATCH_SIZE,
+  MAX_BATCH_SIZE,
+  MIN_BATCH_SIZE,
+} from "@/lib/constants/study";
 import { formatDateKey } from "@/lib/utils";
 import { markPathwayBatchCompleteAfterRetire } from "./study-focus-service";
 import { getAllSentences } from "@/lib/validation/dataset-schema";
+
+function getBatchSourceKey(config: Pick<BatchConfig, "sourceType" | "pathwayBatchNumber" | "islandKey">): string {
+  return config.sourceType === "pathway"
+    ? String(config.pathwayBatchNumber)
+    : config.islandKey ?? "";
+}
+
+export function clampBatchSize(size: number | undefined | null): number {
+  const n = Number(size);
+  if (!Number.isFinite(n)) return DEFAULT_BATCH_SIZE;
+  return Math.max(MIN_BATCH_SIZE, Math.min(MAX_BATCH_SIZE, Math.round(n)));
+}
+
+function matchesBatchSource(
+  sp: SentenceProgress,
+  config: Pick<BatchConfig, "sourceType" | "pathwayBatchNumber" | "islandKey">
+): boolean {
+  return (
+    sp.sourceType === config.sourceType &&
+    sp.sourceKey === getBatchSourceKey(config)
+  );
+}
 
 export function createDefaultSentenceProgress(
   sentenceId: string,
@@ -32,7 +59,10 @@ export function createDefaultSentenceProgress(
 
 export function getSentencesFromSource(
   dataset: Dataset,
-  config: BatchConfig
+  config: Pick<
+    BatchConfig,
+    "sourceType" | "pathwayBatchNumber" | "islandKey" | "subtopic"
+  >
 ): Sentence[] {
   if (config.sourceType === "pathway" && config.pathwayBatchNumber !== null) {
     const batch = dataset.main_pathway.batches.find(
@@ -58,13 +88,43 @@ export function getUnseenSentenceIds(
   config: BatchConfig,
   progress: UserProgress
 ): string[] {
-  const sourceSentences = getSentencesFromSource(dataset, config);
-  return sourceSentences
+  const activeSet = new Set(config.activeSentenceIds);
+  return getSentencesFromSource(dataset, config)
     .map((s) => s.id)
     .filter((id) => {
+      if (activeSet.has(id)) return false;
       const sp = progress.sentences[id];
-      return !sp || sp.batchStatus === "unseen";
+      if (!sp || sp.batchStatus === "unseen") return true;
+      // Active/retired from another mode (e.g. recall without a batch) — still available here.
+      if (sp.batchStatus === "active" && !matchesBatchSource(sp, config)) return true;
+      if (sp.batchStatus === "retired" && !matchesBatchSource(sp, config)) return true;
+      return false;
     });
+}
+
+/** Sentences eligible when the user explicitly starts or restarts a batch. */
+export function getBatchStarterCandidateIds(
+  dataset: Dataset,
+  config: Omit<BatchConfig, "activeSentenceIds">,
+  progress: UserProgress
+): string[] {
+  const sourceIds = getSentencesFromSource(dataset, config).map((s) => s.id);
+  const unseen: string[] = [];
+  const active: string[] = [];
+  const retired: string[] = [];
+
+  for (const id of sourceIds) {
+    const sp = progress.sentences[id];
+    if (!sp || sp.batchStatus === "unseen") {
+      unseen.push(id);
+    } else if (sp.batchStatus === "active") {
+      active.push(id);
+    } else if (sp.batchStatus === "retired") {
+      retired.push(id);
+    }
+  }
+
+  return [...unseen, ...active, ...retired];
 }
 
 export function initializeBatch(
@@ -72,12 +132,9 @@ export function initializeBatch(
   config: Omit<BatchConfig, "activeSentenceIds">,
   progress: UserProgress
 ): { config: BatchConfig; progress: UserProgress } {
-  const unseen = getUnseenSentenceIds(
-    dataset,
-    { ...config, activeSentenceIds: [] },
-    progress
-  );
-  const activeIds = unseen.slice(0, config.batchSize);
+  const batchSize = clampBatchSize(config.batchSize);
+  const candidates = getBatchStarterCandidateIds(dataset, config, progress);
+  const activeIds = candidates.slice(0, batchSize);
   const today = formatDateKey();
   const sentences = { ...progress.sentences };
 
@@ -104,8 +161,12 @@ export function initializeBatch(
   }
 
   return {
-    config: { ...config, activeSentenceIds: activeIds },
-    progress: { ...progress, batchConfig: { ...config, activeSentenceIds: activeIds }, sentences },
+    config: { ...config, batchSize, activeSentenceIds: activeIds },
+    progress: {
+      ...progress,
+      batchConfig: { ...config, batchSize, activeSentenceIds: activeIds },
+      sentences,
+    },
   };
 }
 

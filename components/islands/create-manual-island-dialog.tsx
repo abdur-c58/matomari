@@ -321,15 +321,17 @@ export function CreateManualIslandDialog({
           Create island manually
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[85dvh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Create island manually</DialogTitle>
-          <DialogDescription>
-            Name your island and add English sentences. Review each line with AI for grammar and
-            tone, or add directly.
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="grid-rows-[auto_minmax(0,1fr)] p-0 sm:p-0">
+        <div className="flex min-h-0 max-h-full flex-col overflow-hidden px-4 pt-4 sm:px-6 sm:pt-6">
+          <DialogHeader className="shrink-0 pr-10 text-left">
+            <DialogTitle>Create island manually</DialogTitle>
+            <DialogDescription>
+              Name your island and add English sentences. Review each line with AI for grammar and
+              tone, or add directly.
+            </DialogDescription>
+          </DialogHeader>
 
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-4 pt-3 sm:pb-6">
         {phase === "translating" ? (
           <TranslationProgress
             compact
@@ -394,7 +396,7 @@ export function CreateManualIslandDialog({
             </div>
 
             {sentences.length > 0 && (
-              <div className="max-h-36 space-y-2 overflow-y-auto rounded-xl border border-border p-3">
+              <div className="max-h-28 space-y-2 overflow-y-auto rounded-xl border border-border p-3 sm:max-h-36">
                 {sentences.map((s, index) => (
                   <div
                     key={s.id}
@@ -515,6 +517,8 @@ export function CreateManualIslandDialog({
             </Button>
           </div>
         )}
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );

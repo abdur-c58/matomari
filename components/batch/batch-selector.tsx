@@ -30,7 +30,15 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ActiveBatchList } from "./active-batch-list";
-import { getActiveBatchSentences, initializeBatch } from "@/lib/services/batch-service";
+import {
+  MIN_BATCH_SIZE,
+  MAX_BATCH_SIZE,
+} from "@/lib/constants/study";
+import {
+  clampBatchSize,
+  getActiveBatchSentences,
+  initializeBatch,
+} from "@/lib/services/batch-service";
 import type { BatchConfig } from "@/types/progress";
 import { toast } from "sonner";
 import { Map, Compass } from "lucide-react";
@@ -38,10 +46,6 @@ import { cn } from "@/lib/utils";
 import { CreateIslandDialog } from "@/components/ai/create-island-dialog";
 import { CreateManualIslandDialog } from "@/components/islands/create-manual-island-dialog";
 import { AskButton } from "@/components/ai/ask-button";
-import {
-  MIN_BATCH_SIZE,
-  MAX_BATCH_SIZE,
-} from "@/lib/constants/study";
 
 export function BatchSelector() {
   const searchParams = useSearchParams();
@@ -57,11 +61,20 @@ export function BatchSelector() {
       ? "island"
       : progress.batchConfig?.sourceType ?? "pathway";
 
-  const initialBatch = searchParams.get("batch")
-    ? Number(searchParams.get("batch"))
-    : progress.batchConfig?.pathwayBatchNumber ?? suggestedBatch;
+  const parsedBatchParam = searchParams.get("batch");
+  const parsedBatchNumber =
+    parsedBatchParam !== null ? Number(parsedBatchParam) : null;
 
-  const [batchSize, setBatchSize] = useState(progress.settings.batchSize);
+  const initialBatch =
+    parsedBatchNumber !== null &&
+    Number.isFinite(parsedBatchNumber) &&
+    parsedBatchNumber > 0
+      ? parsedBatchNumber
+      : progress.batchConfig?.pathwayBatchNumber ?? suggestedBatch;
+
+  const [batchSize, setBatchSize] = useState(
+    clampBatchSize(progress.settings.batchSize)
+  );
   const [pathwayBatch, setPathwayBatch] = useState(String(initialBatch));
   const [islandKey, setIslandKey] = useState(
     progress.batchConfig?.islandKey ?? Object.keys(dataset?.islands ?? {})[0] ?? ""
@@ -88,13 +101,39 @@ export function BatchSelector() {
 
   const applyBatch = async (config: Omit<BatchConfig, "activeSentenceIds">) => {
     if (!dataset) return;
+
+    const normalizedBatchSize = clampBatchSize(batchSize);
+    const pathwayBatchNumber =
+      config.sourceType === "pathway" ? Number(pathwayBatch) : null;
+
+    if (
+      config.sourceType === "pathway" &&
+      (!pathwayBatchNumber || Number.isNaN(pathwayBatchNumber))
+    ) {
+      toast.error("Select a valid pathway batch");
+      return;
+    }
+
     const result = initializeBatch(
       dataset,
-      { ...config, batchSize },
-      { ...progress, settings: { ...progress.settings, batchSize } }
+      {
+        ...config,
+        pathwayBatchNumber,
+        batchSize: normalizedBatchSize,
+      },
+      {
+        ...progress,
+        settings: { ...progress.settings, batchSize: normalizedBatchSize },
+      }
     );
     await setProgress(result.progress);
-    toast.success(`Batch started with ${result.config.activeSentenceIds.length} sentences`);
+
+    const count = result.config.activeSentenceIds.length;
+    if (count === 0) {
+      toast.error("No sentences available in this batch. Try another batch or island.");
+    } else {
+      toast.success(`Batch started with ${count} sentences`);
+    }
   };
 
   const formatLabel = (s: string) => s.replace(/_/g, " ");
@@ -157,7 +196,7 @@ export function BatchSelector() {
           max={MAX_BATCH_SIZE}
             step={1}
             value={[batchSize]}
-            onValueChange={([v]) => setBatchSize(v)}
+            onValueChange={([v]) => setBatchSize(clampBatchSize(v))}
           />
         </Card>
 
@@ -182,7 +221,7 @@ export function BatchSelector() {
                   pathwayBatchNumber: Number(pathwayBatch),
                   islandKey: null,
                   subtopic: null,
-                  batchSize,
+                  batchSize: clampBatchSize(batchSize),
                 })
               }
             >
@@ -245,7 +284,7 @@ export function BatchSelector() {
                     pathwayBatchNumber: null,
                     islandKey,
                     subtopic: subtopic === "all" ? null : subtopic,
-                    batchSize,
+                    batchSize: clampBatchSize(batchSize),
                   })
                 }
                 disabled={!islandKey}
