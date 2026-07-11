@@ -1,26 +1,453 @@
 @import "tailwindcss";
 
+/*
+ * Visual rules:
+ * - 90% of UI is black, white, and gray
+ * - Color appears only on mode icons, guide stripes, Today accents, weak warnings, stars
+ * - No colored gradients on buttons or page backgrounds
+ * - Dark mode uses true black (#000)
+ */
+
 :root {
   --background: #ffffff;
-  --foreground: #171717;
-}
+  --surface: #ffffff;
+  --surface-raised: #f5f5f5;
+  --border: #e5e5e5;
+  --border-subtle: #f5f5f5;
+  --foreground: #000000;
+  --muted: #737373;
+  --cta: #000000;
+  --cta-foreground: #ffffff;
+  --ring: #000000;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Feature accents — modes and semantic states only */
+  --mode-meaning: #3b82f6;
+  --mode-listen: #8b5cf6;
+  --mode-recall: #f59e0b;
+  --mode-review: #10b981;
+  --mode-weak: #ef4444;
+
+  --success: var(--mode-review);
+  --warning: var(--mode-recall);
+  --destructive: var(--mode-weak);
+
+  /* Legacy aliases */
+  --primary: var(--cta);
+  --primary-hover: var(--foreground);
+  --accent: var(--mode-listen);
+  --ink: var(--foreground);
+  --paper: var(--background);
+  --mist: var(--border-subtle);
+  --sage: var(--cta);
+  --amber: var(--warning);
+  --coral: var(--destructive);
+
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+  --shadow-md: 0 4px 12px -2px rgb(0 0 0 / 0.08);
+  --shadow-lg: 0 12px 24px -4px rgb(0 0 0 / 0.1);
+
+  --scrollbar-size: 6px;
+  --scrollbar-thumb: color-mix(in srgb, var(--foreground) 16%, transparent);
+  --scrollbar-thumb-hover: color-mix(in srgb, var(--foreground) 28%, transparent);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #000000;
+    --surface: #0a0a0a;
+    --surface-raised: #141414;
+    --border: #262626;
+    --border-subtle: #141414;
+    --foreground: #ffffff;
+    --muted: #a3a3a3;
+    --cta: #ffffff;
+    --cta-foreground: #000000;
+    --ring: #ffffff;
+
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.4);
+    --shadow-md: 0 4px 12px -2px rgb(0 0 0 / 0.5);
+    --shadow-lg: 0 12px 24px -4px rgb(0 0 0 / 0.6);
+
+    --scrollbar-thumb: color-mix(in srgb, var(--foreground) 22%, transparent);
+    --scrollbar-thumb-hover: color-mix(in srgb, var(--foreground) 36%, transparent);
   }
 }
 
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-border: var(--border);
+  --color-border-subtle: var(--border-subtle);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-cta: var(--cta);
+  --color-cta-foreground: var(--cta-foreground);
+  --color-mode-meaning: var(--mode-meaning);
+  --color-mode-listen: var(--mode-listen);
+  --color-mode-recall: var(--mode-recall);
+  --color-mode-review: var(--mode-review);
+  --color-mode-weak: var(--mode-weak);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-accent: var(--accent);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-destructive: var(--destructive);
+  --color-ring: var(--ring);
+  --color-ink: var(--ink);
+  --color-paper: var(--paper);
+  --color-mist: var(--mist);
+  --color-sage: var(--sage);
+  --color-amber: var(--amber);
+  --color-coral: var(--coral);
+  --font-sans: "Red Hat Display", system-ui, sans-serif;
+  --font-display: "Red Hat Display", system-ui, sans-serif;
+  --font-japanese: "Noto Serif JP", serif;
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  height: 100%;
+  height: -webkit-fill-available;
+  -webkit-text-size-adjust: 100%;
+  background: var(--background);
+}
+
 body {
+  min-height: 100%;
+  min-height: -webkit-fill-available;
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Red Hat Display", system-ui, sans-serif;
+  touch-action: manipulation;
+  -webkit-font-smoothing: antialiased;
+}
+
+#app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+#scrollable-content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+#bottom-nav {
+  flex-shrink: 0;
+}
+
+/* Mobile: lock document scroll; shell fills dynamic viewport (not 100svh) */
+@media (max-width: 767px) {
+  html,
+  body {
+    height: 100%;
+    height: 100dvh;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+}
+
+/* Desktop: normal document flow inside the md:h-dvh wrapper */
+@media (min-width: 768px) {
+  #app-shell {
+    flex: 1;
+    height: 100dvh;
+  }
+}
+
+/* Nav bg extends through home-indicator zone; icons sit above via padding */
+.bottom-nav {
+  position: relative;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: var(--background);
+}
+
+.scroll-touch {
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  a[href],
+  button:not(:disabled),
+  [role="button"],
+  label[for],
+  summary {
+    cursor: pointer;
+  }
+
+  .desktop-hover-lift:hover {
+    box-shadow: var(--shadow-md);
+    border-color: color-mix(in srgb, var(--foreground) 20%, var(--border));
+  }
+
+  .group:hover .island-preview {
+    opacity: 1;
+  }
+}
+
+/* Thin, minimal scrollbars — native + Radix scroll areas */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: var(--scrollbar-size);
+  height: var(--scrollbar-size);
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+  transition: background-color 150ms ease;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility scrollbar-clean {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+
+.font-japanese {
+  font-family: "Noto Serif JP", serif;
+}
+
+.font-display {
+  font-family: "Red Hat Display", system-ui, sans-serif;
+}
+
+.gradient-surface {
+  background: linear-gradient(180deg, var(--surface) 0%, var(--background) 100%);
+}
+
+.mastered-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, var(--mode-review), transparent);
+  border-radius: 2px 0 0 2px;
+}
+
+.mastered-glow {
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--warning) 35%, transparent));
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--border-subtle) 0%,
+    var(--surface) 50%,
+    var(--border-subtle) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Overlay enter/exit — Radix defers unmount until animation ends */
+@keyframes overlay-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes overlay-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 8px)) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes dialog-out {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 8px)) scale(0.96);
+  }
+}
+
+@keyframes sheet-bottom-in {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes sheet-bottom-out {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes sheet-right-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes sheet-right-out {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes drawer-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes drawer-overlay-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.radix-overlay[data-state="open"] {
+  animation: overlay-fade-in 250ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.radix-overlay[data-state="closed"] {
+  animation: overlay-fade-out 200ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.radix-dialog-content[data-state="open"] {
+  animation: dialog-in 280ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.radix-dialog-content[data-state="closed"] {
+  animation: dialog-out 200ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.radix-sheet-content[data-state="open"][data-side="bottom"] {
+  animation: sheet-bottom-in 320ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.radix-sheet-content[data-state="closed"][data-side="bottom"] {
+  animation: sheet-bottom-out 220ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.radix-sheet-content[data-state="open"][data-side="right"] {
+  animation: sheet-right-in 280ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.radix-sheet-content[data-state="closed"][data-side="right"] {
+  animation: sheet-right-out 200ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.drawer-overlay[data-state="open"] {
+  animation: drawer-overlay-in 250ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.drawer-overlay[data-state="closed"] {
+  animation: drawer-overlay-out 200ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes upload-indeterminate {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

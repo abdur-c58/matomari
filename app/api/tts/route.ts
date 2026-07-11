@@ -1,0 +1,74 @@
+import { NextResponse } from "next/server";
+import { generateServerAudio } from "@/lib/audio/generate-audio";
+import { getSpokenScriptFromFields } from "@/lib/audio/tts-text";
+import { ElevenLabsQuotaError } from "@/lib/audio/tts-errors";
+import type { Register } from "@/types/sentence";
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const { sentenceId, japanese, reading, register, tags, context_notes, english } = body as {
+      sentenceId?: string;
+      japanese?: string;
+      reading?: string;
+      register?: Register;
+      tags?: string[];
+      context_notes?: string;
+      english?: string;
+    };
+
+    if (!sentenceId || !japanese) {
+      return NextResponse.json(
+        { error: "sentenceId and japanese are required" },
+        { status: 400 }
+      );
+    }
+
+    const spokenText = getSpokenScriptFromFields({
+      japanese,
+      reading,
+      register,
+      tags,
+      context_notes,
+      english,
+    });
+
+    if (!spokenText) {
+      return NextResponse.json(
+        {
+          error:
+            "A kana-only reading is required for correct pronunciation. Retranslate this sentence.",
+          code: "MISSING_READING",
+        },
+        { status: 422 }
+      );
+    }
+
+    const { buffer, cached, hash } = await generateServerAudio(spokenText, sentenceId);
+
+    return new NextResponse(new Uint8Array(buffer), {
+      status: 200,
+      headers: {
+        "Content-Type": "audio/mpeg",
+        "Cache-Control": "public, max-age=31536000, immutable",
+        "X-Audio-Cached": cached ? "true" : "false",
+        "X-Audio-Hash": hash,
+      },
+    });
+  } catch (e) {
+    if (e instanceof ElevenLabsQuotaError) {
+      return NextResponse.json(
+        { error: e.message, code: "QUOTA_EXCEEDED" },
+        { status: 429 }
+      );
+    }
+    const message = e instanceof Error ? e.message : "TTS error";
+    if (message === "TTS_NOT_CONFIGURED") {
+      return NextResponse.json(
+        { error: "TTS not configured", code: "NOT_CONFIGURED" },
+        { status: 503 }
+      );
+    }
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}

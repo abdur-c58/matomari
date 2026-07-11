@@ -1,0 +1,118 @@
+{
+  "main_pathway": {
+    "description": "Core sentence pathway for daily study",
+    "batches": [
+      {
+        "batch_number": 1,
+        "batch_title": "Foundations",
+        "target_difficulty_range": [1, 2],
+        "sentences": [
+          {
+            "id": "p1-001",
+            "english": "Good morning.",
+            "register": "polite",
+            "difficulty": 1,
+            "category": "greetings",
+            "subtopic": "morning",
+            "tags": ["greeting"],
+            "translated": false
+          },
+          {
+            "id": "p1-002",
+            "english": "Thank you very much.",
+            "register": "polite",
+            "difficulty": 1,
+            "category": "greetings",
+            "subtopic": "thanks",
+            "tags": ["gratitude"],
+            "translated": false
+          },
+          {
+            "id": "p1-003",
+            "english": "Excuse me. / I'm sorry.",
+            "register": "polite",
+            "difficulty": 1,
+            "category": "greetings",
+            "subtopic": "apology",
+            "tags": ["apology"],
+            "translated": false
+          },
+          {
+            "id": "p1-004",
+            "english": "How much is this?",
+            "register": "polite",
+            "difficulty": 2,
+            "category": "shopping",
+            "subtopic": "price",
+            "tags": ["question"],
+            "translated": false
+          },
+          {
+            "id": "p1-005",
+            "english": "Where is the station?",
+            "register": "polite",
+            "difficulty": 2,
+            "category": "transportation",
+            "subtopic": "directions",
+            "tags": ["question", "location"],
+            "translated": false
+          }
+        ]
+      }
+    ]
+  },
+  "islands": {
+    "travel": {
+      "description": "Travel and airport situations",
+      "subtopics": ["airport", "hotel"],
+      "sentences": [
+        {
+          "id": "t-001",
+          "english": "Please show your passport.",
+          "register": "polite",
+          "difficulty": 2,
+          "category": "travel",
+          "subtopic": "airport",
+          "tags": ["request"],
+          "translated": false
+        },
+        {
+          "id": "t-002",
+          "english": "I'd like to check in, please.",
+          "register": "polite",
+          "difficulty": 2,
+          "category": "travel",
+          "subtopic": "hotel",
+          "tags": ["request"],
+          "translated": false
+        }
+      ]
+    },
+    "food_restaurants": {
+      "description": "Ordering food and dining out",
+      "subtopics": ["ordering", "payment"],
+      "sentences": [
+        {
+          "id": "f-001",
+          "english": "A menu, please.",
+          "register": "polite",
+          "difficulty": 1,
+          "category": "food",
+          "subtopic": "ordering",
+          "tags": ["request"],
+          "translated": false
+        },
+        {
+          "id": "f-002",
+          "english": "The check, please.",
+          "register": "polite",
+          "difficulty": 2,
+          "category": "food",
+          "subtopic": "payment",
+          "tags": ["request"],
+          "translated": false
+        }
+      ]
+    }
+  }
+}
