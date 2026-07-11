@@ -11,8 +11,5 @@ export function createAdminClient(): SupabaseClient | null {
       persistSession: false,
       autoRefreshToken: false,
     },
-    realtime: {
-      enabled: false,
-    },
   });
 }
