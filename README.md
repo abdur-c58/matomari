@@ -37,7 +37,7 @@ Kotoshima is an independent implementation of these learning concepts and is not
 
 ## Development
 
-Kotoshima is currently in development, with support only for Japanese at the moment.
+Kotoshima is currently in development, with support only for Japanese at the moment. However, the foundational service is complete and ready.
 
 The **main pathway** (structured batch curriculum) is shared by all users and loaded automatically from `/api/pathway`. Personal **language islands** are stored per user and sync when signed in.
 
