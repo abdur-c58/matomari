@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Calendar, Layers, Library, BarChart3, Headphones } from "lucide-react";
+import { AppBrandHeader } from "@/components/layout/app-brand-header";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -22,6 +23,9 @@ export function MobileShell({ children }: { children: React.ReactNode }) {
         id="app-shell"
         className="flex min-h-0 flex-1 flex-col bg-background text-foreground"
       >
+        <header className="sticky top-0 z-30 shrink-0 border-b border-border bg-background px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
+          <AppBrandHeader variant="mobile" />
+        </header>
         <main id="scrollable-content" className="scroll-touch">
           {children}
         </main>

@@ -351,7 +351,7 @@ export function BatchSelectorDesktop() {
           </div>
         )}
 
-        <ActiveBatchList sentences={activeSentences} progress={progress} />
+        <ActiveBatchList sentences={activeSentences} />
 
         <BulkRateDialog
           open={islandRateOpen}

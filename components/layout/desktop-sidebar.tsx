@@ -17,7 +17,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { useTutor } from "@/components/ai/tutor-provider";
-import { APP_NAME } from "@/lib/constants/branding";
+import { AppBrandHeader } from "@/components/layout/app-brand-header";
 import { cn } from "@/lib/utils";
 
 const primaryNav = [
@@ -53,10 +53,7 @@ export function DesktopSidebar() {
   return (
     <aside className="flex h-dvh w-60 shrink-0 flex-col border-r border-border bg-surface lg:w-64">
       <div className="border-b border-border px-5 py-5">
-        <p className="font-display text-lg font-bold tracking-tight text-foreground">
-          {APP_NAME}
-        </p>
-        <p className="text-xs text-muted">Japanese learning</p>
+        <AppBrandHeader variant="sidebar" />
       </div>
 
       <nav className="flex flex-1 flex-col gap-6 overflow-y-auto px-3 py-4">

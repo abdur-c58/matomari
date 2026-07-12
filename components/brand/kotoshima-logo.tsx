@@ -1,3 +1,6 @@
+"use client";
+
+import { useId } from "react";
 import { APP_NAME } from "@/lib/constants/branding";
 import { cn } from "@/lib/utils";
 
@@ -7,7 +10,7 @@ type KotoshimaLogoProps = {
 };
 
 export function KotoshimaLogo({ className, size = 120 }: KotoshimaLogoProps) {
-  const maskId = "kotoshima-mark-inline";
+  const maskId = useId();
 
   return (
     <svg
