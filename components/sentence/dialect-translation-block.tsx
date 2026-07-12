@@ -106,8 +106,7 @@ export function DialectTranslationBlock({
           )}
 
           {showPhonetic && fields.phonetic_reading && (
-            <div className="space-y-0.5">
-              <p className="text-[11px] font-medium text-muted">Pronounced in Kansai dialect</p>
+            <>
               <p
                 className={cn(
                   "font-japanese italic leading-relaxed text-muted",
@@ -137,7 +136,7 @@ export function DialectTranslationBlock({
                     {resolvedRomaji}
                   </p>
                 ))}
-            </div>
+            </>
           )}
         </div>
 

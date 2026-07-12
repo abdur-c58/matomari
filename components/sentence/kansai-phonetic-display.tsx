@@ -20,7 +20,6 @@ type KansaiPhoneticDisplayProps = {
     "reading" | "phonetic_reading" | "romaji" | "placeholders" | "english"
   >;
   className?: string;
-  labelClassName?: string;
   kanaClassName?: string;
   romajiClassName?: string;
 };
@@ -28,7 +27,6 @@ type KansaiPhoneticDisplayProps = {
 export function KansaiPhoneticDisplay({
   sentence,
   className,
-  labelClassName,
   kanaClassName,
   romajiClassName,
 }: KansaiPhoneticDisplayProps) {
@@ -59,9 +57,6 @@ export function KansaiPhoneticDisplay({
 
   return (
     <div className={cn("space-y-0.5", className)} role="note" aria-label="Kansai pronunciation">
-      <p className={cn("text-xs font-medium text-muted", labelClassName)}>
-        Pronounced in Kansai dialect
-      </p>
       <p className={cn("font-japanese italic leading-relaxed text-muted", kanaClassName)}>
         {phonetic}
       </p>
