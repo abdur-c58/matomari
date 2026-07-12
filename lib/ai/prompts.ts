@@ -182,17 +182,9 @@ export function buildTranslationPrompt(
     subtopic: string;
     tags: string[];
     context_notes?: string;
-  }>,
-  dialect: "standard" | "kansai" = "standard"
+  }>
 ): string {
-  const dialectBlock =
-    dialect === "kansai"
-      ? `DIALECT: Kansai (Osaka/Kyoto ben)
-- Use natural Kansai Japanese, not standard hyōjungo with a few regional words sprinkled in
-- Prefer common Kansai patterns where they fit: へん/ひん, せえへん, ちゃう, おる, なんでや, ほんま, あかん, めっちゃ, 〜やねん, 〜やで, 〜へん?, etc. as appropriate to register
-- Keep the register field in mind — casual Kansai fits casual; polite lines can use softer Kansai-business tone without full keigo breakdown
-- reading must reflect Kansai pronunciation (e.g. ない → へん/ひん readings where spoken that way)`
-      : `DIALECT: Standard Japanese (hyōjungo)
+  const dialectBlock = `DIALECT: Standard Japanese (hyōjungo)
 - Tokyo-based neutral Japanese understandable nationwide
 - Avoid regional dialect markers unless the English clearly calls for them`;
 
@@ -224,6 +216,51 @@ Include an entry for EVERY sentence id below. Omit literal_note unless genuinely
 
 SENTENCES:
 ${JSON.stringify(sentences, null, 2)}`;
+}
+
+export function buildTranscriptSegmentPrompt(
+  transcript: string,
+  maxSentences: number
+): string {
+  return `You analyze Japanese transcripts (YouTube subtitles, podcast notes, etc.) for a language-learning app.
+
+TASK:
+1. Read the full transcript below.
+2. Pick ${maxSentences} or fewer high-value study sentences — NOT every line.
+3. Skip filler (うん, えーと), repeated lines, fragments too short to study alone, and near-duplicates.
+4. Prefer lines with useful grammar, vocabulary, natural spoken phrasing, or emotional/colorful expressions.
+5. Keep each japanese excerpt faithful to the transcript wording (light trimming OK; do not rewrite into textbook Japanese).
+6. Provide a clear English gloss for each line.
+7. Suggest a short island name and description summarizing the content/situation.
+
+For each sentence:
+- japanese: the study line as it appears (or naturally trimmed) in the transcript
+- english: natural English meaning for the learner
+- reading: kana-only pronunciation guide for TTS — hiragana/katakana ONLY, no kanji; match spoken delivery
+- romaji: optional romaji
+- register: casual | polite | formal — match how it is spoken
+- context_notes: optional one-line situational note
+- reason: one short sentence explaining why this line is worth studying (shown in UI only)
+
+Return valid JSON only:
+{
+  "suggestedName": "short island name, 2-6 words",
+  "description": "1-2 sentences describing the transcript topic/situation",
+  "sentences": [
+    {
+      "japanese": "...",
+      "english": "...",
+      "reading": "...",
+      "romaji": "...",
+      "register": "casual",
+      "context_notes": "optional",
+      "reason": "..."
+    }
+  ]
+}
+
+TRANSCRIPT:
+${transcript}`;
 }
 
 export function buildSentenceReviewPrompt(input: {

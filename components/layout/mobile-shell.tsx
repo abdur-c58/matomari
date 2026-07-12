@@ -3,8 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Calendar, Layers, Library, BarChart3, Headphones } from "lucide-react";
-import { DesktopSidebar } from "@/components/layout/desktop-sidebar";
-import { TutorPanelSlot } from "@/components/ai/tutor-provider";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -19,18 +17,17 @@ export function MobileShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   return (
-    <div className="flex h-dvh min-h-0 flex-col overflow-hidden md:h-dvh md:w-full md:flex-row">
-      <DesktopSidebar />
+    <div className="flex h-dvh min-h-0 flex-col overflow-hidden">
       <div
         id="app-shell"
-        className="flex min-h-0 flex-1 flex-col bg-background text-foreground md:min-w-0"
+        className="flex min-h-0 flex-1 flex-col bg-background text-foreground"
       >
         <main id="scrollable-content" className="scroll-touch">
           {children}
         </main>
         <nav
           id="bottom-nav"
-          className="bottom-nav z-40 shrink-0 border-t border-border bg-background md:hidden"
+          className="bottom-nav z-40 shrink-0 border-t border-border bg-background"
         >
           <div className="mx-auto flex max-w-lg items-end justify-around px-2 pt-2">
             {navItems.map(({ href, label, icon: Icon, elevated }) => {
@@ -71,7 +68,6 @@ export function MobileShell({ children }: { children: React.ReactNode }) {
           </div>
         </nav>
       </div>
-      <TutorPanelSlot />
     </div>
   );
 }

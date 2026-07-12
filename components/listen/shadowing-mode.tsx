@@ -6,8 +6,9 @@ import type { Sentence } from "@/types/sentence";
 import { SentenceDisplay } from "./sentence-display";
 import { AudioControls } from "@/components/audio/audio-controls";
 import { Button } from "@/components/ui/button";
-import { PageShell } from "@/components/layout/page-shell";
-import { PageHeader } from "@/components/layout/page-header";
+import { ResponsivePageShell } from "@/components/layout/responsive-page-shell";
+import { ResponsivePageHeader } from "@/components/layout/responsive-page-header";
+import { MOBILE_MEDIA_QUERY, useIsMobileViewport } from "@/hooks/use-is-mobile-viewport";
 import { AskButton } from "@/components/ai/ask-button";
 import { SentenceContextPanel } from "@/components/study/sentence-context-panel";
 import { ShortcutsHint } from "@/components/layout/shortcuts-hint";
@@ -17,8 +18,10 @@ import { useApp } from "@/components/providers/app-provider";
 import { startModeSession, endModeSession } from "@/lib/sync/sync-service";
 import { audioSession, type TtsRequest } from "@/lib/audio/audio-session";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 export function ShadowingMode({ sentences }: { sentences: Sentence[] }) {
+  const isMobile = useIsMobileViewport(MOBILE_MEDIA_QUERY);
   const { audioUnlocked, audioState } = useApp();
   const { closeTutor } = useTutor();
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -99,8 +102,8 @@ export function ShadowingMode({ sentences }: { sentences: Sentence[] }) {
   });
 
   return (
-    <PageShell>
-      <PageHeader
+    <ResponsivePageShell>
+      <ResponsivePageHeader
         title="Listen & Shadow"
         subtitle={`${currentIndex + 1} / ${sentences.length}`}
         backHref="/"
@@ -115,15 +118,17 @@ export function ShadowingMode({ sentences }: { sentences: Sentence[] }) {
         }
       />
 
-      <ShortcutsHint
-        shortcuts={[
-          { keys: "Space", label: "Play / pause" },
-          { keys: "Esc", label: "Close tutor" },
-        ]}
-      />
+      {!isMobile && (
+        <ShortcutsHint
+          shortcuts={[
+            { keys: "Space", label: "Play / pause" },
+            { keys: "Esc", label: "Close tutor" },
+          ]}
+        />
+      )}
 
       {current && (
-        <div className="md:grid md:grid-cols-[minmax(0,1fr)_auto] md:items-start md:gap-8">
+        <div className={cn(!isMobile && "grid grid-cols-[minmax(0,1fr)_auto] items-start gap-8")}>
           <div>
           <SentenceDisplay sentence={current} shadowing={shadowing} />
 
@@ -149,7 +154,7 @@ export function ShadowingMode({ sentences }: { sentences: Sentence[] }) {
           <div className="mt-6 space-y-3">
             <Button
               variant={recording ? "destructive" : "secondary"}
-              className="w-full"
+              className={cn(isMobile ? "w-full" : "w-auto")}
               onClick={recording ? stopRecording : startRecording}
               disabled={!audioUnlocked}
             >
@@ -186,9 +191,9 @@ export function ShadowingMode({ sentences }: { sentences: Sentence[] }) {
             )}
           </div>
           </div>
-          <SentenceContextPanel sentence={current} />
+          {!isMobile && <SentenceContextPanel sentence={current} />}
         </div>
       )}
-    </PageShell>
+    </ResponsivePageShell>
   );
 }

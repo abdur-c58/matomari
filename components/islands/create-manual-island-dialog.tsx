@@ -42,7 +42,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useRequireDialectBeforeTranslate } from "@/hooks/use-require-dialect";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -128,7 +127,6 @@ export function CreateManualIslandDialog({
   onCreated?: (key: string) => void;
 }) {
   const { dataset, addIsland, translateSentenceIds } = useApp();
-  const requireDialect = useRequireDialectBeforeTranslate();
 
   const [open, setOpen] = useState(false);
   const [phase, setPhase] = useState<Phase>("setup");
@@ -234,8 +232,6 @@ export function CreateManualIslandDialog({
   };
 
   const runTranslation = async (ids: string[], islandKey: string) => {
-    if (!requireDialect()) return;
-
     setTranslateError(null);
     setTranslateProgress({ completed: 0, total: ids.length });
     setPhase("translating");

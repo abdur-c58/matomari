@@ -48,8 +48,6 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { useRequireDialectBeforeTranslate } from "@/hooks/use-require-dialect";
-
 type Phase = "form" | "preview" | "translating";
 
 const FALLBACK_SUGGESTIONS: IslandSuggestion[] = [
@@ -63,7 +61,6 @@ const FALLBACK_SUGGESTIONS: IslandSuggestion[] = [
 
 export function CreateIslandDialog({ onCreated }: { onCreated?: (key: string) => void }) {
   const { dataset, addIsland, translateSentenceIds } = useApp();
-  const requireDialect = useRequireDialectBeforeTranslate();
   const [open, setOpen] = useState(false);
   const [phase, setPhase] = useState<Phase>("form");
   const [theme, setTheme] = useState("");
@@ -152,8 +149,6 @@ export function CreateIslandDialog({ onCreated }: { onCreated?: (key: string) =>
   };
 
   const runTranslation = async (ids: string[], islandKey: string) => {
-    if (!requireDialect()) return;
-
     setTranslateError(null);
     setTranslateProgress({ completed: 0, total: ids.length });
     setPhase("translating");

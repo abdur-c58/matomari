@@ -206,6 +206,20 @@ body {
   }
 }
 
+/* Desktop app shell — mouse-first interaction tokens */
+.desktop-app button:not([class*="min-h-11"]) {
+  min-height: 2.25rem;
+  min-width: auto;
+}
+
+.desktop-app button:active {
+  transform: none;
+}
+
+.desktop-app .touch-manipulation {
+  touch-action: auto;
+}
+
 /* Thin, minimal scrollbars — native + Radix scroll areas */
 * {
   scrollbar-width: thin;

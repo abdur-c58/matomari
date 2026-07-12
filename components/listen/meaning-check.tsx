@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import type { Sentence } from "@/types/sentence";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { PageShell } from "@/components/layout/page-shell";
-import { PageHeader } from "@/components/layout/page-header";
+import { ResponsivePageShell } from "@/components/layout/responsive-page-shell";
+import { ResponsivePageHeader } from "@/components/layout/responsive-page-header";
+import { MOBILE_MEDIA_QUERY, useIsMobileViewport } from "@/hooks/use-is-mobile-viewport";
 import { AskButton } from "@/components/ai/ask-button";
 import { Card } from "@/components/ui/card";
 import { SentenceContextPanel } from "@/components/study/sentence-context-panel";
@@ -43,13 +44,15 @@ export function MeaningCheck({
     }
   };
 
+  const isMobile = useIsMobileViewport(MOBILE_MEDIA_QUERY);
+
   useDesktopShortcuts({
     onEscape: closeTutor,
   });
 
   return (
-    <PageShell>
-      <PageHeader
+    <ResponsivePageShell>
+      <ResponsivePageHeader
         title="Confirm meaning"
         subtitle={`Step 1 · ${index + 1} of ${sentences.length}`}
         backHref="/"
@@ -62,7 +65,7 @@ export function MeaningCheck({
         }
       />
 
-      <div className="md:grid md:grid-cols-[minmax(0,1fr)_auto] md:items-start md:gap-8">
+      <div className={cn(!isMobile && "grid grid-cols-[minmax(0,1fr)_auto] items-start gap-8")}>
         <div>
       <div className="mb-6 h-1.5 overflow-hidden rounded-full bg-border-subtle">
         <motion.div
@@ -86,12 +89,12 @@ export function MeaningCheck({
         Only loop sentences whose meaning you understand.
       </p>
 
-      <Button className="w-full" size="lg" onClick={handleGotIt}>
+      <Button className={cn(isMobile ? "w-full" : "w-auto")} size="lg" onClick={handleGotIt}>
         Got it
       </Button>
         </div>
-        <SentenceContextPanel sentence={current} />
+        {!isMobile && <SentenceContextPanel sentence={current} />}
       </div>
-    </PageShell>
+    </ResponsivePageShell>
   );
 }

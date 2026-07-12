@@ -65,3 +65,19 @@ export interface SentenceReviewResult {
   suggestedContextNotes?: string;
   hasIssues: boolean;
 }
+
+export interface TranscriptSentenceSuggestion {
+  japanese: string;
+  english: string;
+  reading: string;
+  romaji?: string;
+  register: "casual" | "polite" | "formal";
+  context_notes?: string;
+  reason: string;
+}
+
+export interface TranscriptSegmentResult {
+  suggestedName: string;
+  description: string;
+  sentences: TranscriptSentenceSuggestion[];
+}

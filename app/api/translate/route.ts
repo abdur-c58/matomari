@@ -11,14 +11,14 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { sentences, dialect } = translateRequestSchema.parse(body);
+    const { sentences } = translateRequestSchema.parse(body);
 
     if (sentences.length === 0) {
       return NextResponse.json({ translations: {} });
     }
 
     const openai = getOpenAIClient();
-    const prompt = buildTranslationPrompt(sentences, dialect);
+    const prompt = buildTranslationPrompt(sentences);
 
     const completion = await openai.chat.completions.create({
       model: getOpenAIModel(),

@@ -103,7 +103,6 @@ export const islandGenerationResponseSchema = z.object({
 
 export const translateRequestSchema = z.object({
   sentences: z.array(seedSentenceSchema).min(1).max(30),
-  dialect: z.enum(["standard", "kansai"]).optional().default("standard"),
 });
 
 export const translateResponseSchema = z.object({
@@ -151,6 +150,27 @@ export const sentenceReviewResponseSchema = z.object({
   suggestedRegister: z.enum(["casual", "polite", "formal"]),
   suggestedContextNotes: z.string().optional(),
   hasIssues: z.boolean(),
+});
+
+export const transcriptSegmentRequestSchema = z.object({
+  transcript: z.string().min(20).max(15000),
+  maxSentences: z.number().int().min(3).max(25).optional(),
+});
+
+export const transcriptSegmentSentenceSchema = z.object({
+  japanese: z.string().min(1),
+  english: z.string().min(1),
+  reading: z.string().min(1),
+  romaji: z.string().optional(),
+  register: z.enum(["casual", "polite", "formal"]),
+  context_notes: z.string().optional(),
+  reason: z.string().min(1),
+});
+
+export const transcriptSegmentResponseSchema = z.object({
+  suggestedName: z.string().min(1),
+  description: z.string().min(1),
+  sentences: z.array(transcriptSegmentSentenceSchema).min(1).max(25),
 });
 
 export type ChatRequest = z.infer<typeof chatRequestSchema>;

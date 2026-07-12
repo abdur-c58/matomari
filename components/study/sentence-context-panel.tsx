@@ -19,7 +19,7 @@ export function SentenceContextPanel({
   return (
     <aside
       className={cn(
-        "hidden md:flex md:w-72 md:shrink-0 md:flex-col md:gap-4 lg:w-80",
+        "flex w-72 shrink-0 flex-col gap-4 lg:w-80",
         className
       )}
     >

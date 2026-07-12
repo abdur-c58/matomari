@@ -13,6 +13,8 @@ import {
   MessageCircle,
   Settings,
   Upload,
+  ClipboardList,
+  AlertTriangle,
 } from "lucide-react";
 import { useTutor } from "@/components/ai/tutor-provider";
 import { APP_NAME } from "@/lib/constants/branding";
@@ -25,6 +27,11 @@ const primaryNav = [
   { href: "/listen?step=shadow", label: "Shadowing", icon: Headphones },
   { href: "/library", label: "Library", icon: Library },
   { href: "/progress", label: "Progress", icon: BarChart3 },
+] as const;
+
+const toolsNav = [
+  { href: "/prepare", label: "Pre-study", icon: ClipboardList },
+  { href: "/weak", label: "Weak sentences", icon: AlertTriangle },
 ] as const;
 
 const footerNav = [
@@ -44,40 +51,71 @@ export function DesktopSidebar() {
   const { openTutor } = useTutor();
 
   return (
-    <aside className="hidden md:flex md:w-56 md:shrink-0 lg:w-60 md:flex-col md:border-r md:border-border md:bg-surface">
+    <aside className="flex h-dvh w-60 shrink-0 flex-col border-r border-border bg-surface lg:w-64">
       <div className="border-b border-border px-5 py-5">
-        <p className="font-display text-lg font-bold tracking-tight text-foreground">{APP_NAME}</p>
+        <p className="font-display text-lg font-bold tracking-tight text-foreground">
+          {APP_NAME}
+        </p>
         <p className="text-xs text-muted">Japanese learning</p>
       </div>
 
-      <nav className="flex flex-1 flex-col gap-0.5 px-3 py-4">
-        {primaryNav.map(({ href, label, icon: Icon }) => {
-          const active = isActive(pathname, href);
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={cn(
-                "flex min-h-10 items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors duration-150",
-                active
-                  ? "bg-foreground/10 text-foreground"
-                  : "text-muted md:hover:bg-foreground/5 md:hover:text-foreground"
-              )}
-            >
-              <Icon className="h-4 w-4 shrink-0" strokeWidth={active ? 2.25 : 2} />
-              {label}
-            </Link>
-          );
-        })}
+      <nav className="flex flex-1 flex-col gap-6 overflow-y-auto px-3 py-4">
+        <div className="space-y-0.5">
+          <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted">
+            Study
+          </p>
+          {primaryNav.map(({ href, label, icon: Icon }) => {
+            const active = isActive(pathname, href);
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={cn(
+                  "flex h-9 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors duration-150",
+                  active
+                    ? "bg-foreground/10 text-foreground"
+                    : "text-muted hover:bg-foreground/5 hover:text-foreground"
+                )}
+              >
+                <Icon className="h-4 w-4 shrink-0" strokeWidth={active ? 2.25 : 2} />
+                {label}
+              </Link>
+            );
+          })}
+        </div>
 
-        <button
-          type="button"
-          onClick={() => openTutor({ type: "general" })}
-          className="flex min-h-10 items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-muted transition-colors duration-150 md:hover:bg-foreground/5 md:hover:text-foreground"
-        >
-          <MessageCircle className="h-4 w-4 shrink-0" />
-          AI Assistant
-        </button>
+        <div className="space-y-0.5">
+          <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted">
+            Tools
+          </p>
+          {toolsNav.map(({ href, label, icon: Icon }) => {
+            const active = isActive(pathname, href);
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={cn(
+                  "flex h-9 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors duration-150",
+                  active
+                    ? "bg-foreground/10 text-foreground"
+                    : "text-muted hover:bg-foreground/5 hover:text-foreground"
+                )}
+              >
+                <Icon className="h-4 w-4 shrink-0" strokeWidth={active ? 2.25 : 2} />
+                {label}
+              </Link>
+            );
+          })}
+
+          <button
+            type="button"
+            onClick={() => openTutor({ type: "general" })}
+            className="flex h-9 w-full items-center gap-3 rounded-lg px-3 text-sm font-medium text-muted transition-colors duration-150 hover:bg-foreground/5 hover:text-foreground"
+          >
+            <MessageCircle className="h-4 w-4 shrink-0" />
+            AI Assistant
+          </button>
+        </div>
       </nav>
 
       <div className="border-t border-border px-3 py-3">
@@ -86,10 +124,10 @@ export function DesktopSidebar() {
             key={href}
             href={href}
             className={cn(
-              "flex min-h-9 items-center gap-3 rounded-xl px-3 py-1.5 text-xs font-medium transition-colors duration-150",
+              "flex h-8 items-center gap-3 rounded-lg px-3 text-xs font-medium transition-colors duration-150",
               pathname.startsWith(href)
                 ? "text-foreground"
-                : "text-muted md:hover:bg-foreground/5 md:hover:text-foreground"
+                : "text-muted hover:bg-foreground/5 hover:text-foreground"
             )}
           >
             <Icon className="h-3.5 w-3.5 shrink-0" />

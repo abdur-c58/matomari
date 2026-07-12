@@ -30,7 +30,7 @@ export function DesktopTutorPanel({
 
   return (
     <aside
-      className="hidden lg:flex lg:h-dvh lg:w-96 lg:shrink-0 lg:flex-col lg:border-l lg:border-border lg:bg-surface"
+      className="flex h-dvh w-96 shrink-0 flex-col border-l border-border bg-surface"
     >
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <p className="font-display text-sm font-semibold text-foreground">AI Tutor</p>

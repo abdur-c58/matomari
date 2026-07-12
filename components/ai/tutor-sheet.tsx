@@ -14,7 +14,7 @@ import { getContextLabel } from "@/lib/ai/context-builder";
 import type { ChatMessage, TutorContext } from "@/lib/ai/types";
 import { useApp } from "@/components/providers/app-provider";
 import { TutorChat } from "./tutor-chat";
-import { useIsMobileViewport } from "@/hooks/use-is-mobile-viewport";
+import { useIsMobileViewport, MOBILE_MEDIA_QUERY } from "@/hooks/use-is-mobile-viewport";
 
 export function TutorSheet({
   open,
@@ -38,7 +38,7 @@ export function TutorSheet({
   onSend: () => void;
 }) {
   const { dataset } = useApp();
-  const isMobile = useIsMobileViewport();
+  const isMobile = useIsMobileViewport(MOBILE_MEDIA_QUERY);
   const contextLabel = getContextLabel(context, dataset);
 
   if (!isMobile) return null;

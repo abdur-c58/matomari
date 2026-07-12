@@ -39,7 +39,7 @@ import type { NotificationPreferences } from "@/lib/constants/notifications";
 export interface AppSettings {
   batchSize: number;
   dialect: Dialect;
-  /** False until the user explicitly picks a dialect in Preferences. */
+  /** Kept for sync compatibility; always true for new users. */
   dialectChosen: boolean;
   notifications: NotificationPreferences;
 }

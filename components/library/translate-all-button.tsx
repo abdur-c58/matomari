@@ -6,7 +6,6 @@ import { useApp } from "@/components/providers/app-provider";
 import { TranslationProgress } from "@/components/layout/translation-progress";
 import { Button } from "@/components/ui/button";
 import { TranslationError, getUntranslatedIds } from "@/lib/services/translation-service";
-import { useRequireDialectBeforeTranslate } from "@/hooks/use-require-dialect";
 import { toast } from "sonner";
 
 function formatTranslationError(error: unknown): string {
@@ -19,7 +18,6 @@ function formatTranslationError(error: unknown): string {
 
 export function TranslateAllButton() {
   const { dataset, translateAllUntranslated } = useApp();
-  const requireDialect = useRequireDialectBeforeTranslate();
   const [translating, setTranslating] = useState(false);
   const [progress, setProgress] = useState({ completed: 0, total: 0 });
   const [error, setError] = useState<string | null>(null);
@@ -31,7 +29,6 @@ export function TranslateAllButton() {
 
   const runTranslation = useCallback(async () => {
     if (!dataset || untranslatedCount === 0) return;
-    if (!requireDialect()) return;
 
     setError(null);
     setTranslating(true);
@@ -53,7 +50,7 @@ export function TranslateAllButton() {
     } catch (e) {
       setError(formatTranslationError(e));
     }
-  }, [dataset, untranslatedCount, translateAllUntranslated, requireDialect]);
+  }, [dataset, untranslatedCount, translateAllUntranslated]);
 
   if (!dataset || untranslatedCount === 0) {
     return null;

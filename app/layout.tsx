@@ -13,7 +13,7 @@ import { AppProvider } from "@/components/providers/app-provider";
 import { AuthProvider } from "@/components/providers/auth-provider";
 import { AuthGate } from "@/components/auth/auth-gate";
 import { TutorProvider } from "@/components/ai/tutor-provider";
-import { MobileShell } from "@/components/layout/mobile-shell";
+import { AppShell } from "@/components/layout/app-shell";
 import { Toaster } from "@/components/ui/sonner";
 import { UploadProgressBar } from "@/components/layout/upload-progress-bar";
 import { NotificationProvider } from "@/components/notifications/notification-provider";
@@ -55,7 +55,7 @@ export const metadata: Metadata = {
         url: "/og.png",
         width: 1200,
         height: 630,
-        alt: "Kotoshima — 言島 · Japanese Learning",
+        alt: "Kotoshima — 言島",
       },
     ],
   },
@@ -96,7 +96,7 @@ export default function RootLayout({
               <NotificationProvider>
                 <UploadProgressBar />
                 <TutorProvider>
-                  <MobileShell>{children}</MobileShell>
+                  <AppShell>{children}</AppShell>
                 </TutorProvider>
                 <Toaster />
               </NotificationProvider>

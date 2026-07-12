@@ -1,0 +1,347 @@
+"use client";
+
+import { useCallback, useMemo, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { useApp } from "@/components/providers/app-provider";
+import { AppGate, EmptyState } from "@/components/layout/empty-state";
+import { DesktopPageShell } from "@/components/layout/desktop-page-shell";
+import { DesktopPageHeader } from "@/components/layout/desktop-page-header";
+import { LibrarySentenceRow } from "@/components/library/library-sentence-row";
+import {
+  ActiveFilterBadges,
+  FilterDrawer,
+  LibraryQuickFilters,
+  LibrarySearch,
+} from "@/components/library/filter-sheet";
+import {
+  buildLibraryMeta,
+  countActiveFilters,
+  defaultLibraryFilters,
+  describeActiveFilters,
+  filterLibrarySentences,
+  getLibrarySentences,
+  groupLibrarySentences,
+  type LibraryFilters,
+} from "@/lib/services/library-service";
+import { getActiveBatchIds } from "@/lib/services/batch-service";
+import { bulkApplySentenceRatings } from "@/lib/services/bulk-rating-service";
+import { suggestRating } from "@/lib/services/rating-service";
+import { BulkRateDialog } from "@/components/library/bulk-rate-dialog";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { TranslateAllButtonDesktop } from "@/components/desktop/translate-all-button-desktop";
+import { toast } from "sonner";
+import { listItem, smoothTransition, staggerContainer } from "@/lib/motion";
+
+function formatLabel(key: string): string {
+  return key.replace(/_/g, " ");
+}
+
+export function LibraryViewDesktop() {
+  const { dataset, progress, setProgress } = useApp();
+  const [filters, setFilters] = useState<LibraryFilters>(defaultLibraryFilters);
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkDialogOpen, setBulkDialogOpen] = useState(false);
+  const [bulkDialogIds, setBulkDialogIds] = useState<string[]>([]);
+  const [bulkDialogLabel, setBulkDialogLabel] = useState<string | undefined>();
+  const [bulkLoading, setBulkLoading] = useState(false);
+
+  const allSentences = useMemo(
+    () => (dataset ? getLibrarySentences(dataset) : []),
+    [dataset]
+  );
+
+  const meta = useMemo(
+    () => (dataset ? buildLibraryMeta(dataset) : null),
+    [dataset]
+  );
+
+  const filtered = useMemo(
+    () => filterLibrarySentences(allSentences, progress, filters),
+    [allSentences, progress, filters]
+  );
+
+  const groups = useMemo(() => {
+    if (!dataset) return [{ key: "all", label: "All", sentences: filtered }];
+    return groupLibrarySentences(filtered, progress, filters.groupBy, dataset);
+  }, [filtered, progress, filters.groupBy, dataset]);
+
+  const activeIds = useMemo(() => new Set(getActiveBatchIds(progress)), [progress]);
+  const activeFilterCount = countActiveFilters(filters);
+  const activeLabels = meta ? describeActiveFilters(filters, meta) : [];
+
+  const canSelect =
+    filters.sourceType === "island" ||
+    filters.islandKey !== null ||
+    filters.groupBy === "island";
+
+  const exitSelectionMode = useCallback(() => {
+    setSelectionMode(false);
+    setSelectedIds(new Set());
+  }, []);
+
+  const toggleSelect = useCallback((id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const openBulkDialog = useCallback((ids: string[], label?: string) => {
+    if (ids.length === 0) {
+      toast.error("No sentences to rate");
+      return;
+    }
+    setBulkDialogIds(ids);
+    setBulkDialogLabel(label);
+    setBulkDialogOpen(true);
+  }, []);
+
+  const applyBulkRating = useCallback(
+    async (rating: number) => {
+      if (!dataset || bulkDialogIds.length === 0) return;
+      setBulkLoading(true);
+      try {
+        const result = bulkApplySentenceRatings(dataset, progress, bulkDialogIds, rating);
+        await setProgress(result.progress);
+        toast.success(
+          `Rated ${result.updatedCount} sentence${result.updatedCount === 1 ? "" : "s"}`
+        );
+        exitSelectionMode();
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "Could not apply rating");
+      } finally {
+        setBulkLoading(false);
+      }
+    },
+    [dataset, progress, bulkDialogIds, setProgress, exitSelectionMode]
+  );
+
+  const handleRate = useCallback(
+    async (sentenceId: string, rating: number) => {
+      if (!dataset) return;
+      const result = bulkApplySentenceRatings(dataset, progress, [sentenceId], rating);
+      await setProgress(result.progress);
+      toast.success(`Rated ${rating} stars`);
+    },
+    [dataset, progress, setProgress]
+  );
+
+  const handleRateEntireFilteredIsland = useCallback(() => {
+    if (!dataset || !filters.islandKey) return;
+    const island = dataset.islands[filters.islandKey];
+    if (!island) return;
+    openBulkDialog(
+      island.sentences.map((s) => s.id),
+      formatLabel(filters.islandKey)
+    );
+  }, [dataset, filters.islandKey, openBulkDialog]);
+
+  const defaultProgress = (sentenceId: string) => ({
+    sentenceId,
+    rating: null,
+    recallHistory: [],
+    meaningConfirmed: false,
+    batchStatus: "unseen" as const,
+    srsNextReview: null,
+    srsIntervalIndex: 0,
+    retiredAt: null,
+    firstSeenAt: null,
+    masteredAt: null,
+    sourceType: "pathway" as const,
+    sourceKey: "",
+  });
+
+  return (
+    <AppGate>
+      <DesktopPageShell fullWidth>
+        <DesktopPageHeader
+          title="Library"
+          subtitle={`${filtered.length} of ${allSentences.length} sentences`}
+          action={
+            <div className="flex items-center gap-2">
+              {canSelect && (
+                <Button
+                  variant={selectionMode ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => {
+                    if (selectionMode) exitSelectionMode();
+                    else setSelectionMode(true);
+                  }}
+                >
+                  {selectionMode ? "Done" : "Select"}
+                </Button>
+              )}
+              {filters.islandKey && !selectionMode && (
+                <Button variant="outline" size="sm" onClick={handleRateEntireFilteredIsland}>
+                  Rate island
+                </Button>
+              )}
+              {!selectionMode && <TranslateAllButtonDesktop />}
+            </div>
+          }
+        />
+
+        <div className="flex min-h-0 gap-0 rounded-xl border border-border bg-surface">
+          {meta && (
+            <aside className="hidden w-52 shrink-0 flex-col border-r border-border p-4 lg:flex xl:w-60">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted">
+                Filters
+              </p>
+              <div className="mb-3">
+                <FilterDrawer
+                  filters={filters}
+                  onChange={setFilters}
+                  meta={meta}
+                  activeFilterCount={activeFilterCount}
+                />
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="mt-auto"
+                onClick={() =>
+                  setFilters({ ...defaultLibraryFilters, search: filters.search })
+                }
+              >
+                Clear all
+              </Button>
+            </aside>
+          )}
+
+          <div className="min-w-0 flex-1 p-4">
+            {selectionMode && selectedIds.size > 0 && (
+              <Card className="mb-4 flex items-center gap-2 border-foreground/20 p-3">
+                <span className="flex-1 text-sm font-medium tabular-nums">
+                  {selectedIds.size} selected
+                </span>
+                <Button variant="ghost" size="sm" onClick={() => setSelectedIds(new Set())}>
+                  Clear
+                </Button>
+                <Button size="sm" onClick={() => openBulkDialog([...selectedIds])}>
+                  Rate
+                </Button>
+              </Card>
+            )}
+
+            <div className="mb-4 flex flex-wrap items-center gap-2">
+              <LibrarySearch
+                value={filters.search}
+                onChange={(search) => setFilters({ ...filters, search })}
+              />
+              {meta && (
+                <div className="lg:hidden">
+                  <FilterDrawer
+                    filters={filters}
+                    onChange={setFilters}
+                    meta={meta}
+                    activeFilterCount={activeFilterCount}
+                  />
+                </div>
+              )}
+              <LibraryQuickFilters filters={filters} onChange={setFilters} />
+            </div>
+            <ActiveFilterBadges
+              labels={activeLabels}
+              onClear={() => setFilters({ ...defaultLibraryFilters, search: filters.search })}
+            />
+
+            {filtered.length === 0 ? (
+              <EmptyState
+                title="No matches"
+                description="Try adjusting your search or filters."
+              />
+            ) : (
+              <motion.div
+                className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-2"
+                variants={staggerContainer}
+                initial="hidden"
+                animate="visible"
+                key={`${filters.groupBy}-${filtered.length}-${filters.search}`}
+              >
+                <AnimatePresence mode="popLayout">
+                  {groups.map((group) => {
+                    const isIslandGroup =
+                      filters.groupBy === "island" && group.key !== "main-pathway";
+                    const groupIslandIds = group.sentences
+                      .filter((s) => s.sourceType === "island")
+                      .map((s) => s.id);
+
+                    return (
+                      <motion.section
+                        key={group.key}
+                        layout
+                        variants={listItem}
+                        initial="hidden"
+                        animate="visible"
+                        exit="exit"
+                        transition={smoothTransition}
+                      >
+                        {filters.groupBy !== "none" && (
+                          <div className="mb-1 flex items-baseline justify-between gap-2 px-1">
+                            <h2 className="font-display text-sm font-semibold text-foreground">
+                              {group.label}
+                            </h2>
+                            <div className="flex items-center gap-2">
+                              {isIslandGroup && groupIslandIds.length > 0 && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-7 px-2 text-xs"
+                                  onClick={() =>
+                                    openBulkDialog(groupIslandIds, formatLabel(group.key))
+                                  }
+                                >
+                                  Rate all
+                                </Button>
+                              )}
+                              <span className="text-xs tabular-nums text-muted">
+                                {group.sentences.length}
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                        <Card className="overflow-hidden px-2 py-0">
+                          {group.sentences.map((s) => {
+                            const sp = progress.sentences[s.id] ?? defaultProgress(s.id);
+                            const isSelectable = s.sourceType === "island";
+                            return (
+                              <LibrarySentenceRow
+                                key={s.id}
+                                sentence={s}
+                                progress={progress.sentences[s.id]}
+                                isActive={activeIds.has(s.id)}
+                                suggestedRating={suggestRating(sp)}
+                                onRate={(r) => handleRate(s.id, r)}
+                                selectionMode={selectionMode && canSelect}
+                                selectable={isSelectable}
+                                selected={selectedIds.has(s.id)}
+                                onToggleSelect={() => toggleSelect(s.id)}
+                              />
+                            );
+                          })}
+                        </Card>
+                      </motion.section>
+                    );
+                  })}
+                </AnimatePresence>
+              </motion.div>
+            )}
+          </div>
+        </div>
+
+        <BulkRateDialog
+          open={bulkDialogOpen}
+          onOpenChange={setBulkDialogOpen}
+          sentenceCount={bulkDialogIds.length}
+          label={bulkDialogLabel}
+          loading={bulkLoading}
+          onConfirm={applyBulkRating}
+        />
+      </DesktopPageShell>
+    </AppGate>
+  );
+}

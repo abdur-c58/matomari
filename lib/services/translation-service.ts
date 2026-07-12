@@ -46,14 +46,13 @@ export async function fetchTranslations(
 ): Promise<Record<string, TranslatedFields>> {
   const merged: Record<string, TranslatedFields> = {};
   const total = seeds.length;
-  const dialect = options?.dialect ?? DEFAULT_DIALECT;
 
   for (let i = 0; i < seeds.length; i += BATCH_SIZE) {
     const chunk = seeds.slice(i, i + BATCH_SIZE);
     const res = await fetch("/api/translate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sentences: chunk, dialect }),
+      body: JSON.stringify({ sentences: chunk }),
     });
 
     if (res.status === 503) {

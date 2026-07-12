@@ -12,6 +12,7 @@ import type { ChatMessage, TutorContext } from "@/lib/ai/types";
 import { TutorSheet } from "./tutor-sheet";
 import { DesktopTutorPanel } from "./desktop-tutor-panel";
 import { useTutorChatSend } from "./tutor-chat";
+import { MOBILE_MEDIA_QUERY, useIsMobileViewport } from "@/hooks/use-is-mobile-viewport";
 
 interface TutorContextValue {
   openTutor: (context: TutorContext) => void;
@@ -35,6 +36,7 @@ const TutorCtx = createContext<TutorContextValue | null>(null);
 const TutorChatCtx = createContext<TutorChatState | null>(null);
 
 export function TutorProvider({ children }: { children: ReactNode }) {
+  const isMobile = useIsMobileViewport(MOBILE_MEDIA_QUERY);
   const [open, setOpen] = useState(false);
   const [context, setContext] = useState<TutorContext>({ type: "general" });
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -94,13 +96,15 @@ export function TutorProvider({ children }: { children: ReactNode }) {
     <TutorCtx.Provider value={{ openTutor, tutorOpen: open, closeTutor }}>
       <TutorChatCtx.Provider value={chatState}>
         {children}
-        <TutorSheet open={open} onOpenChange={setOpen} {...chatProps} />
+        {isMobile && (
+          <TutorSheet open={open} onOpenChange={setOpen} {...chatProps} />
+        )}
       </TutorChatCtx.Provider>
     </TutorCtx.Provider>
   );
 }
 
-/** Renders inside MobileShell flex row for lg+ desktop layout */
+/** Renders inside DesktopShell for the right tutor column */
 export function TutorPanelSlot() {
   const chat = useContext(TutorChatCtx);
   if (!chat) return null;

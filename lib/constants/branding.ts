@@ -1,5 +1,5 @@
 export const APP_NAME = "Kotoshima";
-export const APP_FULL_TITLE = "Kotoshima — Japanese Learning";
+export const APP_FULL_TITLE = "Kotoshima";
 export const APP_SHORT_TITLE = "Kotoshima";
 export const APP_DESCRIPTION =
   "Personalized Japanese learning through language islands";

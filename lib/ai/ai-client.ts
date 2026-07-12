@@ -2,7 +2,7 @@ import type { Dataset } from "@/types/sentence";
 import type { UserProgress } from "@/types/progress";
 import { buildDatasetSummary } from "./context-builder";
 import { buildFullSentenceCatalog } from "@/lib/services/dataset-mutation-service";
-import type { ChatMessage, IslandGenerationPreview, IslandSuggestion, SentenceReviewResult, TutorContext } from "./types";
+import type { ChatMessage, IslandGenerationPreview, IslandSuggestion, SentenceReviewResult, TranscriptSegmentResult, TutorContext } from "./types";
 import type {
   IslandFluencyLevel,
   IslandJlptLevel,
@@ -144,6 +144,30 @@ export async function reviewSentence(input: {
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: "Request failed" }));
     throw new AIClientError(err.error ?? "Review failed", "REQUEST_FAILED");
+  }
+
+  return res.json();
+}
+
+export async function segmentTranscript(
+  transcript: string,
+  options?: { maxSentences?: number }
+): Promise<TranscriptSegmentResult> {
+  const res = await fetch("/api/ai/transcript-segment", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      transcript: transcript.trim(),
+      maxSentences: options?.maxSentences,
+    }),
+  });
+
+  if (res.status === 503) {
+    throw new AIClientError("AI is not configured", "NOT_CONFIGURED");
+  }
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: "Request failed" }));
+    throw new AIClientError(err.error ?? "Request failed", "REQUEST_FAILED");
   }
 
   return res.json();

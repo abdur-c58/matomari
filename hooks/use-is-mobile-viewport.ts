@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 
-export function useIsMobileViewport(query = "(max-width: 1023px)") {
+export const MOBILE_MEDIA_QUERY = "(max-width: 767px)";
+
+export function useIsMobileViewport(query = MOBILE_MEDIA_QUERY) {
   const [matches, setMatches] = useState(false);
 
   useEffect(() => {

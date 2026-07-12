@@ -1,15 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useApp } from "@/components/providers/app-provider";
-import { preferencesPathWithReturn } from "@/lib/utils/dialect-preferences";
 
 export type EnsureTranslatedStatus = "idle" | "loading" | "ready" | "error";
 
 export function useEnsureTranslated(sentenceIds: string[]) {
-  const { ensureTranslated, isDialectConfigured } = useApp();
-  const router = useRouter();
+  const { ensureTranslated } = useApp();
   const idsKey = sentenceIds.join(",");
   const [status, setStatus] = useState<EnsureTranslatedStatus>(() =>
     sentenceIds.length === 0 ? "ready" : "loading"
@@ -29,15 +26,6 @@ export function useEnsureTranslated(sentenceIds: string[]) {
       return;
     }
 
-    if (!isDialectConfigured) {
-      router.push(
-        preferencesPathWithReturn(
-          window.location.pathname + window.location.search
-        )
-      );
-      return;
-    }
-
     setStatus("loading");
     setError(null);
     try {
@@ -47,7 +35,7 @@ export function useEnsureTranslated(sentenceIds: string[]) {
       setStatus("error");
       setError(e instanceof Error ? e.message : "Translation failed");
     }
-  }, [isDialectConfigured, router]);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -56,15 +44,6 @@ export function useEnsureTranslated(sentenceIds: string[]) {
       const ids = sentenceIdsRef.current.filter(Boolean);
       if (ids.length === 0) {
         if (!cancelled) setStatus("ready");
-        return;
-      }
-
-      if (!isDialectConfigured) {
-        router.push(
-          preferencesPathWithReturn(
-            window.location.pathname + window.location.search
-          )
-        );
         return;
       }
 
@@ -87,7 +66,7 @@ export function useEnsureTranslated(sentenceIds: string[]) {
     return () => {
       cancelled = true;
     };
-  }, [idsKey, isDialectConfigured, router]);
+  }, [idsKey]);
 
   return { status, error, retry: run };
 }
