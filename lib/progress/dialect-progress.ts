@@ -8,6 +8,7 @@ import type {
   UserProgress,
 } from "@/types/progress";
 import { resolveTranslationSettings } from "@/lib/preferences/translation-preferences";
+import { repairImmediateRetirementSchedule } from "@/lib/services/srs-service";
 
 export interface DialectStudyProgress {
   sentences: UserProgress["sentences"];
@@ -218,11 +219,26 @@ function migrateUnifiedProgress(progress: UserProgress): UserProgress {
   return applyStudySlice(progress, merged);
 }
 
+/** Reschedule legacy immediate-retirement SRS entries. */
+function migrateRetirementSrs(progress: UserProgress): UserProgress {
+  let changed = false;
+  const sentences: UserProgress["sentences"] = {};
+
+  for (const [id, sp] of Object.entries(progress.sentences ?? {})) {
+    const repaired = repairImmediateRetirementSchedule(sp);
+    sentences[id] = repaired;
+    if (repaired !== sp) changed = true;
+  }
+
+  return changed ? { ...progress, sentences } : progress;
+}
+
 /** Normalize settings, migrate legacy dialect fields, and merge per-dialect progress. */
 export function normalizeUserProgress(progress: UserProgress): UserProgress {
   const settings = normalizeSettings(progress.settings);
   const withSettings = { ...progress, settings };
-  return migrateUnifiedProgress(withSettings);
+  const unified = migrateUnifiedProgress(withSettings);
+  return migrateRetirementSrs(unified);
 }
 
 /** Persist progress — no per-dialect slice syncing. */

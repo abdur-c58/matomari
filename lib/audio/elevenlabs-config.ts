@@ -11,6 +11,9 @@ import type { Dialect } from "@/lib/constants/dialect";
 
 const DEFAULT_MODEL = "eleven_multilingual_v2";
 
+/** Bumped to invalidate cached standard audio after normalization improvements (v2). */
+const STANDARD_TTS_CACHE_VERSION = "surface-kanji-v2";
+
 export interface ElevenLabsVoiceSettings {
   stability: number;
   similarity_boost: number;
@@ -51,7 +54,7 @@ export function getElevenLabsVoiceSettings(): ElevenLabsVoiceSettings {
 /** Included in audio cache keys so setting changes regenerate audio. */
 export function getElevenLabsSettingsFingerprint(dialect: Dialect = "standard"): string {
   const s = getElevenLabsVoiceSettings();
-  return [
+  const parts = [
     getElevenLabsModel(),
     s.stability.toFixed(2),
     s.similarity_boost.toFixed(2),
@@ -60,7 +63,11 @@ export function getElevenLabsSettingsFingerprint(dialect: Dialect = "standard"):
     s.use_speaker_boost ? "1" : "0",
     getElevenLabsVoiceIdForDialect(dialect),
     dialect,
-  ].join("|");
+  ];
+  if (dialect === "standard") {
+    parts.push(STANDARD_TTS_CACHE_VERSION);
+  }
+  return parts.join("|");
 }
 
 export function buildTtsCacheKey(

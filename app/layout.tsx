@@ -24,6 +24,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { UploadProgressBar } from "@/components/layout/upload-progress-bar";
 import { OnboardingProvider } from "@/components/onboarding/onboarding-provider";
 import { NotificationProvider } from "@/components/notifications/notification-provider";
+import { GlobalAudioPlayer } from "@/components/audio/global-audio-player";
 import {
   APP_DESCRIPTION,
   APP_FULL_TITLE,
@@ -115,6 +116,7 @@ export default function RootLayout({
                     <AppShell>{children}</AppShell>
                   </TutorProvider>
                 </OnboardingProvider>
+                <GlobalAudioPlayer />
                 <Toaster />
               </NotificationProvider>
               </UiFontProvider>

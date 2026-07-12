@@ -2,10 +2,72 @@ export const SRS_INTERVALS_DAYS = [1, 3, 7, 14, 30, 60];
 
 import type { SentenceProgress } from "@/types/progress";
 import { addDays, formatDateKey, isDue } from "@/lib/utils";
+import { getConsecutiveCorrect, getRecallAccuracy } from "./recall-service";
 
 export function getNextReviewDate(intervalIndex: number): string {
   const days = SRS_INTERVALS_DAYS[Math.min(intervalIndex, SRS_INTERVALS_DAYS.length - 1)];
   return formatDateKey(addDays(new Date(), days));
+}
+
+function getRetirementIntervalIndex(sp: SentenceProgress, rating: number): number {
+  const consecutive = getConsecutiveCorrect(sp);
+  const accuracy = getRecallAccuracy(sp);
+  const hasRecallHistory = sp.recallHistory.length > 0;
+
+  if (rating >= 5) {
+    if (consecutive >= 5 && accuracy >= 0.9) return 3;
+    if (consecutive >= 3 && accuracy >= 0.75) return 2;
+    if (!hasRecallHistory) return 1;
+    return 2;
+  }
+
+  if (consecutive >= 3 && accuracy >= 0.75) return 1;
+  if (!hasRecallHistory) return 0;
+  return 1;
+}
+
+function applySameDayGuard(
+  sp: SentenceProgress,
+  intervalIndex: number
+): Pick<SentenceProgress, "srsIntervalIndex" | "srsNextReview"> {
+  const today = formatDateKey();
+  const maxIndex = SRS_INTERVALS_DAYS.length - 1;
+  let index = Math.min(Math.max(intervalIndex, 0), maxIndex);
+  let nextReview = getNextReviewDate(index);
+
+  const lastRecall = sp.recallHistory[sp.recallHistory.length - 1];
+  const lastRecallDay = lastRecall ? formatDateKey(new Date(lastRecall.date)) : null;
+
+  while (
+    index < maxIndex &&
+    (nextReview <= today || (lastRecall?.correct && lastRecallDay && nextReview <= lastRecallDay))
+  ) {
+    index++;
+    nextReview = getNextReviewDate(index);
+  }
+
+  return { srsIntervalIndex: index, srsNextReview: nextReview };
+}
+
+export function scheduleRetirementSrs(
+  sp: SentenceProgress,
+  rating: number
+): Pick<SentenceProgress, "srsIntervalIndex" | "srsNextReview"> {
+  const intervalIndex = getRetirementIntervalIndex(sp, rating);
+  return applySameDayGuard(sp, intervalIndex);
+}
+
+export function needsImmediateRetirementRepair(sp: SentenceProgress): boolean {
+  if (sp.batchStatus !== "retired" || !sp.retiredAt || !sp.srsNextReview) return false;
+  return sp.srsNextReview <= sp.retiredAt;
+}
+
+export function repairImmediateRetirementSchedule(sp: SentenceProgress): SentenceProgress {
+  if (!needsImmediateRetirementRepair(sp)) return sp;
+
+  const rating = sp.rating ?? 4;
+  const srs = scheduleRetirementSrs(sp, rating);
+  return { ...sp, ...srs };
 }
 
 export function onCorrectRecall(sp: SentenceProgress): SentenceProgress {

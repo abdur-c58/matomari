@@ -29,6 +29,7 @@ export function MeaningCheck({
 }) {
   const [index, setIndex] = useState(0);
   const { closeTutor } = useTutor();
+  const isMobile = useIsMobileViewport(MOBILE_MEDIA_QUERY);
   const current = sentences[index];
   const progressPct = ((index + 1) / sentences.length) * 100;
 
@@ -40,6 +41,10 @@ export function MeaningCheck({
     audioSession.stopPlaylist();
   }, [current?.id]);
 
+  useDesktopShortcuts({
+    onEscape: closeTutor,
+  });
+
   if (!current) return null;
 
   const handleGotIt = async () => {
@@ -50,12 +55,6 @@ export function MeaningCheck({
       setIndex(index + 1);
     }
   };
-
-  const isMobile = useIsMobileViewport(MOBILE_MEDIA_QUERY);
-
-  useDesktopShortcuts({
-    onEscape: closeTutor,
-  });
 
   return (
     <ResponsivePageShell>

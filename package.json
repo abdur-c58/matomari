@@ -12,7 +12,11 @@
     "publish-pathway": "npx tsx --env-file=.env.local scripts/publish-pathway.ts",
     "generate-icons": "npx tsx scripts/generate-icons.ts",
     "generate-splash": "npx tsx scripts/generate-splash-screens.ts",
-    "generate-og-image": "npx tsx scripts/generate-og-image.ts"
+    "generate-og-image": "npx tsx scripts/generate-og-image.ts",
+    "verify-srs": "npx tsx scripts/verify-srs.ts",
+    "verify-tts": "npx tsx --env-file=.env.local scripts/verify-tts.ts",
+    "clear-standard-audio": "npx tsx --env-file=.env.local scripts/clear-standard-audio.ts",
+    "clear-all-translations": "npx tsx --env-file=.env.local scripts/clear-all-translations.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1084.0",

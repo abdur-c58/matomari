@@ -3,6 +3,7 @@ import type { SentenceProgress, UserProgress } from "@/types/progress";
 import { formatDateKey } from "@/lib/utils";
 import { getAllSentences } from "@/lib/validation/dataset-schema";
 import { applyRating } from "./rating-service";
+import { scheduleRetirementSrs } from "./srs-service";
 import {
   createDefaultSentenceProgress,
   getUnseenSentenceIds,
@@ -21,13 +22,13 @@ export interface BulkRatingResult {
   masteredCount: number;
 }
 
-function applyRetireFields(sp: SentenceProgress, today: string): SentenceProgress {
+function applyRetireFields(sp: SentenceProgress, today: string, rating: number): SentenceProgress {
+  const srs = scheduleRetirementSrs(sp, rating);
   return {
     ...sp,
     batchStatus: "retired",
     retiredAt: today,
-    srsNextReview: today,
-    srsIntervalIndex: 0,
+    ...srs,
   };
 }
 
@@ -124,7 +125,7 @@ export function bulkApplySentenceRatings(
     );
 
     if (retiring) {
-      sp = applyRetireFields(sp, today);
+      sp = applyRetireFields(sp, today, rating);
       sp = { ...sp, meaningConfirmed: true };
       retiredCount++;
     }

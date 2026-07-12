@@ -20,6 +20,8 @@ export async function POST(request: Request) {
       tags,
       context_notes,
       english,
+      force,
+      ttsSource,
     } = body as {
       sentenceId?: string;
       japanese?: string;
@@ -32,6 +34,8 @@ export async function POST(request: Request) {
       tags?: string[];
       context_notes?: string;
       english?: string;
+      force?: boolean;
+      ttsSource?: "surface" | "reading";
     };
 
     if (!sentenceId || !japanese) {
@@ -52,7 +56,7 @@ export async function POST(request: Request) {
         context_notes,
         english,
       },
-      { dialect, learnerName }
+      { dialect, learnerName, ttsSource: ttsSource ?? "surface" }
     );
 
     if (!spokenText) {
@@ -70,6 +74,7 @@ export async function POST(request: Request) {
 
     const { buffer, cached, hash } = await generateServerAudio(spokenText, sentenceId, {
       dialect,
+      force: force === true,
     });
 
     return new NextResponse(new Uint8Array(buffer), {

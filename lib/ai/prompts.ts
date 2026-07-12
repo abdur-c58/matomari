@@ -219,6 +219,7 @@ PHILOSOPHY:
 - Match the register field exactly: casual = plain/informal, polite = です/ます, formal = keigo where appropriate
 - Use category, subtopic, tags, and context_notes for situational tone
 - The reading field is the authoritative pronunciation guide for TTS (standard) or learner display (Kansai) — it must be 100% kana (hiragana/katakana), never kanji, and must reflect every reading choice in japanese (including compound verbs, rendaku, and particle は→わ / へ→え where spoken)
+- Keep loanwords in katakana in reading (アメリカ not あめりか). For sokuon clusters (しゅっしん, がっこう), write them precisely — small ゅ/ょ and っ are required; the app may use japanese surface form for Standard TTS when safe
 - Use Japanese punctuation in reading for natural delivery: 、 before a trailing exasperated もう/ね, ？ for questions, ！ for emphasis. Example: くうきよんでよ、もう。
 - For emotionally loaded lines (frustration, sighing もう, exasperation), put the comma BEFORE the emotional tail so TTS can pause — e.g. NOT くうきよんでよもう。
 

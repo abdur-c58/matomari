@@ -1,12 +1,24 @@
 import type { Dataset } from "@/types/sentence";
 import type { UserProgress } from "@/types/progress";
+import type { AppStats } from "@/types/stats";
 import type { TodayPlanItem } from "@/types/today";
 import { getActiveBatchIds, getActiveBatchSentences } from "./batch-service";
 import { getDueRecallIds, getDueReviewIds } from "./srs-service";
+import { formatDateKey } from "@/lib/utils";
+
+/** Returns true if the user had a shadow/listen mode session that started today. */
+function hasShadowSessionToday(stats: AppStats | null | undefined): boolean {
+  if (!stats) return false;
+  const today = formatDateKey();
+  return stats.modeSessions.some(
+    (s) => s.mode === "shadow" && s.startedAt.slice(0, 10) === today
+  );
+}
 
 export function buildTodayPlan(
   dataset: Dataset | null,
-  progress: UserProgress
+  progress: UserProgress,
+  stats?: AppStats | null
 ): TodayPlanItem[] {
   if (!dataset) {
     return [
@@ -34,6 +46,7 @@ export function buildTodayPlan(
 
   const dueRecall = getDueRecallIds(progress.sentences, activeIds);
   const dueReview = getDueReviewIds(progress.sentences);
+  const shadowedToday = hasShadowSessionToday(stats);
 
   const items: TodayPlanItem[] = [];
 
@@ -48,7 +61,8 @@ export function buildTodayPlan(
     });
   }
 
-  if (activeSentences.length > 0 && unconfirmed.length === 0) {
+  // Show shadow card only when meanings are done AND user hasn't shadowed today
+  if (activeSentences.length > 0 && unconfirmed.length === 0 && !shadowedToday) {
     items.push({
       type: "listen_shadow",
       title: "Listen & shadow",
@@ -86,7 +100,7 @@ export function buildTodayPlan(
       type: "listen_shadow",
       title: "Keep practicing",
       description: "Your batch is up to date — shadow or recall anytime",
-      count: activeSentences.length,
+      count: 0,
       href: "/listen",
       priority: 5,
     });

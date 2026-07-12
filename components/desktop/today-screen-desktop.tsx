@@ -34,8 +34,8 @@ export function TodayScreenDesktop() {
   useSyncTodayCompletion();
 
   const plan = useMemo(
-    () => buildTodayPlan(dataset, progress),
-    [dataset, progress]
+    () => buildTodayPlan(dataset, progress, stats),
+    [dataset, progress, stats]
   );
 
   const studyFocus = useMemo(

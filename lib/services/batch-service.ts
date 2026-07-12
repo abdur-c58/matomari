@@ -12,6 +12,7 @@ import {
 } from "@/lib/constants/study";
 import { formatDateKey } from "@/lib/utils";
 import { markPathwayBatchCompleteAfterRetire } from "./study-focus-service";
+import { scheduleRetirementSrs } from "./srs-service";
 import { getAllSentences } from "@/lib/validation/dataset-schema";
 
 function getBatchSourceKey(config: Pick<BatchConfig, "sourceType" | "pathwayBatchNumber" | "islandKey">): string {
@@ -183,12 +184,17 @@ export function retireSentence(
   const sp = sentences[sentenceId];
   if (!sp) return progress;
 
+  if (sp.batchStatus === "retired") {
+    return progress;
+  }
+
+  const srs = scheduleRetirementSrs(sp, sp.rating ?? 4);
+
   sentences[sentenceId] = {
     ...sp,
     batchStatus: "retired",
     retiredAt: today,
-    srsNextReview: today,
-    srsIntervalIndex: 0,
+    ...srs,
   };
 
   const activeIds = config.activeSentenceIds.filter((id) => id !== sentenceId);

@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { StarRating } from "@/components/sentence/star-rating";
 import { AskButton } from "@/components/ai/ask-button";
-import { SentencePlayButton } from "@/components/audio/sentence-play-button";
+import { SentenceAudioControls } from "@/components/audio/sentence-play-button";
 import { PlaceholderText } from "@/components/sentence/placeholder-text";
 import { DialectTranslationBlock } from "@/components/sentence/dialect-translation-block";
 import { toast } from "sonner";
@@ -197,7 +197,7 @@ export function LibrarySentenceRow({
             </div>
           </div>
         </button>
-        <SentencePlayButton
+        <SentenceAudioControls
           sentenceId={sentence.id}
           japanese={sentence.japanese}
           reading={sentence.reading}

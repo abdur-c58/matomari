@@ -3,9 +3,9 @@
 import type { AudioSessionState } from "@/types/audio";
 import type { Dialect } from "@/lib/constants/dialect";
 import type { SentencePlaceholder } from "@/types/sentence";
-import { getCachedAudio, saveCachedAudio } from "@/lib/db/audio-cache-repository";
+import { getCachedAudio, saveCachedAudio, deleteCachedAudio } from "@/lib/db/audio-cache-repository";
 import { getTextHashAsync } from "@/lib/audio/hash";
-import { getSpokenScriptFromFields } from "@/lib/audio/tts-text";
+import { getSpokenScriptFromFields, type TtsScriptSource } from "@/lib/audio/tts-text";
 import { stripTtsMarkup } from "@/lib/audio/tts-prosody";
 
 export interface TtsRequest {
@@ -20,36 +20,91 @@ export interface TtsRequest {
   tags?: string[];
   context_notes?: string;
   english?: string;
+  /** Default surface (kanji sentence). Use "reading" for kana-only fallback. */
+  ttsSource?: TtsScriptSource;
+  forceRegenerate?: boolean;
+}
+
+export interface PlaylistState {
+  items: TtsRequest[];
+  currentIndex: number;
+  pauseMs: number;
 }
 
 type StateListener = (state: AudioSessionState, error?: string) => void;
+type PlaylistListener = (state: PlaylistState | null) => void;
 
 export class AudioSessionManager {
   private audio: HTMLAudioElement | null = null;
   private audioContext: AudioContext | null = null;
   private unlocked = false;
   private state: AudioSessionState = "locked";
-  private listener: StateListener | null = null;
+  private listeners: Set<StateListener> = new Set();
+  private playlistListeners: Set<PlaylistListener> = new Set();
   private loopEnabled = false;
   private playlistAbort: AbortController | null = null;
+  private playlistState: PlaylistState | null = null;
+  private _playbackRate = 1.0;
+
+  // ─── Legacy single-listener compat ─────────────────────────────────────────
 
   setListener(listener: StateListener) {
-    this.listener = listener;
+    // Keep the first listener slot for backward compatibility
+    this.listeners.add(listener);
     listener(this.state);
   }
 
+  removeListener(listener: StateListener) {
+    this.listeners.delete(listener);
+  }
+
+  addPlaylistListener(listener: PlaylistListener) {
+    this.playlistListeners.add(listener);
+    listener(this.playlistState);
+  }
+
+  removePlaylistListener(listener: PlaylistListener) {
+    this.playlistListeners.delete(listener);
+  }
+
+  // ─── State ─────────────────────────────────────────────────────────────────
+
   private setState(state: AudioSessionState, error?: string) {
     this.state = state;
-    this.listener?.(state, error);
+    this.listeners.forEach((l) => l(state, error));
+  }
+
+  private setPlaylistState(state: PlaylistState | null) {
+    this.playlistState = state;
+    this.playlistListeners.forEach((l) => l(state));
   }
 
   getState() {
     return this.state;
   }
 
+  getPlaylistState(): PlaylistState | null {
+    return this.playlistState;
+  }
+
   isUnlocked() {
     return this.unlocked;
   }
+
+  // ─── Playback rate ──────────────────────────────────────────────────────────
+
+  setPlaybackRate(rate: number) {
+    this._playbackRate = Math.max(0.25, Math.min(4, rate));
+    if (this.audio) {
+      this.audio.playbackRate = this._playbackRate;
+    }
+  }
+
+  getPlaybackRate() {
+    return this._playbackRate;
+  }
+
+  // ─── Audio unlock ───────────────────────────────────────────────────────────
 
   async unlockAudio(): Promise<void> {
     if (this.unlocked) return;
@@ -103,13 +158,54 @@ export class AudioSessionManager {
       this.audio.pause();
       this.audio.currentTime = 0;
     }
+    this.setPlaylistState(null);
     this.setState("ready");
   }
+
+  // ─── Jump to a specific playlist item ──────────────────────────────────────
+
+  jumpToPlaylistItem(index: number) {
+    if (!this.playlistState) return;
+    const items = this.playlistState.items;
+    if (index < 0 || index >= items.length) return;
+
+    // Abort the current playlist loop and restart from the new index
+    this.playlistAbort?.abort();
+    if (this.audio) {
+      this.audio.pause();
+      this.audio.currentTime = 0;
+    }
+
+    const { pauseMs } = this.playlistState;
+    const onItemChange = this._lastOnItemChange;
+    const shadowPauseMs = this._lastShadowPauseMs;
+
+    // Restart from target index
+    const abort = new AbortController();
+    this.playlistAbort = abort;
+
+    void this._runPlaylist(
+      items,
+      pauseMs,
+      onItemChange,
+      shadowPauseMs,
+      abort,
+      index
+    );
+  }
+
+  // ─── Stored playlist callback refs for jump support ──────────────────────
+
+  private _lastOnItemChange?: (index: number) => void;
+  private _lastShadowPauseMs = 0;
+
+  // ─── Text resolution ────────────────────────────────────────────────────────
 
   private resolveSpokenText(request: TtsRequest): string | null {
     return getSpokenScriptFromFields(request, {
       dialect: request.dialect ?? "standard",
       learnerName: request.learnerName,
+      ttsSource: request.ttsSource ?? "surface",
     });
   }
 
@@ -121,9 +217,15 @@ export class AudioSessionManager {
     }
 
     const textHash = await getTextHashAsync(request.sentenceId, spokenText, dialect);
-    const cached = await getCachedAudio(request.sentenceId);
-    if (cached && cached.textHash === textHash) {
-      return cached.blob;
+    const force = request.forceRegenerate === true;
+
+    if (!force) {
+      const cached = await getCachedAudio(request.sentenceId);
+      if (cached && cached.textHash === textHash) {
+        return cached.blob;
+      }
+    } else {
+      await deleteCachedAudio(request.sentenceId);
     }
 
     if (typeof navigator !== "undefined" && !navigator.onLine) {
@@ -145,6 +247,8 @@ export class AudioSessionManager {
         tags: request.tags,
         context_notes: request.context_notes,
         english: request.english,
+        ttsSource: request.ttsSource ?? "surface",
+        force: force,
       }),
     });
 
@@ -219,6 +323,7 @@ export class AudioSessionManager {
       const url = URL.createObjectURL(blob);
       audio.src = url;
       audio.loop = this.loopEnabled;
+      audio.playbackRate = this._playbackRate;
       await audio.play();
     } catch (e) {
       try {
@@ -249,7 +354,10 @@ export class AudioSessionManager {
   }
 
   resume() {
-    this.audio?.play();
+    if (this.audio) {
+      this.audio.playbackRate = this._playbackRate;
+      void this.audio.play();
+    }
   }
 
   async playPlaylist(
@@ -258,13 +366,28 @@ export class AudioSessionManager {
     onItemChange?: (index: number) => void,
     shadowPauseMs = 0
   ): Promise<void> {
+    this._lastOnItemChange = onItemChange;
+    this._lastShadowPauseMs = shadowPauseMs;
+
     this.playlistAbort?.abort();
     const abort = new AbortController();
     this.playlistAbort = abort;
 
-    for (let i = 0; i < items.length; i++) {
+    await this._runPlaylist(items, pauseMs, onItemChange, shadowPauseMs, abort, 0);
+  }
+
+  private async _runPlaylist(
+    items: TtsRequest[],
+    pauseMs: number,
+    onItemChange: ((index: number) => void) | undefined,
+    shadowPauseMs: number,
+    abort: AbortController,
+    startIndex: number
+  ): Promise<void> {
+    for (let i = startIndex; i < items.length; i++) {
       if (abort.signal.aborted) break;
       onItemChange?.(i);
+      this.setPlaylistState({ items, currentIndex: i, pauseMs });
       await this.playSentence(items[i]);
 
       await this.waitForAudioEnd(abort.signal);
@@ -277,7 +400,9 @@ export class AudioSessionManager {
     }
 
     if (!abort.signal.aborted && this.loopEnabled) {
-      await this.playPlaylist(items, pauseMs, onItemChange, shadowPauseMs);
+      await this._runPlaylist(items, pauseMs, onItemChange, shadowPauseMs, abort, 0);
+    } else if (!abort.signal.aborted) {
+      this.setPlaylistState(null);
     }
   }
 

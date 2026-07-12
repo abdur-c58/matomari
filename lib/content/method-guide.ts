@@ -269,6 +269,7 @@ export const howToSections: GuideStepSection[] = [
     summary: "Retired sentences return on an SRS schedule.",
     bullets: [
       "At 4+ stars, a sentence retires from your active batch.",
+      "Your first review is scheduled based on your star rating and recall history — not immediately.",
       "Retired sentences reappear on Today when SRS says they're due.",
       "5 stars with strong recall history marks a sentence as mastered.",
     ],

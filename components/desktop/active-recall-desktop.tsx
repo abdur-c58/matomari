@@ -135,7 +135,10 @@ export function ActiveRecallModeDesktop() {
 
     if (shouldRetire(rating)) {
       const latest = await getProgressSynced();
-      await setProgress(retireSentence(dataset, latest, current.id));
+      const sp = latest.sentences[current.id];
+      if (sp?.batchStatus !== "retired") {
+        await setProgress(retireSentence(dataset, latest, current.id));
+      }
     }
 
     const sp = (await getProgressSynced()).sentences[current.id];

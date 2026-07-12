@@ -5,7 +5,7 @@ import { getDialectLabel } from "@/lib/constants/dialect";
 import type { Sentence, TranslatedFields } from "@/types/sentence";
 import { PlaceholderText } from "@/components/sentence/placeholder-text";
 import { ResolvedKanaReading } from "@/components/sentence/resolved-kana-reading";
-import { SentencePlayButton } from "@/components/audio/sentence-play-button";
+import { SentenceAudioControls } from "@/components/audio/sentence-play-button";
 import { shouldShowKansaiPhonetic } from "@/lib/sentence/kansai-phonetic";
 import {
   parsePlaceholderTags,
@@ -28,6 +28,8 @@ type DialectTranslationBlockProps = {
   showPlayButton?: boolean;
   showJapanese?: boolean;
   showReading?: boolean;
+  /** Set to false to suppress the romaji transliteration line (default: true). */
+  showRomaji?: boolean;
   className?: string;
   japaneseClassName?: string;
   readingClassName?: string;
@@ -44,6 +46,7 @@ export function DialectTranslationBlock({
   showPlayButton = true,
   showJapanese = true,
   showReading = true,
+  showRomaji = true,
   className,
   japaneseClassName,
   readingClassName,
@@ -115,7 +118,7 @@ export function DialectTranslationBlock({
               >
                 {resolvedPhonetic}
               </p>
-              {romajiRaw &&
+              {showRomaji && romajiRaw &&
                 (romajiHasTags ? (
                   <PlaceholderText
                     text={romajiRaw}
@@ -141,7 +144,7 @@ export function DialectTranslationBlock({
         </div>
 
         {showPlayButton && (
-          <SentencePlayButton
+          <SentenceAudioControls
             sentenceId={sentenceId}
             japanese={fields.japanese}
             reading={fields.reading}
