@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 import { useApp } from "@/components/providers/app-provider";
 import { AppGate, EmptyState } from "@/components/layout/empty-state";
 import { PreparingSentences } from "@/components/layout/preparing-sentences";
@@ -9,11 +10,14 @@ import { MeaningCheck } from "@/components/listen/meaning-check";
 import { ShadowingMode } from "@/components/listen/shadowing-mode";
 import { getActiveBatchSentences } from "@/lib/services/batch-service";
 import { useEnsureTranslated } from "@/hooks/use-ensure-translated";
+import { Card } from "@/components/ui/card";
 
 export function ListenPageDesktop() {
+  const router = useRouter();
   const { dataset, progress, updateProgress } = useApp();
   const searchParams = useSearchParams();
   const step = searchParams.get("step");
+  const welcome = searchParams.get("welcome") === "1";
   const [phase, setPhase] = useState<"meaning" | "shadow">(
     step === "shadow" ? "shadow" : "meaning"
   );
@@ -57,6 +61,12 @@ export function ListenPageDesktop() {
     [updateProgress]
   );
 
+  const handleMeaningComplete = useCallback(() => {
+    toast.success("Up next: listen and shadow each sentence");
+    router.replace("/listen?step=shadow");
+    setPhase("shadow");
+  }, [router]);
+
   if (!progress.batchConfig) {
     return (
       <AppGate>
@@ -88,11 +98,25 @@ export function ListenPageDesktop() {
 
   if (phase === "meaning" && unconfirmed.length > 0) {
     return (
-      <MeaningCheck
-        sentences={unconfirmed}
-        onConfirm={handleConfirm}
-        onComplete={() => setPhase("shadow")}
-      />
+      <>
+        {welcome && (
+          <div className="mb-4">
+            <Card className="border-l-4 border-l-foreground p-4">
+              <p className="text-sm font-medium text-foreground">
+                Step 1: Confirm meanings
+              </p>
+              <p className="mt-1 text-sm text-muted">
+                Before listening, make sure you understand what each sentence means.
+              </p>
+            </Card>
+          </div>
+        )}
+        <MeaningCheck
+          sentences={unconfirmed}
+          onConfirm={handleConfirm}
+          onComplete={handleMeaningComplete}
+        />
+      </>
     );
   }
 

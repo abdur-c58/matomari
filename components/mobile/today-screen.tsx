@@ -17,6 +17,7 @@ import {
   StudyFocusBanner,
   ChooseStudyFocus,
 } from "@/components/batch/study-focus-banner";
+import { StudyFlowGuide } from "@/components/study/study-flow-guide";
 import { AppGate } from "@/components/layout/empty-state";
 import { PageShell } from "@/components/layout/page-shell";
 import { Card } from "@/components/ui/card";
@@ -97,6 +98,10 @@ export function TodayScreenMobile() {
             </Button>
           </div>
         </div>
+
+        {progress.batchConfig && (
+          <StudyFlowGuide className="mb-6" />
+        )}
 
         {studyFocus && (
           <StudyFocusBanner

@@ -33,6 +33,7 @@ import { getProgressSynced } from "@/lib/sync/sync-service";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useEnsureTranslated } from "@/hooks/use-ensure-translated";
+import { StudyFlowNextStep } from "@/components/study/study-flow-next-step";
 import { ShortcutsHint } from "@/components/layout/shortcuts-hint";
 import { useDesktopShortcuts } from "@/hooks/use-desktop-shortcuts";
 import { useTutor } from "@/components/ai/tutor-provider";
@@ -64,6 +65,7 @@ export function ActiveRecallModeMobile() {
   const [suggestedRating, setSuggestedRating] = useState<number | null>(null);
   const [showRatingDialog, setShowRatingDialog] = useState(false);
   const [swipeOffset, setSwipeOffset] = useState(0);
+  const [sessionComplete, setSessionComplete] = useState(false);
   const sessionIdRef = useRef<string | null>(null);
 
   const current = sentences[index];
@@ -85,7 +87,7 @@ export function ActiveRecallModeMobile() {
     if (index + 1 < sentences.length) {
       setIndex(index + 1);
     } else {
-      toast.success("Recall session complete");
+      setSessionComplete(true);
     }
   }, [index, sentences.length]);
 
@@ -174,6 +176,19 @@ export function ActiveRecallModeMobile() {
     },
     onEscape: closeTutor,
   });
+
+  if (sessionComplete) {
+    return (
+      <AppGate>
+        <PageShell>
+          <StudyFlowNextStep
+            completedTitle="Recall session complete"
+            completedDescription="You worked through all due sentences in this session."
+          />
+        </PageShell>
+      </AppGate>
+    );
+  }
 
   if (!current) {
     return (

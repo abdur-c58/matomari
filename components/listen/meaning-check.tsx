@@ -86,7 +86,7 @@ export function MeaningCheck({
       </Card>
 
       <p className="mb-4 text-center text-sm text-muted">
-        Only loop sentences whose meaning you understand.
+        Read each sentence. Only continue once you understand the meaning.
       </p>
 
       <Button className={cn(isMobile ? "w-full" : "w-auto")} size="lg" onClick={handleGotIt}>

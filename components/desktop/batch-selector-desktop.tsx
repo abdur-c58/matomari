@@ -17,6 +17,7 @@ import { DesktopPageHeader } from "@/components/layout/desktop-page-header";
 import { StudyFocusBanner } from "@/components/batch/study-focus-banner";
 import { PathwayBatchList } from "@/components/batch/pathway-batch-list";
 import { IslandPicker } from "@/components/batch/island-picker";
+import { StudyFlowGuide } from "@/components/study/study-flow-guide";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
@@ -37,17 +38,20 @@ import {
 import {
   clampBatchSize,
   getActiveBatchSentences,
-  initializeBatch,
 } from "@/lib/services/batch-service";
-import type { BatchConfig } from "@/types/progress";
 import { toast } from "sonner";
-import { Map, Compass } from "lucide-react";
+import { Map, Compass, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CreateIslandDialog } from "@/components/ai/create-island-dialog";
 import { CreateManualIslandDialog } from "@/components/islands/create-manual-island-dialog";
 import { AskButton } from "@/components/ai/ask-button";
 import { BulkRateDialog } from "@/components/library/bulk-rate-dialog";
 import { rateIslandSentences } from "@/lib/services/bulk-rating-service";
+import {
+  getActiveBatchNumber,
+  hasActiveBatch,
+  useBatchStart,
+} from "@/hooks/use-batch-start";
 
 export function BatchSelectorDesktop() {
   const searchParams = useSearchParams();
@@ -85,6 +89,9 @@ export function BatchSelectorDesktop() {
   const [sourceType, setSourceType] = useState<"pathway" | "island">(initialSource);
   const [islandRateOpen, setIslandRateOpen] = useState(false);
   const [islandRateLoading, setIslandRateLoading] = useState(false);
+  const [changeBatchOpen, setChangeBatchOpen] = useState(false);
+
+  const { applyBatch } = useBatchStart(batchSize, pathwayBatch, islandKey, subtopic);
 
   const pathwayStats = useMemo(
     () => (dataset ? getPathwayBatchStats(dataset, progress) : []),
@@ -102,43 +109,8 @@ export function BatchSelectorDesktop() {
   const focusProgress = dataset
     ? getStudyFocusProgress(dataset, progress)
     : { activeCount: 0, confirmedCount: 0 };
-
-  const applyBatch = async (config: Omit<BatchConfig, "activeSentenceIds">) => {
-    if (!dataset) return;
-
-    const normalizedBatchSize = clampBatchSize(batchSize);
-    const pathwayBatchNumber =
-      config.sourceType === "pathway" ? Number(pathwayBatch) : null;
-
-    if (
-      config.sourceType === "pathway" &&
-      (!pathwayBatchNumber || Number.isNaN(pathwayBatchNumber))
-    ) {
-      toast.error("Select a valid pathway batch");
-      return;
-    }
-
-    const result = initializeBatch(
-      dataset,
-      {
-        ...config,
-        pathwayBatchNumber,
-        batchSize: normalizedBatchSize,
-      },
-      {
-        ...progress,
-        settings: { ...progress.settings, batchSize: normalizedBatchSize },
-      }
-    );
-    await setProgress(result.progress);
-
-    const count = result.config.activeSentenceIds.length;
-    if (count === 0) {
-      toast.error("No sentences available in this batch. Try another batch or island.");
-    } else {
-      toast.success(`Batch started with ${count} sentences`);
-    }
-  };
+  const batchActive = hasActiveBatch(dataset, progress);
+  const activeBatchNumber = getActiveBatchNumber(progress);
 
   const islandRateCount = useMemo(() => {
     if (!island) return 0;
@@ -167,27 +139,20 @@ export function BatchSelectorDesktop() {
 
   const formatLabel = (s: string) => s.replace(/_/g, " ");
 
-  return (
-    <AppGate>
-      <DesktopPageShell>
-        <DesktopPageHeader
-          title="Study"
-          subtitle="Pick your main pathway batch or an optional topic island"
-        />
+  const batchPicker = (
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr]">
+      <div className="space-y-4">
+        <Card className="border-dashed p-3">
+          <p className="text-sm text-muted">
+            <span className="font-medium text-foreground">Pathway</span> = core curriculum ·{" "}
+            <span className="font-medium text-foreground">Islands</span> = extra topics.{" "}
+            <Link href="/guide#pathway-vs-islands" className="underline underline-offset-2">
+              Learn more
+            </Link>
+          </p>
+        </Card>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr]">
-          <div className="space-y-4">
-            <Card className="border-dashed p-3">
-              <p className="text-sm text-muted">
-                <span className="font-medium text-foreground">Pathway</span> = core curriculum ·{" "}
-                <span className="font-medium text-foreground">Islands</span> = extra topics.{" "}
-                <Link href="/guide#pathway-vs-islands" className="underline underline-offset-2">
-                  Learn more
-                </Link>
-              </p>
-            </Card>
-
-            <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-2">
           <button
             type="button"
             onClick={() => setSourceType("pathway")}
@@ -218,21 +183,21 @@ export function BatchSelectorDesktop() {
           </button>
         </div>
 
-            <Card className="p-4">
-              <Label>Batch size: {batchSize}</Label>
-              <Slider
-                className="mt-3"
-                min={MIN_BATCH_SIZE}
-                max={MAX_BATCH_SIZE}
-                step={1}
-                value={[batchSize]}
-                onValueChange={([v]) => setBatchSize(clampBatchSize(v))}
-              />
-            </Card>
-          </div>
+        <Card className="p-4">
+          <Label>Batch size: {batchSize}</Label>
+          <Slider
+            className="mt-3"
+            min={MIN_BATCH_SIZE}
+            max={MAX_BATCH_SIZE}
+            step={1}
+            value={[batchSize]}
+            onValueChange={([v]) => setBatchSize(clampBatchSize(v))}
+          />
+        </Card>
+      </div>
 
-          <div className="min-w-0">
-          <Tabs value={sourceType} onValueChange={(v) => setSourceType(v as "pathway" | "island")}>
+      <div className="min-w-0">
+        <Tabs value={sourceType} onValueChange={(v) => setSourceType(v as "pathway" | "island")}>
           <TabsList className="hidden w-full">
             <TabsTrigger value="pathway">Pathway</TabsTrigger>
             <TabsTrigger value="island">Island</TabsTrigger>
@@ -243,12 +208,15 @@ export function BatchSelectorDesktop() {
               batches={pathwayStats}
               selectedBatch={Number(pathwayBatch)}
               suggestedBatch={suggestedBatch}
+              activeBatchNumber={activeBatchNumber}
+              dataset={dataset}
+              progress={progress}
               onSelect={(n) => setPathwayBatch(String(n))}
             />
             <Button
               className="w-auto"
               onClick={() =>
-                applyBatch({
+                void applyBatch({
                   sourceType: "pathway",
                   pathwayBatchNumber: Number(pathwayBatch),
                   islandKey: null,
@@ -320,7 +288,7 @@ export function BatchSelectorDesktop() {
                 <Button
                   className="w-auto"
                   onClick={() =>
-                    applyBatch({
+                    void applyBatch({
                       sourceType: "island",
                       pathwayBatchNumber: null,
                       islandKey,
@@ -336,22 +304,55 @@ export function BatchSelectorDesktop() {
             )}
           </TabsContent>
         </Tabs>
-          </div>
-        </div>
+      </div>
+    </div>
+  );
 
-        {studyFocus && activeSentences.length > 0 && (
-          <div className="mt-8 space-y-3">
-            <h2 className="font-display text-lg font-semibold">Currently studying</h2>
-            <StudyFocusBanner
-              focus={studyFocus}
-              progress={focusProgress}
-              changeHref="/batch"
-              compact
-            />
+  return (
+    <AppGate>
+      <DesktopPageShell>
+        <DesktopPageHeader
+          title="Study"
+          subtitle={
+            batchActive
+              ? "Continue your current batch or switch focus"
+              : "Pick your main pathway batch or an optional topic island"
+          }
+        />
+
+        {batchActive && (
+          <div className="mb-8 space-y-4">
+            {studyFocus && (
+              <StudyFocusBanner
+                focus={studyFocus}
+                progress={focusProgress}
+                compact
+                hideProgress
+              />
+            )}
+            <StudyFlowGuide />
+            <Button
+              variant="ghost"
+              className="justify-between text-muted"
+              onClick={() => setChangeBatchOpen((o) => !o)}
+            >
+              Change batch
+              {changeBatchOpen ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <ChevronDown className="h-4 w-4" />
+              )}
+            </Button>
           </div>
         )}
 
-        <ActiveBatchList sentences={activeSentences} />
+        {(!batchActive || changeBatchOpen) && batchPicker}
+
+        {batchActive && (
+          <div className="mt-8">
+            <ActiveBatchList sentences={activeSentences} />
+          </div>
+        )}
 
         <BulkRateDialog
           open={islandRateOpen}

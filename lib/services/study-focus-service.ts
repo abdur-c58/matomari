@@ -179,6 +179,51 @@ export function getStudyFocusProgress(
   return { activeCount: active.length, confirmedCount: confirmed };
 }
 
+export interface PathwayBatchProgressDetail {
+  confirmed: number;
+  active: number;
+  touched: number;
+  total: number;
+  isActiveBatch: boolean;
+}
+
+export function getActiveBatchProgressForPathwayBatch(
+  dataset: Dataset,
+  progress: UserProgress,
+  batchNumber: number
+): PathwayBatchProgressDetail {
+  const batch = dataset.main_pathway.batches.find(
+    (b) => b.batch_number === batchNumber
+  );
+  const total = batch?.sentences.length ?? 0;
+  const touched =
+    batch?.sentences.filter((s) => isSentenceStudied(s.id, progress)).length ?? 0;
+
+  const config = progress.batchConfig;
+  const isActiveBatch =
+    config?.sourceType === "pathway" &&
+    config.pathwayBatchNumber === batchNumber;
+
+  if (isActiveBatch) {
+    const focus = getStudyFocusProgress(dataset, progress);
+    return {
+      confirmed: focus.confirmedCount,
+      active: focus.activeCount,
+      touched,
+      total,
+      isActiveBatch: true,
+    };
+  }
+
+  return {
+    confirmed: 0,
+    active: 0,
+    touched,
+    total,
+    isActiveBatch: false,
+  };
+}
+
 export function maybeMarkPathwayBatchComplete(
   dataset: Dataset,
   progress: UserProgress,

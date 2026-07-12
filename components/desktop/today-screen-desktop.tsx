@@ -17,6 +17,7 @@ import {
   StudyFocusBanner,
   ChooseStudyFocus,
 } from "@/components/batch/study-focus-banner";
+import { StudyFlowGuide } from "@/components/study/study-flow-guide";
 import { AppGate } from "@/components/layout/empty-state";
 import { DesktopPageShell } from "@/components/layout/desktop-page-shell";
 import { DesktopPageHeader } from "@/components/layout/desktop-page-header";
@@ -85,6 +86,8 @@ export function TodayScreenDesktop() {
 
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_320px]">
           <div className="space-y-6">
+            {progress.batchConfig && <StudyFlowGuide />}
+
             {chooseFocusMeta && (
               <ChooseStudyFocus
                 suggestedBatchTitle={chooseFocusMeta.suggestedBatchTitle}

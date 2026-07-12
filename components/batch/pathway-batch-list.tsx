@@ -1,6 +1,9 @@
 "use client";
 
 import type { PathwayBatchStat } from "@/lib/services/study-focus-service";
+import { getActiveBatchProgressForPathwayBatch } from "@/lib/services/study-focus-service";
+import type { Dataset } from "@/types/sentence";
+import type { UserProgress } from "@/types/progress";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -9,11 +12,17 @@ export function PathwayBatchList({
   batches,
   selectedBatch,
   suggestedBatch,
+  activeBatchNumber = null,
+  dataset,
+  progress,
   onSelect,
 }: {
   batches: PathwayBatchStat[];
   selectedBatch: number;
   suggestedBatch: number;
+  activeBatchNumber?: number | null;
+  dataset?: Dataset | null;
+  progress?: UserProgress | null;
   onSelect: (batchNumber: number) => void;
 }) {
   return (
@@ -21,6 +30,16 @@ export function PathwayBatchList({
       {batches.map((batch) => {
         const selected = batch.batchNumber === selectedBatch;
         const recommended = batch.batchNumber === suggestedBatch && !batch.complete;
+        const isActiveFocus = batch.batchNumber === activeBatchNumber;
+
+        const detail =
+          dataset && progress
+            ? getActiveBatchProgressForPathwayBatch(dataset, progress, batch.batchNumber)
+            : null;
+
+        const barPct = isActiveFocus && detail && detail.active > 0
+          ? Math.round((detail.confirmed / detail.active) * 100)
+          : batch.percentComplete;
 
         return (
           <button
@@ -45,6 +64,7 @@ export function PathwayBatchList({
                     </span>
                     {recommended && <Badge variant="default">Recommended</Badge>}
                     {batch.complete && <Badge variant="success">Complete</Badge>}
+                    {isActiveFocus && <Badge variant="secondary">Active</Badge>}
                   </div>
                   <p className="mt-0.5 font-medium text-foreground">{batch.title}</p>
                   <p className="text-xs text-muted">
@@ -56,11 +76,13 @@ export function PathwayBatchList({
                 <div className="h-1 w-full overflow-hidden rounded-full bg-border">
                   <div
                     className="h-full rounded-full bg-foreground transition-[width] duration-300"
-                    style={{ width: `${batch.percentComplete}%` }}
+                    style={{ width: `${barPct}%` }}
                   />
                 </div>
                 <p className="text-xs tabular-nums text-muted">
-                  {batch.studied} / {batch.total} studied
+                  {isActiveFocus && detail
+                    ? `${detail.confirmed} / ${detail.active} meanings confirmed`
+                    : `${batch.studied} / ${batch.total} touched`}
                 </p>
               </div>
             </Card>

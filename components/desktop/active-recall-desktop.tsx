@@ -34,6 +34,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useEnsureTranslated } from "@/hooks/use-ensure-translated";
 import { SentenceContextPanel } from "@/components/study/sentence-context-panel";
+import { StudyFlowNextStep } from "@/components/study/study-flow-next-step";
 import { ShortcutsHint } from "@/components/layout/shortcuts-hint";
 import { useDesktopShortcuts } from "@/hooks/use-desktop-shortcuts";
 import { useTutor } from "@/components/ai/tutor-provider";
@@ -65,6 +66,7 @@ export function ActiveRecallModeDesktop() {
   const [suggestedRating, setSuggestedRating] = useState<number | null>(null);
   const [showRatingDialog, setShowRatingDialog] = useState(false);
   const [swipeOffset, setSwipeOffset] = useState(0);
+  const [sessionComplete, setSessionComplete] = useState(false);
   const sessionIdRef = useRef<string | null>(null);
 
   const current = sentences[index];
@@ -86,7 +88,7 @@ export function ActiveRecallModeDesktop() {
     if (index + 1 < sentences.length) {
       setIndex(index + 1);
     } else {
-      toast.success("Recall session complete");
+      setSessionComplete(true);
     }
   }, [index, sentences.length]);
 
@@ -175,6 +177,19 @@ export function ActiveRecallModeDesktop() {
     },
     onEscape: closeTutor,
   });
+
+  if (sessionComplete) {
+    return (
+      <AppGate>
+        <DesktopPageShell>
+          <StudyFlowNextStep
+            completedTitle="Recall session complete"
+            completedDescription="You worked through all due sentences in this session."
+          />
+        </DesktopPageShell>
+      </AppGate>
+    );
+  }
 
   if (!current) {
     return (

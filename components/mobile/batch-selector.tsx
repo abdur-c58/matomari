@@ -17,6 +17,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { StudyFocusBanner } from "@/components/batch/study-focus-banner";
 import { PathwayBatchList } from "@/components/batch/pathway-batch-list";
 import { IslandPicker } from "@/components/batch/island-picker";
+import { StudyFlowGuide } from "@/components/study/study-flow-guide";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
@@ -37,17 +38,20 @@ import {
 import {
   clampBatchSize,
   getActiveBatchSentences,
-  initializeBatch,
 } from "@/lib/services/batch-service";
-import type { BatchConfig } from "@/types/progress";
 import { toast } from "sonner";
-import { Map, Compass } from "lucide-react";
+import { Map, Compass, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CreateIslandDialog } from "@/components/ai/create-island-dialog";
 import { CreateManualIslandDialog } from "@/components/islands/create-manual-island-dialog";
 import { AskButton } from "@/components/ai/ask-button";
 import { BulkRateDialog } from "@/components/library/bulk-rate-dialog";
 import { rateIslandSentences } from "@/lib/services/bulk-rating-service";
+import {
+  getActiveBatchNumber,
+  hasActiveBatch,
+  useBatchStart,
+} from "@/hooks/use-batch-start";
 
 export function BatchSelectorMobile() {
   const searchParams = useSearchParams();
@@ -85,6 +89,9 @@ export function BatchSelectorMobile() {
   const [sourceType, setSourceType] = useState<"pathway" | "island">(initialSource);
   const [islandRateOpen, setIslandRateOpen] = useState(false);
   const [islandRateLoading, setIslandRateLoading] = useState(false);
+  const [changeBatchOpen, setChangeBatchOpen] = useState(false);
+
+  const { applyBatch } = useBatchStart(batchSize, pathwayBatch, islandKey, subtopic);
 
   const pathwayStats = useMemo(
     () => (dataset ? getPathwayBatchStats(dataset, progress) : []),
@@ -102,43 +109,8 @@ export function BatchSelectorMobile() {
   const focusProgress = dataset
     ? getStudyFocusProgress(dataset, progress)
     : { activeCount: 0, confirmedCount: 0 };
-
-  const applyBatch = async (config: Omit<BatchConfig, "activeSentenceIds">) => {
-    if (!dataset) return;
-
-    const normalizedBatchSize = clampBatchSize(batchSize);
-    const pathwayBatchNumber =
-      config.sourceType === "pathway" ? Number(pathwayBatch) : null;
-
-    if (
-      config.sourceType === "pathway" &&
-      (!pathwayBatchNumber || Number.isNaN(pathwayBatchNumber))
-    ) {
-      toast.error("Select a valid pathway batch");
-      return;
-    }
-
-    const result = initializeBatch(
-      dataset,
-      {
-        ...config,
-        pathwayBatchNumber,
-        batchSize: normalizedBatchSize,
-      },
-      {
-        ...progress,
-        settings: { ...progress.settings, batchSize: normalizedBatchSize },
-      }
-    );
-    await setProgress(result.progress);
-
-    const count = result.config.activeSentenceIds.length;
-    if (count === 0) {
-      toast.error("No sentences available in this batch. Try another batch or island.");
-    } else {
-      toast.success(`Batch started with ${count} sentences`);
-    }
-  };
+  const batchActive = hasActiveBatch(dataset, progress);
+  const activeBatchNumber = getActiveBatchNumber(progress);
 
   const islandRateCount = useMemo(() => {
     if (!island) return 0;
@@ -167,186 +139,217 @@ export function BatchSelectorMobile() {
 
   const formatLabel = (s: string) => s.replace(/_/g, " ");
 
+  const batchPicker = (
+    <>
+      <Card className="mb-6 border-dashed p-3">
+        <p className="text-sm text-muted">
+          <span className="font-medium text-foreground">Pathway</span> = core curriculum in
+          order ·{" "}
+          <span className="font-medium text-foreground">Islands</span> = extra topics anytime.{" "}
+          <Link href="/guide#pathway-vs-islands" className="underline underline-offset-2">
+            Learn more
+          </Link>
+        </p>
+      </Card>
+
+      <div className="mb-6 grid grid-cols-2 gap-3">
+        <button
+          type="button"
+          onClick={() => setSourceType("pathway")}
+          className={cn(
+            "rounded-2xl border p-4 text-left transition-all duration-150",
+            sourceType === "pathway"
+              ? "border-foreground bg-foreground/5 shadow-sm"
+              : "border-border bg-surface hover:border-foreground/30"
+          )}
+        >
+          <Compass className="mb-2 h-5 w-5 text-foreground" />
+          <p className="font-semibold">Main pathway</p>
+          <p className="text-xs text-muted">Sequential curriculum batches</p>
+        </button>
+        <button
+          type="button"
+          onClick={() => setSourceType("island")}
+          className={cn(
+            "rounded-2xl border p-4 text-left transition-all duration-150",
+            sourceType === "island"
+              ? "border-mode-meaning bg-mode-meaning/5 shadow-sm"
+              : "border-border bg-surface hover:border-mode-meaning/30"
+          )}
+        >
+          <Map className="mb-2 h-5 w-5 text-mode-meaning" />
+          <p className="font-semibold">Topic islands</p>
+          <p className="text-xs text-muted">Optional situational sets</p>
+        </button>
+      </div>
+
+      <Card className="mb-6 p-4">
+        <Label>Batch size: {batchSize}</Label>
+        <Slider
+          className="mt-3"
+          min={MIN_BATCH_SIZE}
+          max={MAX_BATCH_SIZE}
+          step={1}
+          value={[batchSize]}
+          onValueChange={([v]) => setBatchSize(clampBatchSize(v))}
+        />
+      </Card>
+
+      <Tabs value={sourceType} onValueChange={(v) => setSourceType(v as "pathway" | "island")}>
+        <TabsList className="hidden w-full">
+          <TabsTrigger value="pathway">Pathway</TabsTrigger>
+          <TabsTrigger value="island">Island</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="pathway" className="space-y-4">
+          <PathwayBatchList
+            batches={pathwayStats}
+            selectedBatch={Number(pathwayBatch)}
+            suggestedBatch={suggestedBatch}
+            activeBatchNumber={activeBatchNumber}
+            dataset={dataset}
+            progress={progress}
+            onSelect={(n) => setPathwayBatch(String(n))}
+          />
+          <Button
+            className="w-full"
+            onClick={() =>
+              void applyBatch({
+                sourceType: "pathway",
+                pathwayBatchNumber: Number(pathwayBatch),
+                islandKey: null,
+                subtopic: null,
+                batchSize: clampBatchSize(batchSize),
+              })
+            }
+          >
+            Start this batch
+          </Button>
+        </TabsContent>
+
+        <TabsContent value="island" className="space-y-4">
+          <div className="mb-4 space-y-0">
+            <CreateIslandDialog
+              onCreated={(key) => {
+                setIslandKey(key);
+                setSourceType("island");
+              }}
+            />
+            <CreateManualIslandDialog
+              onCreated={(key) => {
+                setIslandKey(key);
+                setSourceType("island");
+              }}
+            />
+          </div>
+
+          <IslandPicker
+            islands={islandSummaries}
+            selectedKey={islandKey}
+            onSelect={setIslandKey}
+          />
+
+          {island && (
+            <>
+              <Select value={subtopic} onValueChange={setSubtopic}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Subtopic" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All subtopics</SelectItem>
+                  {island.subtopics.map((st) => (
+                    <SelectItem key={st} value={st}>
+                      {formatLabel(st)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <AskButton
+                context={{ type: "island", islandKey }}
+                label="Ask about this island"
+                variant="outline"
+                className="w-full"
+              />
+            </>
+          )}
+
+          {islandSummaries.length > 0 && (
+            <>
+              <Button
+                variant="secondary"
+                className="w-full"
+                onClick={() => setIslandRateOpen(true)}
+                disabled={!islandKey || islandRateCount === 0}
+              >
+                Rate entire island
+              </Button>
+              <Button
+                className="w-full"
+                onClick={() =>
+                  void applyBatch({
+                    sourceType: "island",
+                    pathwayBatchNumber: null,
+                    islandKey,
+                    subtopic: subtopic === "all" ? null : subtopic,
+                    batchSize: clampBatchSize(batchSize),
+                  })
+                }
+                disabled={!islandKey}
+              >
+                Start island batch
+              </Button>
+            </>
+          )}
+        </TabsContent>
+      </Tabs>
+    </>
+  );
+
   return (
     <AppGate>
       <PageShell>
         <PageHeader
           title="Study"
-          subtitle="Pick your main pathway batch or an optional topic island"
+          subtitle={
+            batchActive
+              ? "Continue your current batch or switch focus"
+              : "Pick your main pathway batch or an optional topic island"
+          }
         />
 
-        <Card className="mb-6 border-dashed p-3">
-          <p className="text-sm text-muted">
-            <span className="font-medium text-foreground">Pathway</span> = core curriculum in
-            order ·{" "}
-            <span className="font-medium text-foreground">Islands</span> = extra topics anytime.{" "}
-            <Link href="/guide#pathway-vs-islands" className="underline underline-offset-2">
-              Learn more
-            </Link>
-          </p>
-        </Card>
-
-        <div className="mb-6 grid grid-cols-2 gap-3">
-          <button
-            type="button"
-            onClick={() => setSourceType("pathway")}
-            className={cn(
-              "rounded-2xl border p-4 text-left transition-all duration-150",
-              sourceType === "pathway"
-                ? "border-foreground bg-foreground/5 shadow-sm"
-                : "border-border bg-surface hover:border-foreground/30"
+        {batchActive && (
+          <div className="mb-6 space-y-4">
+            {studyFocus && (
+              <StudyFocusBanner
+                focus={studyFocus}
+                progress={focusProgress}
+                compact
+                hideProgress
+              />
             )}
-          >
-            <Compass className="mb-2 h-5 w-5 text-foreground" />
-            <p className="font-semibold">Main pathway</p>
-            <p className="text-xs text-muted">Sequential curriculum batches</p>
-          </button>
-          <button
-            type="button"
-            onClick={() => setSourceType("island")}
-            className={cn(
-              "rounded-2xl border p-4 text-left transition-all duration-150",
-              sourceType === "island"
-                ? "border-mode-meaning bg-mode-meaning/5 shadow-sm"
-                : "border-border bg-surface hover:border-mode-meaning/30"
-            )}
-          >
-            <Map className="mb-2 h-5 w-5 text-mode-meaning" />
-            <p className="font-semibold">Topic islands</p>
-            <p className="text-xs text-muted">Optional situational sets</p>
-          </button>
-        </div>
-
-        <Card className="mb-6 p-4">
-          <Label>Batch size: {batchSize}</Label>
-          <Slider
-            className="mt-3"
-          min={MIN_BATCH_SIZE}
-          max={MAX_BATCH_SIZE}
-            step={1}
-            value={[batchSize]}
-            onValueChange={([v]) => setBatchSize(clampBatchSize(v))}
-          />
-        </Card>
-
-        <Tabs value={sourceType} onValueChange={(v) => setSourceType(v as "pathway" | "island")}>
-          <TabsList className="hidden w-full">
-            <TabsTrigger value="pathway">Pathway</TabsTrigger>
-            <TabsTrigger value="island">Island</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="pathway" className="space-y-4">
-            <PathwayBatchList
-              batches={pathwayStats}
-              selectedBatch={Number(pathwayBatch)}
-              suggestedBatch={suggestedBatch}
-              onSelect={(n) => setPathwayBatch(String(n))}
-            />
+            <StudyFlowGuide />
             <Button
-              className="w-full"
-              onClick={() =>
-                applyBatch({
-                  sourceType: "pathway",
-                  pathwayBatchNumber: Number(pathwayBatch),
-                  islandKey: null,
-                  subtopic: null,
-                  batchSize: clampBatchSize(batchSize),
-                })
-              }
+              variant="ghost"
+              className="w-full justify-between text-muted"
+              onClick={() => setChangeBatchOpen((o) => !o)}
             >
-              Start this batch
+              Change batch
+              {changeBatchOpen ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <ChevronDown className="h-4 w-4" />
+              )}
             </Button>
-          </TabsContent>
-
-          <TabsContent value="island" className="space-y-4">
-            <div className="mb-4 space-y-0">
-              <CreateIslandDialog
-                onCreated={(key) => {
-                  setIslandKey(key);
-                  setSourceType("island");
-                }}
-              />
-              <CreateManualIslandDialog
-                onCreated={(key) => {
-                  setIslandKey(key);
-                  setSourceType("island");
-                }}
-              />
-            </div>
-
-            <IslandPicker
-              islands={islandSummaries}
-              selectedKey={islandKey}
-              onSelect={setIslandKey}
-            />
-
-            {island && (
-              <>
-                <Select value={subtopic} onValueChange={setSubtopic}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Subtopic" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All subtopics</SelectItem>
-                    {island.subtopics.map((st) => (
-                      <SelectItem key={st} value={st}>
-                        {formatLabel(st)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <AskButton
-                  context={{ type: "island", islandKey }}
-                  label="Ask about this island"
-                  variant="outline"
-                  className="w-full"
-                />
-              </>
-            )}
-
-            {islandSummaries.length > 0 && (
-              <>
-                <Button
-                  variant="secondary"
-                  className="w-full"
-                  onClick={() => setIslandRateOpen(true)}
-                  disabled={!islandKey || islandRateCount === 0}
-                >
-                  Rate entire island
-                </Button>
-                <Button
-                  className="w-full"
-                  onClick={() =>
-                    applyBatch({
-                      sourceType: "island",
-                      pathwayBatchNumber: null,
-                      islandKey,
-                      subtopic: subtopic === "all" ? null : subtopic,
-                      batchSize: clampBatchSize(batchSize),
-                    })
-                  }
-                  disabled={!islandKey}
-                >
-                  Start island batch
-                </Button>
-              </>
-            )}
-          </TabsContent>
-        </Tabs>
-
-        {studyFocus && activeSentences.length > 0 && (
-          <div className="mt-8 space-y-3">
-            <h2 className="font-display text-lg font-semibold">Currently studying</h2>
-            <StudyFocusBanner
-              focus={studyFocus}
-              progress={focusProgress}
-              changeHref="/batch"
-              compact
-            />
           </div>
         )}
 
-        <ActiveBatchList sentences={activeSentences} />
+        {(!batchActive || changeBatchOpen) && batchPicker}
+
+        {batchActive && (
+          <div className="mt-8">
+            <ActiveBatchList sentences={activeSentences} />
+          </div>
+        )}
 
         <BulkRateDialog
           open={islandRateOpen}

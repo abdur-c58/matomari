@@ -13,11 +13,13 @@ export function StudyFocusBanner({
   progress: focusProgress,
   changeHref = "/batch",
   compact = false,
+  hideProgress = false,
 }: {
   focus: StudyFocus;
   progress: StudyFocusProgress;
   changeHref?: string;
   compact?: boolean;
+  hideProgress?: boolean;
 }) {
   const pct =
     focusProgress.activeCount > 0
@@ -50,7 +52,7 @@ export function StudyFocusBanner({
           </Link>
         </Button>
       </div>
-      {focusProgress.activeCount > 0 && (
+      {focusProgress.activeCount > 0 && !hideProgress && (
         <div className="mt-3 space-y-1.5">
           <div className="h-1.5 w-full overflow-hidden rounded-full bg-border">
             <div
@@ -85,7 +87,7 @@ export function ChooseStudyFocus({
         </p>
       </div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
-        <Link href={`/batch?source=pathway&batch=${suggestedBatchNumber}`}>
+        <Link href={`/batch?source=pathway&batch=${suggestedBatchNumber}&autoStart=1`}>
           <Card variant="interactive" className="h-full border-l-4 border-l-foreground p-4">
             <Compass className="mb-2 h-5 w-5 text-foreground" />
             <p className="font-semibold text-foreground">Continue main pathway</p>
@@ -96,7 +98,7 @@ export function ChooseStudyFocus({
               Batch {suggestedBatchNumber}: {suggestedBatchTitle}
             </p>
             <Button className="mt-3 w-full" size="sm">
-              Start batch
+              Start learning
             </Button>
           </Card>
         </Link>

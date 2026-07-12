@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Mic, MicOff, Square, Play } from "lucide-react";
 import type { Sentence } from "@/types/sentence";
 import { SentenceDisplay } from "./sentence-display";
@@ -15,14 +16,16 @@ import { ShortcutsHint } from "@/components/layout/shortcuts-hint";
 import { useDesktopShortcuts } from "@/hooks/use-desktop-shortcuts";
 import { useTutor } from "@/components/ai/tutor-provider";
 import { useApp } from "@/components/providers/app-provider";
+import { getNextStepAfterShadow } from "@/lib/services/study-flow-service";
 import { startModeSession, endModeSession } from "@/lib/sync/sync-service";
 import { audioSession, type TtsRequest } from "@/lib/audio/audio-session";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 export function ShadowingMode({ sentences }: { sentences: Sentence[] }) {
+  const router = useRouter();
   const isMobile = useIsMobileViewport(MOBILE_MEDIA_QUERY);
-  const { audioUnlocked, audioState, progress } = useApp();
+  const { audioUnlocked, audioState, progress, dataset } = useApp();
   const { closeTutor } = useTutor();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [shadowing, setShadowing] = useState(false);
@@ -121,6 +124,10 @@ export function ShadowingMode({ sentences }: { sentences: Sentence[] }) {
         }
       />
 
+      <p className="mb-4 text-sm text-muted">
+        Play each sentence, pause, and repeat aloud. Match rhythm and intonation.
+      </p>
+
       {!isMobile && (
         <ShortcutsHint
           shortcuts={[
@@ -193,6 +200,17 @@ export function ShadowingMode({ sentences }: { sentences: Sentence[] }) {
                 </div>
               </div>
             )}
+
+            <Button
+              variant="outline"
+              className={cn(isMobile ? "w-full" : "w-auto")}
+              onClick={() => {
+                const next = getNextStepAfterShadow(dataset, progress);
+                router.push(next.href);
+              }}
+            >
+              Done shadowing
+            </Button>
           </div>
           </div>
           {!isMobile && <SentenceContextPanel sentence={current} />}
