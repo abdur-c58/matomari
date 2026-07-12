@@ -1,4 +1,4 @@
-const DEFAULT_OPENAI_MODEL = "gpt-5.5-mini";
+const DEFAULT_OPENAI_MODEL = "gpt-5.4-mini";
 const DEFAULT_ELEVENLABS_VOICE_ID = "pNInz6obpgDQGcFmaJgB";
 const DEFAULT_R2_BUCKET_NAME = "shima-audio";
 
