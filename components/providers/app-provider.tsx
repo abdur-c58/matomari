@@ -52,6 +52,11 @@ import {
   clearUploadProgress,
   reportTranslationProgress,
 } from "@/lib/upload-progress";
+import {
+  applyProgressSettingsUpdate,
+  normalizeUserProgress,
+  prepareProgressForSave,
+} from "@/lib/progress/dialect-progress";
 
 interface AppContextValue {
   dataset: Dataset | null;
@@ -109,7 +114,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     async (snapshot: Awaited<ReturnType<typeof loadLocalSnapshot>>) => {
       setDataset(snapshot.dataset);
       setUserLibrary(snapshot.library);
-      setProgressState(snapshot.progress);
+      setProgressState(normalizeUserProgress(snapshot.progress));
       setStatsState(snapshot.stats);
       setLastSyncedAt(snapshot.lastSyncedAt);
       return snapshot;
@@ -385,14 +390,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const setProgress = useCallback(async (p: UserProgress) => {
     const previousDialect = progress.settings.dialect;
-    await saveProgressSynced(p);
-    setProgressState(p);
+    const nextSettings = { ...progress.settings, ...p.settings };
+    const next =
+      nextSettings.dialect !== previousDialect
+        ? applyProgressSettingsUpdate(progress, nextSettings)
+        : prepareProgressForSave({ ...progress, ...p, settings: nextSettings });
 
-    if (p.settings.dialect !== previousDialect) {
+    await saveProgressSynced(next);
+    setProgressState(normalizeUserProgress(next));
+
+    if (nextSettings.dialect !== previousDialect) {
       const d = await getDatasetSynced();
       if (d) setDataset(d);
     }
-  }, [progress.settings.dialect]);
+  }, [progress]);
 
   const setStats = useCallback(async (s: AppStats) => {
     await saveStatsSynced(s);

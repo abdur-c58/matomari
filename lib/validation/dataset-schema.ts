@@ -20,11 +20,20 @@ export const seedSentenceSchema = z.object({
   translated: z.boolean().default(false),
 });
 
+export const sentencePlaceholderSchema = z.object({
+  tag: z.string().min(1),
+  resolveAs: z.enum(["learner", "literal"]),
+  readingSubstitute: z.string().min(1),
+  label: z.string().optional(),
+});
+
 export const translatedFieldsSchema = z.object({
   japanese: z.string().min(1),
   reading: z.string(),
   romaji: z.string(),
   literal_note: z.string().optional(),
+  phonetic_reading: z.string().optional(),
+  placeholders: z.array(sentencePlaceholderSchema).optional(),
 });
 
 export const sentenceSchema = seedSentenceSchema.extend({

@@ -115,6 +115,16 @@ export const translateResponseSchema = z.object({
       romaji: z.string(),
       literal_note: z.string().optional(),
       phonetic_reading: z.string().optional(),
+      placeholders: z
+        .array(
+          z.object({
+            tag: z.string().min(1),
+            resolveAs: z.enum(["learner", "literal"]),
+            readingSubstitute: z.string().min(1),
+            label: z.string().optional(),
+          })
+        )
+        .optional(),
     })
   ),
 });

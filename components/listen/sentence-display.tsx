@@ -3,6 +3,7 @@
 import type { Sentence } from "@/types/sentence";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
+import { PlaceholderText } from "@/components/sentence/placeholder-text";
 
 export function SentenceDisplay({
   sentence,
@@ -13,10 +14,18 @@ export function SentenceDisplay({
 }) {
   return (
     <Card variant="elevated" className="text-center">
-      <p className="text-base text-muted">{sentence.english}</p>
-      <p className="mt-4 font-japanese text-3xl leading-relaxed text-foreground">
-        {sentence.japanese}
-      </p>
+      <PlaceholderText
+        text={sentence.english}
+        sentence={sentence}
+        as="p"
+        className="text-base text-muted"
+      />
+      <PlaceholderText
+        text={sentence.japanese ?? ""}
+        sentence={sentence}
+        as="p"
+        className="mt-4 font-japanese text-3xl leading-relaxed text-foreground"
+      />
       {sentence.reading && (
         <p className="mt-3 font-japanese text-lg text-muted">{sentence.reading}</p>
       )}

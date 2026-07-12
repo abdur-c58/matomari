@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { METHOD_NAME } from "@/lib/constants/branding";
 import { fadeUp, smoothTransition } from "@/lib/motion";
 import { cn } from "@/lib/utils";
+import { ChatMessageContent } from "@/components/ai/chat-message-content";
 import { streamChat, AIClientError } from "@/lib/ai/ai-client";
 import { useVisualViewportScroll } from "@/hooks/use-visual-viewport-scroll";
 
@@ -74,7 +75,10 @@ function ChatBubble({
             <span className="text-sm">Thinking…</span>
           </span>
         ) : (
-          <span className="whitespace-pre-wrap break-words">{message.content}</span>
+          <ChatMessageContent
+            content={message.content}
+            variant={isUser ? "user" : "assistant"}
+          />
         )}
       </div>
     </motion.div>

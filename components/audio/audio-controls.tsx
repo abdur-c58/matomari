@@ -7,6 +7,9 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useApp } from "@/components/providers/app-provider";
 import { audioSession, type TtsRequest } from "@/lib/audio/audio-session";
+import { getTtsTextFromFields } from "@/lib/audio/tts-text";
+import type { SentencePlaceholder } from "@/types/sentence";
+import { useLearnerName } from "@/hooks/use-learner-name";
 import { cn } from "@/lib/utils";
 
 interface AudioControlsProps {
@@ -18,6 +21,7 @@ interface AudioControlsProps {
   tags?: string[];
   context_notes?: string;
   english?: string;
+  placeholders?: SentencePlaceholder[];
   playlist?: TtsRequest[];
   onPlaylistIndex?: (index: number) => void;
   shadowPause?: boolean;
@@ -33,15 +37,28 @@ export function AudioControls({
   tags,
   context_notes,
   english,
+  placeholders,
   playlist,
   onPlaylistIndex,
   shadowPause = false,
   className,
 }: AudioControlsProps) {
   const { audioUnlocked, unlockAudio, audioState, progress } = useApp();
+  const learnerName = useLearnerName();
   const dialect = progress.settings.dialect;
   const [loop, setLoop] = useState(false);
   const [playlistMode, setPlaylistMode] = useState(false);
+
+  const canPlaySentence = Boolean(
+    sentenceId &&
+      getTtsTextFromFields(japanese, reading, {
+        dialect,
+        phonetic_reading,
+        placeholders,
+        learnerName,
+      })
+  );
+  const canPlay = playlistMode ? Boolean(playlist?.length) : canPlaySentence;
 
   if (!audioUnlocked) {
     return (
@@ -61,13 +78,15 @@ export function AudioControls({
         onPlaylistIndex,
         shadowPause ? 3000 : 0
       );
-    } else if (sentenceId && japanese) {
+    } else if (canPlaySentence) {
       audioSession.setLoop(loop);
       await audioSession.playSentence({
-        sentenceId,
-        japanese,
+        sentenceId: sentenceId!,
+        japanese: japanese!,
         reading,
         phonetic_reading,
+        placeholders,
+        learnerName,
         dialect,
         register,
         tags,
@@ -75,6 +94,18 @@ export function AudioControls({
         english,
       });
     }
+  };
+
+  const handleMainClick = async () => {
+    if (audioState === "playing") {
+      audioSession.pause();
+      return;
+    }
+    if (audioState === "paused") {
+      audioSession.resume();
+      return;
+    }
+    await handlePlay();
   };
 
   const isPlaying = audioState === "playing";
@@ -101,6 +132,7 @@ export function AudioControls({
         <Button
           size="icon"
           variant={loop ? "soft" : "outline"}
+          disabled={!canPlay}
           onClick={() => {
             const next = !loop;
             setLoop(next);
@@ -112,8 +144,10 @@ export function AudioControls({
         <Button
           size="icon"
           className="h-14 w-14 rounded-full shadow-md"
-          onClick={handlePlay}
+          onClick={handleMainClick}
           loading={isLoading}
+          disabled={!canPlay}
+          aria-label={isPlaying ? "Pause audio" : "Play audio"}
         >
           {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6 ml-0.5" />}
         </Button>
@@ -127,6 +161,12 @@ export function AudioControls({
           </Button>
         )}
       </div>
+
+      {!canPlay && (
+        <p className="mt-3 text-center text-xs text-muted">
+          Audio unavailable for this sentence. Try retranslating it from the library.
+        </p>
+      )}
 
       {playlist && (
         <div className="mt-4 flex items-center justify-between border-t border-border-subtle pt-4">

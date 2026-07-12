@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { StarRating } from "@/components/sentence/star-rating";
 import { AskButton } from "@/components/ai/ask-button";
 import { SentencePlayButton } from "@/components/audio/sentence-play-button";
+import { PlaceholderText } from "@/components/sentence/placeholder-text";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { getDialectLabel } from "@/lib/constants/dialect";
@@ -112,15 +113,24 @@ export function LibrarySentenceRow({
             <RatingPill rating={rating} />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm leading-snug text-foreground">{sentence.english}</p>
-            <p
-              className={cn(
-                "truncate text-sm leading-snug",
-                translated ? "font-japanese text-muted" : "text-xs italic text-muted"
-              )}
-            >
-              {translated && sentence.japanese ? sentence.japanese : "Not yet translated"}
-            </p>
+            <PlaceholderText
+              text={sentence.english}
+              sentence={sentence}
+              as="p"
+              className="truncate text-sm leading-snug text-foreground"
+            />
+            {translated && sentence.japanese ? (
+              <PlaceholderText
+                text={sentence.japanese}
+                sentence={sentence}
+                as="p"
+                className="truncate text-sm font-japanese leading-snug text-muted"
+              />
+            ) : (
+              <p className="truncate text-xs italic leading-snug text-muted">
+                Not yet translated
+              </p>
+            )}
             <div className="mt-1 flex flex-wrap items-center gap-1">
               {isActive && (
                 <Badge variant="default" className="h-5 px-1.5 text-[10px]">
@@ -150,6 +160,7 @@ export function LibrarySentenceRow({
           tags={sentence.tags}
           context_notes={sentence.context_notes}
           english={sentence.english}
+          placeholders={sentence.placeholders}
           disabled={!translated}
           className="mt-0.5"
         />

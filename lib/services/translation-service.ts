@@ -9,6 +9,7 @@ import {
 import type { Dialect } from "@/lib/constants/dialect";
 import { DEFAULT_DIALECT } from "@/lib/constants/dialect";
 import { isValidKanaReading } from "@/lib/audio/tts-text";
+import { validatePlaceholderTranslations } from "@/lib/sentence/placeholders";
 
 const BATCH_SIZE = 30;
 
@@ -123,13 +124,25 @@ function validateTranslations(
         "REQUEST_FAILED"
       );
     }
-    if (!isValidKanaReading(fields.reading)) {
+    const placeholderCheck = validatePlaceholderTranslations(
+      fields.japanese,
+      fields.reading,
+      fields.placeholders,
+      dialect === "kansai" ? fields.phonetic_reading : undefined
+    );
+    if (!placeholderCheck.valid) {
+      throw new TranslationError(
+        `Invalid kana reading for sentence ${seed.id}. ${placeholderCheck.error ?? "Retranslation required."}`,
+        "REQUEST_FAILED"
+      );
+    }
+    if (!fields.placeholders?.length && !isValidKanaReading(fields.reading)) {
       throw new TranslationError(
         `Invalid kana reading for sentence ${seed.id}. Retranslation required.`,
         "REQUEST_FAILED"
       );
     }
-    if (dialect === "kansai" && !isValidKanaReading(fields.phonetic_reading)) {
+    if (dialect === "kansai" && !fields.phonetic_reading?.trim()) {
       throw new TranslationError(
         `Missing Kansai phonetic reading for sentence ${seed.id}. Retranslation required.`,
         "REQUEST_FAILED"

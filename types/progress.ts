@@ -42,12 +42,23 @@ export interface AppSettings {
   /** Kept for sync compatibility; always true for new users. */
   dialectChosen: boolean;
   notifications: NotificationPreferences;
+  /** Optional override for [name] placeholder resolution */
+  displayName?: string;
 }
 
 export interface UserProgress {
+  /** Per-dialect study state; active dialect is also denormalized to top-level fields. */
+  byDialect?: Partial<Record<Dialect, DialectStudyProgress>>;
   sentences: Record<string, SentenceProgress>;
   batchConfig: BatchConfig | null;
   settings: AppSettings;
+  completedPathwayBatches: number[];
+  completedIslands: string[];
+}
+
+export interface DialectStudyProgress {
+  sentences: Record<string, SentenceProgress>;
+  batchConfig: BatchConfig | null;
   completedPathwayBatches: number[];
   completedIslands: string[];
 }

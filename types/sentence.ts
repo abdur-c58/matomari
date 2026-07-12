@@ -14,6 +14,15 @@ export interface SeedSentence {
   translated: boolean;
 }
 
+export type PlaceholderResolveAs = "learner" | "literal";
+
+export interface SentencePlaceholder {
+  tag: string;
+  resolveAs: PlaceholderResolveAs;
+  readingSubstitute: string;
+  label?: string;
+}
+
 export interface TranslatedFields {
   japanese: string;
   reading: string;
@@ -21,6 +30,7 @@ export interface TranslatedFields {
   literal_note?: string;
   /** Kansai-only: exaggerated kana script for TTS accent simulation via standard voices */
   phonetic_reading?: string;
+  placeholders?: SentencePlaceholder[];
 }
 
 export type Sentence = SeedSentence & Partial<TranslatedFields>;

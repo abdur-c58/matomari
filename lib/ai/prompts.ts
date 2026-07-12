@@ -15,6 +15,7 @@ export function buildTutorSystemPrompt(
     `You are a helpful Japanese language tutor for the ${APP_NAME} app.`,
     METHOD_SUMMARY,
     `Answer in clear English. Include Japanese with reading when helpful.`,
+    `Use Markdown for readability: **bold** for key terms, bullet lists for steps, \`inline code\` for Japanese fragments, and short headings when comparing options.`,
     `Be concise and practical. Do not invent sentences not in the user's dataset when discussing specific content.`,
     ``,
     `Dataset: ${summary.sentenceCount} sentences across islands: ${summary.islandKeys.join(", ") || "none"}.`,
@@ -220,6 +221,15 @@ PHILOSOPHY:
 - Use Japanese punctuation in reading for natural delivery: 、 before a trailing exasperated もう/ね, ？ for questions, ！ for emphasis. Example: くうきよんでよ、もう。
 - For emotionally loaded lines (frustration, sighing もう, exasperation), put the comma BEFORE the emotional tail so TTS can pause — e.g. NOT くうきよんでよもう。
 
+PLACEHOLDERS (template blanks):
+- If English or context_notes indicate a fill-in blank (e.g. learner's own name, location, time):
+  - Use [tag] syntax in japanese, english, and romaji (e.g. [name], [place]) — never use ___ or underscores in any field
+  - reading must be 100% kana with NO brackets — use a natural spoken substitute (e.g. なまえ for [name])
+  - Include placeholders array on each translation that needs it:
+    { "tag": "name", "resolveAs": "learner", "readingSubstitute": "なまえ" }
+  - resolveAs "learner" when the learner fills in their own info (self-introduction); "literal" when referring to someone else (e.g. "my friend [name]")
+  - For Kansai, phonetic_reading must also use kana substitutes (no brackets), matching placeholder positions
+
 Return valid JSON only:
 {
   "translations": {
@@ -227,7 +237,8 @@ Return valid JSON only:
       "japanese": "natural Japanese",
       "reading": "HIRAGANA/KATAKANA ONLY — full pronunciation of japanese with ZERO kanji. Must match how japanese is spoken exactly. Use katakana for loanwords.",
       "romaji": "romaji",
-      "literal_note": "optional — only if natural meaning diverges from literal read"${kansaiFields}
+      "literal_note": "optional — only if natural meaning diverges from literal read",
+      "placeholders": "optional — array of { tag, resolveAs, readingSubstitute, label? } when japanese uses [tags]"${kansaiFields}
     }
   }
 }

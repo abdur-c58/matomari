@@ -563,7 +563,7 @@
           },
           {
             "id": "mp2-16",
-            "english": "Nice to meet you, I'm ___.",
+            "english": "Nice to meet you, I'm [name].",
             "register": "polite",
             "difficulty": 2,
             "category": "main_pathway",
@@ -573,9 +573,16 @@
             ],
             "context_notes": "template sentence, blank is filled with the learner's own name",
             "translated": true,
-            "japanese": "はじめまして、___です。",
-            "reading": "はじめまして、___です。",
-            "romaji": "hajimemashite, ___ desu"
+            "japanese": "はじめまして、[name]です。",
+            "reading": "はじめまして、なまえです。",
+            "romaji": "hajimemashite, [name] desu",
+            "placeholders": [
+              {
+                "tag": "name",
+                "resolveAs": "learner",
+                "readingSubstitute": "なまえ"
+              }
+            ]
           },
           {
             "id": "mp2-17",

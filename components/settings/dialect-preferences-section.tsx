@@ -17,8 +17,8 @@ export function DialectPreferencesSection({
     <Card className="mb-6 p-4">
       <Label className="text-base">Japanese dialect</Label>
       <p className="mt-1 text-sm leading-relaxed text-muted">
-        Choose how sentences are translated and spoken. Kansai uses a separate voice and phonetic
-        script for accent.
+        Choose how sentences are translated and spoken. Progress and ratings are saved separately
+        for each dialect. Kansai uses a separate voice and phonetic script for accent.
       </p>
 
       <div className="mt-4 space-y-2">

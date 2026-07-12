@@ -69,9 +69,14 @@ export function getDB() {
 
 import type { Dialect } from "@/lib/constants/dialect";
 import { DEFAULT_DIALECT } from "@/lib/constants/dialect";
+import { emptyDialectStudyProgress } from "@/lib/progress/dialect-progress";
 import { DEFAULT_NOTIFICATION_PREFERENCES } from "@/lib/constants/notifications";
 
 export const DEFAULT_PROGRESS: UserProgress = {
+  byDialect: {
+    standard: emptyDialectStudyProgress(),
+    kansai: emptyDialectStudyProgress(),
+  },
   sentences: {},
   batchConfig: null,
   settings: {

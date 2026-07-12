@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useApp } from "@/components/providers/app-provider";
 import { PageShell } from "@/components/layout/page-shell";
 import { PageHeader } from "@/components/layout/page-header";
@@ -16,17 +16,15 @@ import {
 import { NotificationPreferencesSection } from "@/components/settings/notification-preferences-section";
 import { DialectPreferencesSection } from "@/components/settings/dialect-preferences-section";
 import { parseReturnTo } from "@/lib/utils/dialect-preferences";
-import { toast } from "sonner";
+import { useSavePreferences } from "@/components/settings/use-save-preferences";
 
 export function PreferencesScreenMobile() {
-  const router = useRouter();
   const searchParams = useSearchParams();
-  const { dataset, progress, setProgress, refresh } = useApp();
+  const { dataset, progress } = useApp();
   const [dialect, setDialect] = useState<Dialect>(progress.settings.dialect);
   const [notifications, setNotifications] = useState<NotificationPreferences>(
     progress.settings.notifications ?? DEFAULT_NOTIFICATION_PREFERENCES
   );
-  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     setDialect(progress.settings.dialect);
@@ -34,28 +32,11 @@ export function PreferencesScreenMobile() {
   }, [progress.settings.dialect, progress.settings.notifications]);
 
   const returnTo = parseReturnTo(searchParams);
-
-  const handleSave = useCallback(async () => {
-    setSaving(true);
-    try {
-      await setProgress({
-        ...progress,
-        settings: {
-          ...progress.settings,
-          dialect,
-          dialectChosen: true,
-          notifications,
-        },
-      });
-      await refresh();
-      toast.success("Preferences saved");
-      router.push(returnTo);
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not save preferences");
-    } finally {
-      setSaving(false);
-    }
-  }, [dialect, notifications, progress, returnTo, router, setProgress, refresh]);
+  const { handleSave, saving, confirmDialog } = useSavePreferences({
+    dialect,
+    notifications,
+    returnTo,
+  });
 
   return (
     <PageShell>
@@ -78,6 +59,7 @@ export function PreferencesScreenMobile() {
       <Button className="w-full" onClick={handleSave} loading={saving}>
         Save preferences
       </Button>
+      {confirmDialog}
     </PageShell>
   );
 }

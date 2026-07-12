@@ -4,15 +4,17 @@ import { useEffect, useState } from "react";
 import type { Sentence } from "@/types/sentence";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { AudioControls } from "@/components/audio/audio-controls";
 import { ResponsivePageShell } from "@/components/layout/responsive-page-shell";
 import { ResponsivePageHeader } from "@/components/layout/responsive-page-header";
 import { MOBILE_MEDIA_QUERY, useIsMobileViewport } from "@/hooks/use-is-mobile-viewport";
 import { AskButton } from "@/components/ai/ask-button";
 import { Card } from "@/components/ui/card";
+import { PlaceholderText } from "@/components/sentence/placeholder-text";
 import { SentenceContextPanel } from "@/components/study/sentence-context-panel";
-import { ShortcutsHint } from "@/components/layout/shortcuts-hint";
 import { useDesktopShortcuts } from "@/hooks/use-desktop-shortcuts";
 import { useTutor } from "@/components/ai/tutor-provider";
+import { audioSession } from "@/lib/audio/audio-session";
 import { cn } from "@/lib/utils";
 
 export function MeaningCheck({
@@ -32,6 +34,10 @@ export function MeaningCheck({
   useEffect(() => {
     if (sentences.length === 0) onComplete();
   }, [sentences.length, onComplete]);
+
+  useEffect(() => {
+    audioSession.stopPlaylist();
+  }, [current?.id]);
 
   if (!current) return null;
 
@@ -76,17 +82,39 @@ export function MeaningCheck({
       </div>
 
       <Card variant="elevated" className="mb-6">
-        <p className="text-lg font-medium leading-relaxed text-foreground">
-          {current.english}
-        </p>
-        <p className="mt-4 font-japanese text-xl text-muted">{current.japanese}</p>
+        <PlaceholderText
+          text={current.english}
+          sentence={current}
+          as="p"
+          className="text-lg font-medium leading-relaxed text-foreground"
+        />
+        <PlaceholderText
+          text={current.japanese ?? ""}
+          sentence={current}
+          as="p"
+          className="mt-4 font-japanese text-xl text-muted"
+        />
         {current.reading && (
           <p className="mt-2 font-japanese text-base text-muted/80">{current.reading}</p>
         )}
       </Card>
 
+      <div className="mb-4">
+        <AudioControls
+          sentenceId={current.id}
+          japanese={current.japanese}
+          reading={current.reading}
+          phonetic_reading={current.phonetic_reading}
+          placeholders={current.placeholders}
+          register={current.register}
+          tags={current.tags}
+          context_notes={current.context_notes}
+          english={current.english}
+        />
+      </div>
+
       <p className="mb-4 text-center text-sm text-muted">
-        Read each sentence. Only continue once you understand the meaning.
+        Read each sentence and listen once if helpful. Only continue once you understand the meaning.
       </p>
 
       <Button className={cn(isMobile ? "w-full" : "w-auto")} size="lg" onClick={handleGotIt}>

@@ -3,7 +3,7 @@ import { generateServerAudio } from "@/lib/audio/generate-audio";
 import { getSpokenScriptFromFields } from "@/lib/audio/tts-text";
 import { ElevenLabsQuotaError } from "@/lib/audio/tts-errors";
 import type { Dialect } from "@/lib/constants/dialect";
-import type { Register } from "@/types/sentence";
+import type { Register, SentencePlaceholder } from "@/types/sentence";
 
 export async function POST(request: Request) {
   try {
@@ -13,6 +13,8 @@ export async function POST(request: Request) {
       japanese,
       reading,
       phonetic_reading,
+      placeholders,
+      learnerName,
       dialect = "standard",
       register,
       tags,
@@ -23,6 +25,8 @@ export async function POST(request: Request) {
       japanese?: string;
       reading?: string;
       phonetic_reading?: string;
+      placeholders?: SentencePlaceholder[];
+      learnerName?: string | null;
       dialect?: Dialect;
       register?: Register;
       tags?: string[];
@@ -42,12 +46,13 @@ export async function POST(request: Request) {
         japanese,
         reading,
         phonetic_reading,
+        placeholders,
         register,
         tags,
         context_notes,
         english,
       },
-      { dialect }
+      { dialect, learnerName }
     );
 
     if (!spokenText) {

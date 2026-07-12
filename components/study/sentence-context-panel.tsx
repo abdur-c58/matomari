@@ -4,6 +4,7 @@ import type { Sentence } from "@/types/sentence";
 import { AskButton } from "@/components/ai/ask-button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { PlaceholderText } from "@/components/sentence/placeholder-text";
 import { isTranslated } from "@/lib/sentence-utils";
 import { cn } from "@/lib/utils";
 
@@ -25,9 +26,19 @@ export function SentenceContextPanel({
     >
       <Card className="p-4">
         <p className="text-xs font-medium uppercase tracking-wide text-muted">Context</p>
-        <p className="mt-2 text-sm leading-relaxed text-foreground">{sentence.english}</p>
+        <PlaceholderText
+          text={sentence.english}
+          sentence={sentence}
+          as="p"
+          className="mt-2 text-sm leading-relaxed text-foreground"
+        />
         {translated && sentence.japanese && (
-          <p className="mt-3 font-japanese text-lg text-muted">{sentence.japanese}</p>
+          <PlaceholderText
+            text={sentence.japanese}
+            sentence={sentence}
+            as="p"
+            className="mt-3 font-japanese text-lg text-muted"
+          />
         )}
         {translated && sentence.reading && (
           <p className="mt-1 font-japanese text-sm text-muted/80">{sentence.reading}</p>

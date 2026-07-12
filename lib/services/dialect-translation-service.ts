@@ -23,6 +23,7 @@ export function seedStandardTranslationsFromDataset(
         romaji: sentence.romaji ?? "",
         literal_note: sentence.literal_note,
         phonetic_reading: sentence.phonetic_reading,
+        placeholders: sentence.placeholders,
       },
     };
     changed = true;
@@ -53,6 +54,7 @@ export function applyDialectTranslations(
       romaji: undefined,
       literal_note: undefined,
       phonetic_reading: undefined,
+      placeholders: undefined,
       translated: false,
     };
   };
@@ -91,6 +93,7 @@ export function collectTranslationsForDialect(
         romaji: sentence.romaji ?? "",
         literal_note: sentence.literal_note,
         phonetic_reading: sentence.phonetic_reading,
+        placeholders: sentence.placeholders,
       },
     };
   }
@@ -149,6 +152,7 @@ export function migrateLegacyIslandTranslations(library: UserLibrary): UserLibra
           reading: sentence.reading ?? sentence.japanese,
           romaji: sentence.romaji ?? "",
           literal_note: sentence.literal_note,
+          placeholders: sentence.placeholders,
         },
       };
     }

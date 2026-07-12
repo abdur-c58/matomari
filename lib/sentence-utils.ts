@@ -1,4 +1,5 @@
-import type { Register, SeedSentence, Sentence, TranslatedFields } from "@/types/sentence";
+import { normalizeLegacyUnderscores } from "@/lib/sentence/placeholders";
+import type { Register, SeedSentence, Sentence, SentencePlaceholder, TranslatedFields } from "@/types/sentence";
 
 export function isTranslated(s: Sentence): boolean {
   if (s.translated === true) return true;
@@ -56,9 +57,15 @@ export function normalizeLegacySentence(raw: unknown): Sentence {
         ? s.literal_note
         : undefined;
     if (literalNote) sentence.literal_note = literalNote;
+    if (typeof s.phonetic_reading === "string") {
+      sentence.phonetic_reading = s.phonetic_reading;
+    }
+    if (Array.isArray(s.placeholders)) {
+      sentence.placeholders = s.placeholders as SentencePlaceholder[];
+    }
   }
 
-  return sentence;
+  return normalizeLegacyUnderscores(sentence);
 }
 
 export function applyTranslation(

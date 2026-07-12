@@ -2,6 +2,7 @@
 
 import type { AudioSessionState } from "@/types/audio";
 import type { Dialect } from "@/lib/constants/dialect";
+import type { SentencePlaceholder } from "@/types/sentence";
 import { getCachedAudio, saveCachedAudio } from "@/lib/db/audio-cache-repository";
 import { getTextHashAsync } from "@/lib/audio/hash";
 import { getSpokenScriptFromFields } from "@/lib/audio/tts-text";
@@ -12,6 +13,8 @@ export interface TtsRequest {
   japanese: string;
   reading?: string | null;
   phonetic_reading?: string | null;
+  placeholders?: SentencePlaceholder[];
+  learnerName?: string | null;
   dialect?: Dialect;
   register?: string;
   tags?: string[];
@@ -104,7 +107,10 @@ export class AudioSessionManager {
   }
 
   private resolveSpokenText(request: TtsRequest): string | null {
-    return getSpokenScriptFromFields(request, { dialect: request.dialect ?? "standard" });
+    return getSpokenScriptFromFields(request, {
+      dialect: request.dialect ?? "standard",
+      learnerName: request.learnerName,
+    });
   }
 
   async fetchAudioBlob(request: TtsRequest): Promise<Blob> {
@@ -132,6 +138,8 @@ export class AudioSessionManager {
         japanese: request.japanese,
         reading: request.reading,
         phonetic_reading: request.phonetic_reading,
+        placeholders: request.placeholders,
+        learnerName: request.learnerName,
         dialect,
         register: request.register,
         tags: request.tags,

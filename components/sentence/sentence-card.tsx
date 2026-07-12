@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { StarRating } from "./star-rating";
+import { PlaceholderText } from "./placeholder-text";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -64,24 +65,26 @@ export function SentenceCard({
     >
       <CardContent className={cn("space-y-3", "pt-0")}>
         {showEnglish && (
-          <p
+          <PlaceholderText
+            text={sentence.english}
+            sentence={sentence}
+            as="p"
             className={cn(
               "leading-relaxed text-foreground",
               variant === "study" ? "text-lg font-medium" : "text-base text-muted"
             )}
-          >
-            {sentence.english}
-          </p>
+          />
         )}
         {showJapanese && translated && sentence.japanese && (
-          <p
+          <PlaceholderText
+            text={sentence.japanese}
+            sentence={sentence}
+            as="p"
             className={cn(
               "font-japanese leading-relaxed text-foreground",
               variant === "study" ? "text-2xl" : variant === "compact" ? "text-lg" : "text-xl"
             )}
-          >
-            {sentence.japanese}
-          </p>
+          />
         )}
         {showJapanese && !translated && (
           <Badge variant="secondary">Not yet translated</Badge>
@@ -90,7 +93,11 @@ export function SentenceCard({
           <p className="font-japanese text-base text-muted">{sentence.reading}</p>
         )}
         {showRomaji && translated && sentence.romaji && (
-          <p className="text-sm text-muted italic">{sentence.romaji}</p>
+          <PlaceholderText
+            text={sentence.romaji}
+            sentence={sentence}
+            className="text-sm text-muted italic"
+          />
         )}
         {translated && sentence.literal_note && (
           <p className="text-xs text-muted">{sentence.literal_note}</p>
