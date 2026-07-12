@@ -122,6 +122,46 @@ export function hasTranslationForDialect(
   return Boolean(translations?.[sentenceId]?.[dialect]?.japanese?.trim());
 }
 
+export function getSentenceTranslationFields(
+  sentenceId: string,
+  dialect: Dialect,
+  translations: Record<string, SentenceDialectTranslations> | undefined,
+  pathwaySentence?: Pick<
+    Sentence,
+    "japanese" | "reading" | "romaji" | "literal_note" | "phonetic_reading" | "placeholders"
+  >
+): TranslatedFields | null {
+  const stored = translations?.[sentenceId]?.[dialect];
+  if (stored?.japanese?.trim()) return stored;
+
+  if (dialect === "standard" && pathwaySentence?.japanese?.trim()) {
+    return {
+      japanese: pathwaySentence.japanese,
+      reading: pathwaySentence.reading ?? pathwaySentence.japanese,
+      romaji: pathwaySentence.romaji ?? "",
+      literal_note: pathwaySentence.literal_note,
+      phonetic_reading: pathwaySentence.phonetic_reading,
+      placeholders: pathwaySentence.placeholders,
+    };
+  }
+
+  return null;
+}
+
+export function getUntranslatedIdsForDialect(
+  dataset: Dataset,
+  translations: Record<string, SentenceDialectTranslations> | undefined,
+  dialect: Dialect
+): string[] {
+  const ids: string[] = [];
+  for (const id of getAllSentences(dataset).keys()) {
+    if (!getSentenceTranslationFields(id, dialect, translations)) {
+      ids.push(id);
+    }
+  }
+  return ids;
+}
+
 /** True when another dialect has a translation but the active dialect does not. */
 export function needsRetranslationForDialect(
   sentenceId: string,

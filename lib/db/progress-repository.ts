@@ -1,8 +1,8 @@
 import type { SentenceProgress, UserProgress } from "@/types/progress";
 import { DEFAULT_PROGRESS, getDB } from "./index";
-import { DEFAULT_DIALECT } from "@/lib/constants/dialect";
 import { clampBatchSize } from "@/lib/services/batch-service";
 import { normalizeNotificationPreferences } from "@/lib/notifications/notification-service";
+import { resolveTranslationSettings } from "@/lib/preferences/translation-preferences";
 import {
   normalizeUserProgress,
   prepareProgressForSave,
@@ -11,14 +11,19 @@ import {
 const PROGRESS_KEY = "main";
 
 function normalizeSettings(progress: UserProgress): UserProgress["settings"] {
+  const resolved = resolveTranslationSettings(progress.settings ?? {});
   return {
     batchSize: clampBatchSize(progress.settings?.batchSize),
-    dialect: progress.settings?.dialect ?? DEFAULT_DIALECT,
-    dialectChosen: progress.settings?.dialectChosen ?? false,
+    ...resolved,
+    showKansaiDialect: resolved.showKansaiDialect ?? false,
+    kansaiAsPrimary: resolved.kansaiAsPrimary ?? false,
     notifications: normalizeNotificationPreferences(progress.settings?.notifications),
     displayName: progress.settings?.displayName,
     japaneseNameReading: progress.settings?.japaneseNameReading,
     japaneseNameSource: progress.settings?.japaneseNameSource,
+    onboardingCompleted: progress.settings?.onboardingCompleted,
+    onboardingCompletedAt: progress.settings?.onboardingCompletedAt,
+    uiFont: progress.settings?.uiFont,
   };
 }
 

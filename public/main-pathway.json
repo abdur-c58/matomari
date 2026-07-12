@@ -571,7 +571,7 @@
             "tags": [
               "set-phrase"
             ],
-            "context_notes": "template sentence, blank is filled with the learner's own name",
+            "context_notes": "",
             "translated": true,
             "japanese": "はじめまして、[name]です。",
             "reading": "はじめまして、なまえです。",

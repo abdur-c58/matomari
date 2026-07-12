@@ -31,7 +31,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { listItem, smoothTransition, staggerContainer } from "@/lib/motion";
-import { TranslateAllButton } from "@/components/library/translate-all-button";
+import { TranslateAllButton, TranslateKansaiAllButton } from "@/components/library/translate-all-button";
 import { cn } from "@/lib/utils";
 
 function formatLabel(key: string): string {
@@ -141,6 +141,10 @@ export function LibraryViewMobile() {
     );
   }, [dataset, filters.islandKey, openBulkDialog]);
 
+  const clearFilters = useCallback(() => {
+    setFilters({ ...defaultLibraryFilters, search: filters.search });
+  }, [filters.search]);
+
   const defaultProgress = (sentenceId: string) => ({
     sentenceId,
     rating: null,
@@ -164,6 +168,11 @@ export function LibraryViewMobile() {
           subtitle={`${filtered.length} of ${allSentences.length} sentences`}
           action={
             <div className="flex items-center gap-2">
+              {activeFilterCount > 0 && (
+                <Button variant="ghost" size="sm" onClick={clearFilters}>
+                  Clear all
+                </Button>
+              )}
               {canSelect && (
                 <Button
                   variant={selectionMode ? "default" : "outline"}
@@ -181,7 +190,12 @@ export function LibraryViewMobile() {
                   Rate island
                 </Button>
               )}
-              {!selectionMode && <TranslateAllButton />}
+              {!selectionMode && (
+                <>
+                  <TranslateAllButton />
+                  <TranslateKansaiAllButton />
+                </>
+              )}
             </div>
           }
         />
@@ -204,7 +218,7 @@ export function LibraryViewMobile() {
           <LibraryQuickFilters filters={filters} onChange={setFilters} />
           <ActiveFilterBadges
             labels={activeLabels}
-            onClear={() => setFilters({ ...defaultLibraryFilters, search: filters.search })}
+            onClear={clearFilters}
           />
         </div>
 

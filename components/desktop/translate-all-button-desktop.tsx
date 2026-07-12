@@ -1,17 +1,15 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { Languages } from "lucide-react";
 import { useApp } from "@/components/providers/app-provider";
 import { TranslationProgress } from "@/components/layout/translation-progress";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-} from "@/components/ui/dialog";
-import { TranslationError, getUntranslatedIds } from "@/lib/services/translation-service";
-import { useRequireDialectBeforeTranslate } from "@/hooks/use-require-dialect";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { TranslationError } from "@/lib/services/translation-service";
+import { getPrimaryTranslation } from "@/lib/preferences/translation-preferences";
 import { toast } from "sonner";
+import type { Dialect } from "@/lib/constants/dialect";
 
 function formatTranslationError(error: unknown): string {
   if (error instanceof TranslationError && error.code === "NOT_CONFIGURED") {
@@ -21,22 +19,23 @@ function formatTranslationError(error: unknown): string {
   return "Translation failed";
 }
 
-export function TranslateAllButtonDesktop() {
-  const { dataset, translateAllUntranslated } = useApp();
-  const requireDialect = useRequireDialectBeforeTranslate();
+function TranslateAllButtonDesktopInner({
+  dialect,
+  label,
+  variant,
+}: {
+  dialect: Dialect;
+  label: string;
+  variant: "secondary" | "outline";
+}) {
+  const { dataset, getUntranslatedCount, translateAllUntranslated } = useApp();
+  const untranslatedCount = getUntranslatedCount(dialect);
   const [translating, setTranslating] = useState(false);
   const [progress, setProgress] = useState({ completed: 0, total: 0 });
   const [error, setError] = useState<string | null>(null);
 
-  const untranslatedCount = useMemo(
-    () => (dataset ? getUntranslatedIds(dataset).length : 0),
-    [dataset]
-  );
-
   const runTranslation = useCallback(async () => {
     if (!dataset || untranslatedCount === 0) return;
-
-    if (!requireDialect()) return;
 
     setError(null);
     setTranslating(true);
@@ -44,7 +43,9 @@ export function TranslateAllButtonDesktop() {
 
     try {
       const { translatedCount, total } = await translateAllUntranslated({
-        onProgress: (completed, total) => setProgress({ completed, total }),
+        dialect,
+        onProgress: (completed, totalCount) =>
+          setProgress({ completed, total: totalCount }),
       });
 
       if (translatedCount === 0) {
@@ -59,17 +60,15 @@ export function TranslateAllButtonDesktop() {
     } finally {
       setTranslating(false);
     }
-  }, [dataset, untranslatedCount, translateAllUntranslated, requireDialect]);
+  }, [dataset, dialect, untranslatedCount, translateAllUntranslated]);
 
-  if (!dataset || untranslatedCount === 0) {
-    return null;
-  }
+  if (untranslatedCount === 0) return null;
 
   return (
     <>
-      <Button variant="secondary" size="sm" onClick={runTranslation}>
+      <Button variant={variant} size="sm" onClick={runTranslation}>
         <Languages className="mr-2 h-4 w-4" />
-        Translate all ({untranslatedCount})
+        {label} ({untranslatedCount})
       </Button>
 
       <Dialog open={translating} onOpenChange={(v) => !v && !error && setTranslating(false)}>
@@ -80,7 +79,7 @@ export function TranslateAllButtonDesktop() {
             total={progress.total}
             error={error}
             onRetry={error ? runTranslation : undefined}
-            title="Translating all sentences…"
+            title={`Translating ${label.toLowerCase()}…`}
             subtitle="Main pathway and all islands"
           />
           {error && (
@@ -91,5 +90,32 @@ export function TranslateAllButtonDesktop() {
         </DialogContent>
       </Dialog>
     </>
+  );
+}
+
+export function TranslateAllButtonDesktop() {
+  const { progress } = useApp();
+  const dialect = getPrimaryTranslation(progress.settings);
+
+  return (
+    <TranslateAllButtonDesktopInner
+      dialect={dialect}
+      label="Translate all"
+      variant="secondary"
+    />
+  );
+}
+
+export function TranslateKansaiAllButtonDesktop() {
+  const { progress } = useApp();
+  const showKansai = progress.settings.showKansaiDialect ?? false;
+  if (!showKansai) return null;
+
+  return (
+    <TranslateAllButtonDesktopInner
+      dialect="kansai"
+      label="Translate Kansai"
+      variant="outline"
+    />
   );
 }

@@ -75,10 +75,22 @@ export function resolveReadingForTts(
   const reading = sentence.reading?.trim();
   if (!reading) return null;
 
-  let result = reading;
-  const placeholders = sentence.placeholders ?? [];
+  return applyReadingSubstitutes(reading, sentence.placeholders, learnerJapaneseName);
+}
 
-  for (const spec of placeholders) {
+/** Kana readingSubstitute → common romaji token used in stored romaji fields. */
+const KANA_TO_LATIN_SUBSTITUTE: Record<string, string> = {
+  なまえ: "namae",
+};
+
+function applyReadingSubstitutes(
+  text: string,
+  placeholders: SentencePlaceholder[] | undefined,
+  learnerJapaneseName: string | null
+): string {
+  let result = text;
+
+  for (const spec of placeholders ?? []) {
     const substitute = spec.readingSubstitute?.trim();
     if (!substitute || !result.includes(substitute)) continue;
 
@@ -88,6 +100,41 @@ export function resolveReadingForTts(
         : substitute;
 
     result = result.replace(substitute, replacement);
+  }
+
+  return result;
+}
+
+/** Resolve kana placeholders (なまえ → パンコ) for on-screen reading lines. */
+export function resolveKanaReadingForDisplay(
+  reading: string | undefined | null,
+  placeholders: SentencePlaceholder[] | undefined,
+  learnerJapaneseName: string | null
+): string | null {
+  const trimmed = reading?.trim();
+  if (!trimmed) return null;
+  if (!placeholders?.length) return trimmed;
+  return applyReadingSubstitutes(trimmed, placeholders, learnerJapaneseName);
+}
+
+/** Resolve latin placeholder tokens (namae → Panko) when romaji lacks [tags]. */
+export function resolveLatinReadingSubstitutes(
+  text: string,
+  placeholders: SentencePlaceholder[] | undefined,
+  learnerName: string | null
+): string {
+  if (!text || !placeholders?.length || !learnerName) return text;
+
+  let result = text;
+  for (const spec of placeholders) {
+    if (spec.resolveAs !== "learner") continue;
+    const kanaSub = spec.readingSubstitute?.trim();
+    if (!kanaSub) continue;
+
+    const latinSub = KANA_TO_LATIN_SUBSTITUTE[kanaSub];
+    if (latinSub) {
+      result = result.replace(new RegExp(latinSub, "gi"), learnerName);
+    }
   }
 
   return result;

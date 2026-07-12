@@ -6,6 +6,8 @@ import { useApp } from "@/components/providers/app-provider";
 import { audioSession } from "@/lib/audio/audio-session";
 import { getTtsTextFromFields } from "@/lib/audio/tts-text";
 import type { SentencePlaceholder } from "@/types/sentence";
+import type { Dialect } from "@/lib/constants/dialect";
+import { getPrimaryTranslation } from "@/lib/preferences/translation-preferences";
 import { useLearnerJapaneseName } from "@/hooks/use-learner-japanese-name";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -21,6 +23,7 @@ export function SentencePlayButton({
   context_notes,
   english,
   placeholders,
+  dialect: dialectProp,
   disabled = false,
   className,
 }: {
@@ -33,13 +36,14 @@ export function SentencePlayButton({
   context_notes?: string;
   english?: string;
   placeholders?: SentencePlaceholder[];
+  dialect?: Dialect;
   disabled?: boolean;
   className?: string;
 }) {
   const { audioUnlocked, unlockAudio, audioState, progress } = useApp();
   const learnerJapaneseName = useLearnerJapaneseName();
   const [active, setActive] = useState(false);
-  const dialect = progress.settings.dialect;
+  const dialect = dialectProp ?? getPrimaryTranslation(progress.settings);
 
   const canPlay = Boolean(
     getTtsTextFromFields(japanese, reading, {

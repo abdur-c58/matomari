@@ -21,6 +21,7 @@ import { getNextStepAfterShadow } from "@/lib/services/study-flow-service";
 import { startModeSession, endModeSession } from "@/lib/sync/sync-service";
 import { audioSession, type TtsRequest } from "@/lib/audio/audio-session";
 import { toast } from "sonner";
+import { getPrimaryTranslation } from "@/lib/preferences/translation-preferences";
 import { cn } from "@/lib/utils";
 
 export function ShadowingMode({ sentences }: { sentences: Sentence[] }) {
@@ -41,7 +42,7 @@ export function ShadowingMode({ sentences }: { sentences: Sentence[] }) {
   const userAudioRef = useRef<HTMLAudioElement | null>(null);
 
   const current = sentences[currentIndex] ?? sentences[0];
-  const dialect = progress.settings.dialect;
+  const dialect = getPrimaryTranslation(progress.settings);
   const playlist: TtsRequest[] = sentences
     .filter((s) => s.japanese)
     .map((s) => ({

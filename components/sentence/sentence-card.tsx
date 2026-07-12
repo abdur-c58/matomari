@@ -4,13 +4,14 @@ import { useState } from "react";
 import type { Sentence } from "@/types/sentence";
 import type { SentenceProgress } from "@/types/progress";
 import { useApp } from "@/components/providers/app-provider";
-import { isTranslated } from "@/lib/sentence-utils";
+import { fieldsFromComposedSentence, isTranslated } from "@/lib/sentence-utils";
+import { getPrimaryTranslation } from "@/lib/preferences/translation-preferences";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { StarRating } from "./star-rating";
 import { PlaceholderText } from "./placeholder-text";
-import { KansaiPhoneticDisplay } from "./kansai-phonetic-display";
+import { DialectTranslationBlock } from "./dialect-translation-block";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -41,15 +42,17 @@ export function SentenceCard({
   suggestedRating,
   showRetranslate = false,
 }: SentenceCardProps) {
-  const { retranslateSentence } = useApp();
+  const { retranslateSentence, progress: userProgress } = useApp();
   const [retranslating, setRetranslating] = useState(false);
   const mastered = progress?.rating === 5;
   const translated = isTranslated(sentence);
+  const primaryDialect = getPrimaryTranslation(userProgress.settings);
+  const primaryFields = fieldsFromComposedSentence(sentence);
 
   const handleRetranslate = async () => {
     setRetranslating(true);
     try {
-      await retranslateSentence(sentence.id);
+      await retranslateSentence(sentence.id, primaryDialect);
       toast.success("Translation updated");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Retranslation failed");
@@ -91,17 +94,21 @@ export function SentenceCard({
         {showJapanese && !translated && (
           <Badge variant="secondary">Not yet translated</Badge>
         )}
-        {showReading && translated && sentence.reading && (
-          <p className="font-japanese text-base text-muted">{sentence.reading}</p>
-        )}
-        {showReading && translated && (
-          <KansaiPhoneticDisplay sentence={sentence} />
-        )}
-        {showRomaji && translated && sentence.romaji && (
-          <PlaceholderText
-            text={sentence.romaji}
-            sentence={sentence}
-            className="text-sm text-muted italic"
+        {showReading && translated && primaryFields && (
+          <DialectTranslationBlock
+            sentenceId={sentence.id}
+            fields={primaryFields}
+            dialect={primaryDialect}
+            sentenceMeta={sentence}
+            showLabel={false}
+            showPlayButton={false}
+            showJapanese={!showJapanese}
+            readingClassName={cn(
+              "font-japanese text-muted",
+              variant === "study" ? "text-base" : "text-sm"
+            )}
+            phoneticClassName="text-sm"
+            romajiClassName={showRomaji ? "text-sm" : undefined}
           />
         )}
         {translated && sentence.literal_note && (

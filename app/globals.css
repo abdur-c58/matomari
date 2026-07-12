@@ -54,6 +54,10 @@
   --scrollbar-size: 6px;
   --scrollbar-thumb: color-mix(in srgb, var(--foreground) 16%, transparent);
   --scrollbar-thumb-hover: color-mix(in srgb, var(--foreground) 28%, transparent);
+
+  --selection-bg: var(--foreground);
+  --selection-fg: var(--background);
+  --caret: var(--foreground);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -75,6 +79,10 @@
 
     --scrollbar-thumb: color-mix(in srgb, var(--foreground) 22%, transparent);
     --scrollbar-thumb-hover: color-mix(in srgb, var(--foreground) 36%, transparent);
+
+    --selection-bg: var(--foreground);
+    --selection-fg: var(--background);
+    --caret: var(--foreground);
   }
 }
 
@@ -137,6 +145,17 @@ body {
   font-family: var(--font-sans);
   touch-action: manipulation;
   -webkit-font-smoothing: antialiased;
+  caret-color: var(--caret);
+}
+
+::selection {
+  background: var(--selection-bg);
+  color: var(--selection-fg);
+}
+
+::-moz-selection {
+  background: var(--selection-bg);
+  color: var(--selection-fg);
 }
 
 #app-shell {

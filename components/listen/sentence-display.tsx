@@ -2,9 +2,12 @@
 
 import type { Sentence } from "@/types/sentence";
 import { motion } from "framer-motion";
+import { useApp } from "@/components/providers/app-provider";
+import { fieldsFromComposedSentence } from "@/lib/sentence-utils";
+import { getPrimaryTranslation } from "@/lib/preferences/translation-preferences";
 import { Card } from "@/components/ui/card";
 import { PlaceholderText } from "@/components/sentence/placeholder-text";
-import { KansaiPhoneticDisplay } from "@/components/sentence/kansai-phonetic-display";
+import { DialectTranslationBlock } from "@/components/sentence/dialect-translation-block";
 
 export function SentenceDisplay({
   sentence,
@@ -13,6 +16,10 @@ export function SentenceDisplay({
   sentence: Sentence;
   shadowing?: boolean;
 }) {
+  const { progress } = useApp();
+  const primaryDialect = getPrimaryTranslation(progress.settings);
+  const primaryFields = fieldsFromComposedSentence(sentence);
+
   return (
     <Card variant="elevated" className="text-center">
       <PlaceholderText
@@ -28,15 +35,21 @@ export function SentenceDisplay({
         as="p"
         className="mt-4 font-japanese text-3xl leading-relaxed text-foreground"
       />
-      {sentence.reading && (
-        <p className="mt-3 font-japanese text-lg text-muted">{sentence.reading}</p>
+      {primaryFields && (
+        <DialectTranslationBlock
+          sentenceId={sentence.id}
+          fields={primaryFields}
+          dialect={primaryDialect}
+          sentenceMeta={sentence}
+          showLabel={false}
+          showPlayButton={false}
+          showJapanese={false}
+          className="mt-3"
+          readingClassName="font-japanese text-lg text-muted"
+          phoneticClassName="text-lg"
+          romajiClassName="text-base"
+        />
       )}
-      <KansaiPhoneticDisplay
-        sentence={sentence}
-        className="mt-2"
-        kanaClassName="text-lg"
-        romajiClassName="text-base"
-      />
       {shadowing && (
         <motion.div
           className="mt-6 flex flex-col items-center gap-2"

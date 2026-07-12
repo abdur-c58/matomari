@@ -10,6 +10,7 @@ import { audioSession, type TtsRequest } from "@/lib/audio/audio-session";
 import { getTtsTextFromFields } from "@/lib/audio/tts-text";
 import type { SentencePlaceholder } from "@/types/sentence";
 import { useLearnerJapaneseName } from "@/hooks/use-learner-japanese-name";
+import { getPrimaryTranslation } from "@/lib/preferences/translation-preferences";
 import { cn } from "@/lib/utils";
 
 interface AudioControlsProps {
@@ -45,7 +46,7 @@ export function AudioControls({
 }: AudioControlsProps) {
   const { audioUnlocked, unlockAudio, audioState, progress } = useApp();
   const learnerJapaneseName = useLearnerJapaneseName();
-  const dialect = progress.settings.dialect;
+  const dialect = getPrimaryTranslation(progress.settings);
   const [loop, setLoop] = useState(false);
   const [playlistMode, setPlaylistMode] = useState(false);
 

@@ -92,7 +92,6 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     if (autoTriggeredRef.current) return;
     if (manualReplayRef.current) return;
     if (pathname.startsWith("/settings/preferences")) return;
-    if (!progress.settings.dialectChosen) return;
     if (progress.settings.onboardingCompleted !== false) return;
 
     autoTriggeredRef.current = true;
@@ -101,7 +100,6 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
   }, [
     loading,
     pathname,
-    progress.settings.dialectChosen,
     progress.settings.onboardingCompleted,
   ]);
 

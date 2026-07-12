@@ -79,6 +79,18 @@ export function applyTranslation(
   };
 }
 
+export function fieldsFromComposedSentence(sentence: Sentence): TranslatedFields | null {
+  if (!sentence.japanese?.trim()) return null;
+  return {
+    japanese: sentence.japanese,
+    reading: sentence.reading ?? sentence.japanese,
+    romaji: sentence.romaji ?? "",
+    literal_note: sentence.literal_note,
+    phonetic_reading: sentence.phonetic_reading,
+    placeholders: sentence.placeholders,
+  };
+}
+
 export function normalizeEnglish(text: string): string {
   return text.trim().toLowerCase().replace(/\s+/g, " ");
 }

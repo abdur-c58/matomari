@@ -29,7 +29,7 @@ import { suggestRating } from "@/lib/services/rating-service";
 import { BulkRateDialog } from "@/components/library/bulk-rate-dialog";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { TranslateAllButtonDesktop } from "@/components/desktop/translate-all-button-desktop";
+import { TranslateAllButtonDesktop, TranslateKansaiAllButtonDesktop } from "@/components/desktop/translate-all-button-desktop";
 import { toast } from "sonner";
 import { listItem, smoothTransition, staggerContainer } from "@/lib/motion";
 
@@ -140,6 +140,10 @@ export function LibraryViewDesktop() {
     );
   }, [dataset, filters.islandKey, openBulkDialog]);
 
+  const clearFilters = useCallback(() => {
+    setFilters({ ...defaultLibraryFilters, search: filters.search });
+  }, [filters.search]);
+
   const defaultProgress = (sentenceId: string) => ({
     sentenceId,
     rating: null,
@@ -163,6 +167,11 @@ export function LibraryViewDesktop() {
           subtitle={`${filtered.length} of ${allSentences.length} sentences`}
           action={
             <div className="flex items-center gap-2">
+              {activeFilterCount > 0 && (
+                <Button variant="ghost" size="sm" onClick={clearFilters}>
+                  Clear all
+                </Button>
+              )}
               {canSelect && (
                 <Button
                   variant={selectionMode ? "default" : "outline"}
@@ -180,7 +189,12 @@ export function LibraryViewDesktop() {
                   Rate island
                 </Button>
               )}
-              {!selectionMode && <TranslateAllButtonDesktop />}
+              {!selectionMode && (
+                <>
+                  <TranslateAllButtonDesktop />
+                  <TranslateKansaiAllButtonDesktop />
+                </>
+              )}
             </div>
           }
         />
@@ -199,16 +213,6 @@ export function LibraryViewDesktop() {
                   activeFilterCount={activeFilterCount}
                 />
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="mt-auto"
-                onClick={() =>
-                  setFilters({ ...defaultLibraryFilters, search: filters.search })
-                }
-              >
-                Clear all
-              </Button>
             </aside>
           )}
 
@@ -246,7 +250,7 @@ export function LibraryViewDesktop() {
             </div>
             <ActiveFilterBadges
               labels={activeLabels}
-              onClear={() => setFilters({ ...defaultLibraryFilters, search: filters.search })}
+              onClear={clearFilters}
             />
 
             {filtered.length === 0 ? (

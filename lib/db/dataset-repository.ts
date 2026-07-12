@@ -13,7 +13,7 @@ import {
   seedStandardTranslationsFromDataset,
 } from "@/lib/services/dialect-translation-service";
 import type { Dialect } from "@/lib/constants/dialect";
-import { DEFAULT_DIALECT } from "@/lib/constants/dialect";
+import { getPrimaryTranslation } from "@/lib/preferences/translation-preferences";
 import { getProgress } from "./progress-repository";
 import { getDB } from "./index";
 
@@ -75,7 +75,7 @@ export async function getComposedDataset(): Promise<Dataset | null> {
   return applyDialectTranslations(
     base,
     sentenceTranslations,
-    progress.settings.dialect ?? DEFAULT_DIALECT
+    getPrimaryTranslation(progress.settings)
   );
 }
 
@@ -106,7 +106,7 @@ export async function appendSentenceTranslations(
 
 export async function saveDataset(data: Dataset): Promise<void> {
   const [existing, progress] = await Promise.all([getUserLibrary(), getProgress()]);
-  const dialect = progress.settings.dialect ?? DEFAULT_DIALECT;
+  const dialect = getPrimaryTranslation(progress.settings);
   const sentenceTranslations = collectTranslationsForDialect(
     data,
     dialect,

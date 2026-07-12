@@ -1,6 +1,13 @@
 import type { Dialect } from "@/lib/constants/dialect";
-import { DIALECTS, DEFAULT_DIALECT } from "@/lib/constants/dialect";
-import type { AppSettings, UserProgress } from "@/types/progress";
+import { DIALECTS } from "@/lib/constants/dialect";
+import type {
+  AppSettings,
+  BatchStatus,
+  RecallAttempt,
+  SentenceProgress,
+  UserProgress,
+} from "@/types/progress";
+import { resolveTranslationSettings } from "@/lib/preferences/translation-preferences";
 
 export interface DialectStudyProgress {
   sentences: UserProgress["sentences"];
@@ -49,80 +56,185 @@ function hasStudyData(slice: DialectStudyProgress): boolean {
   );
 }
 
-/** Sync the active dialect's study fields into `byDialect` before persisting. */
-export function prepareProgressForSave(progress: UserProgress): UserProgress {
-  const dialect = progress.settings.dialect;
+const BATCH_STATUS_RANK: Record<BatchStatus, number> = {
+  active: 3,
+  unseen: 2,
+  retired: 1,
+};
+
+function mergeBatchStatus(a: BatchStatus, b: BatchStatus): BatchStatus {
+  return BATCH_STATUS_RANK[a] >= BATCH_STATUS_RANK[b] ? a : b;
+}
+
+function mergeRating(a: number | null, b: number | null): number | null {
+  if (a == null) return b;
+  if (b == null) return a;
+  return Math.max(a, b);
+}
+
+function mergeRecallHistory(
+  a: RecallAttempt[],
+  b: RecallAttempt[]
+): RecallAttempt[] {
+  const seen = new Set<string>();
+  const merged = [...a, ...b]
+    .sort((x, y) => x.date.localeCompare(y.date))
+    .filter((attempt) => {
+      const key = `${attempt.date}|${attempt.correct}|${attempt.hesitation ?? ""}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  return merged;
+}
+
+function mergeSentenceProgress(
+  a: SentenceProgress,
+  b: SentenceProgress
+): SentenceProgress {
+  const rating = mergeRating(a.rating, b.rating);
+  const batchStatus = mergeBatchStatus(a.batchStatus, b.batchStatus);
+  const srsIntervalIndex = Math.max(a.srsIntervalIndex, b.srsIntervalIndex);
+
+  let srsNextReview = a.srsNextReview;
+  if (b.srsNextReview && (!srsNextReview || b.srsNextReview > srsNextReview)) {
+    srsNextReview = b.srsNextReview;
+  }
+
+  const firstSeenAt =
+    a.firstSeenAt && b.firstSeenAt
+      ? a.firstSeenAt < b.firstSeenAt
+        ? a.firstSeenAt
+        : b.firstSeenAt
+      : a.firstSeenAt ?? b.firstSeenAt;
+
+  const masteredAt =
+    a.masteredAt && b.masteredAt
+      ? a.masteredAt > b.masteredAt
+        ? a.masteredAt
+        : b.masteredAt
+      : a.masteredAt ?? b.masteredAt;
+
+  const retiredAt =
+    a.retiredAt && b.retiredAt
+      ? a.retiredAt > b.retiredAt
+        ? a.retiredAt
+        : b.retiredAt
+      : a.retiredAt ?? b.retiredAt;
+
   return {
-    ...progress,
-    byDialect: {
-      ...progress.byDialect,
-      [dialect]: extractStudySlice(progress),
-    },
+    sentenceId: a.sentenceId,
+    rating,
+    recallHistory: mergeRecallHistory(a.recallHistory, b.recallHistory),
+    meaningConfirmed: a.meaningConfirmed || b.meaningConfirmed,
+    batchStatus,
+    srsNextReview,
+    srsIntervalIndex,
+    retiredAt,
+    firstSeenAt,
+    masteredAt,
+    sourceType: a.sourceType || b.sourceType,
+    sourceKey: a.sourceKey || b.sourceKey,
   };
 }
 
-/** Migrate legacy flat progress and align top-level fields with the active dialect. */
+function mergeDialectSlices(
+  slices: Partial<Record<Dialect, DialectStudyProgress>>,
+  preferredDialect: Dialect
+): DialectStudyProgress {
+  const preferred = slices[preferredDialect] ?? emptyDialectStudyProgress();
+  const merged: DialectStudyProgress = { ...preferred, sentences: { ...preferred.sentences } };
+
+  for (const dialect of DIALECTS) {
+    if (dialect === preferredDialect) continue;
+    const slice = slices[dialect];
+    if (!slice) continue;
+
+    for (const [id, sp] of Object.entries(slice.sentences)) {
+      if (merged.sentences[id]) {
+        merged.sentences[id] = mergeSentenceProgress(merged.sentences[id], sp);
+      } else {
+        merged.sentences[id] = sp;
+      }
+    }
+
+    if (!merged.batchConfig && slice.batchConfig) {
+      merged.batchConfig = slice.batchConfig;
+    }
+
+    merged.completedPathwayBatches = [
+      ...new Set([...merged.completedPathwayBatches, ...slice.completedPathwayBatches]),
+    ].sort((a, b) => a - b);
+
+    merged.completedIslands = [
+      ...new Set([...merged.completedIslands, ...slice.completedIslands]),
+    ];
+  }
+
+  if (!merged.batchConfig) {
+    for (const dialect of DIALECTS) {
+      const cfg = slices[dialect]?.batchConfig;
+      if (cfg) {
+        merged.batchConfig = cfg;
+        break;
+      }
+    }
+  }
+
+  return merged;
+}
+
+function normalizeSettings(settings: AppSettings): AppSettings {
+  const resolved = resolveTranslationSettings(settings);
+  return {
+    ...settings,
+    ...resolved,
+  };
+}
+
+/** One-time merge of per-dialect progress into unified top-level study state. */
+function migrateUnifiedProgress(progress: UserProgress): UserProgress {
+  const byDialect = progress.byDialect;
+  if (!byDialect) return progress;
+
+  const hasMultipleSlices = DIALECTS.some(
+    (d) => d !== progress.settings.dialect && hasStudyData(byDialect[d] ?? emptyDialectStudyProgress())
+  );
+
+  if (!hasMultipleSlices && !hasStudyData(extractStudySlice(progress))) {
+    const preferred = progress.settings.dialect ?? "standard";
+    const slice = byDialect[preferred] ?? emptyDialectStudyProgress();
+    return applyStudySlice(progress, slice);
+  }
+
+  const topLevel = extractStudySlice(progress);
+  const slices: Partial<Record<Dialect, DialectStudyProgress>> = { ...byDialect };
+
+  if (hasStudyData(topLevel)) {
+    slices[progress.settings.dialect ?? "standard"] = topLevel;
+  }
+
+  const merged = mergeDialectSlices(slices, progress.settings.dialect ?? "standard");
+  return applyStudySlice(progress, merged);
+}
+
+/** Normalize settings, migrate legacy dialect fields, and merge per-dialect progress. */
 export function normalizeUserProgress(progress: UserProgress): UserProgress {
-  const dialect = progress.settings.dialect ?? DEFAULT_DIALECT;
-  let byDialect = { ...progress.byDialect };
-
-  const topLevelSlice = extractStudySlice(progress);
-
-  if (!progress.byDialect && hasStudyData(topLevelSlice)) {
-    byDialect[dialect] = topLevelSlice;
-  }
-
-  for (const d of DIALECTS) {
-    if (!byDialect[d]) {
-      byDialect[d] = emptyDialectStudyProgress();
-    }
-  }
-
-  const activeSlice = byDialect[dialect] ?? emptyDialectStudyProgress();
-
-  return applyStudySlice({ ...progress, byDialect }, activeSlice);
+  const settings = normalizeSettings(progress.settings);
+  const withSettings = { ...progress, settings };
+  return migrateUnifiedProgress(withSettings);
 }
 
-/** Save current dialect progress and load the target dialect's study state. */
-export function switchDialectProgress(
-  current: UserProgress,
-  nextDialect: Dialect,
-  settingsOverride?: Partial<AppSettings>
-): UserProgress {
-  const currentDialect = current.settings.dialect;
-  const settings: AppSettings = {
-    ...current.settings,
-    ...settingsOverride,
-    dialect: nextDialect,
-  };
-
-  if (currentDialect === nextDialect) {
-    return prepareProgressForSave({ ...current, settings });
-  }
-
-  const byDialect = {
-    ...(current.byDialect ?? {}),
-    [currentDialect]: extractStudySlice(current),
-  };
-
-  for (const d of DIALECTS) {
-    if (!byDialect[d]) {
-      byDialect[d] = emptyDialectStudyProgress();
-    }
-  }
-
-  const nextSlice = byDialect[nextDialect] ?? emptyDialectStudyProgress();
-
-  return applyStudySlice({ ...current, byDialect, settings }, nextSlice);
+/** Persist progress — no per-dialect slice syncing. */
+export function prepareProgressForSave(progress: UserProgress): UserProgress {
+  const settings = normalizeSettings(progress.settings);
+  return { ...progress, settings };
 }
 
-/** Apply a settings update, swapping study progress when the dialect changes. */
+/** @deprecated No longer swaps study state — kept for call-site compat during refactor. */
 export function applyProgressSettingsUpdate(
   current: UserProgress,
   nextSettings: AppSettings
 ): UserProgress {
-  if (nextSettings.dialect === current.settings.dialect) {
-    return prepareProgressForSave({ ...current, settings: nextSettings });
-  }
-  return switchDialectProgress(current, nextSettings.dialect, nextSettings);
+  return prepareProgressForSave({ ...current, settings: nextSettings });
 }

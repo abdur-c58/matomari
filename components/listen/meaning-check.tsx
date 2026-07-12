@@ -11,7 +11,10 @@ import { MOBILE_MEDIA_QUERY, useIsMobileViewport } from "@/hooks/use-is-mobile-v
 import { AskButton } from "@/components/ai/ask-button";
 import { Card } from "@/components/ui/card";
 import { PlaceholderText } from "@/components/sentence/placeholder-text";
-import { KansaiPhoneticDisplay } from "@/components/sentence/kansai-phonetic-display";
+import { DialectTranslationBlock } from "@/components/sentence/dialect-translation-block";
+import { useApp } from "@/components/providers/app-provider";
+import { fieldsFromComposedSentence } from "@/lib/sentence-utils";
+import { getPrimaryTranslation } from "@/lib/preferences/translation-preferences";
 import { SentenceContextPanel } from "@/components/study/sentence-context-panel";
 import { useDesktopShortcuts } from "@/hooks/use-desktop-shortcuts";
 import { useTutor } from "@/components/ai/tutor-provider";
@@ -29,8 +32,11 @@ export function MeaningCheck({
 }) {
   const [index, setIndex] = useState(0);
   const { closeTutor } = useTutor();
+  const { progress: userProgress } = useApp();
   const current = sentences[index];
-  const progress = ((index + 1) / sentences.length) * 100;
+  const primaryDialect = getPrimaryTranslation(userProgress.settings);
+  const primaryFields = current ? fieldsFromComposedSentence(current) : null;
+  const progressPct = ((index + 1) / sentences.length) * 100;
 
   useEffect(() => {
     if (sentences.length === 0) onComplete();
@@ -77,7 +83,7 @@ export function MeaningCheck({
       <div className="mb-6 h-1.5 overflow-hidden rounded-full bg-border-subtle">
         <motion.div
           className="h-full bg-foreground rounded-full"
-          animate={{ width: `${progress}%` }}
+          animate={{ width: `${progressPct}%` }}
           transition={{ duration: 0.3 }}
         />
       </div>
@@ -96,10 +102,21 @@ export function MeaningCheck({
           as="p"
           className="mt-4 font-japanese text-xl text-muted"
         />
-        {current.reading && (
-          <p className="mt-2 font-japanese text-base text-muted/80">{current.reading}</p>
+        {primaryFields && (
+          <DialectTranslationBlock
+            sentenceId={current.id}
+            fields={primaryFields}
+            dialect={primaryDialect}
+            sentenceMeta={current}
+            showLabel={false}
+            showPlayButton={false}
+            showJapanese={false}
+            className="mt-2"
+            readingClassName="font-japanese text-base text-muted/80"
+            phoneticClassName="text-base"
+            romajiClassName="text-sm"
+          />
         )}
-        <KansaiPhoneticDisplay sentence={current} className="mt-2" />
       </Card>
 
       <div className="mb-4">

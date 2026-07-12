@@ -1,7 +1,6 @@
 "use client";
 
 import type { LibraryFilters, LibraryGroupBy, LibraryMeta, LibrarySortBy } from "@/lib/services/library-service";
-import { defaultLibraryFilters } from "@/lib/services/library-service";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -414,14 +413,6 @@ export function FilterDrawer({ filters, onChange, meta, activeFilterCount }: Fil
               </SelectContent>
             </Select>
           </section>
-
-          <Button
-            variant="ghost"
-            className="w-full"
-            onClick={() => onChange({ ...defaultLibraryFilters, search: filters.search })}
-          >
-            Clear all filters
-          </Button>
         </div>
       </DrawerContent>
     </Drawer>

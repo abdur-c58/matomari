@@ -1,22 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import type { Dialect } from "@/lib/constants/dialect";
+import { getDialectLabel } from "@/lib/constants/dialect";
 import type { Sentence } from "@/types/sentence";
 import type { SentenceProgress } from "@/types/progress";
 import { useApp } from "@/components/providers/app-provider";
-import { isTranslated } from "@/lib/sentence-utils";
+import { isTranslated, fieldsFromComposedSentence } from "@/lib/sentence-utils";
+import { getPrimaryTranslation } from "@/lib/preferences/translation-preferences";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { StarRating } from "@/components/sentence/star-rating";
 import { AskButton } from "@/components/ai/ask-button";
 import { SentencePlayButton } from "@/components/audio/sentence-play-button";
 import { PlaceholderText } from "@/components/sentence/placeholder-text";
-import { KansaiPhoneticDisplay } from "@/components/sentence/kansai-phonetic-display";
+import { DialectTranslationBlock } from "@/components/sentence/dialect-translation-block";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { getDialectLabel } from "@/lib/constants/dialect";
 import { MotionCollapse } from "@/components/motion/motion-collapse";
 import { ChevronDown, Star, Check } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 function RatingPill({ rating }: { rating: number | null }) {
   if (rating === null) {
@@ -51,23 +60,58 @@ export function LibrarySentenceRow({
   selected?: boolean;
   onToggleSelect?: () => void;
 }) {
-  const { retranslateSentence, sentenceNeedsRetranslation, progress: userProgress } = useApp();
+  const {
+    retranslateSentence,
+    translateSentenceIds,
+    sentenceNeedsRetranslation,
+    getSentenceTranslation,
+    progress: userProgress,
+  } = useApp();
+
+  const primaryDialect = getPrimaryTranslation(userProgress.settings);
+  const showKansaiDialect = userProgress.settings.showKansaiDialect ?? false;
+
   const [expanded, setExpanded] = useState(false);
+  const [viewDialect, setViewDialect] = useState<Dialect>(primaryDialect);
   const [retranslating, setRetranslating] = useState(false);
+  const [translating, setTranslating] = useState(false);
+
+  useEffect(() => {
+    setViewDialect(primaryDialect);
+  }, [primaryDialect]);
+
   const translated = isTranslated(sentence);
-  const showRetranslate = sentenceNeedsRetranslation(sentence.id);
-  const dialectLabel = getDialectLabel(userProgress.settings.dialect);
   const rating = progress?.rating ?? null;
+
+  const viewFields =
+    getSentenceTranslation(sentence.id, viewDialect) ??
+    (viewDialect === primaryDialect && translated
+      ? fieldsFromComposedSentence(sentence)
+      : null);
+  const viewHasTranslation = Boolean(viewFields?.japanese?.trim());
+  const showRetranslate = sentenceNeedsRetranslation(sentence.id, viewDialect);
 
   const handleRetranslate = async () => {
     setRetranslating(true);
     try {
-      await retranslateSentence(sentence.id);
+      await retranslateSentence(sentence.id, viewDialect);
       toast.success("Translation updated");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Retranslation failed");
     } finally {
       setRetranslating(false);
+    }
+  };
+
+  const handleTranslate = async () => {
+    setTranslating(true);
+    try {
+      await translateSentenceIds([sentence.id], { dialect: viewDialect });
+      toast.success(`${getDialectLabel(viewDialect)} translation added`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Translation failed");
+    } finally {
+      setTranslating(false);
     }
   };
 
@@ -163,6 +207,7 @@ export function LibrarySentenceRow({
           context_notes={sentence.context_notes}
           english={sentence.english}
           placeholders={sentence.placeholders}
+          dialect={primaryDialect}
           disabled={!translated}
           className="mt-0.5"
         />
@@ -189,18 +234,51 @@ export function LibrarySentenceRow({
       </div>
 
       <MotionCollapse open={expanded && !selectionMode} className="border-t border-border/40">
-        <div className="space-y-2 px-1 pb-3 pt-2 pl-10">
-          {translated && sentence.reading && (
-            <p className="font-japanese text-xs text-muted">{sentence.reading}</p>
+        <div className="space-y-3 px-1 pb-3 pt-2 pl-10">
+          {showKansaiDialect && (
+            <Select
+              value={viewDialect}
+              onValueChange={(value) => setViewDialect(value as Dialect)}
+            >
+              <SelectTrigger className="h-8 w-full max-w-[12rem] text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="standard">Standard Japanese</SelectItem>
+                <SelectItem value="kansai">Kansai dialect</SelectItem>
+              </SelectContent>
+            </Select>
           )}
-          {translated && (
-            <KansaiPhoneticDisplay
-              sentence={sentence}
-              className="mt-1.5"
-              kanaClassName="text-xs"
+
+          {viewHasTranslation && viewFields ? (
+            <DialectTranslationBlock
+              sentenceId={sentence.id}
+              fields={viewFields}
+              dialect={viewDialect}
+              sentenceMeta={sentence}
+              showLabel={!showKansaiDialect}
+              japaneseClassName="text-sm"
+              readingClassName="text-xs"
+              phoneticClassName="text-xs"
               romajiClassName="text-xs"
             />
+          ) : (
+            <div className="rounded-lg border border-dashed border-border p-3">
+              <p className="text-xs text-muted">
+                No {getDialectLabel(viewDialect).toLowerCase()} translation yet.
+              </p>
+              <Button
+                variant="secondary"
+                size="sm"
+                className="mt-2 h-7 text-xs"
+                disabled={translating}
+                onClick={handleTranslate}
+              >
+                Translate {viewDialect === "kansai" ? "Kansai" : "Standard"}
+              </Button>
+            </div>
           )}
+
           {sentence.context_notes && (
             <p className="text-xs text-muted">{sentence.context_notes}</p>
           )}
@@ -230,7 +308,7 @@ export function LibrarySentenceRow({
                   disabled={retranslating}
                   onClick={handleRetranslate}
                 >
-                  Re-translate ({dialectLabel})
+                  Re-translate ({getDialectLabel(viewDialect)})
                 </Button>
               )}
               <AskButton

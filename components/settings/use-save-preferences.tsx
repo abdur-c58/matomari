@@ -3,20 +3,21 @@
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/components/providers/app-provider";
-import type { Dialect } from "@/lib/constants/dialect";
 import type { NotificationPreferences } from "@/lib/constants/notifications";
 import type { UiFont } from "@/lib/constants/ui-font";
 import { resolveUiFont } from "@/lib/constants/ui-font";
-import { DialectSwitchDialog } from "@/components/settings/dialect-switch-dialog";
+import { resolveTranslationSettings } from "@/lib/preferences/translation-preferences";
 import { toast } from "sonner";
 
 export function useSavePreferences({
-  dialect,
+  showKansaiDialect,
+  kansaiAsPrimary,
   notifications,
   uiFont,
   returnTo,
 }: {
-  dialect: Dialect;
+  showKansaiDialect: boolean;
+  kansaiAsPrimary: boolean;
   notifications: NotificationPreferences;
   uiFont: UiFont;
   returnTo: string;
@@ -24,19 +25,24 @@ export function useSavePreferences({
   const router = useRouter();
   const { progress, setProgress, refresh } = useApp();
   const [saving, setSaving] = useState(false);
-  const [confirmOpen, setConfirmOpen] = useState(false);
 
-  const persistPreferences = useCallback(async () => {
+  const handleSave = useCallback(async () => {
     setSaving(true);
     try {
+      const merged = {
+        ...progress.settings,
+        showKansaiDialect,
+        kansaiAsPrimary: showKansaiDialect ? kansaiAsPrimary : false,
+        notifications,
+        uiFont: resolveUiFont(uiFont),
+      };
+      const resolved = resolveTranslationSettings(merged);
+
       await setProgress({
         ...progress,
         settings: {
-          ...progress.settings,
-          dialect,
-          dialectChosen: true,
-          notifications,
-          uiFont: resolveUiFont(uiFont),
+          ...merged,
+          ...resolved,
         },
       });
       await refresh();
@@ -46,28 +52,18 @@ export function useSavePreferences({
       toast.error(e instanceof Error ? e.message : "Could not save preferences");
     } finally {
       setSaving(false);
-      setConfirmOpen(false);
     }
-  }, [dialect, notifications, uiFont, progress, returnTo, router, setProgress, refresh]);
+  }, [
+    showKansaiDialect,
+    kansaiAsPrimary,
+    notifications,
+    uiFont,
+    progress,
+    returnTo,
+    router,
+    setProgress,
+    refresh,
+  ]);
 
-  const handleSave = useCallback(() => {
-    if (dialect !== progress.settings.dialect) {
-      setConfirmOpen(true);
-      return;
-    }
-    void persistPreferences();
-  }, [dialect, persistPreferences, progress.settings.dialect]);
-
-  const confirmDialog = (
-    <DialectSwitchDialog
-      open={confirmOpen}
-      onOpenChange={setConfirmOpen}
-      fromDialect={progress.settings.dialect}
-      toDialect={dialect}
-      onConfirm={() => void persistPreferences()}
-      loading={saving}
-    />
-  );
-
-  return { handleSave, saving, confirmDialog };
+  return { handleSave, saving };
 }

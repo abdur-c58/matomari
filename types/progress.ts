@@ -39,9 +39,14 @@ import type { UiFont } from "@/lib/constants/ui-font";
 
 export interface AppSettings {
   batchSize: number;
+  /** @deprecated Derived from showKansaiDialect + kansaiAsPrimary — kept for sync compat */
   dialect: Dialect;
-  /** Kept for sync compatibility; always true for new users. */
+  /** @deprecated Always true after migration — kept for sync compat */
   dialectChosen: boolean;
+  /** When true, Kansai translations can be generated and viewed alongside Standard */
+  showKansaiDialect: boolean;
+  /** When true (and showKansaiDialect), Kansai is the default display dialect */
+  kansaiAsPrimary: boolean;
   notifications: NotificationPreferences;
   /** Optional override for [name] placeholder resolution */
   displayName?: string;

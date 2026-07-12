@@ -1,5 +1,6 @@
 import type { Dataset, UserLibrary } from "@/types/sentence";
 import type { UserProgress } from "@/types/progress";
+import { getPrimaryTranslation } from "@/lib/preferences/translation-preferences";
 import type { AppStats } from "@/types/stats";
 import type { SyncTable } from "@/lib/repositories/types";
 import {
@@ -384,7 +385,10 @@ export async function manualSync(): Promise<ManualSyncResult> {
 
   const snapshot = await loadLocalSnapshot();
   const audio = snapshot.dataset
-    ? await syncAudioToCloud(snapshot.dataset, snapshot.progress.settings.dialect)
+    ? await syncAudioToCloud(
+        snapshot.dataset,
+        getPrimaryTranslation(snapshot.progress.settings)
+      )
     : emptyAudio;
 
   if (supabaseOk) {

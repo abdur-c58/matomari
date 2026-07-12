@@ -69,21 +69,18 @@ export function getDB() {
 
 import type { Dialect } from "@/lib/constants/dialect";
 import { DEFAULT_DIALECT } from "@/lib/constants/dialect";
-import { emptyDialectStudyProgress } from "@/lib/progress/dialect-progress";
 import { DEFAULT_NOTIFICATION_PREFERENCES } from "@/lib/constants/notifications";
 import { DEFAULT_UI_FONT } from "@/lib/constants/ui-font";
 
 export const DEFAULT_PROGRESS: UserProgress = {
-  byDialect: {
-    standard: emptyDialectStudyProgress(),
-    kansai: emptyDialectStudyProgress(),
-  },
   sentences: {},
   batchConfig: null,
   settings: {
     batchSize: 25,
     dialect: DEFAULT_DIALECT,
-    dialectChosen: false,
+    dialectChosen: true,
+    showKansaiDialect: false,
+    kansaiAsPrimary: false,
     onboardingCompleted: false,
     uiFont: DEFAULT_UI_FONT,
     notifications: { ...DEFAULT_NOTIFICATION_PREFERENCES, lastSent: {} },
