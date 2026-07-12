@@ -50,9 +50,10 @@ export function TranslateAllButton() {
           `Translated ${translatedCount} of ${total} sentence${total === 1 ? "" : "s"}`
         );
       }
-      setTranslating(false);
     } catch (e) {
       setError(formatTranslationError(e));
+    } finally {
+      setTranslating(false);
     }
   }, [dataset, untranslatedCount, translateAllUntranslated, requireDialect]);
 

@@ -6,15 +6,17 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
 import { useSession } from "next-auth/react";
-import type { Dataset, Island, UserLibrary } from "@/types/sentence";
+import type { Dataset, Island, TranslatedFields, UserLibrary } from "@/types/sentence";
 import type { SentenceProgress, UserProgress } from "@/types/progress";
 import type { AppStats } from "@/types/stats";
 import type { AudioSessionState } from "@/types/audio";
 import { DEFAULT_PROGRESS, DEFAULT_STATS } from "@/lib/db/index";
+import { appendSentenceTranslations } from "@/lib/db/dataset-repository";
 import { audioSession } from "@/lib/audio/audio-session";
 import { parseDataset } from "@/lib/validation/dataset-schema";
 import {
@@ -29,6 +31,8 @@ import {
   syncAll,
   manualSync,
   loadLocalSnapshot,
+  queueLibrarySync,
+  flushSyncQueue,
   onSyncStatusChange,
   onSyncStatusMessageChange,
   canSyncToCloud,
@@ -109,6 +113,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [syncStatusMessage, setSyncStatusMessage] = useState<string | null>(null);
   const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
   const [userLibrary, setUserLibrary] = useState<UserLibrary | null>(null);
+  const translationMutexRef = useRef(Promise.resolve());
 
   const applyLocalSnapshot = useCallback(
     async (snapshot: Awaited<ReturnType<typeof loadLocalSnapshot>>) => {
@@ -279,54 +284,69 @@ export function AppProvider({ children }: { children: ReactNode }) {
       sentenceIds: string[],
       options?: { onProgress?: TranslationProgressCallback }
     ): Promise<{ translatedCount: number; total: number }> => {
-      const dialect = progress.settings.dialect;
-      const dialectChosen = progress.settings.dialectChosen;
-
-      if (!isDialectConfigured({ dialectChosen })) {
-        if (typeof window !== "undefined") {
-          window.location.assign(
-            preferencesPathWithReturn(window.location.pathname + window.location.search)
-          );
-        }
-        return { translatedCount: 0, total: 0 };
-      }
-
-      let current = await getDatasetSynced();
-      if (!current || sentenceIds.length === 0) {
-        return { translatedCount: 0, total: 0 };
-      }
-
-      const untranslatedSet = new Set(getUntranslatedIds(current));
-      const untranslatedIds = sentenceIds.filter((id) => untranslatedSet.has(id));
-      const total = untranslatedIds.length;
-      if (total === 0) {
-        return { translatedCount: 0, total: 0 };
-      }
-
-      const persist = async (next: Dataset) => {
-        await saveDatasetSynced(next);
-        current = next;
-        setDataset(next);
-        const snapshot = await loadLocalSnapshot();
-        setUserLibrary(snapshot.library);
-      };
-
-      const onProgress: TranslationProgressCallback = (completed, progressTotal) => {
-        reportTranslationProgress(completed, progressTotal);
-        options?.onProgress?.(completed, progressTotal);
-      };
+      const prior = translationMutexRef.current;
+      let release!: () => void;
+      const gate = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      translationMutexRef.current = prior.then(() => gate);
+      await prior;
 
       try {
+        const dialect = progress.settings.dialect;
+        const dialectChosen = progress.settings.dialectChosen;
+
+        if (!isDialectConfigured({ dialectChosen })) {
+          if (typeof window !== "undefined") {
+            window.location.assign(
+              preferencesPathWithReturn(window.location.pathname + window.location.search)
+            );
+          }
+          return { translatedCount: 0, total: 0 };
+        }
+
+        let current = await getDatasetSynced();
+        if (!current || sentenceIds.length === 0) {
+          return { translatedCount: 0, total: 0 };
+        }
+
+        const untranslatedSet = new Set(getUntranslatedIds(current));
+        const untranslatedIds = sentenceIds.filter((id) => untranslatedSet.has(id));
+        const total = untranslatedIds.length;
+        if (total === 0) {
+          return { translatedCount: 0, total: 0 };
+        }
+
+        reportTranslationProgress(0, total);
+
+        const persistBatch = async (batch: Record<string, TranslatedFields>) => {
+          const library = await appendSentenceTranslations(batch, dialect);
+          await queueLibrarySync(library);
+        };
+
+        const onProgress: TranslationProgressCallback = (completed, progressTotal) => {
+          reportTranslationProgress(completed, progressTotal);
+          options?.onProgress?.(completed, progressTotal);
+        };
+
         const { translatedCount } = await translateSentences(current, untranslatedIds, {
           onProgress,
-          persist,
+          persistBatch,
           dialect,
         });
 
+        const snapshot = await loadLocalSnapshot();
+        setDataset(snapshot.dataset);
+        setUserLibrary(snapshot.library);
+
+        if (canSyncToCloud()) {
+          void flushSyncQueue();
+        }
+
         return { translatedCount, total };
-      } catch (e) {
+      } finally {
+        release();
         clearUploadProgress();
-        throw e;
       }
     },
     [progress.settings.dialect, progress.settings.dialectChosen]
@@ -355,14 +375,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const retranslateSentence = useCallback(
     async (sentenceId: string) => {
       if (!dataset) throw new Error("No dataset loaded");
-      const { dataset: next } = await translateSentences(dataset, [sentenceId], {
+      const dialect = progress.settings.dialect;
+      const { translatedCount } = await translateSentences(dataset, [sentenceId], {
         force: true,
-        dialect: progress.settings.dialect,
+        dialect,
+        persistBatch: async (batch) => {
+          const library = await appendSentenceTranslations(batch, dialect);
+          await queueLibrarySync(library);
+        },
       });
-      await saveDatasetSynced(next);
-      setDataset(next);
+      if (translatedCount === 0) return;
+
       const snapshot = await loadLocalSnapshot();
+      setDataset(snapshot.dataset);
       setUserLibrary(snapshot.library);
+      if (canSyncToCloud()) {
+        void flushSyncQueue();
+      }
     },
     [dataset, progress.settings.dialect]
   );

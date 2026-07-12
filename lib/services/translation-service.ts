@@ -11,14 +11,21 @@ import { DEFAULT_DIALECT } from "@/lib/constants/dialect";
 import { isValidKanaReading } from "@/lib/audio/tts-text";
 import { validatePlaceholderTranslations } from "@/lib/sentence/placeholders";
 
-const BATCH_SIZE = 30;
+const BATCH_SIZE = 15;
 
 export type TranslationProgressCallback = (completed: number, total: number) => void;
+
+export type TranslationBatchPersist = (
+  translations: Record<string, TranslatedFields>
+) => Promise<void>;
 
 export interface TranslateOptions {
   force?: boolean;
   dialect?: Dialect;
   onProgress?: TranslationProgressCallback;
+  /** Persist only the batch translations (lightweight; preferred for bulk translate). */
+  persistBatch?: TranslationBatchPersist;
+  /** @deprecated Prefer persistBatch — clones the full dataset each batch. */
   persist?: (dataset: Dataset) => Promise<void>;
 }
 
@@ -172,25 +179,36 @@ export async function translateSentences(
   }
 
   let current = dataset;
+  const accumulated: Record<string, TranslatedFields> = {};
   let completed = 0;
   const total = toTranslate.length;
   const dialect = options?.dialect ?? DEFAULT_DIALECT;
+  const useBatchPersist = Boolean(options?.persistBatch);
 
   for (let i = 0; i < toTranslate.length; i += BATCH_SIZE) {
     const chunk = toTranslate.slice(i, i + BATCH_SIZE);
     const translations = await fetchTranslations(chunk, { dialect: options?.dialect });
     validateTranslations(chunk, translations, dialect);
 
-    current = mergeTranslations(current, translations);
+    if (useBatchPersist) {
+      Object.assign(accumulated, translations);
+      await options!.persistBatch!(translations);
+    } else {
+      current = mergeTranslations(current, translations);
+      if (options?.persist) {
+        await options.persist(current);
+      }
+    }
+
     completed += chunk.length;
     options?.onProgress?.(completed, total);
-
-    if (options?.persist) {
-      await options.persist(current);
-    }
   }
 
-  return { dataset: current, translatedCount: toTranslate.length };
+  const resultDataset = useBatchPersist
+    ? mergeTranslations(dataset, accumulated)
+    : current;
+
+  return { dataset: resultDataset, translatedCount: toTranslate.length };
 }
 
 export function collectSentencesByIds(dataset: Dataset, ids: string[]): Sentence[] {

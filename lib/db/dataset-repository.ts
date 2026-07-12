@@ -1,4 +1,4 @@
-import type { Dataset, UserLibrary } from "@/types/sentence";
+import type { Dataset, TranslatedFields, UserLibrary } from "@/types/sentence";
 import {
   extractUserLibrary,
   isLegacyFullDataset,
@@ -8,9 +8,11 @@ import {
 import {
   applyDialectTranslations,
   collectTranslationsForDialect,
+  mergeSentenceTranslations,
   migrateLegacyIslandTranslations,
   seedStandardTranslationsFromDataset,
 } from "@/lib/services/dialect-translation-service";
+import type { Dialect } from "@/lib/constants/dialect";
 import { DEFAULT_DIALECT } from "@/lib/constants/dialect";
 import { getProgress } from "./progress-repository";
 import { getDB } from "./index";
@@ -80,6 +82,26 @@ export async function getComposedDataset(): Promise<Dataset | null> {
 /** @deprecated Use getUserLibrary + getComposedDataset */
 export async function getDataset(): Promise<Dataset | null> {
   return getComposedDataset();
+}
+
+/** Merge translated fields into the library map without cloning the full composed dataset. */
+export async function appendSentenceTranslations(
+  updates: Record<string, TranslatedFields>,
+  dialect: Dialect
+): Promise<UserLibrary> {
+  const library = (await getUserLibrary()) ?? { islands: {} };
+  const batchUpdates: Record<string, Partial<Record<Dialect, TranslatedFields>>> = {};
+
+  for (const [id, fields] of Object.entries(updates)) {
+    batchUpdates[id] = { [dialect]: fields };
+  }
+
+  const next: UserLibrary = {
+    ...library,
+    sentenceTranslations: mergeSentenceTranslations(library.sentenceTranslations, batchUpdates),
+  };
+  await saveUserLibrary(next);
+  return next;
 }
 
 export async function saveDataset(data: Dataset): Promise<void> {

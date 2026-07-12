@@ -6,6 +6,8 @@ import {
   getUserLibrary,
   saveUserLibrary,
   getComposedDataset,
+  saveDataset,
+  appendSentenceTranslations,
 } from "@/lib/db/dataset-repository";
 import {
   extractUserLibrary,
@@ -112,6 +114,13 @@ async function queuePush(table: SyncTable, payload: unknown) {
     payload,
     createdAt: new Date().toISOString(),
   });
+}
+
+/** Persist library locally and queue cloud sync without uploading yet. */
+export async function queueLibrarySync(library: UserLibrary): Promise<void> {
+  const now = new Date().toISOString();
+  await setMeta("datasetUpdatedAt", now);
+  await queuePush("user_datasets", library);
 }
 
 function normalizeRemoteLibrary(payload: unknown): UserLibrary {
@@ -419,14 +428,28 @@ export async function getDatasetSynced(): Promise<Dataset | null> {
   return getComposedDataset();
 }
 
-export async function saveDatasetSynced(data: Dataset): Promise<void> {
-  const library = extractUserLibrary(data);
-  await persistWithSync(
-    "user_datasets",
-    () => saveUserLibrary(library),
-    "datasetUpdatedAt",
-    library
-  );
+export async function saveDatasetSynced(
+  data: Dataset,
+  options?: { skipFlush?: boolean }
+): Promise<void> {
+  await saveDataset(data);
+  const library = await getUserLibrary();
+  if (!library) return;
+
+  await queueLibrarySync(library);
+
+  if (options?.skipFlush) {
+    if (isSupabaseConfigured() && !canSyncToCloud()) {
+      setSyncStatus("offline", "No internet connection");
+    }
+    return;
+  }
+
+  if (canSyncToCloud()) {
+    await flushSyncQueue();
+  } else if (isSupabaseConfigured()) {
+    setSyncStatus("offline", "No internet connection");
+  }
 }
 
 export async function getProgressSynced(): Promise<UserProgress> {
