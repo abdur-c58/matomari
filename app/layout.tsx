@@ -16,13 +16,13 @@ import { TutorProvider } from "@/components/ai/tutor-provider";
 import { AppShell } from "@/components/layout/app-shell";
 import { Toaster } from "@/components/ui/sonner";
 import { UploadProgressBar } from "@/components/layout/upload-progress-bar";
-import { AppleSplashHeadLinks } from "@/components/layout/apple-splash-head-links";
 import { NotificationProvider } from "@/components/notifications/notification-provider";
 import {
   APP_DESCRIPTION,
   APP_FULL_TITLE,
   APP_SHORT_TITLE,
 } from "@/lib/constants/branding";
+import { buildAppleStartupImages } from "@/lib/constants/apple-splash-screens";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -70,6 +70,12 @@ export const metadata: Metadata = {
     capable: true,
     statusBarStyle: "black-translucent",
     title: APP_SHORT_TITLE,
+    startupImage: buildAppleStartupImages(),
+  },
+  other: {
+    // iOS still requires this deprecated tag for apple-touch-startup-image to apply.
+    // https://github.com/vercel/next.js/issues/74524
+    "apple-mobile-web-app-capable": "yes",
   },
   icons: {
     icon: [
@@ -90,9 +96,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="antialiased">
-      <head>
-        <AppleSplashHeadLinks />
-      </head>
       <body className="bg-background text-foreground">
         <AuthProvider>
           <AuthGate>
