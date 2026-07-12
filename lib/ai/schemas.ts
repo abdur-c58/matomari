@@ -185,6 +185,14 @@ export const transcriptSegmentResponseSchema = z.object({
   sentences: z.array(transcriptSegmentSentenceSchema).min(1).max(25),
 });
 
+export const translateNameRequestSchema = z.object({
+  name: z.string().min(1).max(80),
+});
+
+export const translateNameResponseSchema = z.object({
+  kana: z.string().min(1),
+});
+
 export type ChatRequest = z.infer<typeof chatRequestSchema>;
 export type IslandRequest = z.infer<typeof islandRequestSchema>;
 

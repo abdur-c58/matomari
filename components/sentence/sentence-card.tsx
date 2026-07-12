@@ -79,6 +79,7 @@ export function SentenceCard({
           <PlaceholderText
             text={sentence.japanese}
             sentence={sentence}
+            script="japanese"
             as="p"
             className={cn(
               "font-japanese leading-relaxed text-foreground",

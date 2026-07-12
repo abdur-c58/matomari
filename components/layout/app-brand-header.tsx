@@ -25,8 +25,10 @@ export function AppBrandHeader({ variant, className }: AppBrandHeaderProps) {
       <KotoshimaLogo size={logoSize} className="shrink-0" />
       <p
         className={cn(
-          "min-w-0 truncate font-display font-bold tracking-tight text-foreground",
-          variant === "sidebar" ? "text-base leading-snug" : "text-sm leading-none"
+          "min-w-0 font-display font-bold tracking-tight text-foreground",
+          variant === "sidebar"
+            ? "truncate text-base leading-snug"
+            : "text-sm leading-snug [overflow-wrap:anywhere]"
         )}
       >
         {loading ? getTimeOfDayGreeting() : greeting}

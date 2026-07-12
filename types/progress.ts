@@ -44,6 +44,10 @@ export interface AppSettings {
   notifications: NotificationPreferences;
   /** Optional override for [name] placeholder resolution */
   displayName?: string;
+  /** LLM-generated kana for TTS / Japanese [name] chips; keyed to japaneseNameSource */
+  japaneseNameReading?: string;
+  /** displayName (or session first name) used to produce japaneseNameReading */
+  japaneseNameSource?: string;
 }
 
 export interface UserProgress {

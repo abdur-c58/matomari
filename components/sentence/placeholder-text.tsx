@@ -6,12 +6,14 @@ import {
   parsePlaceholderTags,
   resolvePlaceholderDisplayValue,
 } from "@/lib/sentence/placeholders";
+import { useLearnerJapaneseName } from "@/hooks/use-learner-japanese-name";
 import { useLearnerName } from "@/hooks/use-learner-name";
 import { cn } from "@/lib/utils";
 
 type PlaceholderTextProps = {
   text: string;
   sentence?: Pick<Sentence, "placeholders">;
+  script?: "latin" | "japanese";
   className?: string;
   as?: "span" | "p";
 };
@@ -40,10 +42,12 @@ function PlaceholderChip({
 export function PlaceholderText({
   text,
   sentence,
+  script = "latin",
   className,
   as: Component = "span",
 }: PlaceholderTextProps) {
   const learnerName = useLearnerName();
+  const learnerJapaneseName = useLearnerJapaneseName();
   const segments = parsePlaceholderTags(text);
 
   if (segments.length === 1 && segments[0].type === "text") {
@@ -58,8 +62,15 @@ export function PlaceholderText({
         }
 
         const spec = sentence ? getPlaceholderSpec(sentence, segment.tag) : undefined;
-        const resolved = spec?.resolveAs === "learner" && Boolean(learnerName);
-        const display = resolvePlaceholderDisplayValue(segment.tag, spec, learnerName);
+        const resolved =
+          spec?.resolveAs === "learner" &&
+          (script === "japanese"
+            ? Boolean(learnerJapaneseName ?? learnerName)
+            : Boolean(learnerName));
+        const display = resolvePlaceholderDisplayValue(segment.tag, spec, learnerName, {
+          script,
+          learnerJapaneseName,
+        });
 
         return (
           <PlaceholderChip key={i} resolved={resolved}>

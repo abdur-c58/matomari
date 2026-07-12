@@ -36,7 +36,7 @@ const SheetContent = React.forwardRef<
         side === "bottom" &&
           "inset-x-0 bottom-0 max-h-[85dvh] overflow-y-auto rounded-t-3xl border-t border-border pb-[max(1.5rem,env(safe-area-inset-bottom))]",
         side === "right" &&
-          "inset-y-0 right-0 flex h-full w-3/4 max-w-sm flex-col overflow-hidden border-l border-border pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom,0px)]",
+          "inset-y-0 right-0 flex h-full w-3/4 max-w-sm flex-col overflow-hidden border-l border-border bg-background pt-[env(safe-area-inset-top,0px)]",
         className
       )}
       {...props}
@@ -45,7 +45,7 @@ const SheetContent = React.forwardRef<
         <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-border" />
       )}
       {side === "right" && (
-        <DialogPrimitive.Close className="absolute right-4 top-[max(1rem,env(safe-area-inset-top))] rounded-lg p-2 text-muted transition-colors hover:bg-foreground/5 hover:text-foreground">
+        <DialogPrimitive.Close className="absolute right-3 top-[max(0.625rem,calc(env(safe-area-inset-top,0px)+0.5rem))] flex min-h-10 min-w-10 items-center justify-center rounded-lg text-muted transition-colors hover:bg-foreground/5 hover:text-foreground">
           <X className="h-5 w-5" />
           <span className="sr-only">Close menu</span>
         </DialogPrimitive.Close>

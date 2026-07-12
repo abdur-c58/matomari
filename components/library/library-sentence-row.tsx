@@ -123,6 +123,7 @@ export function LibrarySentenceRow({
               <PlaceholderText
                 text={sentence.japanese}
                 sentence={sentence}
+                script="japanese"
                 as="p"
                 className="truncate text-sm font-japanese leading-snug text-muted"
               />

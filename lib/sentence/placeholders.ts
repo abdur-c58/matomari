@@ -6,7 +6,6 @@ import type {
   SentencePlaceholder,
   TranslatedFields,
 } from "@/types/sentence";
-import { toKatakanaForTts } from "@/lib/sentence/learner-name";
 
 export const PLACEHOLDER_PATTERN = /\[([a-z][a-z0-9_]*)\]/gi;
 
@@ -55,10 +54,14 @@ export function getPlaceholderSpec(
 export function resolvePlaceholderDisplayValue(
   tag: string,
   spec: SentencePlaceholder | undefined,
-  learnerName: string | null
+  learnerName: string | null,
+  options?: { script?: "latin" | "japanese"; learnerJapaneseName?: string | null }
 ): string {
-  if (spec?.resolveAs === "learner" && learnerName) {
-    return learnerName;
+  if (spec?.resolveAs === "learner") {
+    if (options?.script === "japanese" && options.learnerJapaneseName) {
+      return options.learnerJapaneseName;
+    }
+    if (learnerName) return learnerName;
   }
   if (spec?.label) return spec.label;
   return `[${tag}]`;
@@ -66,8 +69,8 @@ export function resolvePlaceholderDisplayValue(
 
 export function resolveReadingForTts(
   sentence: Pick<Sentence, "reading" | "placeholders">,
-  learnerName: string | null,
-  dialect: Dialect = "standard"
+  learnerJapaneseName: string | null,
+  _dialect: Dialect = "standard"
 ): string | null {
   const reading = sentence.reading?.trim();
   if (!reading) return null;
@@ -79,14 +82,10 @@ export function resolveReadingForTts(
     const substitute = spec.readingSubstitute?.trim();
     if (!substitute || !result.includes(substitute)) continue;
 
-    let replacement = substitute;
-    if (spec.resolveAs === "learner") {
-      const katakana =
-        dialect === "kansai"
-          ? toKatakanaForTts(learnerName) ?? substitute
-          : toKatakanaForTts(learnerName) ?? substitute;
-      replacement = katakana;
-    }
+    const replacement =
+      spec.resolveAs === "learner" && learnerJapaneseName
+        ? learnerJapaneseName
+        : substitute;
 
     result = result.replace(substitute, replacement);
   }

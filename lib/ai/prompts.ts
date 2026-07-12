@@ -326,3 +326,20 @@ Return JSON only:
 
 Be concise. Skip toneQuestions when the sentence is clear. Do not over-correct natural spoken English.`;
 }
+
+export function buildNameTranslationPrompt(name: string): string {
+  return `Convert this personal name into the standard Japanese katakana form used when introducing yourself in Japan.
+
+Name: "${name}"
+
+Rules:
+- Return katakana only (no kanji, no Latin letters, no spaces)
+- Use the most natural Japanese pronunciation for this name (loanword style)
+- For Japanese native names already in kana, return them in katakana or hiragana as commonly spoken for introductions
+- Do not add honorifics (さん, くん, etc.)
+
+Return JSON only:
+{
+  "kana": "カタカナのみ"
+}`;
+}

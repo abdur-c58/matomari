@@ -9,7 +9,7 @@ import { useApp } from "@/components/providers/app-provider";
 import { audioSession, type TtsRequest } from "@/lib/audio/audio-session";
 import { getTtsTextFromFields } from "@/lib/audio/tts-text";
 import type { SentencePlaceholder } from "@/types/sentence";
-import { useLearnerName } from "@/hooks/use-learner-name";
+import { useLearnerJapaneseName } from "@/hooks/use-learner-japanese-name";
 import { cn } from "@/lib/utils";
 
 interface AudioControlsProps {
@@ -44,7 +44,7 @@ export function AudioControls({
   className,
 }: AudioControlsProps) {
   const { audioUnlocked, unlockAudio, audioState, progress } = useApp();
-  const learnerName = useLearnerName();
+  const learnerJapaneseName = useLearnerJapaneseName();
   const dialect = progress.settings.dialect;
   const [loop, setLoop] = useState(false);
   const [playlistMode, setPlaylistMode] = useState(false);
@@ -55,7 +55,7 @@ export function AudioControls({
         dialect,
         phonetic_reading,
         placeholders,
-        learnerName,
+        learnerName: learnerJapaneseName,
       })
   );
   const canPlay = playlistMode ? Boolean(playlist?.length) : canPlaySentence;
@@ -86,7 +86,7 @@ export function AudioControls({
         reading,
         phonetic_reading,
         placeholders,
-        learnerName,
+        learnerName: learnerJapaneseName,
         dialect,
         register,
         tags,

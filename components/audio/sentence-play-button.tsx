@@ -6,7 +6,7 @@ import { useApp } from "@/components/providers/app-provider";
 import { audioSession } from "@/lib/audio/audio-session";
 import { getTtsTextFromFields } from "@/lib/audio/tts-text";
 import type { SentencePlaceholder } from "@/types/sentence";
-import { useLearnerName } from "@/hooks/use-learner-name";
+import { useLearnerJapaneseName } from "@/hooks/use-learner-japanese-name";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -37,7 +37,7 @@ export function SentencePlayButton({
   className?: string;
 }) {
   const { audioUnlocked, unlockAudio, audioState, progress } = useApp();
-  const learnerName = useLearnerName();
+  const learnerJapaneseName = useLearnerJapaneseName();
   const [active, setActive] = useState(false);
   const dialect = progress.settings.dialect;
 
@@ -46,7 +46,7 @@ export function SentencePlayButton({
       dialect,
       phonetic_reading,
       placeholders,
-      learnerName,
+      learnerName: learnerJapaneseName,
     })
   );
 
@@ -83,7 +83,7 @@ export function SentencePlayButton({
       reading,
       phonetic_reading,
       placeholders,
-      learnerName,
+      learnerName: learnerJapaneseName,
       dialect,
       register,
       tags,

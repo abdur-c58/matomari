@@ -10,6 +10,7 @@
     "regenerate-audio": "npx tsx --env-file=.env.local scripts/regenerate-audio.ts",
     "publish-pathway": "npx tsx --env-file=.env.local scripts/publish-pathway.ts",
     "generate-icons": "npx tsx scripts/generate-icons.ts",
+    "generate-splash": "npx tsx scripts/generate-splash-screens.ts",
     "generate-og-image": "npx tsx scripts/generate-og-image.ts"
   },
   "dependencies": {

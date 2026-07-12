@@ -106,7 +106,7 @@ export function MobileSideNav() {
           aria-expanded={open}
           onClick={() => setOpen((prev) => !prev)}
           className={cn(
-            "flex min-h-11 flex-col items-center justify-center gap-0.5 rounded-l-xl border border-r-0 border-border bg-surface px-2 py-3 shadow-md touch-manipulation transition-colors",
+            "flex min-h-11 flex-col items-center justify-center gap-0.5 rounded-l-xl border border-r-0 border-border bg-background px-2 py-3 shadow-md touch-manipulation transition-colors",
             open && "bg-foreground/5"
           )}
         >
@@ -119,69 +119,80 @@ export function MobileSideNav() {
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent
           side="right"
-          className="flex w-[min(85vw,18rem)] flex-col gap-0 p-0"
+          className="flex w-[min(85vw,18rem)] flex-col gap-0 overflow-hidden p-0"
           onMouseEnter={handleOpen}
           onMouseLeave={scheduleClose}
         >
-          <SheetHeader className="border-b border-border px-4 pb-4 pt-4">
+          <SheetHeader className="shrink-0 border-b border-border px-4 pb-3 pr-14 pt-[max(0.5rem,calc(env(safe-area-inset-top,0px)+0.375rem))]">
             <SheetTitle className="sr-only">Navigation menu</SheetTitle>
-            <AppBrandHeader variant="mobile" />
+            <AppBrandHeader variant="mobile" className="w-full min-w-0" />
           </SheetHeader>
 
-          <nav className="flex flex-1 flex-col gap-5 overflow-y-auto px-3 py-4">
-            <div className="space-y-0.5">
-              <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted">
-                Study
-              </p>
-              {primaryNav.map(({ href, label, icon }) => (
-                <NavLink
-                  key={href}
-                  href={href}
-                  label={label}
-                  icon={icon}
-                  active={isNavActive(pathname, href)}
-                  onNavigate={() => setOpen(false)}
-                />
-              ))}
-            </div>
+          <div className="relative min-h-0 flex-1">
+            <nav
+              className="h-full overflow-y-auto overscroll-contain px-3 py-4 pb-[max(1.25rem,env(safe-area-inset-bottom,0px))]"
+              aria-label="Main navigation"
+            >
+              <div className="space-y-0.5">
+                <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted">
+                  Study
+                </p>
+                {primaryNav.map(({ href, label, icon }) => (
+                  <NavLink
+                    key={href}
+                    href={href}
+                    label={label}
+                    icon={icon}
+                    active={isNavActive(pathname, href)}
+                    onNavigate={() => setOpen(false)}
+                  />
+                ))}
+              </div>
 
-            <div className="space-y-0.5">
-              <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted">
-                Tools
-              </p>
-              {toolsNav.map(({ href, label, icon }) => (
-                <NavLink
-                  key={href}
-                  href={href}
-                  label={label}
-                  icon={icon}
-                  active={isNavActive(pathname, href)}
-                  onNavigate={() => setOpen(false)}
-                />
-              ))}
-              <button
-                type="button"
-                onClick={handleTutor}
-                className="flex h-10 w-full items-center gap-3 rounded-lg px-3 text-sm font-medium text-muted transition-colors duration-150 hover:bg-foreground/5 hover:text-foreground touch-manipulation"
-              >
-                <MessageCircle className="h-4 w-4 shrink-0" />
-                AI Assistant
-              </button>
-            </div>
-          </nav>
+              <div className="mt-5 space-y-0.5">
+                <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted">
+                  Tools
+                </p>
+                {toolsNav.map(({ href, label, icon }) => (
+                  <NavLink
+                    key={href}
+                    href={href}
+                    label={label}
+                    icon={icon}
+                    active={isNavActive(pathname, href)}
+                    onNavigate={() => setOpen(false)}
+                  />
+                ))}
+                <button
+                  type="button"
+                  onClick={handleTutor}
+                  className="flex h-10 w-full items-center gap-3 rounded-lg px-3 text-sm font-medium text-muted transition-colors duration-150 hover:bg-foreground/5 hover:text-foreground touch-manipulation"
+                >
+                  <MessageCircle className="h-4 w-4 shrink-0" />
+                  AI Assistant
+                </button>
+              </div>
 
-          <div className="border-t border-border px-3 py-3">
-            {footerNav.map(({ href, label, icon }) => (
-              <NavLink
-                key={href}
-                href={href}
-                label={label}
-                icon={icon}
-                active={pathname.startsWith(href)}
-                onNavigate={() => setOpen(false)}
-                compact
-              />
-            ))}
+              <div className="mt-5 border-t border-border pt-3">
+                {footerNav.map(({ href, label, icon }) => (
+                  <NavLink
+                    key={href}
+                    href={href}
+                    label={label}
+                    icon={icon}
+                    active={pathname.startsWith(href)}
+                    onNavigate={() => setOpen(false)}
+                    compact
+                  />
+                ))}
+              </div>
+            </nav>
+
+            {/* Fade scroll-off at bottom — uses background token for light/dark */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-background from-25% via-background/60 to-transparent"
+            />
           </div>
         </SheetContent>
       </Sheet>

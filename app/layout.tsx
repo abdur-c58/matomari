@@ -16,6 +16,7 @@ import { TutorProvider } from "@/components/ai/tutor-provider";
 import { AppShell } from "@/components/layout/app-shell";
 import { Toaster } from "@/components/ui/sonner";
 import { UploadProgressBar } from "@/components/layout/upload-progress-bar";
+import { AppleSplashHeadLinks } from "@/components/layout/apple-splash-head-links";
 import { NotificationProvider } from "@/components/notifications/notification-provider";
 import {
   APP_DESCRIPTION,
@@ -89,6 +90,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="antialiased">
+      <head>
+        <AppleSplashHeadLinks />
+      </head>
       <body className="bg-background text-foreground">
         <AuthProvider>
           <AuthGate>

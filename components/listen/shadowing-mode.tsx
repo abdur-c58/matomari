@@ -16,7 +16,7 @@ import { ShortcutsHint } from "@/components/layout/shortcuts-hint";
 import { useDesktopShortcuts } from "@/hooks/use-desktop-shortcuts";
 import { useTutor } from "@/components/ai/tutor-provider";
 import { useApp } from "@/components/providers/app-provider";
-import { useLearnerName } from "@/hooks/use-learner-name";
+import { useLearnerJapaneseName } from "@/hooks/use-learner-japanese-name";
 import { getNextStepAfterShadow } from "@/lib/services/study-flow-service";
 import { startModeSession, endModeSession } from "@/lib/sync/sync-service";
 import { audioSession, type TtsRequest } from "@/lib/audio/audio-session";
@@ -27,7 +27,7 @@ export function ShadowingMode({ sentences }: { sentences: Sentence[] }) {
   const router = useRouter();
   const isMobile = useIsMobileViewport(MOBILE_MEDIA_QUERY);
   const { audioUnlocked, audioState, progress, dataset } = useApp();
-  const learnerName = useLearnerName();
+  const learnerJapaneseName = useLearnerJapaneseName();
   const { closeTutor } = useTutor();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [shadowing, setShadowing] = useState(false);
@@ -50,7 +50,7 @@ export function ShadowingMode({ sentences }: { sentences: Sentence[] }) {
       reading: s.reading,
       phonetic_reading: s.phonetic_reading,
       placeholders: s.placeholders,
-      learnerName,
+      learnerName: learnerJapaneseName,
       dialect,
       register: s.register,
       tags: s.tags,

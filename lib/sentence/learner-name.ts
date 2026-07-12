@@ -1,4 +1,5 @@
 import { getDisplayName } from "@/lib/utils/greeting";
+import { isValidKanaReading } from "@/lib/audio/tts-text";
 
 type LearnerNameUser = {
   name?: string | null;
@@ -7,9 +8,12 @@ type LearnerNameUser = {
 
 type LearnerNameSettings = {
   displayName?: string;
+  japaneseNameReading?: string;
+  japaneseNameSource?: string;
 };
 
-export function getLearnerDisplayName(
+/** Canonical Latin display string used as the cache key for Japanese name translation. */
+export function getLearnerNameSource(
   user?: LearnerNameUser | null,
   settings?: LearnerNameSettings | null
 ): string | null {
@@ -22,7 +26,35 @@ export function getLearnerDisplayName(
   return null;
 }
 
-/** Lightweight Latin → katakana for TTS; returns null if input is empty or already kana-heavy. */
+export function getLearnerDisplayName(
+  user?: LearnerNameUser | null,
+  settings?: LearnerNameSettings | null
+): string | null {
+  return getLearnerNameSource(user, settings);
+}
+
+export function getCachedJapaneseNameReading(
+  settings?: LearnerNameSettings | null,
+  source?: string | null
+): string | null {
+  const key = source?.trim();
+  const reading = settings?.japaneseNameReading?.trim();
+  if (!key || !reading) return null;
+  if (settings?.japaneseNameSource?.trim() !== key) return null;
+  if (!isValidKanaReading(reading)) return null;
+  return reading;
+}
+
+export function needsJapaneseNameTranslation(
+  user?: LearnerNameUser | null,
+  settings?: LearnerNameSettings | null
+): boolean {
+  const source = getLearnerNameSource(user, settings);
+  if (!source) return false;
+  return !getCachedJapaneseNameReading(settings, source);
+}
+
+/** Lightweight Latin → katakana fallback when AI is unavailable. */
 export function toKatakanaForTts(name: string | null | undefined): string | null {
   const trimmed = name?.trim();
   if (!trimmed) return null;
@@ -75,4 +107,9 @@ export function toKatakanaForTts(name: string | null | undefined): string | null
 
   const cleaned = result.replace(/・+$/, "").replace(/^・+/, "");
   return cleaned.length > 0 ? cleaned : null;
+}
+
+export function fallbackJapaneseNameReading(source: string | null | undefined): string | null {
+  if (!source?.trim()) return null;
+  return toKatakanaForTts(source);
 }

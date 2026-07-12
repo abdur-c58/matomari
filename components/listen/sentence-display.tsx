@@ -23,6 +23,7 @@ export function SentenceDisplay({
       <PlaceholderText
         text={sentence.japanese ?? ""}
         sentence={sentence}
+        script="japanese"
         as="p"
         className="mt-4 font-japanese text-3xl leading-relaxed text-foreground"
       />

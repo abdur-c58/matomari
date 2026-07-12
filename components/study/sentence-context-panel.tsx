@@ -36,6 +36,7 @@ export function SentenceContextPanel({
           <PlaceholderText
             text={sentence.japanese}
             sentence={sentence}
+            script="japanese"
             as="p"
             className="mt-3 font-japanese text-lg text-muted"
           />

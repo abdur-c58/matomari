@@ -91,6 +91,7 @@ export function MeaningCheck({
         <PlaceholderText
           text={current.japanese ?? ""}
           sentence={current}
+          script="japanese"
           as="p"
           className="mt-4 font-japanese text-xl text-muted"
         />

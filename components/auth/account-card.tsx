@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getDisplayName } from "@/lib/utils/greeting";
+import { ensureJapaneseLearnerName } from "@/lib/services/learner-name-service";
 
 export function AccountCard() {
   const { data: session, status } = useSession();
@@ -31,10 +32,27 @@ export function AccountCard() {
       const trimmed = value.trim();
       const next = trimmed || undefined;
       if (next === progress.settings.displayName) return;
+
+      const nextSettings = {
+        ...progress.settings,
+        displayName: next,
+        ...(next
+          ? {}
+          : { japaneseNameReading: undefined, japaneseNameSource: undefined }),
+      };
+
       await setProgress({
         ...progress,
-        settings: { ...progress.settings, displayName: next },
+        settings: nextSettings,
       });
+
+      if (next) {
+        await ensureJapaneseLearnerName(
+          { ...progress, settings: nextSettings },
+          next,
+          setProgress
+        );
+      }
     },
     [progress, setProgress]
   );
@@ -86,8 +104,8 @@ export function AccountCard() {
           Display name
         </Label>
         <p className="mb-2 text-xs text-muted">
-          Used in template sentences like &ldquo;I&apos;m [name].&rdquo; Defaults to your Google first
-          name.
+          Used in template sentences like &ldquo;I&apos;m [name].&rdquo; Your name is transliterated
+          to Japanese once and saved for audio.
         </p>
         <Input
           id="display-name"
