@@ -128,9 +128,9 @@ export function MobileSideNav() {
             <AppBrandHeader variant="mobile" className="w-full min-w-0" />
           </SheetHeader>
 
-          <div className="relative min-h-0 flex-1">
+          <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
             <nav
-              className="h-full overflow-y-auto overscroll-contain px-3 py-4 pb-[max(1.25rem,env(safe-area-inset-bottom,0px))]"
+              className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4 pb-36"
               aria-label="Main navigation"
             >
               <div className="space-y-0.5">
@@ -188,10 +188,10 @@ export function MobileSideNav() {
               </div>
             </nav>
 
-            {/* Fade scroll-off at bottom — uses background token for light/dark */}
+            <div aria-hidden className="mobile-nav-edge-fade" />
             <div
               aria-hidden
-              className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-background from-25% via-background/60 to-transparent"
+              className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-[max(0.75rem,env(safe-area-inset-bottom,0px))] bg-background"
             />
           </div>
         </SheetContent>
