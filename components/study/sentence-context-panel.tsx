@@ -1,14 +1,12 @@
 "use client";
 
 import type { Sentence } from "@/types/sentence";
-import { useApp } from "@/components/providers/app-provider";
 import { AskButton } from "@/components/ai/ask-button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { PlaceholderText } from "@/components/sentence/placeholder-text";
-import { DialectTranslationBlock } from "@/components/sentence/dialect-translation-block";
-import { fieldsFromComposedSentence, isTranslated } from "@/lib/sentence-utils";
-import { getPrimaryTranslation } from "@/lib/preferences/translation-preferences";
+import { ListenSentenceDialects } from "@/components/listen/listen-sentence-dialects";
+import { isTranslated } from "@/lib/sentence-utils";
 import { cn } from "@/lib/utils";
 
 export function SentenceContextPanel({
@@ -18,10 +16,7 @@ export function SentenceContextPanel({
   sentence: Sentence;
   className?: string;
 }) {
-  const { progress } = useApp();
   const translated = isTranslated(sentence);
-  const primaryDialect = getPrimaryTranslation(progress.settings);
-  const primaryFields = fieldsFromComposedSentence(sentence);
 
   return (
     <aside
@@ -47,19 +42,11 @@ export function SentenceContextPanel({
             className="mt-3 font-japanese text-lg text-muted"
           />
         )}
-        {translated && primaryFields && (
-          <DialectTranslationBlock
-            sentenceId={sentence.id}
-            fields={primaryFields}
-            dialect={primaryDialect}
-            sentenceMeta={sentence}
-            showLabel={false}
-            showPlayButton={false}
-            showJapanese={false}
-            className="mt-2"
-            readingClassName="font-japanese text-sm text-muted/80"
-            phoneticClassName="text-sm"
-            romajiClassName="text-xs"
+        {translated && (
+          <ListenSentenceDialects
+            sentence={sentence}
+            variant="meaning"
+            className="mt-2 [&_.font-japanese]:text-sm [&_p.text-xl]:text-base [&_p.text-lg]:text-sm"
           />
         )}
         {sentence.context_notes && (

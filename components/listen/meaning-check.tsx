@@ -11,10 +11,7 @@ import { MOBILE_MEDIA_QUERY, useIsMobileViewport } from "@/hooks/use-is-mobile-v
 import { AskButton } from "@/components/ai/ask-button";
 import { Card } from "@/components/ui/card";
 import { PlaceholderText } from "@/components/sentence/placeholder-text";
-import { DialectTranslationBlock } from "@/components/sentence/dialect-translation-block";
-import { useApp } from "@/components/providers/app-provider";
-import { fieldsFromComposedSentence } from "@/lib/sentence-utils";
-import { getPrimaryTranslation } from "@/lib/preferences/translation-preferences";
+import { ListenSentenceDialects } from "@/components/listen/listen-sentence-dialects";
 import { SentenceContextPanel } from "@/components/study/sentence-context-panel";
 import { useDesktopShortcuts } from "@/hooks/use-desktop-shortcuts";
 import { useTutor } from "@/components/ai/tutor-provider";
@@ -32,10 +29,7 @@ export function MeaningCheck({
 }) {
   const [index, setIndex] = useState(0);
   const { closeTutor } = useTutor();
-  const { progress: userProgress } = useApp();
   const current = sentences[index];
-  const primaryDialect = getPrimaryTranslation(userProgress.settings);
-  const primaryFields = current ? fieldsFromComposedSentence(current) : null;
   const progressPct = ((index + 1) / sentences.length) * 100;
 
   useEffect(() => {
@@ -102,21 +96,7 @@ export function MeaningCheck({
           as="p"
           className="mt-4 font-japanese text-xl text-muted"
         />
-        {primaryFields && (
-          <DialectTranslationBlock
-            sentenceId={current.id}
-            fields={primaryFields}
-            dialect={primaryDialect}
-            sentenceMeta={current}
-            showLabel={false}
-            showPlayButton={false}
-            showJapanese={false}
-            className="mt-2"
-            readingClassName="font-japanese text-base text-muted/80"
-            phoneticClassName="text-base"
-            romajiClassName="text-sm"
-          />
-        )}
+        <ListenSentenceDialects sentence={current} variant="meaning" className="mt-2" />
       </Card>
 
       <div className="mb-4">
