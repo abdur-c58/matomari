@@ -301,11 +301,13 @@ html[data-ui-font="red-hat-display"] {
   }
 
   /* Mesh gradient pages — tint the header fade into the page background */
-  .mobile-top-bar:has(+ main.app-page-gradient) {
+  .mobile-top-bar:has(+ main.app-page-gradient),
+  .mobile-top-bar:has(+ main .today-hero) {
     box-shadow: 0 6px 9px -7px rgba(0, 0, 0, 0.2);
   }
 
-  .mobile-top-bar:has(+ main.app-page-gradient)::after {
+  .mobile-top-bar:has(+ main.app-page-gradient)::after,
+  .mobile-top-bar:has(+ main .today-hero)::after {
     height: 0.625rem;
     background: linear-gradient(
       to bottom,
@@ -317,11 +319,13 @@ html[data-ui-font="red-hat-display"] {
   }
 
   @media (prefers-color-scheme: dark) {
-    .mobile-top-bar:has(+ main.app-page-gradient) {
+    .mobile-top-bar:has(+ main.app-page-gradient),
+    .mobile-top-bar:has(+ main .today-hero) {
       box-shadow: 0 6px 9px -7px rgba(0, 0, 0, 0.45);
     }
 
-    .mobile-top-bar:has(+ main.app-page-gradient)::after {
+    .mobile-top-bar:has(+ main.app-page-gradient)::after,
+    .mobile-top-bar:has(+ main .today-hero)::after {
       background: linear-gradient(
         to bottom,
         var(--background) 0%,
@@ -332,11 +336,30 @@ html[data-ui-font="red-hat-display"] {
   }
 }
 
+/* Top hero mesh — same look as Today, confined to the upper area and faded out */
 .app-page-gradient {
   position: relative;
   isolation: isolate;
+}
+
+.app-page-gradient::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  z-index: 0;
+  height: clamp(16rem, 52vh, 30rem);
+  pointer-events: none;
   background-color: #120818;
   background-image:
+    linear-gradient(
+      to bottom,
+      transparent 0%,
+      color-mix(in srgb, var(--background) 8%, transparent) 38%,
+      color-mix(in srgb, var(--background) 45%, transparent) 58%,
+      color-mix(in srgb, var(--background) 78%, transparent) 78%,
+      var(--background) 100%
+    ),
     radial-gradient(ellipse 90% 70% at 8% 0%, rgba(236, 72, 153, 0.72) 0%, transparent 58%),
     radial-gradient(ellipse 75% 55% at 52% 8%, rgba(251, 191, 36, 0.55) 0%, transparent 52%),
     radial-gradient(ellipse 60% 50% at 92% 12%, rgba(167, 139, 250, 0.45) 0%, transparent 55%),
@@ -345,15 +368,18 @@ html[data-ui-font="red-hat-display"] {
     radial-gradient(ellipse 80% 60% at 78% 88%, rgba(15, 10, 26, 0.95) 0%, transparent 55%);
 }
 
-.app-page-gradient::before {
+.app-page-gradient::after {
   content: "";
   position: absolute;
-  inset: 0;
+  inset-inline: 0;
+  top: 0;
   z-index: 0;
-  min-height: 100%;
+  height: clamp(16rem, 52vh, 30rem);
   pointer-events: none;
-  opacity: 0.38;
+  opacity: 0.42;
   mix-blend-mode: overlay;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 45%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 45%, transparent 100%);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='256' height='256' filter='url(%23n)'/%3E%3C/svg%3E");
   background-size: 96px 96px;
 }
@@ -364,8 +390,17 @@ html[data-ui-font="red-hat-display"] {
 }
 
 @media (min-width: 768px) {
-  .app-page-gradient {
+  .app-page-gradient::before {
+    height: clamp(18rem, 42vh, 26rem);
     background-image:
+      linear-gradient(
+        to bottom,
+        transparent 0%,
+        color-mix(in srgb, var(--background) 6%, transparent) 32%,
+        color-mix(in srgb, var(--background) 38%, transparent) 52%,
+        color-mix(in srgb, var(--background) 72%, transparent) 72%,
+        var(--background) 100%
+      ),
       radial-gradient(ellipse 42% 85% at 4% 0%, rgba(236, 72, 153, 0.78) 0%, transparent 58%),
       radial-gradient(ellipse 38% 75% at 28% 4%, rgba(251, 191, 36, 0.58) 0%, transparent 55%),
       radial-gradient(ellipse 34% 70% at 58% 0%, rgba(244, 114, 182, 0.42) 0%, transparent 52%),
@@ -375,20 +410,11 @@ html[data-ui-font="red-hat-display"] {
       radial-gradient(ellipse 65% 55% at 88% 92%, rgba(15, 10, 26, 0.98) 0%, transparent 56%);
   }
 
-  .app-page-gradient::before {
-    opacity: 0.34;
+  .app-page-gradient::after {
+    height: clamp(18rem, 42vh, 26rem);
+    opacity: 0.38;
     background-size: 112px 112px;
   }
-}
-
-.app-page-gradient .today-hero::after {
-  height: 52%;
-  background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    color-mix(in srgb, #120818 18%, transparent) 55%,
-    transparent 100%
-  );
 }
 
 .today-hero {
