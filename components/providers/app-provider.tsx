@@ -371,6 +371,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
         const persistBatch = async (batch: Record<string, TranslatedFields>) => {
           const updatedLibrary = await appendSentenceTranslations(batch, dialect);
+          setUserLibrary(updatedLibrary);
           await queueLibrarySync(updatedLibrary);
         };
 
@@ -383,6 +384,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           onProgress,
           persistBatch,
           dialect,
+          sentenceTranslations: library?.sentenceTranslations,
         });
 
         const snapshot = await loadLocalSnapshot();
@@ -404,19 +406,42 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const translateAllUntranslated = useCallback(
     async (options?: { onProgress?: TranslationProgressCallback; dialect?: Dialect }) => {
-      const current = await getDatasetSynced();
-      if (!current) return { translatedCount: 0, total: 0 };
-
       const dialect = options?.dialect ?? getPrimaryTranslation(progress.settings);
-      const library = (await loadLocalSnapshot()).library;
-      const ids = getUntranslatedIdsForDialect(
-        current,
-        library?.sentenceTranslations,
-        dialect
-      );
-      if (ids.length === 0) return { translatedCount: 0, total: 0 };
+      let totalTranslated = 0;
+      let lastBatchTotal = 0;
 
-      return translateSentenceIds(ids, { onProgress: options?.onProgress, dialect });
+      while (true) {
+        const current = await getDatasetSynced();
+        if (!current) break;
+
+        const library = (await loadLocalSnapshot()).library;
+        const ids = getUntranslatedIdsForDialect(
+          current,
+          library?.sentenceTranslations,
+          dialect
+        );
+        if (ids.length === 0) break;
+
+        lastBatchTotal = ids.length;
+
+        const result = await translateSentenceIds(ids, {
+          dialect,
+          onProgress: (completed, total) => {
+            options?.onProgress?.(totalTranslated + completed, totalTranslated + total);
+          },
+        });
+
+        totalTranslated += result.translatedCount;
+
+        if (result.translatedCount === 0) {
+          break;
+        }
+      }
+
+      return {
+        translatedCount: totalTranslated,
+        total: totalTranslated || lastBatchTotal,
+      };
     },
     [translateSentenceIds, progress.settings]
   );
@@ -435,6 +460,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const { translatedCount } = await translateSentences(dataset, [sentenceId], {
         force: true,
         dialect: targetDialect,
+        sentenceTranslations: (await loadLocalSnapshot()).library?.sentenceTranslations,
         persistBatch: async (batch) => {
           const library = await appendSentenceTranslations(batch, targetDialect);
           await queueLibrarySync(library);

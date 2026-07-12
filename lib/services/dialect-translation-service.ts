@@ -154,10 +154,11 @@ export function getUntranslatedIdsForDialect(
   dialect: Dialect
 ): string[] {
   const ids: string[] = [];
-  for (const id of getAllSentences(dataset).keys()) {
-    if (!getSentenceTranslationFields(id, dialect, translations)) {
-      ids.push(id);
+  for (const [, sentence] of getAllSentences(dataset)) {
+    if (getSentenceTranslationFields(sentence.id, dialect, translations, sentence)) {
+      continue;
     }
+    ids.push(sentence.id);
   }
   return ids;
 }

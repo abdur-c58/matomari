@@ -1,4 +1,4 @@
-import type { Dataset, Sentence, SeedSentence, TranslatedFields } from "@/types/sentence";
+import type { Dataset, Sentence, SeedSentence, SentenceDialectTranslations, TranslatedFields } from "@/types/sentence";
 import { getAllSentences } from "@/lib/validation/dataset-schema";
 import {
   applyTranslation,
@@ -10,6 +10,7 @@ import type { Dialect } from "@/lib/constants/dialect";
 import { DEFAULT_DIALECT } from "@/lib/constants/dialect";
 import { isValidKanaReading } from "@/lib/audio/tts-text";
 import { validatePlaceholderTranslations } from "@/lib/sentence/placeholders";
+import { getSentenceTranslationFields } from "@/lib/services/dialect-translation-service";
 
 const BATCH_SIZE = 15;
 
@@ -22,11 +23,15 @@ export type TranslationBatchPersist = (
 export interface TranslateOptions {
   force?: boolean;
   dialect?: Dialect;
+  /** Required for dialect-specific bulk translate (e.g. Kansai while primary is Standard). */
+  sentenceTranslations?: Record<string, SentenceDialectTranslations>;
   onProgress?: TranslationProgressCallback;
   /** Persist only the batch translations (lightweight; preferred for bulk translate). */
   persistBatch?: TranslationBatchPersist;
   /** @deprecated Prefer persistBatch — clones the full dataset each batch. */
   persist?: (dataset: Dataset) => Promise<void>;
+  /** Retry failed API batches before giving up (default 2). */
+  batchRetries?: number;
 }
 
 export class TranslationError extends Error {
@@ -46,6 +51,42 @@ export function getUntranslated(sentences: Sentence[]): Sentence[] {
 export function getUntranslatedIds(dataset: Dataset): string[] {
   const all = getAllSentences(dataset);
   return [...all.values()].filter(needsTranslation).map((s) => s.id);
+}
+
+function needsTranslationForDialect(
+  sentence: Sentence,
+  dialect: Dialect,
+  sentenceTranslations?: Record<string, SentenceDialectTranslations>
+): boolean {
+  if (sentenceTranslations) {
+    return !getSentenceTranslationFields(
+      sentence.id,
+      dialect,
+      sentenceTranslations,
+      sentence
+    );
+  }
+  return needsTranslation(sentence);
+}
+
+async function fetchTranslationsWithRetry(
+  seeds: SeedSentence[],
+  options?: { dialect?: Dialect; onProgress?: TranslationProgressCallback; retries?: number }
+): Promise<Record<string, TranslatedFields>> {
+  const retries = options?.retries ?? 2;
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      return await fetchTranslations(seeds, options);
+    } catch (error) {
+      lastError = error;
+      if (attempt >= retries) break;
+      await new Promise((resolve) => setTimeout(resolve, 1000 * (attempt + 1)));
+    }
+  }
+
+  throw lastError;
 }
 
 export async function fetchTranslations(
@@ -172,7 +213,11 @@ export async function translateSentences(
 
   const toTranslate = options?.force
     ? targets.map((s) => ({ ...toSeedPayload(s), translated: false }))
-    : targets.filter(needsTranslation).map(toSeedPayload);
+    : targets
+        .filter((s) =>
+          needsTranslationForDialect(s, dialect, options?.sentenceTranslations)
+        )
+        .map(toSeedPayload);
 
   if (toTranslate.length === 0) {
     return { dataset, translatedCount: 0 };
@@ -187,7 +232,10 @@ export async function translateSentences(
 
   for (let i = 0; i < toTranslate.length; i += BATCH_SIZE) {
     const chunk = toTranslate.slice(i, i + BATCH_SIZE);
-    const translations = await fetchTranslations(chunk, { dialect: options?.dialect });
+    const translations = await fetchTranslationsWithRetry(chunk, {
+      dialect: options?.dialect,
+      retries: options?.batchRetries,
+    });
     validateTranslations(chunk, translations, dialect);
 
     if (useBatchPersist) {
