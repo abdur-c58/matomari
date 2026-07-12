@@ -21,6 +21,7 @@ export function MobileShell({ children }: { children: React.ReactNode }) {
           {children}
         </main>
         <MobileSideNav />
+        <div aria-hidden className="viewport-bottom-fade" />
       </div>
     </div>
   );

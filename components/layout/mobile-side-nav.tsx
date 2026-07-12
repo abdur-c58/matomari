@@ -128,12 +128,11 @@ export function MobileSideNav() {
             <AppBrandHeader variant="mobile" className="w-full min-w-0" />
           </SheetHeader>
 
-          <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
-            <nav
-              className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4 pb-36"
-              aria-label="Main navigation"
-            >
-              <div className="space-y-0.5">
+          <nav
+            className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))]"
+            aria-label="Main navigation"
+          >
+            <div className="space-y-0.5">
                 <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted">
                   Study
                 </p>
@@ -147,9 +146,9 @@ export function MobileSideNav() {
                     onNavigate={() => setOpen(false)}
                   />
                 ))}
-              </div>
+            </div>
 
-              <div className="mt-5 space-y-0.5">
+            <div className="mt-5 space-y-0.5">
                 <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted">
                   Tools
                 </p>
@@ -171,9 +170,9 @@ export function MobileSideNav() {
                   <MessageCircle className="h-4 w-4 shrink-0" />
                   AI Assistant
                 </button>
-              </div>
+            </div>
 
-              <div className="mt-5 border-t border-border pt-3">
+            <div className="mt-5 border-t border-border pt-3">
                 {footerNav.map(({ href, label, icon }) => (
                   <NavLink
                     key={href}
@@ -185,15 +184,8 @@ export function MobileSideNav() {
                     compact
                   />
                 ))}
-              </div>
-            </nav>
-
-            <div aria-hidden className="mobile-nav-edge-fade" />
-            <div
-              aria-hidden
-              className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-[max(0.75rem,env(safe-area-inset-bottom,0px))] bg-background"
-            />
-          </div>
+            </div>
+          </nav>
         </SheetContent>
       </Sheet>
     </>

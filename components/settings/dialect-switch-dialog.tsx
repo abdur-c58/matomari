@@ -28,8 +28,8 @@ export function DialectSwitchDialog({
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[min(90dvh,calc(100dvh-2rem-env(safe-area-inset-top)-env(safe-area-inset-bottom)))]">
-        <DialogHeader>
+      <DialogContent>
+        <DialogHeader className="text-left">
           <DialogTitle>Switch dialect?</DialogTitle>
           <DialogDescription className="text-left leading-relaxed">
             Progress and ratings are tracked separately for each dialect. Your{" "}
