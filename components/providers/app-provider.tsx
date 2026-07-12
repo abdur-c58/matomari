@@ -57,10 +57,24 @@ import {
   reportTranslationProgress,
 } from "@/lib/upload-progress";
 import {
+  getDailyStudyStatus,
+  mergeTodayStudyComplete,
+} from "@/lib/services/daily-progress-service";
+import {
   applyProgressSettingsUpdate,
   normalizeUserProgress,
   prepareProgressForSave,
 } from "@/lib/progress/dialect-progress";
+
+async function maybeRecordTodayStudyComplete(
+  dataset: Dataset | null,
+  progress: UserProgress,
+  stats: AppStats
+): Promise<AppStats | null> {
+  const status = getDailyStudyStatus(dataset, progress, stats);
+  if (!status.isComplete || status.recordedComplete) return null;
+  return mergeTodayStudyComplete(stats);
+}
 
 interface AppContextValue {
   dataset: Dataset | null;
@@ -413,8 +427,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     ) => {
       const next = await updateSentenceProgressSynced(sentenceId, update);
       setProgressState(next);
+      const completedStats = await maybeRecordTodayStudyComplete(dataset, next, stats);
+      if (completedStats) {
+        await saveStatsSynced(completedStats);
+        setStatsState(completedStats);
+      }
     },
-    []
+    [dataset, stats]
   );
 
   const setProgress = useCallback(async (p: UserProgress) => {

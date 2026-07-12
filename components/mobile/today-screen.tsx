@@ -3,9 +3,11 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ChevronRight, Settings } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { useApp } from "@/components/providers/app-provider";
 import { buildTodayPlan } from "@/lib/services/today-plan-service";
+import { getDailyStudyStatus } from "@/lib/services/daily-progress-service";
+import { useSyncTodayCompletion } from "@/hooks/use-sync-today-completion";
 import {
   getStudyFocusLabel,
   getStudyFocusProgress,
@@ -23,14 +25,15 @@ import { PageShell } from "@/components/layout/page-shell";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ModeIcon, modeAccentBorder, modeBadgeStyles } from "@/components/ui/mode-icon";
-import { SyncIndicator } from "@/components/ui/sync-indicator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AskButton } from "@/components/ai/ask-button";
+import { TodayHero } from "@/components/today/today-hero";
 import { fadeUp, staggerContainer } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 export function TodayScreenMobile() {
-  const { dataset, progress, loading, syncStatus } = useApp();
+  const { dataset, progress, stats, loading, syncStatus } = useApp();
+  useSyncTodayCompletion();
 
   const plan = useMemo(
     () => buildTodayPlan(dataset, progress),
@@ -60,6 +63,11 @@ export function TodayScreenMobile() {
     };
   }, [dataset, progress]);
 
+  const dailyStatus = useMemo(
+    () => getDailyStudyStatus(dataset, progress, stats),
+    [dataset, progress, stats]
+  );
+
   if (loading) {
     return (
       <PageShell>
@@ -76,28 +84,12 @@ export function TodayScreenMobile() {
 
   return (
     <AppGate>
-      <PageShell>
-        <div className="gradient-surface -mx-4 mb-6 rounded-b-3xl px-4 pb-6 pt-2">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex-1">
-              <div className="mb-1 flex items-center gap-2">
-                <p className="text-sm font-medium text-muted">今日</p>
-                <SyncIndicator status={syncStatus} />
-              </div>
-              <h1 className="font-display text-3xl font-bold tracking-tight text-foreground">
-                Today
-              </h1>
-              <p className="mt-1 text-sm text-muted">
-                Your personalized study plan for right now.
-              </p>
-            </div>
-            <Button variant="ghost" size="icon" asChild>
-              <Link href="/settings">
-                <Settings className="h-5 w-5" />
-              </Link>
-            </Button>
-          </div>
-        </div>
+      <PageShell className="pt-0">
+        <TodayHero
+          dailyStatus={dailyStatus}
+          syncStatus={syncStatus}
+          variant="mobile"
+        />
 
         {progress.batchConfig && (
           <StudyFlowGuide className="mb-6" />

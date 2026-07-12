@@ -6,6 +6,8 @@ import { motion } from "framer-motion";
 import { ChevronRight } from "lucide-react";
 import { useApp } from "@/components/providers/app-provider";
 import { buildTodayPlan } from "@/lib/services/today-plan-service";
+import { getDailyStudyStatus } from "@/lib/services/daily-progress-service";
+import { useSyncTodayCompletion } from "@/hooks/use-sync-today-completion";
 import {
   getStudyFocusLabel,
   getStudyFocusProgress,
@@ -20,18 +22,18 @@ import {
 import { StudyFlowGuide } from "@/components/study/study-flow-guide";
 import { AppGate } from "@/components/layout/empty-state";
 import { DesktopPageShell } from "@/components/layout/desktop-page-shell";
-import { DesktopPageHeader } from "@/components/layout/desktop-page-header";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ModeIcon, modeAccentBorder, modeBadgeStyles } from "@/components/ui/mode-icon";
-import { SyncIndicator } from "@/components/ui/sync-indicator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AskButton } from "@/components/ai/ask-button";
+import { TodayHero } from "@/components/today/today-hero";
 import { fadeUp, staggerContainer } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 export function TodayScreenDesktop() {
-  const { dataset, progress, loading, syncStatus } = useApp();
+  const { dataset, progress, stats, loading, syncStatus } = useApp();
+  useSyncTodayCompletion();
 
   const plan = useMemo(
     () => buildTodayPlan(dataset, progress),
@@ -61,6 +63,11 @@ export function TodayScreenDesktop() {
     };
   }, [dataset, progress]);
 
+  const dailyStatus = useMemo(
+    () => getDailyStudyStatus(dataset, progress, stats),
+    [dataset, progress, stats]
+  );
+
   if (loading) {
     return (
       <DesktopPageShell>
@@ -77,13 +84,14 @@ export function TodayScreenDesktop() {
 
   return (
     <AppGate>
-      <DesktopPageShell>
-        <DesktopPageHeader
-          title="Today"
-          subtitle="Your personalized study plan"
-          action={<SyncIndicator status={syncStatus} />}
+      <DesktopPageShell className="max-w-none px-0 pt-0">
+        <TodayHero
+          dailyStatus={dailyStatus}
+          syncStatus={syncStatus}
+          variant="desktop"
         />
 
+        <div className="mx-auto w-full max-w-[1400px] space-y-6 px-8 pb-6 pt-6">
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_320px]">
           <div className="space-y-6">
             {progress.batchConfig && <StudyFlowGuide />}
@@ -174,6 +182,7 @@ export function TodayScreenDesktop() {
               </div>
             </Card>
           </aside>
+        </div>
         </div>
       </DesktopPageShell>
     </AppGate>

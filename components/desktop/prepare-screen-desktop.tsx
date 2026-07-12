@@ -13,6 +13,7 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SentenceCard } from "@/components/sentence/sentence-card";
 import { CreateTranscriptIslandDialog } from "@/components/prepare/create-transcript-island-dialog";
+import { PreStudyIntro } from "@/components/prepare/pre-study-intro";
 import { analyzeTranscript, findStudyCandidates } from "@/lib/services/pre-input-service";
 import { fadeUp, staggerContainer } from "@/lib/motion";
 
@@ -38,9 +39,11 @@ export function PreInputHelperDesktop() {
     <AppGate>
       <DesktopPageShell>
         <DesktopPageHeader
-          title="Pre-study"
-          subtitle="Before watching native content"
+          title="Transcript analyzer"
+          subtitle="Pre-study · analyze text before you watch or listen"
         />
+
+        <PreStudyIntro />
 
         <Textarea
           placeholder="Paste YouTube transcript or Japanese text..."

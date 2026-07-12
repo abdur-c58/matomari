@@ -20,6 +20,8 @@ export interface DailySnapshot {
   weakCount: number;
   masteredCount: number;
   totalSentences: number;
+  studyComplete?: boolean;
+  completedAt?: string;
 }
 
 export interface MasteryEvent {
