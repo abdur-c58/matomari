@@ -262,8 +262,69 @@ body {
   font-family: "Noto Serif JP", serif;
 }
 
+.font-brush {
+  font-family: "Zen Kurenaido", "Noto Serif JP", serif;
+}
+
 .font-display {
   font-family: "Red Hat Display", system-ui, sans-serif;
+}
+
+/* Mobile greeting bar — tight under-shadow to soften the edge into page content */
+@media (max-width: 767px) {
+  .mobile-top-bar {
+    position: sticky;
+    isolation: isolate;
+    border-bottom: none;
+    box-shadow: 0 5px 8px -7px color-mix(in srgb, var(--foreground) 14%, transparent);
+  }
+
+  .mobile-top-bar::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: 100%;
+    z-index: 1;
+    height: 0.5625rem;
+    pointer-events: none;
+    background: linear-gradient(
+      to bottom,
+      var(--background) 0%,
+      color-mix(in srgb, var(--background) 52%, transparent) 52%,
+      transparent 100%
+    );
+  }
+
+  /* Today hero sits flush below — tint the fade into the mesh gradient */
+  .mobile-top-bar:has(+ main .today-hero) {
+    box-shadow: 0 6px 9px -7px rgba(0, 0, 0, 0.2);
+  }
+
+  .mobile-top-bar:has(+ main .today-hero)::after {
+    height: 0.625rem;
+    background: linear-gradient(
+      to bottom,
+      var(--background) 0%,
+      color-mix(in srgb, var(--background) 38%, transparent) 40%,
+      color-mix(in srgb, #120818 22%, transparent) 78%,
+      transparent 100%
+    );
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .mobile-top-bar:has(+ main .today-hero) {
+      box-shadow: 0 6px 9px -7px rgba(0, 0, 0, 0.45);
+    }
+
+    .mobile-top-bar:has(+ main .today-hero)::after {
+      background: linear-gradient(
+        to bottom,
+        var(--background) 0%,
+        color-mix(in srgb, var(--background) 42%, transparent) 45%,
+        transparent 100%
+      );
+    }
+  }
 }
 
 .today-hero {
@@ -324,6 +385,90 @@ body {
   color: #ffffff;
 }
 
+.today-hero-eyebrow {
+  letter-spacing: 0.22em;
+}
+
+.today-hero-headline {
+  position: relative;
+  isolation: isolate;
+}
+
+.today-hero-headline--mobile {
+  min-height: 5.25rem;
+  padding-top: 0.125rem;
+}
+
+.today-hero-headline--desktop {
+  min-height: 6.75rem;
+  padding-top: 0.25rem;
+}
+
+.today-hero-kanji {
+  position: absolute;
+  z-index: 0;
+  margin: 0;
+  left: -0.12em;
+  top: 50%;
+  transform: translateY(-54%);
+  line-height: 0.82;
+  letter-spacing: -0.05em;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.26);
+  text-shadow:
+    0 2px 28px rgba(0, 0, 0, 0.42),
+    0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+.today-hero-headline--mobile .today-hero-kanji {
+  font-size: clamp(4.75rem, 22vw, 6.25rem);
+}
+
+.today-hero-headline--desktop .today-hero-kanji {
+  font-size: clamp(6.5rem, 9vw, 8.75rem);
+  transform: translateY(-56%);
+}
+
+.today-hero-subtitle {
+  position: relative;
+  z-index: 1;
+  max-width: 16.5rem;
+  margin: 0;
+  padding-top: 0.875rem;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.96);
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.65),
+    0 6px 18px rgba(0, 0, 0, 0.48);
+}
+
+.today-hero-subtitle::before {
+  content: "";
+  position: absolute;
+  inset: -0.25rem -0.65rem -0.35rem -0.35rem;
+  z-index: -1;
+  border-radius: 0.625rem;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 115% 120% at 12% 42%,
+    rgba(0, 0, 0, 0.38) 0%,
+    rgba(0, 0, 0, 0.14) 52%,
+    transparent 78%
+  );
+}
+
+.today-hero-headline--desktop .today-hero-subtitle {
+  max-width: 22rem;
+  padding-top: 1.125rem;
+  font-size: 1.0625rem;
+  line-height: 1.55;
+}
+
 .today-hero .today-hero-icon-btn {
   color: rgba(255, 255, 255, 0.88);
 }
@@ -372,6 +517,137 @@ body {
   .today-hero--desktop::before {
     opacity: 0.38;
     background-size: 112px 112px;
+  }
+}
+
+.today-plan-card {
+  position: relative;
+  isolation: isolate;
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--card-accent, var(--foreground)) 5%, var(--surface)) 0%,
+      var(--surface) 42%,
+      color-mix(in srgb, var(--card-accent, var(--foreground)) 3%, var(--surface-raised)) 100%
+    );
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.today-plan-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.55;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='128' height='128' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 72px 72px;
+  mix-blend-mode: soft-light;
+}
+
+.today-plan-card--meaning_check {
+  --card-accent: var(--mode-meaning);
+}
+
+.today-plan-card--listen_shadow {
+  --card-accent: var(--mode-listen);
+}
+
+.today-plan-card--active_recall {
+  --card-accent: var(--mode-recall);
+}
+
+.today-plan-card--review {
+  --card-accent: var(--mode-review);
+}
+
+.today-plan-card--primary {
+  border-color: color-mix(in srgb, var(--card-accent) 28%, var(--border));
+  box-shadow:
+    0 1px 0 color-mix(in srgb, var(--card-accent) 18%, transparent),
+    var(--shadow-md);
+}
+
+.group:hover .today-plan-card {
+  border-color: color-mix(in srgb, var(--card-accent) 22%, var(--border));
+}
+
+.group:hover .today-plan-card-kanji {
+  opacity: 0.2;
+  transform: rotate(45deg) translateY(-2px);
+}
+
+.today-plan-card-body {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  min-height: 8.75rem;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.125rem 1.125rem 1.25rem;
+}
+
+.today-plan-card-kanji {
+  position: absolute;
+  z-index: 1;
+  right: -0.35rem;
+  bottom: -1.75rem;
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  font-size: clamp(4.5rem, 16vw, 6.5rem);
+  color: color-mix(in srgb, var(--card-accent) 18%, var(--foreground));
+  opacity: 0.14;
+  transform: rotate(45deg);
+  transform-origin: center center;
+  transition:
+    opacity 220ms ease,
+    transform 220ms ease;
+}
+
+.today-plan-card--meaning_check .today-plan-card-kanji {
+  right: 0.15rem;
+  bottom: -1.35rem;
+}
+
+.today-plan-card--active_recall .today-plan-card-kanji {
+  right: 0.35rem;
+  bottom: -1.1rem;
+}
+
+.today-plan-card--review .today-plan-card-kanji {
+  right: -0.15rem;
+  bottom: -1.55rem;
+}
+
+.today-plan-card-count {
+  font-family: var(--font-display);
+  font-size: 1.625rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: color-mix(in srgb, var(--card-accent) 72%, var(--foreground));
+}
+
+.today-plan-card-cta {
+  align-self: flex-start;
+}
+
+@media (min-width: 640px) {
+  .today-plan-card-body {
+    min-height: 9.5rem;
+    padding: 1.25rem 1.25rem 1.375rem;
+  }
+
+  .today-plan-card-kanji {
+    font-size: clamp(5rem, 7vw, 7rem);
+    right: 0.15rem;
+    bottom: -1.65rem;
   }
 }
 

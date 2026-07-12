@@ -17,6 +17,7 @@
     "@aws-sdk/client-s3": "^3.1084.0",
     "@fontsource/noto-serif-jp": "^5.2.8",
     "@fontsource/red-hat-display": "^5.2.8",
+    "@fontsource/zen-kurenaido": "^5.2.8",
     "@radix-ui/react-dialog": "^1.1.19",
     "@radix-ui/react-label": "^2.1.11",
     "@radix-ui/react-scroll-area": "^1.2.14",

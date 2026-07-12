@@ -12,27 +12,31 @@ import type { TodayPlanType } from "@/types/today";
 
 const modeConfig: Record<
   TodayPlanType,
-  { icon: LucideIcon; bg: string; text: string }
+  { icon: LucideIcon; bg: string; text: string; kanji: string }
 > = {
   meaning_check: {
     icon: Eye,
     bg: "bg-mode-meaning/10",
     text: "text-mode-meaning",
+    kanji: "意味",
   },
   listen_shadow: {
     icon: Headphones,
     bg: "bg-mode-listen/10",
     text: "text-mode-listen",
+    kanji: "聴",
   },
   active_recall: {
     icon: RefreshCw,
     bg: "bg-mode-recall/10",
     text: "text-mode-recall",
+    kanji: "思",
   },
   review: {
     icon: BookOpen,
     bg: "bg-mode-review/10",
     text: "text-mode-review",
+    kanji: "復",
   },
 };
 
@@ -72,4 +76,18 @@ export const modeBadgeStyles: Record<TodayPlanType, string> = {
   listen_shadow: "bg-mode-listen/10 text-mode-listen",
   active_recall: "bg-mode-recall/10 text-mode-recall",
   review: "bg-mode-review/10 text-mode-review",
+};
+
+export const modeKanji: Record<TodayPlanType, string> = {
+  meaning_check: modeConfig.meaning_check.kanji,
+  listen_shadow: modeConfig.listen_shadow.kanji,
+  active_recall: modeConfig.active_recall.kanji,
+  review: modeConfig.review.kanji,
+};
+
+export const modeAccentColor: Record<TodayPlanType, string> = {
+  meaning_check: "var(--mode-meaning)",
+  listen_shadow: "var(--mode-listen)",
+  active_recall: "var(--mode-recall)",
+  review: "var(--mode-review)",
 };
