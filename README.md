@@ -1,7 +1,7 @@
 # Kotoshima
 
 <p align="center">
-  <img src="public/readmeimage.png" alt="Kotoshima — 言島" width="260" />
+  <img src="public/readmeimage.svg" alt="Kotoshima — 言島" width="260" />
 </p>
 
 Kotoshima is a language learning app built around a **Natural Language Learning (NLL) first approach**, a learning system developed by **Mikel Telleria** during this work at the Innovation Center of the University of Deusto in San Sebastián (Donostia), Spain.

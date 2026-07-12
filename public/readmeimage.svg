@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1065 1065" role="img" aria-label="Kotoshima — 言島">
+  <defs>
+    <mask id="kotoshima-mark" maskUnits="userSpaceOnUse" x="0" y="0" width="1065" height="1065">
+      <image href="readmeimage.png" width="1065" height="1065" preserveAspectRatio="xMidYMid meet" />
+    </mask>
+  </defs>
+  <style>
+    .logo-ink { fill: #000; }
+    @media (prefers-color-scheme: dark) {
+      .logo-ink { fill: #fff; }
+    }
+  </style>
+  <rect class="logo-ink" width="1065" height="1065" mask="url(#kotoshima-mark)" />
+</svg>
