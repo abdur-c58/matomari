@@ -58,15 +58,12 @@ function needsTranslationForDialect(
   dialect: Dialect,
   sentenceTranslations?: Record<string, SentenceDialectTranslations>
 ): boolean {
-  if (sentenceTranslations) {
-    return !getSentenceTranslationFields(
-      sentence.id,
-      dialect,
-      sentenceTranslations,
-      sentence
-    );
-  }
-  return needsTranslation(sentence);
+  return !getSentenceTranslationFields(
+    sentence.id,
+    dialect,
+    sentenceTranslations,
+    sentence
+  );
 }
 
 async function fetchTranslationsWithRetry(
@@ -204,6 +201,7 @@ export async function translateSentences(
   sentenceIds: string[],
   options?: TranslateOptions
 ): Promise<{ dataset: Dataset; translatedCount: number }> {
+  const dialect = options?.dialect ?? DEFAULT_DIALECT;
   const all = getAllSentences(dataset);
   const targets = sentenceIds
     .map((id) => all.get(id))
@@ -227,7 +225,6 @@ export async function translateSentences(
   const accumulated: Record<string, TranslatedFields> = {};
   let completed = 0;
   const total = toTranslate.length;
-  const dialect = options?.dialect ?? DEFAULT_DIALECT;
   const useBatchPersist = Boolean(options?.persistBatch);
 
   for (let i = 0; i < toTranslate.length; i += BATCH_SIZE) {
