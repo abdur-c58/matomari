@@ -5,6 +5,7 @@ import { AskButton } from "@/components/ai/ask-button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { PlaceholderText } from "@/components/sentence/placeholder-text";
+import { KansaiPhoneticDisplay } from "@/components/sentence/kansai-phonetic-display";
 import { isTranslated } from "@/lib/sentence-utils";
 import { cn } from "@/lib/utils";
 
@@ -43,6 +44,14 @@ export function SentenceContextPanel({
         )}
         {translated && sentence.reading && (
           <p className="mt-1 font-japanese text-sm text-muted/80">{sentence.reading}</p>
+        )}
+        {translated && (
+          <KansaiPhoneticDisplay
+            sentence={sentence}
+            className="mt-2"
+            kanaClassName="text-sm"
+            romajiClassName="text-xs"
+          />
         )}
         {sentence.context_notes && (
           <p className="mt-3 text-sm text-muted">{sentence.context_notes}</p>

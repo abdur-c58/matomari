@@ -9,12 +9,15 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import type { Dialect } from "@/lib/constants/dialect";
+import type { UiFont } from "@/lib/constants/ui-font";
+import { resolveUiFont } from "@/lib/constants/ui-font";
 import {
   DEFAULT_NOTIFICATION_PREFERENCES,
   type NotificationPreferences,
 } from "@/lib/constants/notifications";
 import { NotificationPreferencesSection } from "@/components/settings/notification-preferences-section";
 import { DialectPreferencesSection } from "@/components/settings/dialect-preferences-section";
+import { FontPreferencesSection } from "@/components/settings/font-preferences-section";
 import { parseReturnTo } from "@/lib/utils/dialect-preferences";
 import { useSavePreferences } from "@/components/settings/use-save-preferences";
 
@@ -22,18 +25,28 @@ export function PreferencesScreenDesktop() {
   const searchParams = useSearchParams();
   const { dataset, progress } = useApp();
   const [dialect, setDialect] = useState<Dialect>(progress.settings.dialect);
+  const [uiFont, setUiFont] = useState<UiFont>(resolveUiFont(progress.settings.uiFont));
   const [notifications, setNotifications] = useState<NotificationPreferences>(
     progress.settings.notifications ?? DEFAULT_NOTIFICATION_PREFERENCES
   );
 
   useEffect(() => {
     setDialect(progress.settings.dialect);
+    setUiFont(resolveUiFont(progress.settings.uiFont));
     setNotifications(progress.settings.notifications ?? DEFAULT_NOTIFICATION_PREFERENCES);
-  }, [progress.settings.dialect, progress.settings.notifications]);
+  }, [progress.settings.dialect, progress.settings.uiFont, progress.settings.notifications]);
+
+  useEffect(() => {
+    document.documentElement.dataset.uiFont = uiFont;
+    return () => {
+      document.documentElement.dataset.uiFont = resolveUiFont(progress.settings.uiFont);
+    };
+  }, [uiFont, progress.settings.uiFont]);
 
   const returnTo = parseReturnTo(searchParams);
   const { handleSave, saving, confirmDialog } = useSavePreferences({
     dialect,
+    uiFont,
     notifications,
     returnTo,
   });
@@ -42,8 +55,10 @@ export function PreferencesScreenDesktop() {
     <DesktopPageShell>
       <DesktopPageHeader
         title="Preferences"
-        subtitle="Dialect, voice accent, and notifications"
+        subtitle="Font, dialect, voice accent, and notifications"
       />
+
+      <FontPreferencesSection uiFont={uiFont} onChange={setUiFont} />
 
       <DialectPreferencesSection dialect={dialect} onChange={setDialect} />
 

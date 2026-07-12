@@ -51,6 +51,31 @@ export function ListenPageDesktop() {
     else if (unconfirmed.length > 0) setPhase("meaning");
   }, [step, unconfirmed.length]);
 
+  useEffect(() => {
+    if (!progress.batchConfig || status === "loading") return;
+
+    const showingMeaning = phase === "meaning" && unconfirmed.length > 0;
+    const showingShadow =
+      confirmedSentences.length > 0 && !showingMeaning;
+
+    if (showingShadow && step !== "shadow") {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("step", "shadow");
+      router.replace(`/listen?${params.toString()}`);
+    } else if (showingMeaning && step === "shadow") {
+      router.replace("/listen?step=meaning");
+    }
+  }, [
+    phase,
+    step,
+    status,
+    progress.batchConfig,
+    unconfirmed.length,
+    confirmedSentences.length,
+    router,
+    searchParams,
+  ]);
+
   const handleConfirm = useCallback(
     async (id: string) => {
       await updateProgress(id, (prev) => ({

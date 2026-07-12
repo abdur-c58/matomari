@@ -15,6 +15,7 @@ import { Separator } from "@/components/ui/separator";
 import { SyncIndicator } from "@/components/ui/sync-indicator";
 import { AccountCard } from "@/components/auth/account-card";
 import { AskButton } from "@/components/ai/ask-button";
+import { OnboardingReplaySection } from "@/components/settings/onboarding-replay-section";
 import { exportDataset } from "@/lib/db/dataset-repository";
 import { fetchCloudSession } from "@/lib/sync/cloud-api";
 import type { ManualSyncResult } from "@/lib/sync/sync-service";
@@ -196,6 +197,7 @@ export function SettingsScreenDesktop() {
 
       <section className="mb-6 space-y-3">
         <p className="text-sm font-medium text-muted">Help</p>
+        <OnboardingReplaySection />
         <AskButton
           context={{ type: "general" }}
           label="AI Tutor"

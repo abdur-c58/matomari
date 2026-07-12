@@ -198,7 +198,8 @@ export function buildTranslationPrompt(
   - Exaggerate accent cues ElevenLabs can follow: elongated vowels (ええ, ほんまあ), へん/ひん instead of ない where spoken, や/やで instead of だ, わ for particle は, え for particle へ
   - Use natural Kansai rhythm and endings (〜やねん, 〜ちゃう, 〜せん, めっちゃ, なんでや, せやな)
   - Must be 100% kana — no kanji, no IPA — and must differ from reading when accent helps
-  - Example: japanese「本当に、なんでそんなことするの？」 → reading「ほんとうに、なんでそんなことするの？」 → phonetic_reading「ほんま、なんでそないことすんねん！」`
+  - Example: japanese「本当に、なんでそんなことするの？」 → reading「ほんとうに、なんでそんなことするの？」 → phonetic_reading「ほんま、なんでそないことすんねん！」
+- romaji: Latin transliteration of how phonetic_reading SOUNDS in Osaka-ben (shown to learners alongside phonetic_reading), not a standard hyōjungo reading of kanji`
       : `DIALECT: Standard Japanese (hyōjungo)
 - Tokyo-based neutral Japanese understandable nationwide
 - Avoid regional dialect markers unless the English clearly calls for them`;

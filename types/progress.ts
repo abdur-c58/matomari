@@ -35,6 +35,7 @@ export interface BatchConfig {
 import type { Dialect } from "@/lib/constants/dialect";
 import { DEFAULT_DIALECT } from "@/lib/constants/dialect";
 import type { NotificationPreferences } from "@/lib/constants/notifications";
+import type { UiFont } from "@/lib/constants/ui-font";
 
 export interface AppSettings {
   batchSize: number;
@@ -48,6 +49,11 @@ export interface AppSettings {
   japaneseNameReading?: string;
   /** displayName (or session first name) used to produce japaneseNameReading */
   japaneseNameSource?: string;
+  /** Product tour completed (synced across devices). */
+  onboardingCompleted?: boolean;
+  onboardingCompletedAt?: string;
+  /** UI typeface for Latin headings and body (Japanese uses separate fonts). */
+  uiFont?: UiFont;
 }
 
 export interface UserProgress {

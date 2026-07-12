@@ -5,16 +5,20 @@ import { useRouter } from "next/navigation";
 import { useApp } from "@/components/providers/app-provider";
 import type { Dialect } from "@/lib/constants/dialect";
 import type { NotificationPreferences } from "@/lib/constants/notifications";
+import type { UiFont } from "@/lib/constants/ui-font";
+import { resolveUiFont } from "@/lib/constants/ui-font";
 import { DialectSwitchDialog } from "@/components/settings/dialect-switch-dialog";
 import { toast } from "sonner";
 
 export function useSavePreferences({
   dialect,
   notifications,
+  uiFont,
   returnTo,
 }: {
   dialect: Dialect;
   notifications: NotificationPreferences;
+  uiFont: UiFont;
   returnTo: string;
 }) {
   const router = useRouter();
@@ -32,6 +36,7 @@ export function useSavePreferences({
           dialect,
           dialectChosen: true,
           notifications,
+          uiFont: resolveUiFont(uiFont),
         },
       });
       await refresh();
@@ -43,7 +48,7 @@ export function useSavePreferences({
       setSaving(false);
       setConfirmOpen(false);
     }
-  }, [dialect, notifications, progress, returnTo, router, setProgress, refresh]);
+  }, [dialect, notifications, uiFont, progress, returnTo, router, setProgress, refresh]);
 
   const handleSave = useCallback(() => {
     if (dialect !== progress.settings.dialect) {

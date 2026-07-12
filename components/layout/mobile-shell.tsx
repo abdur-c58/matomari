@@ -2,6 +2,7 @@
 
 import { AppBrandHeader } from "@/components/layout/app-brand-header";
 import { MobileSideNav } from "@/components/layout/mobile-side-nav";
+import { PageGradientMain } from "@/components/layout/page-gradient-main";
 
 export function MobileShell({ children }: { children: React.ReactNode }) {
   return (
@@ -16,9 +17,9 @@ export function MobileShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </header>
-      <main id="scrollable-content" className="flex-1">
+      <PageGradientMain id="scrollable-content" className="flex-1">
         {children}
-      </main>
+      </PageGradientMain>
       <MobileSideNav />
     </div>
   );

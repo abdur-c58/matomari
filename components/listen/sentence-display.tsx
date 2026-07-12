@@ -4,6 +4,7 @@ import type { Sentence } from "@/types/sentence";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { PlaceholderText } from "@/components/sentence/placeholder-text";
+import { KansaiPhoneticDisplay } from "@/components/sentence/kansai-phonetic-display";
 
 export function SentenceDisplay({
   sentence,
@@ -30,6 +31,12 @@ export function SentenceDisplay({
       {sentence.reading && (
         <p className="mt-3 font-japanese text-lg text-muted">{sentence.reading}</p>
       )}
+      <KansaiPhoneticDisplay
+        sentence={sentence}
+        className="mt-2"
+        kanaClassName="text-lg"
+        romajiClassName="text-base"
+      />
       {shadowing && (
         <motion.div
           className="mt-6 flex flex-col items-center gap-2"

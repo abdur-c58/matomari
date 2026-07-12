@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "regenerate-audio": "npx tsx --env-file=.env.local scripts/regenerate-audio.ts",
+    "clear-kansai-translations": "npx tsx --env-file=.env.local scripts/clear-kansai-translations.ts",
     "publish-pathway": "npx tsx --env-file=.env.local scripts/publish-pathway.ts",
     "generate-icons": "npx tsx scripts/generate-icons.ts",
     "generate-splash": "npx tsx scripts/generate-splash-screens.ts",
@@ -15,6 +16,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1084.0",
+    "@fontsource/bitter": "^5.2.10",
     "@fontsource/noto-serif-jp": "^5.2.8",
     "@fontsource/red-hat-display": "^5.2.8",
     "@fontsource/yuji-boku": "^5.2.8",

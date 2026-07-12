@@ -164,24 +164,43 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
 
       const d = await getDatasetSynced();
-      const p = await getProgressSynced();
+      let p = await getProgressSynced();
+      const localAfterSync = await loadLocalSnapshot();
+
+      const hasStoredTranslations =
+        Boolean(localAfterSync.library?.sentenceTranslations) &&
+        Object.keys(localAfterSync.library!.sentenceTranslations!).length > 0;
+
+      if (hasStoredTranslations && !p.settings.dialectChosen) {
+        p = {
+          ...p,
+          settings: { ...p.settings, dialectChosen: true },
+        };
+        await saveProgressSynced(p);
+        setProgressState(normalizeUserProgress(p));
+      }
+
+      if (p.settings.onboardingCompleted === undefined) {
+        const hasSentenceProgress = Object.keys(p.sentences).length > 0;
+        const isLegacyUser =
+          p.settings.dialectChosen || hasSentenceProgress || hasStoredTranslations;
+        p = {
+          ...p,
+          settings: {
+            ...p.settings,
+            onboardingCompleted: isLegacyUser,
+            ...(isLegacyUser && !p.settings.onboardingCompletedAt
+              ? { onboardingCompletedAt: new Date().toISOString() }
+              : {}),
+          },
+        };
+        await saveProgressSynced(p);
+        setProgressState(normalizeUserProgress(p));
+      }
 
       if (d) {
         setDataset(d);
-        const local = await loadLocalSnapshot();
-        setUserLibrary(local.library);
-
-        const hasStoredTranslations =
-          local.library?.sentenceTranslations &&
-          Object.keys(local.library.sentenceTranslations).length > 0;
-        if (hasStoredTranslations && !p.settings.dialectChosen) {
-          const updated = {
-            ...p,
-            settings: { ...p.settings, dialectChosen: true },
-          };
-          await saveProgressSynced(updated);
-          setProgressState(updated);
-        }
+        setUserLibrary(localAfterSync.library);
       }
 
       if (d) {

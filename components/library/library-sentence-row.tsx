@@ -11,6 +11,7 @@ import { StarRating } from "@/components/sentence/star-rating";
 import { AskButton } from "@/components/ai/ask-button";
 import { SentencePlayButton } from "@/components/audio/sentence-play-button";
 import { PlaceholderText } from "@/components/sentence/placeholder-text";
+import { KansaiPhoneticDisplay } from "@/components/sentence/kansai-phonetic-display";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { getDialectLabel } from "@/lib/constants/dialect";
@@ -191,6 +192,14 @@ export function LibrarySentenceRow({
         <div className="space-y-2 px-1 pb-3 pt-2 pl-10">
           {translated && sentence.reading && (
             <p className="font-japanese text-xs text-muted">{sentence.reading}</p>
+          )}
+          {translated && (
+            <KansaiPhoneticDisplay
+              sentence={sentence}
+              className="mt-1.5"
+              kanaClassName="text-xs"
+              romajiClassName="text-xs"
+            />
           )}
           {sentence.context_notes && (
             <p className="text-xs text-muted">{sentence.context_notes}</p>

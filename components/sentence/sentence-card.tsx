@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { StarRating } from "./star-rating";
 import { PlaceholderText } from "./placeholder-text";
+import { KansaiPhoneticDisplay } from "./kansai-phonetic-display";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -92,6 +93,9 @@ export function SentenceCard({
         )}
         {showReading && translated && sentence.reading && (
           <p className="font-japanese text-base text-muted">{sentence.reading}</p>
+        )}
+        {showReading && translated && (
+          <KansaiPhoneticDisplay sentence={sentence} />
         )}
         {showRomaji && translated && sentence.romaji && (
           <PlaceholderText

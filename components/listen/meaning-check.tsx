@@ -11,6 +11,7 @@ import { MOBILE_MEDIA_QUERY, useIsMobileViewport } from "@/hooks/use-is-mobile-v
 import { AskButton } from "@/components/ai/ask-button";
 import { Card } from "@/components/ui/card";
 import { PlaceholderText } from "@/components/sentence/placeholder-text";
+import { KansaiPhoneticDisplay } from "@/components/sentence/kansai-phonetic-display";
 import { SentenceContextPanel } from "@/components/study/sentence-context-panel";
 import { useDesktopShortcuts } from "@/hooks/use-desktop-shortcuts";
 import { useTutor } from "@/components/ai/tutor-provider";
@@ -98,6 +99,7 @@ export function MeaningCheck({
         {current.reading && (
           <p className="mt-2 font-japanese text-base text-muted/80">{current.reading}</p>
         )}
+        <KansaiPhoneticDisplay sentence={current} className="mt-2" />
       </Card>
 
       <div className="mb-4">

@@ -106,8 +106,8 @@
   --color-sage: var(--sage);
   --color-amber: var(--amber);
   --color-coral: var(--coral);
-  --font-sans: "Red Hat Display", system-ui, sans-serif;
-  --font-display: "Red Hat Display", system-ui, sans-serif;
+  --font-sans: "Bitter", Georgia, "Times New Roman", serif;
+  --font-display: "Bitter", Georgia, "Times New Roman", serif;
   --font-japanese: "Noto Serif JP", serif;
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);
@@ -134,7 +134,7 @@ body {
   min-height: -webkit-fill-available;
   background: var(--background);
   color: var(--foreground);
-  font-family: "Red Hat Display", system-ui, sans-serif;
+  font-family: var(--font-sans);
   touch-action: manipulation;
   -webkit-font-smoothing: antialiased;
 }
@@ -267,7 +267,12 @@ body {
 }
 
 .font-display {
-  font-family: "Red Hat Display", system-ui, sans-serif;
+  font-family: var(--font-display);
+}
+
+html[data-ui-font="red-hat-display"] {
+  --font-sans: "Red Hat Display", system-ui, sans-serif;
+  --font-display: "Red Hat Display", system-ui, sans-serif;
 }
 
 /* Mobile greeting bar — tight under-shadow to soften the edge into page content */
@@ -295,12 +300,12 @@ body {
     );
   }
 
-  /* Today hero sits flush below — tint the fade into the mesh gradient */
-  .mobile-top-bar:has(+ main .today-hero) {
+  /* Mesh gradient pages — tint the header fade into the page background */
+  .mobile-top-bar:has(+ main.app-page-gradient) {
     box-shadow: 0 6px 9px -7px rgba(0, 0, 0, 0.2);
   }
 
-  .mobile-top-bar:has(+ main .today-hero)::after {
+  .mobile-top-bar:has(+ main.app-page-gradient)::after {
     height: 0.625rem;
     background: linear-gradient(
       to bottom,
@@ -312,11 +317,11 @@ body {
   }
 
   @media (prefers-color-scheme: dark) {
-    .mobile-top-bar:has(+ main .today-hero) {
+    .mobile-top-bar:has(+ main.app-page-gradient) {
       box-shadow: 0 6px 9px -7px rgba(0, 0, 0, 0.45);
     }
 
-    .mobile-top-bar:has(+ main .today-hero)::after {
+    .mobile-top-bar:has(+ main.app-page-gradient)::after {
       background: linear-gradient(
         to bottom,
         var(--background) 0%,
@@ -325,6 +330,65 @@ body {
       );
     }
   }
+}
+
+.app-page-gradient {
+  position: relative;
+  isolation: isolate;
+  background-color: #120818;
+  background-image:
+    radial-gradient(ellipse 90% 70% at 8% 0%, rgba(236, 72, 153, 0.72) 0%, transparent 58%),
+    radial-gradient(ellipse 75% 55% at 52% 8%, rgba(251, 191, 36, 0.55) 0%, transparent 52%),
+    radial-gradient(ellipse 60% 50% at 92% 12%, rgba(167, 139, 250, 0.45) 0%, transparent 55%),
+    radial-gradient(ellipse 85% 65% at 48% 42%, rgba(76, 29, 149, 0.85) 0%, transparent 62%),
+    radial-gradient(ellipse 70% 55% at 18% 72%, rgba(49, 46, 129, 0.75) 0%, transparent 58%),
+    radial-gradient(ellipse 80% 60% at 78% 88%, rgba(15, 10, 26, 0.95) 0%, transparent 55%);
+}
+
+.app-page-gradient::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  min-height: 100%;
+  pointer-events: none;
+  opacity: 0.38;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='256' height='256' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 96px 96px;
+}
+
+.app-page-gradient > * {
+  position: relative;
+  z-index: 1;
+}
+
+@media (min-width: 768px) {
+  .app-page-gradient {
+    background-image:
+      radial-gradient(ellipse 42% 85% at 4% 0%, rgba(236, 72, 153, 0.78) 0%, transparent 58%),
+      radial-gradient(ellipse 38% 75% at 28% 4%, rgba(251, 191, 36, 0.58) 0%, transparent 55%),
+      radial-gradient(ellipse 34% 70% at 58% 0%, rgba(244, 114, 182, 0.42) 0%, transparent 52%),
+      radial-gradient(ellipse 32% 68% at 88% 8%, rgba(167, 139, 250, 0.5) 0%, transparent 54%),
+      radial-gradient(ellipse 95% 80% at 50% 48%, rgba(76, 29, 149, 0.88) 0%, transparent 64%),
+      radial-gradient(ellipse 55% 60% at 12% 88%, rgba(49, 46, 129, 0.8) 0%, transparent 58%),
+      radial-gradient(ellipse 65% 55% at 88% 92%, rgba(15, 10, 26, 0.98) 0%, transparent 56%);
+  }
+
+  .app-page-gradient::before {
+    opacity: 0.34;
+    background-size: 112px 112px;
+  }
+}
+
+.app-page-gradient .today-hero::after {
+  height: 52%;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    color-mix(in srgb, #120818 18%, transparent) 55%,
+    transparent 100%
+  );
 }
 
 .today-hero {
@@ -395,7 +459,7 @@ body {
 }
 
 .today-hero-headline--mobile {
-  min-height: 5.25rem;
+  min-height: 5.75rem;
   padding-top: 0.125rem;
 }
 
@@ -437,7 +501,7 @@ body {
   z-index: 1;
   max-width: 16.5rem;
   margin: 0;
-  padding-top: 0.875rem;
+  padding-top: 1.375rem;
   font-size: 0.9375rem;
   line-height: 1.5;
   font-weight: 500;
@@ -449,7 +513,7 @@ body {
 
 .today-hero-headline--desktop .today-hero-subtitle {
   max-width: 22rem;
-  padding-top: 1.125rem;
+  padding-top: 1.625rem;
   font-size: 1.0625rem;
   line-height: 1.55;
 }
@@ -829,6 +893,25 @@ body {
   100% {
     transform: translateX(400%);
   }
+}
+
+.onboarding-overlay-grain {
+  opacity: 0.35;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='128' height='128' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 80px 80px;
+}
+
+.onboarding-step-kanji {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%) rotate(12deg);
+  font-size: clamp(3.5rem, 14vw, 5.5rem);
+  line-height: 1;
+  color: color-mix(in srgb, var(--foreground) 10%, transparent);
+  pointer-events: none;
+  user-select: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

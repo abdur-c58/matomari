@@ -186,3 +186,36 @@ export function stripTranslationsFromIslands(library: UserLibrary): UserLibrary 
 
   return { ...library, islands };
 }
+
+export function stripKansaiTranslations(library: UserLibrary): {
+  library: UserLibrary;
+  removedCount: number;
+} {
+  const sentenceTranslations = library.sentenceTranslations;
+  if (!sentenceTranslations || Object.keys(sentenceTranslations).length === 0) {
+    return { library, removedCount: 0 };
+  }
+
+  let removedCount = 0;
+  const next: Record<string, SentenceDialectTranslations> = {};
+
+  for (const [id, entry] of Object.entries(sentenceTranslations)) {
+    if (entry.kansai) {
+      removedCount++;
+    }
+
+    const { kansai: _removed, ...rest } = entry;
+    if (Object.keys(rest).length > 0) {
+      next[id] = rest;
+    }
+  }
+
+  return {
+    library: {
+      ...library,
+      sentenceTranslations:
+        Object.keys(next).length > 0 ? next : undefined,
+    },
+    removedCount,
+  };
+}

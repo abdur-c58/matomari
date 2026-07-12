@@ -5,18 +5,24 @@ import "@fontsource/red-hat-display/400.css";
 import "@fontsource/red-hat-display/500.css";
 import "@fontsource/red-hat-display/600.css";
 import "@fontsource/red-hat-display/700.css";
+import "@fontsource/bitter/400.css";
+import "@fontsource/bitter/500.css";
+import "@fontsource/bitter/600.css";
+import "@fontsource/bitter/700.css";
 import "@fontsource/noto-serif-jp/400.css";
 import "@fontsource/noto-serif-jp/500.css";
 import "@fontsource/noto-serif-jp/600.css";
 import "@fontsource/yuji-boku/400.css";
 import "./globals.css";
 import { AppProvider } from "@/components/providers/app-provider";
+import { UiFontProvider } from "@/components/providers/ui-font-provider";
 import { AuthProvider } from "@/components/providers/auth-provider";
 import { AuthGate } from "@/components/auth/auth-gate";
 import { TutorProvider } from "@/components/ai/tutor-provider";
 import { AppShell } from "@/components/layout/app-shell";
 import { Toaster } from "@/components/ui/sonner";
 import { UploadProgressBar } from "@/components/layout/upload-progress-bar";
+import { OnboardingProvider } from "@/components/onboarding/onboarding-provider";
 import { NotificationProvider } from "@/components/notifications/notification-provider";
 import {
   APP_DESCRIPTION,
@@ -96,18 +102,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="antialiased">
+    <html lang="en" className="antialiased" data-ui-font="bitter">
       <body className="bg-background text-foreground">
         <AuthProvider>
           <AuthGate>
             <AppProvider>
+              <UiFontProvider>
               <NotificationProvider>
                 <UploadProgressBar />
-                <TutorProvider>
-                  <AppShell>{children}</AppShell>
-                </TutorProvider>
+                <OnboardingProvider>
+                  <TutorProvider>
+                    <AppShell>{children}</AppShell>
+                  </TutorProvider>
+                </OnboardingProvider>
                 <Toaster />
               </NotificationProvider>
+              </UiFontProvider>
             </AppProvider>
           </AuthGate>
         </AuthProvider>

@@ -71,6 +71,7 @@ import type { Dialect } from "@/lib/constants/dialect";
 import { DEFAULT_DIALECT } from "@/lib/constants/dialect";
 import { emptyDialectStudyProgress } from "@/lib/progress/dialect-progress";
 import { DEFAULT_NOTIFICATION_PREFERENCES } from "@/lib/constants/notifications";
+import { DEFAULT_UI_FONT } from "@/lib/constants/ui-font";
 
 export const DEFAULT_PROGRESS: UserProgress = {
   byDialect: {
@@ -83,6 +84,8 @@ export const DEFAULT_PROGRESS: UserProgress = {
     batchSize: 25,
     dialect: DEFAULT_DIALECT,
     dialectChosen: false,
+    onboardingCompleted: false,
+    uiFont: DEFAULT_UI_FONT,
     notifications: { ...DEFAULT_NOTIFICATION_PREFERENCES, lastSent: {} },
   },
   completedPathwayBatches: [],
