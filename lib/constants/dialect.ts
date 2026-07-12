@@ -9,18 +9,18 @@ export const DIALECT_OPTIONS: {
   label: string;
   description: string;
 }[] = [
-  {
-    value: "standard",
-    label: "Standard Japanese",
-    description: "Tokyo-based hyōjungo — neutral, widely understood",
-  },
-  {
-    value: "kansai",
-    label: "Kansai dialect",
-    description:
-      "Osaka/Kyoto ben — regional wording plus a phonetic TTS script so the voice sounds Kansai",
-  },
-];
+    {
+      value: "standard",
+      label: "Standard Japanese",
+      description: "Tokyo-based hyōjungo — neutral, widely understood",
+    },
+    {
+      value: "kansai",
+      label: "Kansai dialect",
+      description:
+        "Osaka/Kyoto-ben — natural, conversational regional Japanese",
+    },
+  ];
 
 export function getDialectLabel(dialect: Dialect): string {
   return DIALECT_OPTIONS.find((o) => o.value === dialect)?.label ?? dialect;
