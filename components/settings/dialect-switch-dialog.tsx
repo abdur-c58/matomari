@@ -28,7 +28,7 @@ export function DialectSwitchDialog({
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-h-[min(90dvh,calc(100dvh-2rem-env(safe-area-inset-top)-env(safe-area-inset-bottom)))]">
         <DialogHeader>
           <DialogTitle>Switch dialect?</DialogTitle>
           <DialogDescription className="text-left leading-relaxed">

@@ -291,7 +291,7 @@ export function LibraryViewMobile() {
         )}
 
         {selectionMode && selectedIds.size > 0 && (
-          <div className="fixed inset-x-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-30 mx-auto max-w-lg px-4">
+          <div className="fixed inset-x-0 bottom-[max(1rem,env(safe-area-inset-bottom))] z-30 mx-auto max-w-lg px-4">
             <Card className="flex items-center gap-2 border-foreground/20 p-3 shadow-lg">
               <span className="flex-1 text-sm font-medium tabular-nums">
                 {selectedIds.size} selected

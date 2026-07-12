@@ -39,27 +39,34 @@ export function PreferencesScreenMobile() {
   });
 
   return (
-    <PageShell>
-      <PageHeader title="Preferences" backHref="/settings" />
+    <>
+      <PageShell className="pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))]">
+        <PageHeader title="Preferences" backHref="/settings" />
 
-      <DialectPreferencesSection dialect={dialect} onChange={setDialect} />
+        <DialectPreferencesSection dialect={dialect} onChange={setDialect} />
 
-      <Card className="mb-6 p-4">
-        <Label className="text-base">Notifications</Label>
-        <p className="mt-1 mb-4 text-sm text-muted leading-relaxed">
-          Daily study nudges, review reminders, and optional per-island alerts.
-        </p>
-        <NotificationPreferencesSection
-          notifications={notifications}
-          onChange={setNotifications}
-          dataset={dataset}
-        />
-      </Card>
+        <Card className="mb-6 p-4">
+          <Label className="text-base">Notifications</Label>
+          <p className="mt-1 mb-4 text-sm text-muted leading-relaxed">
+            Daily study nudges, review reminders, and optional per-island alerts.
+          </p>
+          <NotificationPreferencesSection
+            notifications={notifications}
+            onChange={setNotifications}
+            dataset={dataset}
+          />
+        </Card>
+      </PageShell>
 
-      <Button className="w-full" onClick={handleSave} loading={saving}>
-        Save preferences
-      </Button>
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 px-4 py-3 backdrop-blur-sm pb-[max(0.75rem,env(safe-area-inset-bottom,0px))]">
+        <div className="mx-auto max-w-lg">
+          <Button className="w-full" onClick={handleSave} loading={saving}>
+            Save preferences
+          </Button>
+        </div>
+      </div>
+
       {confirmDialog}
-    </PageShell>
+    </>
   );
 }

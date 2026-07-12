@@ -2,49 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  BarChart3,
-  BookOpen,
-  Brain,
-  Calendar,
-  Headphones,
-  Layers,
-  Library,
-  MessageCircle,
-  Settings,
-  Upload,
-  ClipboardList,
-  AlertTriangle,
-} from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import { useTutor } from "@/components/ai/tutor-provider";
+import {
+  footerNav,
+  isNavActive,
+  primaryNav,
+  toolsNav,
+} from "@/components/layout/app-nav-config";
 import { AppBrandHeader } from "@/components/layout/app-brand-header";
 import { cn } from "@/lib/utils";
-
-const primaryNav = [
-  { href: "/", label: "Today", icon: Calendar },
-  { href: "/batch", label: "Study", icon: Layers },
-  { href: "/recall", label: "Active Recall", icon: Brain },
-  { href: "/listen?step=shadow", label: "Shadowing", icon: Headphones },
-  { href: "/library", label: "Library", icon: Library },
-  { href: "/progress", label: "Progress", icon: BarChart3 },
-] as const;
-
-const toolsNav = [
-  { href: "/prepare", label: "Pre-study", icon: ClipboardList },
-  { href: "/weak", label: "Weak sentences", icon: AlertTriangle },
-] as const;
-
-const footerNav = [
-  { href: "/settings", label: "Settings", icon: Settings },
-  { href: "/guide", label: "Guide", icon: BookOpen },
-  { href: "/import", label: "Import", icon: Upload },
-] as const;
-
-function isActive(pathname: string, href: string) {
-  const path = href.split("?")[0];
-  if (path === "/listen") return pathname.startsWith("/listen");
-  return pathname === path || (path !== "/" && pathname.startsWith(path));
-}
 
 export function DesktopSidebar() {
   const pathname = usePathname();
@@ -62,7 +29,7 @@ export function DesktopSidebar() {
             Study
           </p>
           {primaryNav.map(({ href, label, icon: Icon }) => {
-            const active = isActive(pathname, href);
+            const active = isNavActive(pathname, href);
             return (
               <Link
                 key={href}
@@ -86,7 +53,7 @@ export function DesktopSidebar() {
             Tools
           </p>
           {toolsNav.map(({ href, label, icon: Icon }) => {
-            const active = isActive(pathname, href);
+            const active = isNavActive(pathname, href);
             return (
               <Link
                 key={href}

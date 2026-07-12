@@ -153,10 +153,6 @@ body {
   overscroll-behavior: contain;
 }
 
-#bottom-nav {
-  flex-shrink: 0;
-}
-
 /* Mobile: lock document scroll; shell fills dynamic viewport (not 100svh) */
 @media (max-width: 767px) {
   html,
@@ -174,13 +170,6 @@ body {
     flex: 1;
     height: 100dvh;
   }
-}
-
-/* Nav bg extends through home-indicator zone; icons sit above via padding */
-.bottom-nav {
-  position: relative;
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  background: var(--background);
 }
 
 .scroll-touch {

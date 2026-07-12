@@ -26,7 +26,7 @@ export function AppBrandHeader({ variant, className }: AppBrandHeaderProps) {
       <p
         className={cn(
           "min-w-0 truncate font-display font-bold tracking-tight text-foreground",
-          variant === "sidebar" ? "text-base" : "text-sm"
+          variant === "sidebar" ? "text-base leading-snug" : "text-sm leading-none"
         )}
       >
         {loading ? getTimeOfDayGreeting() : greeting}

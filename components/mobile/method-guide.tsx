@@ -26,7 +26,7 @@ import { cn } from "@/lib/utils";
 
 export function MethodGuideMobile() {
   return (
-    <PageShell className="px-5 pb-[max(7rem,calc(5.5rem+env(safe-area-inset-bottom)))]">
+    <PageShell className="px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
       <PageHeader title={methodGuideHero.title} subtitle="Method guide" backHref="/settings" />
 
       <motion.div
