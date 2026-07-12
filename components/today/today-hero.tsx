@@ -19,7 +19,7 @@ export function TodayHero({ dailyStatus, syncStatus, variant }: TodayHeroProps) 
   const isMobile = variant === "mobile";
   const subtitle = dailyStatus.isComplete
     ? "You cleared today’s queue — nice work."
-    : "Your personalized study plan for right now.";
+    : "Your study plan for right now.";
 
   return (
     <div
