@@ -375,7 +375,7 @@ export async function manualSync(): Promise<ManualSyncResult> {
 
   const snapshot = await loadLocalSnapshot();
   const audio = snapshot.dataset
-    ? await syncAudioToCloud(snapshot.dataset)
+    ? await syncAudioToCloud(snapshot.dataset, snapshot.progress.settings.dialect)
     : emptyAudio;
 
   if (supabaseOk) {

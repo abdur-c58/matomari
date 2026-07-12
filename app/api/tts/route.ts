@@ -2,15 +2,28 @@ import { NextResponse } from "next/server";
 import { generateServerAudio } from "@/lib/audio/generate-audio";
 import { getSpokenScriptFromFields } from "@/lib/audio/tts-text";
 import { ElevenLabsQuotaError } from "@/lib/audio/tts-errors";
+import type { Dialect } from "@/lib/constants/dialect";
 import type { Register } from "@/types/sentence";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { sentenceId, japanese, reading, register, tags, context_notes, english } = body as {
+    const {
+      sentenceId,
+      japanese,
+      reading,
+      phonetic_reading,
+      dialect = "standard",
+      register,
+      tags,
+      context_notes,
+      english,
+    } = body as {
       sentenceId?: string;
       japanese?: string;
       reading?: string;
+      phonetic_reading?: string;
+      dialect?: Dialect;
       register?: Register;
       tags?: string[];
       context_notes?: string;
@@ -24,27 +37,35 @@ export async function POST(request: Request) {
       );
     }
 
-    const spokenText = getSpokenScriptFromFields({
-      japanese,
-      reading,
-      register,
-      tags,
-      context_notes,
-      english,
-    });
+    const spokenText = getSpokenScriptFromFields(
+      {
+        japanese,
+        reading,
+        phonetic_reading,
+        register,
+        tags,
+        context_notes,
+        english,
+      },
+      { dialect }
+    );
 
     if (!spokenText) {
       return NextResponse.json(
         {
           error:
-            "A kana-only reading is required for correct pronunciation. Retranslate this sentence.",
+            dialect === "kansai"
+              ? "A Kansai phonetic reading is required for accent simulation. Retranslate this sentence."
+              : "A kana-only reading is required for correct pronunciation. Retranslate this sentence.",
           code: "MISSING_READING",
         },
         { status: 422 }
       );
     }
 
-    const { buffer, cached, hash } = await generateServerAudio(spokenText, sentenceId);
+    const { buffer, cached, hash } = await generateServerAudio(spokenText, sentenceId, {
+      dialect,
+    });
 
     return new NextResponse(new Uint8Array(buffer), {
       status: 200,

@@ -15,8 +15,8 @@ export async function getProgress(): Promise<UserProgress> {
       ...progress,
       settings: {
         batchSize: clampBatchSize(progress.settings?.batchSize),
-        dialect: DEFAULT_DIALECT,
-        dialectChosen: true,
+        dialect: progress.settings?.dialect ?? DEFAULT_DIALECT,
+        dialectChosen: progress.settings?.dialectChosen ?? false,
         notifications: normalizeNotificationPreferences(progress.settings?.notifications),
       },
       completedPathwayBatches: progress.completedPathwayBatches ?? [],

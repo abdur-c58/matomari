@@ -1,7 +1,8 @@
 import type { Dataset } from "@/types/sentence";
 import { getAllSentences } from "@/lib/validation/dataset-schema";
 import { isTranslated } from "@/lib/sentence-utils";
-import { getTtsText } from "@/lib/audio/tts-text";
+import { getSpokenScript } from "@/lib/audio/tts-text";
+import type { Dialect } from "@/lib/constants/dialect";
 import { setUploadProgress, clearUploadProgress } from "@/lib/upload-progress";
 
 export type AudioSyncResult = {
@@ -18,6 +19,8 @@ async function syncOneSentence(request: {
   sentenceId: string;
   japanese: string;
   reading?: string | null;
+  phonetic_reading?: string | null;
+  dialect?: Dialect;
   register?: string;
   tags?: string[];
   context_notes?: string;
@@ -49,7 +52,10 @@ async function syncOneSentence(request: {
   }
 }
 
-export async function syncAudioToCloud(dataset: Dataset | null): Promise<AudioSyncResult> {
+export async function syncAudioToCloud(
+  dataset: Dataset | null,
+  dialect: Dialect = "standard"
+): Promise<AudioSyncResult> {
   const result: AudioSyncResult = {
     uploaded: 0,
     skipped: 0,
@@ -63,7 +69,7 @@ export async function syncAudioToCloud(dataset: Dataset | null): Promise<AudioSy
   }
 
   const targets = [...getAllSentences(dataset).values()].filter(
-    (s) => isTranslated(s) && Boolean(getTtsText(s))
+    (s) => isTranslated(s) && Boolean(getSpokenScript(s, { dialect }))
   );
   result.total = targets.length;
 
@@ -94,6 +100,8 @@ export async function syncAudioToCloud(dataset: Dataset | null): Promise<AudioSy
         sentenceId: sentence.id,
         japanese,
         reading: sentence.reading,
+        phonetic_reading: sentence.phonetic_reading,
+        dialect,
         register: sentence.register,
         tags: sentence.tags,
         context_notes: sentence.context_notes,

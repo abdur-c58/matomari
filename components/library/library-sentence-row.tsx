@@ -12,6 +12,7 @@ import { AskButton } from "@/components/ai/ask-button";
 import { SentencePlayButton } from "@/components/audio/sentence-play-button";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { getDialectLabel } from "@/lib/constants/dialect";
 import { MotionCollapse } from "@/components/motion/motion-collapse";
 import { ChevronDown, Star, Check } from "lucide-react";
 
@@ -48,11 +49,12 @@ export function LibrarySentenceRow({
   selected?: boolean;
   onToggleSelect?: () => void;
 }) {
-  const { retranslateSentence, sentenceNeedsRetranslation } = useApp();
+  const { retranslateSentence, sentenceNeedsRetranslation, progress: userProgress } = useApp();
   const [expanded, setExpanded] = useState(false);
   const [retranslating, setRetranslating] = useState(false);
   const translated = isTranslated(sentence);
   const showRetranslate = sentenceNeedsRetranslation(sentence.id);
+  const dialectLabel = getDialectLabel(userProgress.settings.dialect);
   const rating = progress?.rating ?? null;
 
   const handleRetranslate = async () => {
@@ -143,6 +145,7 @@ export function LibrarySentenceRow({
           sentenceId={sentence.id}
           japanese={sentence.japanese}
           reading={sentence.reading}
+          phonetic_reading={sentence.phonetic_reading}
           register={sentence.register}
           tags={sentence.tags}
           context_notes={sentence.context_notes}
@@ -206,7 +209,7 @@ export function LibrarySentenceRow({
                   disabled={retranslating}
                   onClick={handleRetranslate}
                 >
-                  Re-translate
+                  Re-translate ({dialectLabel})
                 </Button>
               )}
               <AskButton

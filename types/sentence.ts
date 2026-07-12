@@ -19,6 +19,8 @@ export interface TranslatedFields {
   reading: string;
   romaji: string;
   literal_note?: string;
+  /** Kansai-only: exaggerated kana script for TTS accent simulation via standard voices */
+  phonetic_reading?: string;
 }
 
 export type Sentence = SeedSentence & Partial<TranslatedFields>;

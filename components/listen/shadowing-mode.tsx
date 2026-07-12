@@ -22,7 +22,7 @@ import { cn } from "@/lib/utils";
 
 export function ShadowingMode({ sentences }: { sentences: Sentence[] }) {
   const isMobile = useIsMobileViewport(MOBILE_MEDIA_QUERY);
-  const { audioUnlocked, audioState } = useApp();
+  const { audioUnlocked, audioState, progress } = useApp();
   const { closeTutor } = useTutor();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [shadowing, setShadowing] = useState(false);
@@ -36,12 +36,15 @@ export function ShadowingMode({ sentences }: { sentences: Sentence[] }) {
   const userAudioRef = useRef<HTMLAudioElement | null>(null);
 
   const current = sentences[currentIndex] ?? sentences[0];
+  const dialect = progress.settings.dialect;
   const playlist: TtsRequest[] = sentences
     .filter((s) => s.japanese)
     .map((s) => ({
       sentenceId: s.id,
       japanese: s.japanese!,
       reading: s.reading,
+      phonetic_reading: s.phonetic_reading,
+      dialect,
       register: s.register,
       tags: s.tags,
       context_notes: s.context_notes,
@@ -137,6 +140,7 @@ export function ShadowingMode({ sentences }: { sentences: Sentence[] }) {
               sentenceId={current.id}
               japanese={current.japanese}
               reading={current.reading}
+              phonetic_reading={current.phonetic_reading}
               register={current.register}
               tags={current.tags}
               context_notes={current.context_notes}

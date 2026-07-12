@@ -11,14 +11,19 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { sentences } = translateRequestSchema.parse(body);
+    const { sentences, dialect } = translateRequestSchema.parse(body);
 
     if (sentences.length === 0) {
       return NextResponse.json({ translations: {} });
     }
 
     const openai = getOpenAIClient();
-    const prompt = buildTranslationPrompt(sentences);
+    const prompt = buildTranslationPrompt(sentences, dialect);
+
+    const systemContent =
+      dialect === "kansai"
+        ? "You translate English into natural Kansai Japanese for language learners. Return valid JSON only. reading and phonetic_reading must be kana-only (no kanji). phonetic_reading is a separate exaggerated Osaka-ben TTS script for voice synthesis — the app uses it instead of reading for Kansai audio."
+        : "You translate English sentences into natural Japanese for language learners. Return valid JSON only. The reading field must be kana-only (no kanji) and match spoken pronunciation exactly — the app uses it for text-to-speech.";
 
     const completion = await openai.chat.completions.create({
       model: getOpenAIModel(),
@@ -26,8 +31,7 @@ export async function POST(request: Request) {
       messages: [
         {
           role: "system",
-          content:
-            "You translate English sentences into natural Japanese for language learners. Return valid JSON only. The reading field must be kana-only (no kanji) and match spoken pronunciation exactly — the app uses it for text-to-speech.",
+          content: systemContent,
         },
         { role: "user", content: prompt },
       ],

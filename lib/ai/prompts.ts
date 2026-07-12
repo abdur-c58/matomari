@@ -182,11 +182,31 @@ export function buildTranslationPrompt(
     subtopic: string;
     tags: string[];
     context_notes?: string;
-  }>
+  }>,
+  dialect: "standard" | "kansai" = "standard"
 ): string {
-  const dialectBlock = `DIALECT: Standard Japanese (hyōjungo)
+  const dialectBlock =
+    dialect === "kansai"
+      ? `DIALECT: Kansai (Osaka/Kyoto ben)
+- Use natural Kansai Japanese in japanese — not standard hyōjungo with a few regional words sprinkled in
+- Prefer common Kansai patterns where they fit: へん/ひん, せえへん, ちゃう, おる, なんでや, ほんま, あかん, めっちゃ, 〜やねん, 〜やで, 〜へん?, etc. as appropriate to register
+- Keep the register field in mind — casual Kansai fits casual; polite lines can use softer Kansai-business tone without full keigo breakdown
+- reading: kana-only display pronunciation of japanese (hiragana/katakana only, no kanji)
+- phonetic_reading: REQUIRED for Kansai — a separate kana-only TTS script that makes a standard Japanese TTS voice sound Kansai:
+  - Write how the line should SOUND in Osaka-ben, not just a literal kana transcription of japanese
+  - Exaggerate accent cues ElevenLabs can follow: elongated vowels (ええ, ほんまあ), へん/ひん instead of ない where spoken, や/やで instead of だ, わ for particle は, え for particle へ
+  - Use natural Kansai rhythm and endings (〜やねん, 〜ちゃう, 〜せん, めっちゃ, なんでや, せやな)
+  - Must be 100% kana — no kanji, no IPA — and must differ from reading when accent helps
+  - Example: japanese「本当に、なんでそんなことするの？」 → reading「ほんとうに、なんでそんなことするの？」 → phonetic_reading「ほんま、なんでそないことすんねん！」`
+      : `DIALECT: Standard Japanese (hyōjungo)
 - Tokyo-based neutral Japanese understandable nationwide
 - Avoid regional dialect markers unless the English clearly calls for them`;
+
+  const kansaiFields =
+    dialect === "kansai"
+      ? `,
+      "phonetic_reading": "KANSAI TTS SCRIPT — kana-only, exaggerated Osaka-ben pronunciation for voice synthesis"`
+      : "";
 
   return `Translate these English sentences into natural Japanese for a casual-first language learning app.
 
@@ -196,7 +216,7 @@ PHILOSOPHY:
 - Prefer natural spoken Japanese over textbook-stiff phrasing
 - Match the register field exactly: casual = plain/informal, polite = です/ます, formal = keigo where appropriate
 - Use category, subtopic, tags, and context_notes for situational tone
-- The reading field is the authoritative pronunciation guide for TTS — it must be 100% kana (hiragana/katakana), never kanji, and must reflect every reading choice in japanese (including compound verbs, rendaku, and particle は→わ / へ→え where spoken)
+- The reading field is the authoritative pronunciation guide for TTS (standard) or learner display (Kansai) — it must be 100% kana (hiragana/katakana), never kanji, and must reflect every reading choice in japanese (including compound verbs, rendaku, and particle は→わ / へ→え where spoken)
 - Use Japanese punctuation in reading for natural delivery: 、 before a trailing exasperated もう/ね, ？ for questions, ！ for emphasis. Example: くうきよんでよ、もう。
 - For emotionally loaded lines (frustration, sighing もう, exasperation), put the comma BEFORE the emotional tail so TTS can pause — e.g. NOT くうきよんでよもう。
 
@@ -207,7 +227,7 @@ Return valid JSON only:
       "japanese": "natural Japanese",
       "reading": "HIRAGANA/KATAKANA ONLY — full pronunciation of japanese with ZERO kanji. Must match how japanese is spoken exactly. Use katakana for loanwords.",
       "romaji": "romaji",
-      "literal_note": "optional — only if natural meaning diverges from literal read"
+      "literal_note": "optional — only if natural meaning diverges from literal read"${kansaiFields}
     }
   }
 }

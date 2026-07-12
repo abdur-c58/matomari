@@ -6,7 +6,8 @@
  * speed: 1.0 = normal; ~0.92–0.97 can help learners follow shadowing
  */
 
-import { getElevenLabsVoiceId } from "@/lib/env";
+import { getElevenLabsVoiceIdForDialect } from "@/lib/env";
+import type { Dialect } from "@/lib/constants/dialect";
 
 const DEFAULT_MODEL = "eleven_multilingual_v2";
 
@@ -48,7 +49,7 @@ export function getElevenLabsVoiceSettings(): ElevenLabsVoiceSettings {
 }
 
 /** Included in audio cache keys so setting changes regenerate audio. */
-export function getElevenLabsSettingsFingerprint(): string {
+export function getElevenLabsSettingsFingerprint(dialect: Dialect = "standard"): string {
   const s = getElevenLabsVoiceSettings();
   return [
     getElevenLabsModel(),
@@ -57,10 +58,15 @@ export function getElevenLabsSettingsFingerprint(): string {
     s.style.toFixed(2),
     s.speed.toFixed(2),
     s.use_speaker_boost ? "1" : "0",
-    getElevenLabsVoiceId(),
+    getElevenLabsVoiceIdForDialect(dialect),
+    dialect,
   ].join("|");
 }
 
-export function buildTtsCacheKey(sentenceId: string, ttsText: string): string {
-  return `${getElevenLabsSettingsFingerprint()}:${sentenceId}:${ttsText}`;
+export function buildTtsCacheKey(
+  sentenceId: string,
+  ttsText: string,
+  dialect: Dialect = "standard"
+): string {
+  return `${getElevenLabsSettingsFingerprint(dialect)}:${sentenceId}:${ttsText}`;
 }

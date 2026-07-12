@@ -26,7 +26,7 @@ import {
   APP_NAME,
   EXPORT_FILENAME,
 } from "@/lib/constants/branding";
-import { summarizeNotificationPreferences } from "@/lib/notifications/notification-summary";
+import { summarizePreferences } from "@/lib/preferences/preferences-summary";
 import { toast } from "sonner";
 
 function formatManualSyncToast(result: ManualSyncResult) {
@@ -128,7 +128,7 @@ export function SettingsScreenMobile() {
             <div>
               <p className="font-medium">Preferences</p>
               <p className="text-sm text-muted">
-                {summarizeNotificationPreferences(progress.settings.notifications)}
+                {summarizePreferences(progress.settings)}
               </p>
             </div>
           </div>

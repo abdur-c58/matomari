@@ -8,11 +8,13 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import type { Dialect } from "@/lib/constants/dialect";
 import {
   DEFAULT_NOTIFICATION_PREFERENCES,
   type NotificationPreferences,
 } from "@/lib/constants/notifications";
 import { NotificationPreferencesSection } from "@/components/settings/notification-preferences-section";
+import { DialectPreferencesSection } from "@/components/settings/dialect-preferences-section";
 import { parseReturnTo } from "@/lib/utils/dialect-preferences";
 import { toast } from "sonner";
 
@@ -20,14 +22,16 @@ export function PreferencesScreenMobile() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { dataset, progress, setProgress, refresh } = useApp();
+  const [dialect, setDialect] = useState<Dialect>(progress.settings.dialect);
   const [notifications, setNotifications] = useState<NotificationPreferences>(
     progress.settings.notifications ?? DEFAULT_NOTIFICATION_PREFERENCES
   );
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
+    setDialect(progress.settings.dialect);
     setNotifications(progress.settings.notifications ?? DEFAULT_NOTIFICATION_PREFERENCES);
-  }, [progress.settings.notifications]);
+  }, [progress.settings.dialect, progress.settings.notifications]);
 
   const returnTo = parseReturnTo(searchParams);
 
@@ -38,6 +42,8 @@ export function PreferencesScreenMobile() {
         ...progress,
         settings: {
           ...progress.settings,
+          dialect,
+          dialectChosen: true,
           notifications,
         },
       });
@@ -49,11 +55,13 @@ export function PreferencesScreenMobile() {
     } finally {
       setSaving(false);
     }
-  }, [notifications, progress, returnTo, router, setProgress, refresh]);
+  }, [dialect, notifications, progress, returnTo, router, setProgress, refresh]);
 
   return (
     <PageShell>
       <PageHeader title="Preferences" backHref="/settings" />
+
+      <DialectPreferencesSection dialect={dialect} onChange={setDialect} />
 
       <Card className="mb-6 p-4">
         <Label className="text-base">Notifications</Label>

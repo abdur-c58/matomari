@@ -46,13 +46,14 @@ export async function fetchTranslations(
 ): Promise<Record<string, TranslatedFields>> {
   const merged: Record<string, TranslatedFields> = {};
   const total = seeds.length;
+  const dialect = options?.dialect ?? DEFAULT_DIALECT;
 
   for (let i = 0; i < seeds.length; i += BATCH_SIZE) {
     const chunk = seeds.slice(i, i + BATCH_SIZE);
     const res = await fetch("/api/translate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sentences: chunk }),
+      body: JSON.stringify({ sentences: chunk, dialect }),
     });
 
     if (res.status === 503) {
@@ -109,7 +110,11 @@ export function mergeTranslations(
   return updateSentencesInDataset(dataset, updates);
 }
 
-function validateTranslations(seeds: SeedSentence[], translations: Record<string, TranslatedFields>) {
+function validateTranslations(
+  seeds: SeedSentence[],
+  translations: Record<string, TranslatedFields>,
+  dialect: Dialect = DEFAULT_DIALECT
+) {
   for (const seed of seeds) {
     const fields = translations[seed.id];
     if (!fields?.japanese?.trim()) {
@@ -121,6 +126,12 @@ function validateTranslations(seeds: SeedSentence[], translations: Record<string
     if (!isValidKanaReading(fields.reading)) {
       throw new TranslationError(
         `Invalid kana reading for sentence ${seed.id}. Retranslation required.`,
+        "REQUEST_FAILED"
+      );
+    }
+    if (dialect === "kansai" && !isValidKanaReading(fields.phonetic_reading)) {
+      throw new TranslationError(
+        `Missing Kansai phonetic reading for sentence ${seed.id}. Retranslation required.`,
         "REQUEST_FAILED"
       );
     }
@@ -150,11 +161,12 @@ export async function translateSentences(
   let current = dataset;
   let completed = 0;
   const total = toTranslate.length;
+  const dialect = options?.dialect ?? DEFAULT_DIALECT;
 
   for (let i = 0; i < toTranslate.length; i += BATCH_SIZE) {
     const chunk = toTranslate.slice(i, i + BATCH_SIZE);
     const translations = await fetchTranslations(chunk, { dialect: options?.dialect });
-    validateTranslations(chunk, translations);
+    validateTranslations(chunk, translations, dialect);
 
     current = mergeTranslations(current, translations);
     completed += chunk.length;

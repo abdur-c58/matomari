@@ -13,6 +13,7 @@ export function SentencePlayButton({
   sentenceId,
   japanese,
   reading,
+  phonetic_reading,
   register,
   tags,
   context_notes,
@@ -23,6 +24,7 @@ export function SentencePlayButton({
   sentenceId: string;
   japanese?: string | null;
   reading?: string | null;
+  phonetic_reading?: string | null;
   register?: string;
   tags?: string[];
   context_notes?: string;
@@ -30,10 +32,13 @@ export function SentencePlayButton({
   disabled?: boolean;
   className?: string;
 }) {
-  const { audioUnlocked, unlockAudio, audioState } = useApp();
+  const { audioUnlocked, unlockAudio, audioState, progress } = useApp();
   const [active, setActive] = useState(false);
+  const dialect = progress.settings.dialect;
 
-  const canPlay = Boolean(getTtsTextFromFields(japanese, reading));
+  const canPlay = Boolean(
+    getTtsTextFromFields(japanese, reading, { dialect, phonetic_reading })
+  );
 
   useEffect(() => {
     if (!active) return;
@@ -66,6 +71,8 @@ export function SentencePlayButton({
       sentenceId,
       japanese,
       reading,
+      phonetic_reading,
+      dialect,
       register,
       tags,
       context_notes,

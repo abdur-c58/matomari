@@ -13,6 +13,7 @@ interface AudioControlsProps {
   sentenceId?: string;
   japanese?: string;
   reading?: string | null;
+  phonetic_reading?: string | null;
   register?: string;
   tags?: string[];
   context_notes?: string;
@@ -27,6 +28,7 @@ export function AudioControls({
   sentenceId,
   japanese,
   reading,
+  phonetic_reading,
   register,
   tags,
   context_notes,
@@ -36,7 +38,8 @@ export function AudioControls({
   shadowPause = false,
   className,
 }: AudioControlsProps) {
-  const { audioUnlocked, unlockAudio, audioState } = useApp();
+  const { audioUnlocked, unlockAudio, audioState, progress } = useApp();
+  const dialect = progress.settings.dialect;
   const [loop, setLoop] = useState(false);
   const [playlistMode, setPlaylistMode] = useState(false);
 
@@ -64,6 +67,8 @@ export function AudioControls({
         sentenceId,
         japanese,
         reading,
+        phonetic_reading,
+        dialect,
         register,
         tags,
         context_notes,

@@ -103,6 +103,7 @@ export const islandGenerationResponseSchema = z.object({
 
 export const translateRequestSchema = z.object({
   sentences: z.array(seedSentenceSchema).min(1).max(30),
+  dialect: z.enum(["standard", "kansai"]).optional().default("standard"),
 });
 
 export const translateResponseSchema = z.object({
@@ -113,6 +114,7 @@ export const translateResponseSchema = z.object({
       reading: z.string(),
       romaji: z.string(),
       literal_note: z.string().optional(),
+      phonetic_reading: z.string().optional(),
     })
   ),
 });

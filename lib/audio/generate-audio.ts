@@ -9,7 +9,8 @@ import {
   isR2Configured,
 } from "@/lib/storage/r2-client";
 import { upsertAudioMetadata } from "@/lib/supabase/server-data";
-import { getElevenLabsApiKey, getElevenLabsVoiceId } from "@/lib/env";
+import { getElevenLabsApiKey, getElevenLabsVoiceIdForDialect } from "@/lib/env";
+import type { Dialect } from "@/lib/constants/dialect";
 import {
   buildTtsCacheKey,
   getElevenLabsModel,
@@ -20,8 +21,12 @@ import { ElevenLabsQuotaError, ElevenLabsTTSError } from "@/lib/audio/tts-errors
 const CACHE_DIR = path.join(process.cwd(), "data", "audio-cache");
 
 /** Cache key uses spoken text + voice settings so tuning changes regenerate audio. */
-export function getTextHash(sentenceId: string, ttsText: string): string {
-  return createHash("sha256").update(buildTtsCacheKey(sentenceId, ttsText)).digest("hex");
+export function getTextHash(
+  sentenceId: string,
+  ttsText: string,
+  dialect: Dialect = "standard"
+): string {
+  return createHash("sha256").update(buildTtsCacheKey(sentenceId, ttsText, dialect)).digest("hex");
 }
 
 async function readFilesystemCache(hash: string): Promise<Buffer | null> {
@@ -89,9 +94,10 @@ export class ElevenLabsProvider implements TTSProvider {
 export async function generateServerAudio(
   ttsText: string,
   sentenceId: string,
-  options?: { force?: boolean }
+  options?: { force?: boolean; dialect?: Dialect }
 ): Promise<{ buffer: Buffer; hash: string; cached: boolean; r2Key: string }> {
-  const hash = getTextHash(sentenceId, ttsText);
+  const dialect = options?.dialect ?? "standard";
+  const hash = getTextHash(sentenceId, ttsText, dialect);
   const r2Key = getAudioR2Key(hash);
   const force = options?.force === true;
 
@@ -113,7 +119,7 @@ export async function generateServerAudio(
   }
 
   const apiKey = getElevenLabsApiKey();
-  const voiceId = getElevenLabsVoiceId();
+  const voiceId = getElevenLabsVoiceIdForDialect(dialect);
 
   if (!apiKey) {
     throw new Error("TTS_NOT_CONFIGURED");

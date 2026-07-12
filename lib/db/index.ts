@@ -77,7 +77,7 @@ export const DEFAULT_PROGRESS: UserProgress = {
   settings: {
     batchSize: 25,
     dialect: DEFAULT_DIALECT,
-    dialectChosen: true,
+    dialectChosen: false,
     notifications: { ...DEFAULT_NOTIFICATION_PREFERENCES, lastSent: {} },
   },
   completedPathwayBatches: [],

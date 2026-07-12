@@ -1,4 +1,4 @@
-const DEFAULT_OPENAI_MODEL = "gpt-4o-mini";
+const DEFAULT_OPENAI_MODEL = "gpt-5.5-mini";
 const DEFAULT_ELEVENLABS_VOICE_ID = "pNInz6obpgDQGcFmaJgB";
 const DEFAULT_R2_BUCKET_NAME = "shima-audio";
 
@@ -44,6 +44,18 @@ export function getElevenLabsApiKey(): string | undefined {
 
 export function getElevenLabsVoiceId(): string {
   return process.env.ELEVENLABS_VOICE_ID ?? DEFAULT_ELEVENLABS_VOICE_ID;
+}
+
+export function getKansaiVoiceId(): string | undefined {
+  const id = process.env.KANSAI_VOICE_ID?.trim();
+  return id || undefined;
+}
+
+export function getElevenLabsVoiceIdForDialect(dialect: "standard" | "kansai" = "standard"): string {
+  if (dialect === "kansai") {
+    return getKansaiVoiceId() ?? getElevenLabsVoiceId();
+  }
+  return getElevenLabsVoiceId();
 }
 
 export function isElevenLabsConfigured(): boolean {

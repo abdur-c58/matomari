@@ -1,6 +1,6 @@
 import type { Dataset, Sentence, SentenceDialectTranslations, TranslatedFields, UserLibrary } from "@/types/sentence";
 import type { Dialect } from "@/lib/constants/dialect";
-import { DEFAULT_DIALECT } from "@/lib/constants/dialect";
+import { DIALECTS } from "@/lib/constants/dialect";
 import { applyTranslation } from "@/lib/sentence-utils";
 import { getAllSentences } from "@/lib/validation/dataset-schema";
 
@@ -22,6 +22,7 @@ export function seedStandardTranslationsFromDataset(
         reading: sentence.reading ?? sentence.japanese,
         romaji: sentence.romaji ?? "",
         literal_note: sentence.literal_note,
+        phonetic_reading: sentence.phonetic_reading,
       },
     };
     changed = true;
@@ -51,6 +52,7 @@ export function applyDialectTranslations(
       reading: undefined,
       romaji: undefined,
       literal_note: undefined,
+      phonetic_reading: undefined,
       translated: false,
     };
   };
@@ -88,6 +90,7 @@ export function collectTranslationsForDialect(
         reading: sentence.reading ?? sentence.japanese,
         romaji: sentence.romaji ?? "",
         literal_note: sentence.literal_note,
+        phonetic_reading: sentence.phonetic_reading,
       },
     };
   }
@@ -116,17 +119,18 @@ export function hasTranslationForDialect(
   return Boolean(translations?.[sentenceId]?.[dialect]?.japanese?.trim());
 }
 
-/** True when legacy Kansai translations exist but standard does not. */
+/** True when another dialect has a translation but the active dialect does not. */
 export function needsRetranslationForDialect(
   sentenceId: string,
-  _dialect: Dialect,
+  dialect: Dialect,
   translations: Record<string, SentenceDialectTranslations> | undefined
 ): boolean {
-  if (hasTranslationForDialect(sentenceId, "standard", translations)) return false;
-  const entry = translations?.[sentenceId] as
-    | (SentenceDialectTranslations & { kansai?: TranslatedFields })
-    | undefined;
-  return Boolean(entry?.kansai?.japanese?.trim());
+  if (hasTranslationForDialect(sentenceId, dialect, translations)) return false;
+  const entry = translations?.[sentenceId];
+  if (!entry) return false;
+  return DIALECTS.some(
+    (d) => d !== dialect && Boolean(entry[d]?.japanese?.trim())
+  );
 }
 
 export function migrateLegacyIslandTranslations(library: UserLibrary): UserLibrary {

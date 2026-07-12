@@ -1,4 +1,5 @@
 import type { Register, Sentence } from "@/types/sentence";
+import type { Dialect } from "@/lib/constants/dialect";
 import { enhanceTtsProsody, type TtsProsodyContext } from "@/lib/audio/tts-prosody";
 
 /** Hiragana, katakana, and common punctuation allowed in a TTS reading line. */
@@ -26,8 +27,15 @@ export function getTtsText(sentence: Pick<Sentence, "japanese" | "reading">): st
 
 export function getTtsTextFromFields(
   japanese: string | undefined | null,
-  reading: string | undefined | null
+  reading: string | undefined | null,
+  options?: { dialect?: Dialect; phonetic_reading?: string | null }
 ): string | null {
+  const dialect = options?.dialect ?? "standard";
+
+  if (dialect === "kansai" && isValidKanaReading(options?.phonetic_reading)) {
+    return options!.phonetic_reading!.trim();
+  }
+
   const surface = japanese?.trim();
   if (!surface) return null;
 
@@ -44,12 +52,18 @@ export function getTtsTextFromFields(
 }
 
 export function assertTtsText(
-  sentence: Pick<Sentence, "id" | "japanese" | "reading">
+  sentence: Pick<Sentence, "id" | "japanese" | "reading" | "phonetic_reading">,
+  dialect: Dialect = "standard"
 ): string {
-  const text = getTtsText(sentence);
+  const text = getTtsTextFromFields(sentence.japanese, sentence.reading, {
+    dialect,
+    phonetic_reading: sentence.phonetic_reading,
+  });
   if (!text) {
     throw new Error(
-      `Sentence ${sentence.id} needs a kana-only reading before audio can be generated`
+      dialect === "kansai"
+        ? `Sentence ${sentence.id} needs a Kansai phonetic reading before audio can be generated`
+        : `Sentence ${sentence.id} needs a kana-only reading before audio can be generated`
     );
   }
   return text;
@@ -60,14 +74,19 @@ export function getSpokenScript(
   sentence: {
     japanese?: string | null;
     reading?: string | null;
+    phonetic_reading?: string | null;
     register?: Register | string;
     tags?: string[];
     context_notes?: string;
     english?: string;
   },
-  prosodyCtx?: TtsProsodyContext
+  prosodyCtx?: TtsProsodyContext & { dialect?: Dialect }
 ): string | null {
-  const reading = getTtsTextFromFields(sentence.japanese, sentence.reading);
+  const dialect = prosodyCtx?.dialect ?? "standard";
+  const reading = getTtsTextFromFields(sentence.japanese, sentence.reading, {
+    dialect,
+    phonetic_reading: sentence.phonetic_reading,
+  });
   if (!reading) return null;
   return enhanceTtsProsody(reading, {
     register: sentence.register,
@@ -82,12 +101,13 @@ export function getSpokenScriptFromFields(
   fields: {
     japanese?: string | null;
     reading?: string | null;
+    phonetic_reading?: string | null;
     register?: Register | string;
     tags?: string[];
     context_notes?: string;
     english?: string;
   },
-  prosodyCtx?: TtsProsodyContext
+  prosodyCtx?: TtsProsodyContext & { dialect?: Dialect }
 ): string | null {
   return getSpokenScript(fields, prosodyCtx);
 }
