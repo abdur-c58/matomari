@@ -8,7 +8,7 @@ import "@fontsource/red-hat-display/700.css";
 import "@fontsource/noto-serif-jp/400.css";
 import "@fontsource/noto-serif-jp/500.css";
 import "@fontsource/noto-serif-jp/600.css";
-import "@fontsource/zen-kurenaido/400.css";
+import "@fontsource/yuji-boku/400.css";
 import "./globals.css";
 import { AppProvider } from "@/components/providers/app-provider";
 import { AuthProvider } from "@/components/providers/auth-provider";

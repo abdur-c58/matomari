@@ -263,7 +263,7 @@ body {
 }
 
 .font-brush {
-  font-family: "Zen Kurenaido", "Noto Serif JP", serif;
+  font-family: "Yuji Boku", "Noto Serif JP", serif;
 }
 
 .font-display {
@@ -445,21 +445,6 @@ body {
   text-shadow:
     0 1px 2px rgba(0, 0, 0, 0.65),
     0 6px 18px rgba(0, 0, 0, 0.48);
-}
-
-.today-hero-subtitle::before {
-  content: "";
-  position: absolute;
-  inset: -0.25rem -0.65rem -0.35rem -0.35rem;
-  z-index: -1;
-  border-radius: 0.625rem;
-  pointer-events: none;
-  background: radial-gradient(
-    ellipse 115% 120% at 12% 42%,
-    rgba(0, 0, 0, 0.38) 0%,
-    rgba(0, 0, 0, 0.14) 52%,
-    transparent 78%
-  );
 }
 
 .today-hero-headline--desktop .today-hero-subtitle {
