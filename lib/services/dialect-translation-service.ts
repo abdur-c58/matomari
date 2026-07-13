@@ -1,4 +1,4 @@
-import type { Dataset, Sentence, SentenceDialectTranslations, TranslatedFields, UserLibrary } from "@/types/sentence";
+import type { Dataset, SeedSentence, Sentence, SentenceDialectTranslations, TranslatedFields, UserLibrary } from "@/types/sentence";
 import type { Dialect } from "@/lib/constants/dialect";
 import { DIALECTS } from "@/lib/constants/dialect";
 import { applyTranslation } from "@/lib/sentence-utils";
@@ -204,28 +204,51 @@ export function migrateLegacyIslandTranslations(library: UserLibrary): UserLibra
   return { ...library, sentenceTranslations };
 }
 
+export function stripSentenceToSeed(s: Sentence): SeedSentence {
+  return {
+    id: s.id,
+    english: s.english,
+    register: s.register,
+    difficulty: s.difficulty,
+    category: s.category,
+    subtopic: s.subtopic,
+    tags: s.tags,
+    context_notes: s.context_notes,
+    translated: false,
+  };
+}
+
+export function stripTranslationsFromPathway(
+  main_pathway: Dataset["main_pathway"]
+): Dataset["main_pathway"] {
+  return {
+    ...main_pathway,
+    batches: main_pathway.batches.map((batch) => ({
+      ...batch,
+      sentences: batch.sentences.map(stripSentenceToSeed),
+    })),
+  };
+}
+
 export function stripTranslationsFromIslands(library: UserLibrary): UserLibrary {
   const islands = Object.fromEntries(
     Object.entries(library.islands).map(([key, island]) => [
       key,
       {
         ...island,
-        sentences: island.sentences.map((s) => ({
-          id: s.id,
-          english: s.english,
-          register: s.register,
-          difficulty: s.difficulty,
-          category: s.category,
-          subtopic: s.subtopic,
-          tags: s.tags,
-          context_notes: s.context_notes,
-          translated: false,
-        })),
+        sentences: island.sentences.map(stripSentenceToSeed),
       },
     ])
   );
 
   return { ...library, islands };
+}
+
+export function stripAllTranslationsFromLibrary(library: UserLibrary): UserLibrary {
+  return {
+    ...stripTranslationsFromIslands(library),
+    sentenceTranslations: undefined,
+  };
 }
 
 export function stripKansaiTranslations(library: UserLibrary): {

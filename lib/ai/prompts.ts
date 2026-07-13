@@ -189,17 +189,49 @@ export function buildTranslationPrompt(
   const dialectBlock =
     dialect === "kansai"
       ? `DIALECT: Kansai (Osaka/Kyoto ben)
-- Use natural Kansai Japanese in japanese — not standard hyōjungo with a few regional words sprinkled in
-- Prefer common Kansai patterns where they fit: へん/ひん, せえへん, ちゃう, おる, なんでや, ほんま, あかん, めっちゃ, 〜やねん, 〜やで, 〜へん?, etc. as appropriate to register
-- Keep the register field in mind — casual Kansai fits casual; polite lines can use softer Kansai-business tone without full keigo breakdown
-- reading: kana-only display pronunciation of japanese (hiragana/katakana only, no kanji)
-- phonetic_reading: REQUIRED for Kansai — a separate kana-only TTS script that makes a standard Japanese TTS voice sound Kansai:
-  - Write how the line should SOUND in Osaka-ben, not just a literal kana transcription of japanese
-  - Exaggerate accent cues the TTS engine can follow: elongated vowels (ええ, ほんまあ), へん/ひん instead of ない where spoken, や/やで instead of だ, わ for particle は, え for particle へ
-  - Use natural Kansai rhythm and endings (〜やねん, 〜ちゃう, 〜せん, めっちゃ, なんでや, せやな)
-  - Must be 100% kana — no kanji, no IPA — and must differ from reading when accent helps
-  - Example: japanese「本当に、なんでそんなことするの？」 → reading「ほんとうに、なんでそんなことするの？」 → phonetic_reading「ほんま、なんでそないことすんねん！」
-- romaji: Latin transliteration of how phonetic_reading SOUNDS in Osaka-ben (shown to learners alongside phonetic_reading), not a standard hyōjungo reading of kanji`
+
+GOAL: Sound like a native Osaka/Kyoto speaker at the given register — not Tokyo Japanese with a few regional words sprinkled on, and not "costume Kansai" that forces やねん/へん where a native would speak standard polite Japanese.
+
+REGISTER (this is the main lever):
+- polite / formal: Keep です・ます (or soft keigo). Kansai and polite hyōjungo overlap heavily — a native speaking politely to a stranger often sounds Kansai through rhythm, particles, and small choices (e.g. そうですか → そうなんですか), NOT through constant やねん/やで/ちゃう. Do not force Kansai endings where native speakers would use standard polite forms.
+- casual: Fuller Osaka-ben is appropriate — へん/ひん, ちゃう, や/やで, すん, なんでや, ほんま, めっちゃ, 〜やねん, etc. when natural.
+- Match the register field exactly. Never drop です/ます on a polite line to sound "more Kansai."
+
+japanese (display text):
+- Write natural Kansai Japanese at the correct register.
+- For polite lines, valid Kansai polite forms are often close to standard (e.g. そうなんですか。 for "Oh, is that so?") — that IS Kansai, not a failure to dialectize.
+- For casual lines, prefer real Osaka-ben phrasing over hyōjungo when it fits the English.
+- Do not add filler ああ/あー unless the English has a clear separate interjection and it sounds natural at that register.
+
+reading:
+- Kana-only (hiragana/katakana, no kanji) pronunciation of japanese as written.
+- Must match japanese exactly in meaning and structure.
+
+phonetic_reading (REQUIRED — used for Kansai TTS audio):
+- MUST preserve the exact meaning, politeness level, and sentence type of japanese. A question stays a question (？); a statement stays a statement. Do not rewrite into a different sentence.
+- Adjust pronunciation and spoken surface forms only — how the same line SOUNDS in Osaka-ben, not what a different line would say.
+- Allowed adjustments when natural at that register:
+  - ない → へん/ひん (casual)
+  - じゃない → ちゃう (casual)
+  - だ → や (casual)
+  - する → すん (casual)
+  - ほんとう → ほんま
+  - particle は → わ, へ → え
+  - polite ん before です (そうですか → そうなんですか)
+- Forbidden: changing sentence type (question → assertion), dropping politeness, swapping vocabulary that alters meaning (e.g. そんなこと → そないこと + するの？ → すんねん！ on the same line), or casual rewrite of a polite japanese line.
+- For polite です/ます lines: phonetic_reading may equal reading when the spoken form is already natural — subtle ん / particle cues only.
+- Must be 100% kana — no kanji, no IPA.
+
+Examples:
+- polite reaction "Oh, is that so?":
+  japanese「そうなんですか。」reading「そうなんですか。」phonetic_reading「そうなんですか。」
+- casual question (preserve question):
+  japanese「なんでそんなことするの？」reading「なんでそんなことするの？」phonetic_reading「なんでそんなことすんの？」
+- casual negative:
+  japanese「わかりません。」reading「わかりません。」phonetic_reading「わかりへん。」(only if japanese itself uses casual Kansai form)
+
+romaji:
+- Latin transliteration of how phonetic_reading SOUNDS in Osaka-ben — not a hyōjungo reading of kanji.`
       : `DIALECT: Standard Japanese (hyōjungo)
 - Tokyo-based neutral Japanese understandable nationwide
 - Avoid regional dialect markers unless the English clearly calls for them`;
@@ -207,7 +239,7 @@ export function buildTranslationPrompt(
   const kansaiFields =
     dialect === "kansai"
       ? `,
-      "phonetic_reading": "KANSAI TTS SCRIPT — kana-only, exaggerated Osaka-ben pronunciation for voice synthesis"`
+      "phonetic_reading": "KANSAI TTS SCRIPT — kana-only spoken Osaka-ben form of japanese; same meaning, sentence type, and register; pronunciation adjustments only"`
       : "";
 
   return `Translate these English sentences into natural Japanese for a casual-first language learning app.

@@ -7,8 +7,8 @@ import {
   getAlternateTranslation,
   getPrimaryTranslation,
 } from "@/lib/preferences/translation-preferences";
+import { dialectTranslationFieldsDiffer } from "@/lib/sentence/dialect-display";
 import { DialectTranslationBlock } from "@/components/sentence/dialect-translation-block";
-import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 
 type ListenSentenceDialectsProps = {
@@ -27,19 +27,20 @@ export function ListenSentenceDialects({
   const alternateDialect = getAlternateTranslation(progress.settings);
   const showKansai = progress.settings.showKansaiDialect ?? false;
 
-  const primaryFields =
-    fieldsFromComposedSentence(sentence) ??
-    getSentenceTranslation(sentence.id, primaryDialect);
-  const alternateFields = alternateDialect
-    ? getSentenceTranslation(sentence.id, alternateDialect)
-    : null;
+  const standardFields =
+    getSentenceTranslation(sentence.id, "standard") ??
+    (primaryDialect === "standard" ? fieldsFromComposedSentence(sentence) : null);
+  const kansaiFields =
+    getSentenceTranslation(sentence.id, "kansai") ??
+    (primaryDialect === "kansai" ? fieldsFromComposedSentence(sentence) : null);
 
-  // Only show alternate if it has a distinct Japanese form
-  const hasAlternate = Boolean(
-    alternateFields?.japanese?.trim() &&
-      alternateFields.japanese.trim() !== primaryFields?.japanese?.trim()
-  );
-  const showDialectCompare = showKansai && hasAlternate;
+  const primaryFields = primaryDialect === "kansai" ? kansaiFields : standardFields;
+  const alternateFields = alternateDialect === "kansai" ? kansaiFields : standardFields;
+
+  const showDialectCompare =
+    showKansai &&
+    alternateDialect != null &&
+    dialectTranslationFieldsDiffer(standardFields, kansaiFields);
 
   const readingClassName =
     variant === "shadow"
@@ -47,7 +48,10 @@ export function ListenSentenceDialects({
       : "font-japanese text-base text-muted/80";
   const phoneticClassName = variant === "shadow" ? "text-lg" : "text-base";
 
-  if (!primaryFields && !hasAlternate) return null;
+  if (!primaryFields && !alternateFields) return null;
+
+  const sectionClass =
+    "rounded-lg border border-border/70 bg-surface/40 p-3";
 
   return (
     <div
@@ -58,37 +62,48 @@ export function ListenSentenceDialects({
       )}
     >
       {primaryFields && (
-        <DialectTranslationBlock
-          sentenceId={sentence.id}
-          fields={primaryFields}
-          dialect={primaryDialect}
-          sentenceMeta={sentence}
-          showLabel={showDialectCompare}
-          showPlayButton={showDialectCompare}
-          showJapanese={false}
-          showRomaji={false}
-          readingClassName={readingClassName}
-          phoneticClassName={phoneticClassName}
-        />
+        <section className={sectionClass} aria-label={showDialectCompare ? "Standard Japanese" : undefined}>
+          {showDialectCompare && (
+            <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-muted">
+              {primaryDialect === "standard" ? "Standard Japanese" : "Kansai dialect"}
+            </p>
+          )}
+          <DialectTranslationBlock
+            sentenceId={sentence.id}
+            fields={primaryFields}
+            dialect={primaryDialect}
+            sentenceMeta={sentence}
+            showLabel={false}
+            showPlayButton={showDialectCompare}
+            showJapanese={!showDialectCompare || primaryDialect === "kansai"}
+            showRomaji={false}
+            groupKansaiPronunciation={primaryDialect === "kansai"}
+            readingClassName={readingClassName}
+            phoneticClassName={phoneticClassName}
+          />
+        </section>
       )}
 
       {showDialectCompare && alternateDialect && alternateFields && (
-        <>
-          <Separator className="opacity-60" />
+        <section className={sectionClass} aria-label={alternateDialect === "kansai" ? "Kansai dialect" : "Standard Japanese"}>
+          <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-muted">
+            {alternateDialect === "kansai" ? "Kansai dialect" : "Standard Japanese"}
+          </p>
           <DialectTranslationBlock
             sentenceId={sentence.id}
             fields={alternateFields}
             dialect={alternateDialect}
             sentenceMeta={sentence}
-            showLabel
+            showLabel={false}
             showPlayButton
             showJapanese
             showRomaji={false}
+            groupKansaiPronunciation={alternateDialect === "kansai"}
             japaneseClassName={variant === "shadow" ? "text-xl" : "text-lg"}
             readingClassName={readingClassName}
             phoneticClassName={variant === "shadow" ? "text-base" : "text-sm"}
           />
-        </>
+        </section>
       )}
     </div>
   );

@@ -22,7 +22,7 @@ export async function POST(request: Request) {
 
     const systemContent =
       dialect === "kansai"
-        ? "You translate English into natural Kansai Japanese for language learners. Return valid JSON only. reading and phonetic_reading must be kana-only (no kanji) and reflect the correct pitch accent and intonation for every word. phonetic_reading is a separate exaggerated Osaka-ben TTS script for voice synthesis — the app uses it instead of reading for Kansai audio."
+        ? "You translate English into natural Kansai Japanese for language learners. Return valid JSON only. reading and phonetic_reading must be kana-only (no kanji). Polite Kansai often overlaps with standard polite forms — use subtle native choices (e.g. ん before です), not forced slang. phonetic_reading is the Kansai TTS script: it must preserve the exact meaning, politeness, and sentence type of japanese — adjust pronunciation only, never rewrite into a different sentence."
         : "You translate English sentences into natural Japanese for language learners. Return valid JSON only. The reading field must be kana-only (no kanji), match spoken pronunciation exactly, and preserve correct pitch accent/intonation — the app's TTS engine reads the kanji surface form directly and uses reading as the authoritative pronunciation guide and learner display.";
 
     const completion = await openai.chat.completions.create({

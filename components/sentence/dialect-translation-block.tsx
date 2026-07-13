@@ -30,6 +30,8 @@ type DialectTranslationBlockProps = {
   showReading?: boolean;
   /** Set to false to suppress the romaji transliteration line (default: true). */
   showRomaji?: boolean;
+  /** Visually group Kansai phonetic + romaji under a pronunciation subheading. */
+  groupKansaiPronunciation?: boolean;
   className?: string;
   japaneseClassName?: string;
   readingClassName?: string;
@@ -47,6 +49,7 @@ export function DialectTranslationBlock({
   showJapanese = true,
   showReading = true,
   showRomaji = true,
+  groupKansaiPronunciation = false,
   className,
   japaneseClassName,
   readingClassName,
@@ -109,7 +112,17 @@ export function DialectTranslationBlock({
           )}
 
           {showPhonetic && fields.phonetic_reading && (
-            <>
+            <div
+              className={cn(
+                groupKansaiPronunciation &&
+                  "mt-2 space-y-1 rounded-md border border-border/50 bg-muted/10 px-2.5 py-2"
+              )}
+            >
+              {groupKansaiPronunciation && (
+                <p className="text-[10px] font-medium uppercase tracking-wide text-muted">
+                  Kansai pronunciation
+                </p>
+              )}
               <p
                 className={cn(
                   "font-japanese italic leading-relaxed text-muted",
@@ -139,7 +152,7 @@ export function DialectTranslationBlock({
                     {resolvedRomaji}
                   </p>
                 ))}
-            </>
+            </div>
           )}
         </div>
 

@@ -17,7 +17,8 @@
     "verify-tts": "npx tsx --env-file=.env.local scripts/verify-tts.ts",
     "test-fish-audio": "npx tsx --env-file=.env.local scripts/test-fish-audio-model.ts",
     "clear-standard-audio": "npx tsx --env-file=.env.local scripts/clear-standard-audio.ts",
-    "clear-all-translations": "npx tsx --env-file=.env.local scripts/clear-all-translations.ts"
+    "clear-all-translations": "npx tsx --env-file=.env.local scripts/clear-all-translations.ts",
+    "clear-all-audio-and-translations": "npx tsx --env-file=.env.local scripts/clear-all-audio-and-translations.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1084.0",

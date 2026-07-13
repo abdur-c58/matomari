@@ -79,7 +79,11 @@ function TranslateAllButtonDesktopInner({
             total={progress.total}
             error={error}
             onRetry={error ? runTranslation : undefined}
-            title={`Translating ${label.toLowerCase()}…`}
+            title={
+              dialect === "kansai"
+                ? "Translating Kansai…"
+                : "Translating all sentences…"
+            }
             subtitle="Main pathway and all islands"
           />
           {error && (

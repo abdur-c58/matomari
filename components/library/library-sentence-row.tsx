@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { Dialect } from "@/lib/constants/dialect";
 import { getDialectLabel } from "@/lib/constants/dialect";
 import type { Sentence } from "@/types/sentence";
@@ -15,17 +15,11 @@ import { AskButton } from "@/components/ai/ask-button";
 import { SentenceAudioControls } from "@/components/audio/sentence-play-button";
 import { PlaceholderText } from "@/components/sentence/placeholder-text";
 import { DialectTranslationBlock } from "@/components/sentence/dialect-translation-block";
+import { SentenceDialectCompare } from "@/components/sentence/sentence-dialect-compare";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { MotionCollapse } from "@/components/motion/motion-collapse";
 import { ChevronDown, Star, Check } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 function RatingPill({ rating }: { rating: number | null }) {
   if (rating === null) {
@@ -72,46 +66,38 @@ export function LibrarySentenceRow({
   const showKansaiDialect = userProgress.settings.showKansaiDialect ?? false;
 
   const [expanded, setExpanded] = useState(false);
-  const [viewDialect, setViewDialect] = useState<Dialect>(primaryDialect);
-  const [retranslating, setRetranslating] = useState(false);
-  const [translating, setTranslating] = useState(false);
-
-  useEffect(() => {
-    setViewDialect(primaryDialect);
-  }, [primaryDialect]);
+  const [retranslatingDialect, setRetranslatingDialect] = useState<Dialect | null>(null);
+  const [translatingDialect, setTranslatingDialect] = useState<Dialect | null>(null);
 
   const translated = isTranslated(sentence);
   const rating = progress?.rating ?? null;
 
   const viewFields =
-    getSentenceTranslation(sentence.id, viewDialect) ??
-    (viewDialect === primaryDialect && translated
-      ? fieldsFromComposedSentence(sentence)
-      : null);
+    getSentenceTranslation(sentence.id, primaryDialect) ??
+    (translated ? fieldsFromComposedSentence(sentence) : null);
   const viewHasTranslation = Boolean(viewFields?.japanese?.trim());
-  const showRetranslate = sentenceNeedsRetranslation(sentence.id, viewDialect);
 
-  const handleRetranslate = async () => {
-    setRetranslating(true);
+  const handleRetranslate = async (dialect: Dialect) => {
+    setRetranslatingDialect(dialect);
     try {
-      await retranslateSentence(sentence.id, viewDialect);
+      await retranslateSentence(sentence.id, dialect);
       toast.success("Translation updated");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Retranslation failed");
     } finally {
-      setRetranslating(false);
+      setRetranslatingDialect(null);
     }
   };
 
-  const handleTranslate = async () => {
-    setTranslating(true);
+  const handleTranslate = async (dialect: Dialect) => {
+    setTranslatingDialect(dialect);
     try {
-      await translateSentenceIds([sentence.id], { dialect: viewDialect });
-      toast.success(`${getDialectLabel(viewDialect)} translation added`);
+      await translateSentenceIds([sentence.id], { dialect });
+      toast.success(`${getDialectLabel(dialect)} translation added`);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Translation failed");
     } finally {
-      setTranslating(false);
+      setTranslatingDialect(null);
     }
   };
 
@@ -235,28 +221,27 @@ export function LibrarySentenceRow({
 
       <MotionCollapse open={expanded && !selectionMode} className="border-t border-border/40">
         <div className="space-y-3 px-1 pb-3 pt-2 pl-10">
-          {showKansaiDialect && (
-            <Select
-              value={viewDialect}
-              onValueChange={(value) => setViewDialect(value as Dialect)}
-            >
-              <SelectTrigger className="h-8 w-full max-w-[12rem] text-xs">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="standard">Standard Japanese</SelectItem>
-                <SelectItem value="kansai">Kansai dialect</SelectItem>
-              </SelectContent>
-            </Select>
-          )}
-
-          {viewHasTranslation && viewFields ? (
+          {showKansaiDialect ? (
+            <SentenceDialectCompare
+              sentence={sentence}
+              showRomaji
+              japaneseClassName="text-sm"
+              readingClassName="text-xs"
+              phoneticClassName="text-xs"
+              romajiClassName="text-xs"
+              onTranslate={handleTranslate}
+              translatingDialect={translatingDialect}
+              onRetranslate={handleRetranslate}
+              retranslatingDialect={retranslatingDialect}
+              needsRetranslate={(dialect) => sentenceNeedsRetranslation(sentence.id, dialect)}
+            />
+          ) : viewHasTranslation && viewFields ? (
             <DialectTranslationBlock
               sentenceId={sentence.id}
               fields={viewFields}
-              dialect={viewDialect}
+              dialect={primaryDialect}
               sentenceMeta={sentence}
-              showLabel={!showKansaiDialect}
+              showLabel={false}
               japaneseClassName="text-sm"
               readingClassName="text-xs"
               phoneticClassName="text-xs"
@@ -264,17 +249,15 @@ export function LibrarySentenceRow({
             />
           ) : (
             <div className="rounded-lg border border-dashed border-border p-3">
-              <p className="text-xs text-muted">
-                No {getDialectLabel(viewDialect).toLowerCase()} translation yet.
-              </p>
+              <p className="text-xs text-muted">No standard Japanese translation yet.</p>
               <Button
                 variant="secondary"
                 size="sm"
                 className="mt-2 h-7 text-xs"
-                disabled={translating}
-                onClick={handleTranslate}
+                disabled={translatingDialect === "standard"}
+                onClick={() => handleTranslate("standard")}
               >
-                Translate {viewDialect === "kansai" ? "Kansai" : "Standard"}
+                Translate Standard
               </Button>
             </div>
           )}
@@ -300,17 +283,6 @@ export function LibrarySentenceRow({
               size="sm"
             />
             <div className="flex gap-1">
-              {showRetranslate && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 px-2 text-xs"
-                  disabled={retranslating}
-                  onClick={handleRetranslate}
-                >
-                  Re-translate ({getDialectLabel(viewDialect)})
-                </Button>
-              )}
               <AskButton
                 context={{ type: "sentence", sentenceId: sentence.id }}
                 label="Ask"
