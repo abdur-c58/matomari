@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { RefreshCw, Sparkles } from "lucide-react";
+import { ChevronDown, RefreshCw, Sparkles } from "lucide-react";
 import { useApp } from "@/components/providers/app-provider";
 import { generateIsland, fetchIslandSuggestions, AIClientError } from "@/lib/ai/ai-client";
 import type { IslandGenerationPreview, IslandSuggestion } from "@/lib/ai/types";
@@ -23,6 +23,7 @@ import {
   type IslandLevelMode,
 } from "@/lib/constants/island-generation";
 import { TranslationProgress } from "@/components/layout/translation-progress";
+import { MotionCollapse } from "@/components/motion/motion-collapse";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -47,6 +48,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { fetchIslandThemeKanji } from "@/lib/services/study-unit-kanji-service";
 import { cn } from "@/lib/utils";
 type Phase = "form" | "preview" | "translating";
 
@@ -59,7 +61,13 @@ const FALLBACK_SUGGESTIONS: IslandSuggestion[] = [
   { theme: "making friends", reason: "Small talk and invitations beyond textbook politeness." },
 ];
 
-export function CreateIslandDialog({ onCreated }: { onCreated?: (key: string) => void }) {
+export function CreateIslandDialog({
+  onCreated,
+  compact = false,
+}: {
+  onCreated?: (key: string) => void;
+  compact?: boolean;
+}) {
   const { dataset, addIsland, translateSentenceIds } = useApp();
   const [open, setOpen] = useState(false);
   const [phase, setPhase] = useState<Phase>("form");
@@ -79,6 +87,7 @@ export function CreateIslandDialog({ onCreated }: { onCreated?: (key: string) =>
   const [pendingTranslateIds, setPendingTranslateIds] = useState<string[]>([]);
   const [suggestions, setSuggestions] = useState<IslandSuggestion[]>([]);
   const [suggestionsLoading, setSuggestionsLoading] = useState(false);
+  const [suggestionsExpanded, setSuggestionsExpanded] = useState(false);
 
   const reset = () => {
     setPhase("form");
@@ -95,13 +104,14 @@ export function CreateIslandDialog({ onCreated }: { onCreated?: (key: string) =>
     setTranslateError(null);
     setPendingTranslateIds([]);
     setSuggestions([]);
+    setSuggestionsExpanded(false);
   };
 
-  const loadSuggestions = useCallback(async () => {
+  const loadSuggestions = useCallback(async (refresh = false) => {
     if (!dataset) return;
     setSuggestionsLoading(true);
     try {
-      const result = await fetchIslandSuggestions(dataset);
+      const result = await fetchIslandSuggestions(dataset, { refresh });
       setSuggestions(result);
     } catch (e) {
       if (e instanceof AIClientError && e.code === "NOT_CONFIGURED") {
@@ -116,7 +126,7 @@ export function CreateIslandDialog({ onCreated }: { onCreated?: (key: string) =>
 
   useEffect(() => {
     if (open && dataset && phase === "form" && !preview) {
-      void loadSuggestions();
+      void loadSuggestions(false);
     }
   }, [open, dataset, phase, preview, loadSuggestions]);
 
@@ -181,10 +191,17 @@ export function CreateIslandDialog({ onCreated }: { onCreated?: (key: string) =>
     if (!preview) return;
     setLoading(true);
     try {
+      const themeKanji = await fetchIslandThemeKanji({
+        title: preview.islandKey.replace(/_/g, " "),
+        description: preview.description,
+        subtopics: preview.subtopics,
+      });
+
       await addIsland(preview.islandKey, {
         description: preview.description,
         subtopics: preview.subtopics,
         sentences: preview.sentences,
+        ...(themeKanji ? { themeKanji } : {}),
       });
 
       const ids = preview.sentences.filter(needsTranslation).map((s) => s.id);
@@ -220,9 +237,16 @@ export function CreateIslandDialog({ onCreated }: { onCreated?: (key: string) =>
       }}
     >
       <DialogTrigger asChild>
-        <Button variant="secondary" className="w-full">
-          <Sparkles className="mr-2 h-4 w-4" />
-          Create island with AI
+        <Button
+          variant="outline"
+          size="sm"
+          className={cn(
+            "shrink-0 rounded-full border-border/70",
+            !compact && "w-full"
+          )}
+        >
+          <Sparkles className="mr-1.5 h-3.5 w-3.5" />
+          {compact ? "AI create" : "Create island with AI"}
         </Button>
       </DialogTrigger>
       <DialogContent className="grid-rows-[auto_minmax(0,1fr)] p-0 sm:p-0">
@@ -247,14 +271,38 @@ export function CreateIslandDialog({ onCreated }: { onCreated?: (key: string) =>
         ) : !preview ? (
           <div className="space-y-4">
             <div>
-              <div className="mb-2 flex items-center justify-between">
-                <Label>Suggested themes</Label>
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <button
+                  type="button"
+                  className="flex min-w-0 flex-1 items-center gap-1.5 text-left"
+                  aria-expanded={suggestionsExpanded}
+                  onClick={() => setSuggestionsExpanded((v) => !v)}
+                >
+                  <ChevronDown
+                    className={cn(
+                      "h-4 w-4 shrink-0 text-muted transition-transform duration-200",
+                      suggestionsExpanded && "rotate-180"
+                    )}
+                  />
+                  <Label className="cursor-pointer font-medium">Suggested themes</Label>
+                  {!suggestionsExpanded && suggestions.length > 0 && (
+                    <span className="text-xs text-muted">
+                      {suggestions.length} idea{suggestions.length === 1 ? "" : "s"}
+                    </span>
+                  )}
+                  {suggestionsLoading && (
+                    <RefreshCw className="h-3.5 w-3.5 shrink-0 animate-spin text-muted" />
+                  )}
+                </button>
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="h-8 px-2"
-                  onClick={() => void loadSuggestions()}
+                  className="h-8 shrink-0 px-2"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    void loadSuggestions(true);
+                  }}
                   disabled={suggestionsLoading || !dataset}
                 >
                   <RefreshCw
@@ -263,32 +311,34 @@ export function CreateIslandDialog({ onCreated }: { onCreated?: (key: string) =>
                   Refresh
                 </Button>
               </div>
-              {suggestionsLoading ? (
-                <div className="flex flex-wrap gap-2">
-                  {[1, 2, 3, 4].map((i) => (
-                    <Skeleton key={i} className="h-16 w-[calc(50%-0.25rem)] rounded-xl" />
-                  ))}
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                  {suggestions.map((s) => (
-                    <button
-                      key={s.theme}
-                      type="button"
-                      onClick={() => setTheme(s.theme)}
-                      className={cn(
-                        "rounded-xl border p-3 text-left transition-colors",
-                        theme === s.theme
-                          ? "border-foreground bg-foreground/5"
-                          : "border-border hover:border-foreground/30"
-                      )}
-                    >
-                      <p className="text-sm font-medium text-foreground">{s.theme}</p>
-                      <p className="mt-0.5 line-clamp-2 text-xs text-muted">{s.reason}</p>
-                    </button>
-                  ))}
-                </div>
-              )}
+              <MotionCollapse open={suggestionsExpanded}>
+                {suggestionsLoading ? (
+                  <div className="flex flex-wrap gap-2">
+                    {[1, 2, 3, 4].map((i) => (
+                      <Skeleton key={i} className="h-16 w-[calc(50%-0.25rem)] rounded-xl" />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    {suggestions.map((s) => (
+                      <button
+                        key={s.theme}
+                        type="button"
+                        onClick={() => setTheme(s.theme)}
+                        className={cn(
+                          "rounded-xl border p-3 text-left transition-colors",
+                          theme === s.theme
+                            ? "border-foreground bg-foreground/5"
+                            : "border-border hover:border-foreground/30"
+                        )}
+                      >
+                        <p className="text-sm font-medium text-foreground">{s.theme}</p>
+                        <p className="mt-0.5 line-clamp-2 text-xs text-muted">{s.reason}</p>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </MotionCollapse>
             </div>
 
             <div>

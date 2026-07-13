@@ -89,7 +89,7 @@ export async function syncAudioToCloud(
 
       setUploadProgress({
         active: true,
-        label: `Uploading audio (${completed + 1} / ${targets.length})`,
+        label: `Uploading TTS (${completed + 1} / ${targets.length})`,
         subtitle: "Saving TTS files to cloud storage",
         completed,
         total: targets.length,
@@ -119,8 +119,8 @@ export async function syncAudioToCloud(
       setUploadProgress({
         active: true,
         label: quotaHit
-          ? "TTS credits exhausted — audio sync paused"
-          : `Uploading audio (${completed} / ${targets.length})`,
+          ? "TTS credits exhausted — upload paused"
+          : `Uploading TTS (${completed} / ${targets.length})`,
         subtitle: "Saving TTS files to cloud storage",
         completed,
         total: targets.length,

@@ -3,22 +3,18 @@
 import { useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import { useApp } from "@/components/providers/app-provider";
-import { buildTodayPlan } from "@/lib/services/today-plan-service";
 import { getDailyStudyStatus } from "@/lib/services/daily-progress-service";
 import { shouldShowPlacement } from "@/lib/services/placement-service";
 import { useSyncTodayCompletion } from "@/hooks/use-sync-today-completion";
+import { useAutoResumeDailyFocus } from "@/hooks/use-auto-resume-daily-focus";
+import { resolveDailyBatchConfig } from "@/lib/services/daily-focus-service";
 import {
   getStudyFocusLabel,
   getStudyFocusProgress,
-  getSuggestedPathwayBatch,
-  getPathwayBatchStats,
-  getIslandSummaries,
 } from "@/lib/services/study-focus-service";
 import {
   StudyFocusBanner,
-  ChooseStudyFocus,
 } from "@/components/batch/study-focus-banner";
 import { StudyFlowGuide } from "@/components/study/study-flow-guide";
 import { AppGate } from "@/components/layout/empty-state";
@@ -27,13 +23,14 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AskButton } from "@/components/ai/ask-button";
 import { TodayHero } from "@/components/today/today-hero";
-import { TodayPlanCard } from "@/components/today/today-plan-card";
-import { fadeUp, staggerContainer } from "@/lib/motion";
+import { TodayPlanGrid } from "@/components/today/today-plan-grid";
+import { CasualListenProgress } from "@/components/study/casual-listen-progress";
 
 export function TodayScreenMobile() {
   const router = useRouter();
   const { dataset, progress, stats, loading, syncStatus } = useApp();
   useSyncTodayCompletion();
+  useAutoResumeDailyFocus();
 
   useEffect(() => {
     if (loading || !dataset) return;
@@ -41,11 +38,6 @@ export function TodayScreenMobile() {
       router.replace("/placement");
     }
   }, [loading, dataset, progress, router]);
-
-  const plan = useMemo(
-    () => buildTodayPlan(dataset, progress, stats),
-    [dataset, progress, stats]
-  );
 
   const studyFocus = useMemo(
     () => (dataset ? getStudyFocusLabel(dataset, progress) : null),
@@ -57,18 +49,10 @@ export function TodayScreenMobile() {
     [dataset, progress]
   );
 
-  const chooseFocusMeta = useMemo(() => {
-    if (!dataset || progress.batchConfig) return null;
-    const suggested = getSuggestedPathwayBatch(dataset, progress);
-    const batchStats = getPathwayBatchStats(dataset, progress);
-    const batch = batchStats.find((b) => b.batchNumber === suggested);
-    const islands = getIslandSummaries(dataset, progress);
-    return {
-      suggestedBatchNumber: suggested,
-      suggestedBatchTitle: batch?.title ?? `Batch ${suggested}`,
-      islandCount: islands.length,
-    };
-  }, [dataset, progress]);
+  const hasDailyFocus = useMemo(
+    () => Boolean(dataset && resolveDailyBatchConfig(dataset, progress)),
+    [dataset, progress]
+  );
 
   const dailyStatus = useMemo(
     () => getDailyStudyStatus(dataset, progress, stats),
@@ -98,7 +82,11 @@ export function TodayScreenMobile() {
           variant="mobile"
         />
 
-        {progress.batchConfig && (
+        {dailyStatus.hasBatch && (
+          <CasualListenProgress className="mb-6" />
+        )}
+
+        {hasDailyFocus && (
           <StudyFlowGuide className="mb-6" />
         )}
 
@@ -109,30 +97,9 @@ export function TodayScreenMobile() {
           />
         )}
 
-        {chooseFocusMeta && (
-          <ChooseStudyFocus
-            suggestedBatchTitle={chooseFocusMeta.suggestedBatchTitle}
-            suggestedBatchNumber={chooseFocusMeta.suggestedBatchNumber}
-            islandCount={chooseFocusMeta.islandCount}
-          />
-        )}
+        <TodayPlanGrid className="mb-6" />
 
-        {plan.length > 0 && (
-          <motion.div
-            className="space-y-3"
-            variants={staggerContainer}
-            initial="hidden"
-            animate="visible"
-          >
-            {plan.map((item, i) => (
-              <motion.div key={item.type} variants={fadeUp}>
-                <TodayPlanCard item={item} primary={i === 0} />
-              </motion.div>
-            ))}
-          </motion.div>
-        )}
-
-        {progress.batchConfig && (
+        {hasDailyFocus && (
           <div className="mt-6 flex gap-3">
             <Button variant="secondary" className="flex-1" asChild>
               <Link href="/prepare">Pre-study</Link>

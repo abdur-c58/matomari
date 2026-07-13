@@ -3,6 +3,7 @@ import type { GuideAccent } from "@/lib/content/method-guide";
 
 const accentStripe: Record<GuideAccent, string> = {
   neutral: "bg-foreground",
+  return_review: "bg-mode-recall",
   meaning_check: "bg-mode-meaning",
   listen_shadow: "bg-mode-listen",
   active_recall: "bg-mode-recall",

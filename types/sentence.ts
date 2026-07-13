@@ -46,6 +46,8 @@ export interface Island {
   description: string;
   subtopics: string[];
   sentences: Sentence[];
+  /** Decorative kanji watermark for study UI (1–2 characters). */
+  themeKanji?: string;
 }
 
 export interface Dataset {

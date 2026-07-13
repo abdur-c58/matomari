@@ -25,6 +25,8 @@ import {
 } from "@/components/ui/dialog";
 import { getAllSentences } from "@/lib/validation/dataset-schema";
 import { getDueRecallIds } from "@/lib/services/srs-service";
+import { clearReturnReview } from "@/lib/services/daily-focus-service";
+import { getTodayPlanStepAccess } from "@/lib/services/today-plan-service";
 import { getActiveBatchIds, retireSentence, shouldRetire, isMastered } from "@/lib/services/batch-service";
 import { recordRecallAttempt, daysSinceFirstSeen } from "@/lib/services/recall-service";
 import { suggestRating, applyRating } from "@/lib/services/rating-service";
@@ -34,15 +36,22 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useEnsureTranslated } from "@/hooks/use-ensure-translated";
 import { StudyFlowNextStep } from "@/components/study/study-flow-next-step";
+import { StudyStepLocked } from "@/components/study/study-step-locked";
 import { ShortcutsHint } from "@/components/layout/shortcuts-hint";
 import { useDesktopShortcuts } from "@/hooks/use-desktop-shortcuts";
 import { useTutor } from "@/components/ai/tutor-provider";
 
 export function ActiveRecallModeMobile() {
-  const { dataset, progress, updateProgress, setProgress } = useApp();
+  const { dataset, progress, stats, updateProgress, setProgress } = useApp();
   const searchParams = useSearchParams();
   const idsParam = searchParams.get("ids");
   const mode = searchParams.get("mode");
+  const bypassStepGate = mode === "review" || mode === "return";
+
+  const recallAccess = useMemo(
+    () => getTodayPlanStepAccess("active_recall", dataset, progress, stats),
+    [dataset, progress, stats]
+  );
 
   const sentenceIds = useMemo(() => {
     if (idsParam) return idsParam.split(",").filter(Boolean);
@@ -72,13 +81,24 @@ export function ActiveRecallModeMobile() {
   const { closeTutor } = useTutor();
 
   useEffect(() => {
+    if (bypassStepGate || !recallAccess.allowed) return;
     startModeSession(mode === "review" ? "review" : "recall").then((id) => {
       sessionIdRef.current = id;
     });
     return () => {
       if (sessionIdRef.current) endModeSession(sessionIdRef.current);
     };
-  }, [mode]);
+  }, [bypassStepGate, mode, recallAccess.allowed]);
+
+  useEffect(() => {
+    if (!sessionComplete || mode !== "return") return;
+    const islandKey =
+      progress.batchConfig?.sourceType === "island"
+        ? progress.batchConfig.islandKey
+        : null;
+    if (!islandKey) return;
+    void setProgress(clearReturnReview(progress, islandKey));
+  }, [sessionComplete, mode, progress, setProgress]);
 
   const advance = useCallback(() => {
     setRevealed(false);
@@ -180,13 +200,32 @@ export function ActiveRecallModeMobile() {
     onEscape: closeTutor,
   });
 
+  if (!bypassStepGate && !recallAccess.allowed) {
+    return (
+      <AppGate>
+        <PageShell>
+          <StudyStepLocked
+            lockedReason={recallAccess.lockedReason ?? "Finish the previous steps first."}
+            continueHref={recallAccess.continueHref ?? "/"}
+          />
+        </PageShell>
+      </AppGate>
+    );
+  }
+
   if (sessionComplete) {
     return (
       <AppGate>
         <PageShell>
           <StudyFlowNextStep
-            completedTitle="Recall session complete"
-            completedDescription="You worked through all due sentences in this session."
+            completedTitle={
+              mode === "return" ? "Quick review complete" : "Recall session complete"
+            }
+            completedDescription={
+              mode === "return"
+                ? "You're ready to continue studying this island."
+                : "You worked through all due sentences in this session."
+            }
           />
         </PageShell>
       </AppGate>
@@ -232,7 +271,7 @@ export function ActiveRecallModeMobile() {
       <PageShell>
         <div {...swipeHandlers}>
           <PageHeader
-            title="Active Recall"
+            title={mode === "return" ? "Quick review" : "Active Recall"}
             subtitle={`${index + 1} / ${sentences.length}`}
             backHref="/"
             action={

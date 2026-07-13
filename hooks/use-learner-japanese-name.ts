@@ -13,7 +13,10 @@ export function useLearnerJapaneseName(): string | null {
   const { data: session } = useSession();
   const { progress, setProgress } = useApp();
   const progressRef = useRef(progress);
-  progressRef.current = progress;
+
+  useEffect(() => {
+    progressRef.current = progress;
+  }, [progress]);
 
   const source = getLearnerNameSource(session?.user, progress.settings);
   const cached = getCachedJapaneseNameReading(progress.settings, source);

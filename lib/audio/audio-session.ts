@@ -7,6 +7,13 @@ import { getCachedAudio, saveCachedAudio, deleteCachedAudio } from "@/lib/db/aud
 import { getTextHashAsync } from "@/lib/audio/hash";
 import { getSpokenScriptFromFields, type TtsScriptSource } from "@/lib/audio/tts-text";
 import { stripTtsMarkup } from "@/lib/audio/tts-prosody";
+import {
+  bindMediaSessionActions,
+  clearMediaSession,
+  updateMediaSessionMetadata,
+  updateMediaSessionPlaybackState,
+  updateMediaSessionPositionState,
+} from "@/lib/audio/media-session";
 
 export interface TtsRequest {
   sentenceId: string;
@@ -29,6 +36,7 @@ export interface PlaylistState {
   items: TtsRequest[];
   currentIndex: number;
   pauseMs: number;
+  albumTitle?: string;
 }
 
 type StateListener = (state: AudioSessionState, error?: string) => void;
@@ -42,9 +50,15 @@ export class AudioSessionManager {
   private listeners: Set<StateListener> = new Set();
   private playlistListeners: Set<PlaylistListener> = new Set();
   private loopEnabled = false;
+  private playlistLoopEnabled = false;
   private playlistAbort: AbortController | null = null;
   private playlistState: PlaylistState | null = null;
   private _playbackRate = 1.0;
+  private userPaused = false;
+  private resumeWaiters: Array<() => void> = [];
+  private _albumTitle?: string;
+  private _singleAlbumTitle?: string;
+  private mediaSessionBound = false;
 
   // ─── Legacy single-listener compat ─────────────────────────────────────────
 
@@ -91,6 +105,44 @@ export class AudioSessionManager {
     return this.unlocked;
   }
 
+  isUserPaused() {
+    return this.userPaused;
+  }
+
+  canSkipTracks() {
+    return (this.playlistState?.items.length ?? 0) > 1;
+  }
+
+  previousTrack() {
+    const playlist = this.playlistState;
+    if (!playlist || playlist.items.length <= 1) return;
+
+    const prev = playlist.currentIndex - 1;
+    if (prev < 0) {
+      if (this.playlistLoopEnabled) {
+        this.jumpToPlaylistItem(playlist.items.length - 1);
+      }
+      return;
+    }
+
+    this.jumpToPlaylistItem(prev);
+  }
+
+  nextTrack() {
+    const playlist = this.playlistState;
+    if (!playlist || playlist.items.length <= 1) return;
+
+    const next = playlist.currentIndex + 1;
+    if (next >= playlist.items.length) {
+      if (this.playlistLoopEnabled) {
+        this.jumpToPlaylistItem(0);
+      }
+      return;
+    }
+
+    this.jumpToPlaylistItem(next);
+  }
+
   // ─── Playback rate ──────────────────────────────────────────────────────────
 
   setPlaybackRate(rate: number) {
@@ -132,18 +184,134 @@ export class AudioSessionManager {
   private ensureAudio(): HTMLAudioElement {
     if (!this.audio) {
       this.audio = new Audio();
+      this.audio.preload = "auto";
+      this.audio.setAttribute("playsinline", "true");
       this.audio.addEventListener("ended", () => {
-        if (!this.loopEnabled) this.setState("ready");
+        if (!this.loopEnabled) {
+          if (this.playlistState && !this.userPaused) {
+            this.setState("playing");
+          } else if (!this.playlistState) {
+            this.setState("ready");
+          }
+        }
+        this.syncMediaSessionPlaybackState();
       });
-      this.audio.addEventListener("play", () => this.setState("playing"));
+      this.audio.addEventListener("play", () => {
+        this.setState("playing");
+        this.syncMediaSessionPlaybackState();
+      });
       this.audio.addEventListener("pause", () => {
-        if (this.state !== "loading") this.setState("paused");
+        if (this.state === "loading") return;
+        if (this.userPaused) {
+          this.setState("paused");
+        } else if (!this.playlistState) {
+          this.setState("ready");
+        }
+        this.syncMediaSessionPlaybackState();
       });
-      this.audio.addEventListener("error", () =>
-        this.setState("error", "Playback failed")
-      );
+      this.audio.addEventListener("timeupdate", () => {
+        const audio = this.audio;
+        if (!audio || !Number.isFinite(audio.duration) || audio.duration <= 0) return;
+        updateMediaSessionPositionState(audio.duration, audio.currentTime);
+      });
+      this.audio.addEventListener("error", () => {
+        this.setState("error", "Playback failed");
+        this.syncMediaSessionPlaybackState();
+      });
+      this.ensureMediaSessionHandlers();
+
+      if (typeof document !== "undefined") {
+        document.addEventListener("visibilitychange", this.handleVisibilityChange);
+      }
     }
     return this.audio;
+  }
+
+  private handleVisibilityChange = () => {
+    if (document.visibilityState !== "visible") return;
+    if (this.audioContext?.state === "suspended") {
+      void this.audioContext.resume();
+    }
+    this.syncMediaSessionPlaybackState();
+  };
+
+  private ensureMediaSessionHandlers() {
+    if (this.mediaSessionBound || typeof window === "undefined") return;
+    this.mediaSessionBound = true;
+
+    bindMediaSessionActions(
+      {
+        onPlay: () => this.resume(),
+        onPause: () => this.pause(),
+        onPrevious: () => this.previousTrack(),
+        onNext: () => this.nextTrack(),
+      },
+      this.canSkipTracks()
+    );
+  }
+
+  private refreshMediaSessionActions() {
+    bindMediaSessionActions(
+      {
+        onPlay: () => this.resume(),
+        onPause: () => this.pause(),
+        onPrevious: () => this.previousTrack(),
+        onNext: () => this.nextTrack(),
+      },
+      this.canSkipTracks()
+    );
+  }
+
+  private syncMediaSessionPlaybackState() {
+    if (!this.playlistState && this.state !== "playing" && this.state !== "paused") {
+      updateMediaSessionPlaybackState("none");
+      return;
+    }
+
+    if (this.userPaused || this.state === "paused") {
+      updateMediaSessionPlaybackState("paused");
+      return;
+    }
+
+    if (
+      this.state === "playing" ||
+      this.state === "loading" ||
+      (this.playlistState && !this.userPaused)
+    ) {
+      updateMediaSessionPlaybackState("playing");
+    }
+  }
+
+  private updateMediaSessionForRequest(request: TtsRequest) {
+    const albumTitle =
+      this.playlistState?.albumTitle ?? this._albumTitle ?? this._singleAlbumTitle;
+    updateMediaSessionMetadata(request, albumTitle);
+    this.refreshMediaSessionActions();
+    this.syncMediaSessionPlaybackState();
+  }
+
+  private signalResume() {
+    const waiters = this.resumeWaiters;
+    this.resumeWaiters = [];
+    waiters.forEach((resolve) => resolve());
+  }
+
+  private waitForResume(signal: AbortSignal): Promise<void> {
+    if (!this.userPaused || signal.aborted) return Promise.resolve();
+
+    return new Promise((resolve) => {
+      const onResume = () => {
+        signal.removeEventListener("abort", onAbort);
+        resolve();
+      };
+      const onAbort = () => {
+        const index = this.resumeWaiters.indexOf(onResume);
+        if (index >= 0) this.resumeWaiters.splice(index, 1);
+        resolve();
+      };
+      this.resumeWaiters.push(onResume);
+      signal.addEventListener("abort", onAbort, { once: true });
+    });
   }
 
   setLoop(enabled: boolean) {
@@ -154,12 +322,17 @@ export class AudioSessionManager {
   stopPlaylist() {
     this.playlistAbort?.abort();
     this.playlistAbort = null;
+    this.playlistLoopEnabled = false;
+    this.userPaused = false;
+    this.signalResume();
+    this._albumTitle = undefined;
     if (this.audio) {
       this.audio.pause();
       this.audio.currentTime = 0;
     }
     this.setPlaylistState(null);
     this.setState("ready");
+    clearMediaSession();
   }
 
   // ─── Jump to a specific playlist item ──────────────────────────────────────
@@ -168,6 +341,9 @@ export class AudioSessionManager {
     if (!this.playlistState) return;
     const items = this.playlistState.items;
     if (index < 0 || index >= items.length) return;
+
+    this.userPaused = false;
+    this.signalResume();
 
     // Abort the current playlist loop and restart from the new index
     this.playlistAbort?.abort();
@@ -190,7 +366,8 @@ export class AudioSessionManager {
       onItemChange,
       shadowPauseMs,
       abort,
-      index
+      index,
+      this._lastOnSentencePlayed
     );
   }
 
@@ -198,6 +375,7 @@ export class AudioSessionManager {
 
   private _lastOnItemChange?: (index: number) => void;
   private _lastShadowPauseMs = 0;
+  private _lastOnSentencePlayed?: (sentenceId: string) => void;
 
   // ─── Text resolution ────────────────────────────────────────────────────────
 
@@ -297,7 +475,14 @@ export class AudioSessionManager {
     });
   }
 
-  async playSentence(request: TtsRequest): Promise<void> {
+  async playSentence(
+    request: TtsRequest,
+    options?: { albumTitle?: string }
+  ): Promise<void> {
+    if (options?.albumTitle) {
+      this._singleAlbumTitle = options.albumTitle;
+    }
+
     const spokenText = this.resolveSpokenText(request);
     if (!spokenText) {
       this.setState("error", "Missing kana reading for pronunciation");
@@ -310,6 +495,7 @@ export class AudioSessionManager {
     }
 
     this.setState("loading");
+    this.updateMediaSessionForRequest(request);
     try {
       const audio = this.ensureAudio();
       const blob = await this.fetchAudioBlob(request);
@@ -350,30 +536,55 @@ export class AudioSessionManager {
   }
 
   pause() {
+    this.userPaused = true;
     this.audio?.pause();
+    if (this.playlistState || this.state === "playing" || this.state === "loading") {
+      this.setState("paused");
+    }
+    this.syncMediaSessionPlaybackState();
   }
 
   resume() {
-    if (this.audio) {
+    this.userPaused = false;
+    this.signalResume();
+    if (this.audio?.paused && !this.audio.ended) {
       this.audio.playbackRate = this._playbackRate;
       void this.audio.play();
     }
+    this.syncMediaSessionPlaybackState();
   }
 
   async playPlaylist(
     items: TtsRequest[],
     pauseMs = 1500,
     onItemChange?: (index: number) => void,
-    shadowPauseMs = 0
+    shadowPauseMs = 0,
+    options?: {
+      onSentencePlayed?: (sentenceId: string) => void;
+      loop?: boolean;
+      albumTitle?: string;
+    }
   ): Promise<void> {
     this._lastOnItemChange = onItemChange;
     this._lastShadowPauseMs = shadowPauseMs;
+    this._lastOnSentencePlayed = options?.onSentencePlayed;
+    this._albumTitle = options?.albumTitle;
+    this.playlistLoopEnabled = options?.loop ?? false;
+    this.userPaused = false;
 
     this.playlistAbort?.abort();
     const abort = new AbortController();
     this.playlistAbort = abort;
 
-    await this._runPlaylist(items, pauseMs, onItemChange, shadowPauseMs, abort, 0);
+    await this._runPlaylist(
+      items,
+      pauseMs,
+      onItemChange,
+      shadowPauseMs,
+      abort,
+      0,
+      options?.onSentencePlayed
+    );
   }
 
   private async _runPlaylist(
@@ -382,12 +593,20 @@ export class AudioSessionManager {
     onItemChange: ((index: number) => void) | undefined,
     shadowPauseMs: number,
     abort: AbortController,
-    startIndex: number
+    startIndex: number,
+    onSentencePlayed?: (sentenceId: string) => void
   ): Promise<void> {
     for (let i = startIndex; i < items.length; i++) {
       if (abort.signal.aborted) break;
       onItemChange?.(i);
-      this.setPlaylistState({ items, currentIndex: i, pauseMs });
+      this.setPlaylistState({
+        items,
+        currentIndex: i,
+        pauseMs,
+        albumTitle: this._albumTitle,
+      });
+      this.refreshMediaSessionActions();
+      onSentencePlayed?.(items[i].sentenceId);
       await this.playSentence(items[i]);
 
       await this.waitForAudioEnd(abort.signal);
@@ -399,10 +618,19 @@ export class AudioSessionManager {
       }
     }
 
-    if (!abort.signal.aborted && this.loopEnabled) {
-      await this._runPlaylist(items, pauseMs, onItemChange, shadowPauseMs, abort, 0);
+    if (!abort.signal.aborted && this.playlistLoopEnabled) {
+      await this._runPlaylist(
+        items,
+        pauseMs,
+        onItemChange,
+        shadowPauseMs,
+        abort,
+        0,
+        onSentencePlayed
+      );
     } else if (!abort.signal.aborted) {
       this.setPlaylistState(null);
+      clearMediaSession();
     }
   }
 
@@ -425,14 +653,30 @@ export class AudioSessionManager {
     });
   }
 
-  private delay(ms: number, signal: AbortSignal): Promise<void> {
-    return new Promise((resolve) => {
-      const t = setTimeout(resolve, ms);
-      signal.addEventListener("abort", () => {
-        clearTimeout(t);
-        resolve();
+  private async delay(ms: number, signal: AbortSignal): Promise<void> {
+    const end = Date.now() + ms;
+    while (Date.now() < end) {
+      if (signal.aborted) return;
+      if (this.userPaused) {
+        await this.waitForResume(signal);
+        continue;
+      }
+
+      const remaining = end - Date.now();
+      if (remaining <= 0) break;
+
+      await new Promise<void>((resolve) => {
+        const timeout = window.setTimeout(resolve, Math.min(remaining, 200));
+        signal.addEventListener(
+          "abort",
+          () => {
+            window.clearTimeout(timeout);
+            resolve();
+          },
+          { once: true }
+        );
       });
-    });
+    }
   }
 }
 

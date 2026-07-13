@@ -5,8 +5,8 @@ import {
   Brain,
   Calendar,
   Headphones,
-  Layers,
   Library,
+  MapPinned,
   Settings,
   Upload,
   ClipboardList,
@@ -21,7 +21,7 @@ export type AppNavItem = {
 
 export const primaryNav: AppNavItem[] = [
   { href: "/", label: "Today", icon: Calendar },
-  { href: "/batch", label: "Study", icon: Layers },
+  { href: "/batch", label: "Islands", icon: MapPinned },
   { href: "/recall", label: "Active Recall", icon: Brain },
   { href: "/listen?step=shadow", label: "Shadowing", icon: Headphones },
   { href: "/library", label: "Library", icon: Library },

@@ -26,6 +26,7 @@ type DialectTranslationBlockProps = {
   >;
   showLabel?: boolean;
   showPlayButton?: boolean;
+  playButtonAppearance?: "default" | "minimal";
   showJapanese?: boolean;
   showReading?: boolean;
   /** Set to false to suppress the romaji transliteration line (default: true). */
@@ -46,6 +47,7 @@ export function DialectTranslationBlock({
   sentenceMeta,
   showLabel = true,
   showPlayButton = true,
+  playButtonAppearance = "default",
   showJapanese = true,
   showReading = true,
   showRomaji = true,
@@ -168,6 +170,7 @@ export function DialectTranslationBlock({
             english={sentenceMeta.english}
             placeholders={placeholderSentence.placeholders}
             dialect={dialect}
+            appearance={playButtonAppearance}
             className="mt-0.5"
           />
         )}

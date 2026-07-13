@@ -40,8 +40,8 @@ export function refillActiveBatchOnce(
   if (!config) return progress;
 
   const today = formatDateKey();
-  let sentences = { ...progress.sentences };
-  let activeIds = [...config.activeSentenceIds];
+  const sentences = { ...progress.sentences };
+  const activeIds = [...config.activeSentenceIds];
 
   while (activeIds.length < config.batchSize) {
     const unseen = getUnseenSentenceIds(
@@ -103,7 +103,7 @@ export function bulkApplySentenceRatings(
   const all = getAllSentences(dataset);
   const today = formatDateKey();
   const retiring = shouldRetire(rating);
-  let sentences = { ...progress.sentences };
+  const sentences = { ...progress.sentences };
   let updatedCount = 0;
   let retiredCount = 0;
   let masteredCount = 0;

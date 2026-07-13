@@ -25,6 +25,7 @@ import { UploadProgressBar } from "@/components/layout/upload-progress-bar";
 import { OnboardingProvider } from "@/components/onboarding/onboarding-provider";
 import { NotificationProvider } from "@/components/notifications/notification-provider";
 import { GlobalAudioPlayer } from "@/components/audio/global-audio-player";
+import { ServiceWorkerProvider } from "@/components/pwa/service-worker-provider";
 import {
   APP_DESCRIPTION,
   APP_FULL_TITLE,
@@ -105,6 +106,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="antialiased" data-ui-font="bitter">
       <body className="bg-background text-foreground">
+        <ServiceWorkerProvider />
         <AuthProvider>
           <AuthGate>
             <AppProvider>

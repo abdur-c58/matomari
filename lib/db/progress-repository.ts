@@ -13,17 +13,12 @@ const PROGRESS_KEY = "main";
 function normalizeSettings(progress: UserProgress): UserProgress["settings"] {
   const resolved = resolveTranslationSettings(progress.settings ?? {});
   return {
+    ...progress.settings,
     batchSize: clampBatchSize(progress.settings?.batchSize),
     ...resolved,
     showKansaiDialect: resolved.showKansaiDialect ?? false,
     kansaiAsPrimary: resolved.kansaiAsPrimary ?? false,
     notifications: normalizeNotificationPreferences(progress.settings?.notifications),
-    displayName: progress.settings?.displayName,
-    japaneseNameReading: progress.settings?.japaneseNameReading,
-    japaneseNameSource: progress.settings?.japaneseNameSource,
-    onboardingCompleted: progress.settings?.onboardingCompleted,
-    onboardingCompletedAt: progress.settings?.onboardingCompletedAt,
-    uiFont: progress.settings?.uiFont,
   };
 }
 

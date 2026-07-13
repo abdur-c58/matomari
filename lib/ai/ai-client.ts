@@ -92,7 +92,8 @@ export async function generateIsland(
 }
 
 export async function fetchIslandSuggestions(
-  dataset: Dataset
+  dataset: Dataset,
+  options?: { refresh?: boolean }
 ): Promise<IslandSuggestion[]> {
   const pathwayBatchTitles = dataset.main_pathway.batches.map((b) => b.batch_title);
   const pathwaySubtopics = dataset.main_pathway.batches.flatMap((b) =>
@@ -106,6 +107,7 @@ export async function fetchIslandSuggestions(
       existingIslandKeys: Object.keys(dataset.islands),
       pathwayBatchTitles,
       pathwaySubtopics,
+      refresh: options?.refresh ?? false,
     }),
   });
 

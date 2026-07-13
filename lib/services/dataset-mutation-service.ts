@@ -1,6 +1,10 @@
 import type { Dataset, Sentence } from "@/types/sentence";
+import type { z } from "zod";
+import type { generatedIslandSentenceSchema } from "@/lib/ai/schemas";
 import { getAllSentences, validateIslandUniqueness } from "@/lib/validation/dataset-schema";
 import { isTranslated, normalizeEnglish } from "@/lib/sentence-utils";
+
+type GeneratedIslandSentence = z.infer<typeof generatedIslandSentenceSchema>;
 
 export { validateIslandUniqueness };
 
@@ -20,28 +24,63 @@ export function slugifyIslandKey(theme: string, existingKeys: string[] = []): st
 }
 
 export function resolveIslandSentences(
-  generated: Sentence[],
+  generated: GeneratedIslandSentence[],
   catalog: Map<string, Sentence>,
   islandKey: string,
   globalIds: Set<string>
-): { sentences: Sentence[]; reusedIds: string[]; newCount: number } {
+): { sentences: Sentence[]; reusedIds: string[]; newCount: number; skippedCount: number } {
   const reusedIds: string[] = [];
   const resolved: Sentence[] = [];
   const seenJapanese = new Set<string>();
   const seenEnglish = new Set<string>();
   const seenIds = new Set<string>();
   let newCount = 0;
+  let skippedCount = 0;
   let newIndex = 1;
 
+  const tryAdd = (sentence: Sentence): boolean => {
+    if (isTranslated(sentence) && sentence.japanese) {
+      const norm = sentence.japanese.trim().replace(/\s+/g, "");
+      if (seenJapanese.has(norm)) {
+        return false;
+      }
+      seenJapanese.add(norm);
+    } else {
+      const norm = normalizeEnglish(sentence.english);
+      if (seenEnglish.has(norm)) {
+        return false;
+      }
+      seenEnglish.add(norm);
+    }
+
+    if (seenIds.has(sentence.id)) {
+      return false;
+    }
+
+    seenIds.add(sentence.id);
+    resolved.push(sentence);
+    return true;
+  };
+
   for (const item of generated) {
-    let sentence: Sentence;
+    let sentence: Sentence | null = null;
 
     if (item.id && catalog.has(item.id)) {
       sentence = { ...catalog.get(item.id)! };
       if (item.subtopic) sentence = { ...sentence, subtopic: item.subtopic };
       if (item.category) sentence = { ...sentence, category: item.category };
       reusedIds.push(item.id);
-    } else if (item.english) {
+    } else if (item.english?.trim()) {
+      if (
+        item.register === undefined ||
+        item.difficulty === undefined ||
+        !item.category?.trim() ||
+        !item.subtopic?.trim()
+      ) {
+        skippedCount++;
+        continue;
+      }
+
       let id = item.id;
       if (!id || globalIds.has(id) || seenIds.has(id)) {
         do {
@@ -51,7 +90,7 @@ export function resolveIslandSentences(
       }
       sentence = {
         id,
-        english: item.english,
+        english: item.english.trim(),
         register: item.register,
         difficulty: item.difficulty,
         category: item.category,
@@ -61,39 +100,35 @@ export function resolveIslandSentences(
         translated: false,
       };
       newCount++;
+    } else if (item.id) {
+      skippedCount++;
+      continue;
     } else {
+      skippedCount++;
       continue;
     }
 
-    if (isTranslated(sentence) && sentence.japanese) {
-      const norm = sentence.japanese.trim().replace(/\s+/g, "");
-      if (seenJapanese.has(norm)) {
-        throw new Error(`Duplicate japanese within island: ${sentence.japanese}`);
-      }
-      seenJapanese.add(norm);
-    } else {
-      const norm = normalizeEnglish(sentence.english);
-      if (seenEnglish.has(norm)) {
-        throw new Error(`Duplicate english within island: ${sentence.english}`);
-      }
-      seenEnglish.add(norm);
+    if (!tryAdd(sentence)) {
+      skippedCount++;
     }
-
-    if (seenIds.has(sentence.id)) {
-      throw new Error(`Duplicate id within island: ${sentence.id}`);
-    }
-
-    seenIds.add(sentence.id);
-    resolved.push(sentence);
   }
 
-  return { sentences: resolved, reusedIds, newCount };
+  if (resolved.length === 0) {
+    throw new Error("Island generation produced no valid sentences. Try again.");
+  }
+
+  return { sentences: resolved, reusedIds, newCount, skippedCount };
 }
 
 export function addIsland(
   dataset: Dataset,
   islandKey: string,
-  island: { description: string; subtopics: string[]; sentences: Sentence[] }
+  island: {
+    description: string;
+    subtopics: string[];
+    sentences: Sentence[];
+    themeKanji?: string;
+  }
 ): Dataset {
   validateIslandUniqueness(island);
 
@@ -106,6 +141,51 @@ export function addIsland(
     islands: {
       ...dataset.islands,
       [islandKey]: island,
+    },
+  };
+}
+
+export function appendSentenceToIsland(
+  dataset: Dataset,
+  islandKey: string,
+  sentence: Sentence
+): Dataset {
+  const island = dataset.islands[islandKey];
+  if (!island) {
+    throw new Error(`Island "${islandKey}" not found`);
+  }
+
+  const nextIsland = {
+    ...island,
+    subtopics: island.subtopics.includes(sentence.subtopic)
+      ? island.subtopics
+      : [...island.subtopics, sentence.subtopic],
+    sentences: [...island.sentences, sentence],
+  };
+
+  validateIslandUniqueness(nextIsland);
+
+  return {
+    ...dataset,
+    islands: {
+      ...dataset.islands,
+      [islandKey]: nextIsland,
+    },
+  };
+}
+
+export function setIslandThemeKanji(
+  dataset: Dataset,
+  islandKey: string,
+  themeKanji: string
+): Dataset {
+  const island = dataset.islands[islandKey];
+  if (!island) return dataset;
+  return {
+    ...dataset,
+    islands: {
+      ...dataset.islands,
+      [islandKey]: { ...island, themeKanji },
     },
   };
 }

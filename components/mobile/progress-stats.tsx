@@ -15,12 +15,22 @@ import { useApp } from "@/components/providers/app-provider";
 import { AppGate } from "@/components/layout/empty-state";
 import { PageShell } from "@/components/layout/page-shell";
 import { PageHeader } from "@/components/layout/page-header";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getAllSentences } from "@/lib/validation/dataset-schema";
+import {
+  chartTooltipProps,
+  formatStudyModeLabel,
+} from "@/lib/charts/recharts-theme";
 import { cn } from "@/lib/utils";
 
 export function ProgressStatsMobile() {
   const { dataset, progress, stats } = useApp();
+
+  const todayKey = stats.dailySnapshots.at(-1)?.date;
+  const weekAgo = useMemo(() => {
+    if (!todayKey) return 0;
+    return new Date(`${todayKey}T23:59:59`).getTime() - 7 * 24 * 60 * 60 * 1000;
+  }, [todayKey]);
 
   const metrics = useMemo(() => {
     const all = dataset ? getAllSentences(dataset) : new Map();
@@ -38,16 +48,15 @@ export function ProgressStatsMobile() {
           )
         : null;
 
-    const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
     const modeTime: Record<string, number> = {};
     stats.modeSessions
-      .filter((s) => new Date(s.startedAt).getTime() > weekAgo && s.endedAt)
+      .filter((s) => weekAgo > 0 && new Date(s.startedAt).getTime() > weekAgo && s.endedAt)
       .forEach((s) => {
         modeTime[s.mode] = (modeTime[s.mode] ?? 0) + s.durationMs;
       });
 
     const modeChart = Object.entries(modeTime).map(([mode, ms]) => ({
-      mode: mode.replace("_", " "),
+      mode: formatStudyModeLabel(mode),
       minutes: Math.round(ms / 60000),
     }));
 
@@ -57,7 +66,7 @@ export function ProgressStatsMobile() {
     }));
 
     const activeThisWeek = stats.activeDays.filter(
-      (d) => new Date(d).getTime() > weekAgo
+      (d) => weekAgo > 0 && new Date(d).getTime() > weekAgo
     ).length;
 
     return {
@@ -71,12 +80,12 @@ export function ProgressStatsMobile() {
       weakTrend,
       activeThisWeek,
     };
-  }, [dataset, progress, stats]);
+  }, [dataset, progress, stats, weekAgo]);
 
   return (
     <AppGate>
       <PageShell>
-        <PageHeader title="Progress" subtitle="Meaningful study metrics" />
+        <PageHeader title="Progress" subtitle="Study metrics" />
 
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
           <StatCard title="Mastered" value={`${metrics.mastered}/${metrics.total}`} accent="success" />
@@ -105,20 +114,14 @@ export function ProgressStatsMobile() {
           <Card className="mt-4 md:mt-0">
             <CardHeader>
               <CardTitle className="text-base">Time by mode</CardTitle>
+              <CardDescription>Minutes in each study mode over the last 7 days</CardDescription>
             </CardHeader>
             <CardContent className="h-48">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={metrics.modeChart}>
                   <XAxis dataKey="mode" tick={{ fontSize: 11, fill: "var(--muted)" }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fontSize: 11, fill: "var(--muted)" }} axisLine={false} tickLine={false} />
-                  <Tooltip
-                    contentStyle={{
-                      background: "var(--surface)",
-                      border: "1px solid var(--border)",
-                      borderRadius: 12,
-                      color: "var(--foreground)",
-                    }}
-                  />
+                  <Tooltip {...chartTooltipProps("bar")} />
                   <Bar dataKey="minutes" fill="var(--foreground)" radius={[8, 8, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -136,14 +139,7 @@ export function ProgressStatsMobile() {
                 <LineChart data={metrics.weakTrend}>
                   <XAxis dataKey="date" tick={{ fontSize: 11, fill: "var(--muted)" }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fontSize: 11, fill: "var(--muted)" }} axisLine={false} tickLine={false} />
-                  <Tooltip
-                    contentStyle={{
-                      background: "var(--surface)",
-                      border: "1px solid var(--border)",
-                      borderRadius: 12,
-                      color: "var(--foreground)",
-                    }}
-                  />
+                  <Tooltip {...chartTooltipProps("line")} />
                   <Line type="monotone" dataKey="weak" stroke="var(--destructive)" strokeWidth={2} dot={false} />
                 </LineChart>
               </ResponsiveContainer>

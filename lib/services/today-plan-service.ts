@@ -1,18 +1,143 @@
 import type { Dataset } from "@/types/sentence";
 import type { UserProgress } from "@/types/progress";
 import type { AppStats } from "@/types/stats";
-import type { TodayPlanItem } from "@/types/today";
+import type { TodayPlanItem, TodayPlanStepState } from "@/types/today";
 import { getActiveBatchIds, getActiveBatchSentences } from "./batch-service";
+import {
+  getReturnReviewIds,
+  withResolvedDailyBatch,
+} from "./daily-focus-service";
+import {
+  hasShadowSessionToday,
+  type DailyStudyTaskId,
+} from "./daily-progress-service";
 import { getDueRecallIds, getDueReviewIds } from "./srs-service";
 import { formatDateKey } from "@/lib/utils";
 
-/** Returns true if the user had a shadow/listen mode session that started today. */
-function hasShadowSessionToday(stats: AppStats | null | undefined): boolean {
-  if (!stats) return false;
-  const today = formatDateKey();
-  return stats.modeSessions.some(
-    (s) => s.mode === "shadow" && s.startedAt.slice(0, 10) === today
+export interface TodayPlanContext {
+  returnReview: string[];
+  unconfirmedCount: number;
+  meaningsComplete: boolean;
+  shadowComplete: boolean;
+  recallComplete: boolean;
+  dueRecallCount: number;
+  dueReviewCount: number;
+  activeSentenceCount: number;
+}
+
+export function getTodayPlanContext(
+  dataset: Dataset | null,
+  progress: UserProgress,
+  stats?: AppStats | null
+): TodayPlanContext | null {
+  if (!dataset) return null;
+
+  const effective = withResolvedDailyBatch(dataset, progress);
+  if (!effective?.batchConfig) return null;
+
+  const config = effective.batchConfig;
+  const activeIds = getActiveBatchIds(effective, config);
+  const activeSentences = getActiveBatchSentences(dataset, effective, config);
+  const unconfirmed = activeSentences.filter(
+    (s) => !effective.sentences[s.id]?.meaningConfirmed
   );
+
+  const date = formatDateKey();
+  const todaySnapshot = stats?.dailySnapshots.find((s) => s.date === date);
+  const completedToday = new Set<DailyStudyTaskId>(
+    (todaySnapshot?.completedTasks ?? []) as DailyStudyTaskId[]
+  );
+
+  const returnReview = getReturnReviewIds(effective);
+  const shadowedToday = stats ? hasShadowSessionToday(stats) : false;
+  const dueRecall = getDueRecallIds(effective.sentences, activeIds);
+  const dueReview = getDueReviewIds(effective.sentences);
+
+  const meaningsComplete =
+    completedToday.has("meanings") ||
+    (unconfirmed.length === 0 && activeSentences.length > 0);
+
+  const shadowComplete =
+    completedToday.has("shadow") ||
+    shadowedToday ||
+    (meaningsComplete && activeSentences.length === 0);
+
+  const recallComplete =
+    completedToday.has("recall") || dueRecall.length === 0;
+
+  return {
+    returnReview,
+    unconfirmedCount: unconfirmed.length,
+    meaningsComplete,
+    shadowComplete,
+    recallComplete,
+    dueRecallCount: dueRecall.length,
+    dueReviewCount: dueReview.length,
+    activeSentenceCount: activeSentences.length,
+  };
+}
+
+function applyChainStates(
+  steps: TodayPlanItem[],
+  returnReviewPending: boolean
+): TodayPlanItem[] {
+  const chain = steps.filter((s) => s.type !== "review");
+  const firstIncomplete = chain.find((s) => s.state !== "complete");
+
+  return steps.map((step) => {
+    if (step.type === "review") {
+      return { ...step, state: "available" as TodayPlanStepState };
+    }
+
+    if (returnReviewPending) {
+      return {
+        ...step,
+        state: "locked" as TodayPlanStepState,
+        lockedReason: "Finish the quick review first",
+      };
+    }
+
+    if (step.state === "complete") return step;
+
+    const chainIndex = chain.findIndex((s) => s.type === step.type);
+    const activeIndex = firstIncomplete
+      ? chain.findIndex((s) => s.type === firstIncomplete.type)
+      : -1;
+
+    if (firstIncomplete && step.type === firstIncomplete.type) {
+      return { ...step, state: "active" };
+    }
+
+    if (activeIndex >= 0 && chainIndex > activeIndex) {
+      const prev = chain[activeIndex];
+      return {
+        ...step,
+        state: "locked",
+        lockedReason: `Finish ${prev.title.toLowerCase()} first`,
+      };
+    }
+
+    return step;
+  });
+}
+
+export function buildReturnReviewItem(
+  dataset: Dataset | null,
+  progress: UserProgress
+): TodayPlanItem | null {
+  if (!dataset) return null;
+  const ctx = getTodayPlanContext(dataset, progress);
+  if (!ctx || ctx.returnReview.length === 0) return null;
+
+  return {
+    type: "return_review",
+    title: "Quick review",
+    description: "Check you still remember sentences from this island",
+    count: ctx.returnReview.length,
+    href: `/recall?ids=${ctx.returnReview.join(",")}&mode=return`,
+    priority: 0,
+    state: "active",
+  };
 }
 
 export function buildTodayPlan(
@@ -29,84 +154,143 @@ export function buildTodayPlan(
         count: 0,
         href: "/import",
         priority: 0,
+        state: "active",
       },
     ];
   }
 
-  if (!progress.batchConfig) {
-    return [];
+  const ctx = getTodayPlanContext(dataset, progress, stats);
+  if (!ctx) {
+    return [
+      {
+        type: "meaning_check",
+        title: "Confirm meanings",
+        description: "Understand each sentence before listening",
+        count: 0,
+        href: "/listen?step=meaning",
+        priority: 1,
+        state: "locked",
+      },
+      {
+        type: "listen_shadow",
+        title: "Listen & shadow",
+        description: "Passive listening at native speed",
+        count: 0,
+        href: "/listen?step=shadow",
+        priority: 2,
+        state: "locked",
+      },
+      {
+        type: "active_recall",
+        title: "Active recall",
+        description: "Produce Japanese from English prompts",
+        count: 0,
+        href: "/recall",
+        priority: 3,
+        state: "locked",
+      },
+      {
+        type: "review",
+        title: "Review retired sentences",
+        description: "Spaced repetition check-in",
+        count: 0,
+        href: "/recall?mode=review",
+        priority: 4,
+        state: "available",
+      },
+    ];
   }
 
-  const activeIds = getActiveBatchIds(progress);
-  const activeSentences = getActiveBatchSentences(dataset, progress);
-  const unconfirmed = activeSentences.filter((s) => {
-    const sp = progress.sentences[s.id];
-    return !sp?.meaningConfirmed;
-  });
+  const effective = withResolvedDailyBatch(dataset, progress)!;
+  const activeIds = getActiveBatchIds(effective, effective.batchConfig!);
+  const dueRecallIds = getDueRecallIds(effective.sentences, activeIds);
+  const dueReviewIds = getDueReviewIds(effective.sentences);
 
-  const dueRecall = getDueRecallIds(progress.sentences, activeIds);
-  const dueReview = getDueReviewIds(progress.sentences);
-  const shadowedToday = hasShadowSessionToday(stats);
+  const dueRecallHref =
+    dueRecallIds.length > 0
+      ? `/recall?ids=${dueRecallIds.join(",")}`
+      : "/recall";
 
-  const items: TodayPlanItem[] = [];
+  const dueReviewHref =
+    dueReviewIds.length > 0
+      ? `/recall?ids=${dueReviewIds.join(",")}&mode=review`
+      : "/recall?mode=review";
 
-  if (unconfirmed.length > 0) {
-    items.push({
+  const steps: TodayPlanItem[] = [
+    {
       type: "meaning_check",
       title: "Confirm meanings",
       description: "Understand each sentence before listening",
-      count: unconfirmed.length,
+      count: ctx.unconfirmedCount,
       href: "/listen?step=meaning",
       priority: 1,
-    });
-  }
-
-  // Show shadow card only when meanings are done AND user hasn't shadowed today
-  if (activeSentences.length > 0 && unconfirmed.length === 0 && !shadowedToday) {
-    items.push({
+      state: ctx.meaningsComplete ? "complete" : "locked",
+    },
+    {
       type: "listen_shadow",
       title: "Listen & shadow",
       description: "Passive listening at native speed",
-      count: activeSentences.length,
+      count: ctx.activeSentenceCount,
       href: "/listen?step=shadow",
       priority: 2,
-    });
-  }
-
-  if (dueRecall.length > 0) {
-    items.push({
+      state: ctx.shadowComplete ? "complete" : "locked",
+    },
+    {
       type: "active_recall",
       title: "Active recall",
       description: "Produce Japanese from English prompts",
-      count: dueRecall.length,
-      href: `/recall?ids=${dueRecall.join(",")}`,
+      count: ctx.dueRecallCount,
+      href: dueRecallHref,
       priority: 3,
-    });
-  }
-
-  if (dueReview.length > 0) {
-    items.push({
+      state: ctx.recallComplete ? "complete" : "locked",
+    },
+    {
       type: "review",
       title: "Review retired sentences",
       description: "Spaced repetition check-in",
-      count: dueReview.length,
-      href: `/recall?ids=${dueReview.join(",")}&mode=review`,
+      count: ctx.dueReviewCount,
+      href: dueReviewHref,
       priority: 4,
-    });
+      state: "available",
+    },
+  ];
+
+  return applyChainStates(steps, ctx.returnReview.length > 0);
+}
+
+export type GatedTodayPlanStep = Exclude<TodayPlanItem["type"], "review" | "return_review">;
+
+export function getTodayPlanStepAccess(
+  stepType: GatedTodayPlanStep,
+  dataset: Dataset | null,
+  progress: UserProgress,
+  stats?: AppStats | null
+): {
+  allowed: boolean;
+  lockedReason?: string;
+  continueHref?: string;
+} {
+  const returnReview = buildReturnReviewItem(dataset, progress);
+  if (returnReview) {
+    return {
+      allowed: false,
+      lockedReason: "Finish the quick review first",
+      continueHref: returnReview.href,
+    };
   }
 
-  if (items.length === 0) {
-    items.push({
-      type: "listen_shadow",
-      title: "Keep practicing",
-      description: "Your batch is up to date — shadow or recall anytime",
-      count: 0,
-      href: "/listen",
-      priority: 5,
-    });
+  const plan = buildTodayPlan(dataset, progress, stats);
+  const item = plan.find((step) => step.type === stepType);
+  if (!item || item.state !== "locked") {
+    return { allowed: true };
   }
 
-  return items.sort((a, b) => a.priority - b.priority);
+  const activeStep = plan.find((step) => step.state === "active");
+  return {
+    allowed: false,
+    lockedReason: item.lockedReason ?? "Finish the previous steps first.",
+    continueHref: activeStep?.href ?? "/",
+  };
 }
 
 export function getWeakSentenceIds(progress: UserProgress): string[] {

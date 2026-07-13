@@ -74,7 +74,7 @@ export async function POST(request: Request) {
     const catalogMap = new Map<string, Sentence>(
       sentenceCatalog.map((s) => [s.id, s])
     );
-    const { sentences, reusedIds, newCount } = resolveIslandSentences(
+    const { sentences, reusedIds, newCount, skippedCount } = resolveIslandSentences(
       generated.sentences,
       catalogMap,
       islandKey,
@@ -88,6 +88,7 @@ export async function POST(request: Request) {
       sentences,
       reusedIds,
       newCount,
+      skippedCount,
     });
   } catch (e) {
     return openAIErrorResponse(e);

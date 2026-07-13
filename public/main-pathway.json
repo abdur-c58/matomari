@@ -21,7 +21,10 @@
               "greetings"
             ],
             "context_notes": "said to friends/family, casual short form",
-            "translated": false
+            "translated": true,
+            "japanese": "おはよう！",
+            "reading": "おはよう！",
+            "romaji": "ohayou!"
           },
           {
             "id": "mp1-2",
@@ -33,7 +36,10 @@
             "tags": [
               "greetings"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "おはようございます。",
+            "reading": "おはようございます。",
+            "romaji": "ohayou gozaimasu."
           },
           {
             "id": "mp1-3",
@@ -46,7 +52,10 @@
               "greetings"
             ],
             "context_notes": "daytime greeting",
-            "translated": false
+            "translated": true,
+            "japanese": "こんにちは。",
+            "reading": "こんにちは。",
+            "romaji": "konnichiwa."
           },
           {
             "id": "mp1-4",
@@ -58,7 +67,10 @@
             "tags": [
               "greetings"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "こんばんは。",
+            "reading": "こんばんは。",
+            "romaji": "konbanwa."
           },
           {
             "id": "mp1-5",
@@ -70,7 +82,10 @@
             "tags": [
               "greetings"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "またあとで。",
+            "reading": "またあとで。",
+            "romaji": "mata atode."
           },
           {
             "id": "mp1-6",
@@ -82,7 +97,10 @@
             "tags": [
               "greetings"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "じゃあね。",
+            "reading": "じゃあね。",
+            "romaji": "jaa ne."
           },
           {
             "id": "mp1-7",
@@ -95,7 +113,10 @@
               "greetings"
             ],
             "context_notes": "more final-sounding, parting for a long time",
-            "translated": false
+            "translated": true,
+            "japanese": "さようなら。",
+            "reading": "さようなら。",
+            "romaji": "sayounara."
           },
           {
             "id": "mp1-8",
@@ -107,7 +128,10 @@
             "tags": [
               "fillers"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "うん。",
+            "reading": "うん。",
+            "romaji": "un."
           },
           {
             "id": "mp1-9",
@@ -119,7 +143,10 @@
             "tags": [
               "fillers"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "ううん。",
+            "reading": "ううん。",
+            "romaji": "uun."
           },
           {
             "id": "mp1-10",
@@ -131,7 +158,10 @@
             "tags": [
               "fillers"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "はい。",
+            "reading": "はい。",
+            "romaji": "hai."
           },
           {
             "id": "mp1-11",
@@ -143,7 +173,10 @@
             "tags": [
               "fillers"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "いいえ。",
+            "reading": "いいえ。",
+            "romaji": "iie."
           },
           {
             "id": "mp1-12",
@@ -155,7 +188,10 @@
             "tags": [
               "gratitude"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "ありがとう。",
+            "reading": "ありがとう。",
+            "romaji": "arigatou."
           },
           {
             "id": "mp1-13",
@@ -167,7 +203,10 @@
             "tags": [
               "gratitude"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "ありがとうございます。",
+            "reading": "ありがとうございます。",
+            "romaji": "arigatou gozaimasu."
           },
           {
             "id": "mp1-14",
@@ -179,7 +218,10 @@
             "tags": [
               "apology"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "ごめん。",
+            "reading": "ごめん。",
+            "romaji": "gomen."
           },
           {
             "id": "mp1-15",
@@ -192,7 +234,10 @@
               "apology"
             ],
             "context_notes": "also used to get someone's attention",
-            "translated": false
+            "translated": true,
+            "japanese": "すみません。",
+            "reading": "すみません。",
+            "romaji": "sumimasen."
           },
           {
             "id": "mp1-16",
@@ -204,7 +249,11 @@
             "tags": [
               "adjectives-na"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "大丈夫。",
+            "reading": "だいじょうぶ。",
+            "romaji": "daijoubu.",
+            "literal_note": "Often means both 'I'm okay' and 'No thanks / it's fine' depending on context."
           },
           {
             "id": "mp1-17",
@@ -216,7 +265,11 @@
             "tags": [
               "adjectives-na"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "大丈夫です、ありがとうございます。",
+            "reading": "だいじょうぶです、ありがとうございます。",
+            "romaji": "daijoubu desu, arigatou gozaimasu.",
+            "literal_note": "Can also mean 'I'm fine, no thank you' depending on context."
           },
           {
             "id": "mp1-18",
@@ -228,7 +281,10 @@
             "tags": [
               "fillers"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "そっか。",
+            "reading": "そっか。",
+            "romaji": "sokka."
           },
           {
             "id": "mp1-19",
@@ -240,7 +296,10 @@
             "tags": [
               "fillers"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "そうですか。",
+            "reading": "そうですか。",
+            "romaji": "sou desu ka."
           },
           {
             "id": "mp1-20",
@@ -254,7 +313,10 @@
               "slang"
             ],
             "context_notes": "surprised reaction among friends",
-            "translated": false
+            "translated": true,
+            "japanese": "マジで？",
+            "reading": "まじで？",
+            "romaji": "maji de?"
           }
         ]
       },
@@ -276,7 +338,10 @@
             "tags": [
               "set-phrase"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "はじめまして。",
+            "reading": "はじめまして。",
+            "romaji": "hajimemashite."
           },
           {
             "id": "mp2-2",
@@ -288,7 +353,10 @@
             "tags": [
               "self-intro"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "トムです。",
+            "reading": "とむです。",
+            "romaji": "Tomu desu."
           },
           {
             "id": "mp2-3",
@@ -301,7 +369,10 @@
               "self-intro"
             ],
             "context_notes": "just stating your name briefly when introducing yourself",
-            "translated": false
+            "translated": true,
+            "japanese": "トムです。",
+            "reading": "とむです。",
+            "romaji": "Tomu desu."
           },
           {
             "id": "mp2-4",
@@ -314,7 +385,11 @@
               "set-phrase"
             ],
             "context_notes": "standard closing phrase after introducing yourself, no direct English equivalent",
-            "translated": false
+            "translated": true,
+            "japanese": "よろしくお願いします。",
+            "reading": "よろしくおねがいします。",
+            "romaji": "yoroshiku onegaishimasu.",
+            "literal_note": "A standard self-introduction phrase with no exact English equivalent; it conveys goodwill and asks for a good relationship."
           },
           {
             "id": "mp2-5",
@@ -327,7 +402,11 @@
               "set-phrase"
             ],
             "context_notes": "casual version said to peers",
-            "translated": false
+            "translated": true,
+            "japanese": "よろしく。",
+            "reading": "よろしく。",
+            "romaji": "yoroshiku.",
+            "literal_note": "Used casually when meeting peers; it does not literally mean 'nice to meet you' but fills that role."
           },
           {
             "id": "mp2-6",
@@ -339,7 +418,10 @@
             "tags": [
               "origin"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "アメリカ出身です。",
+            "reading": "あめりかしゅっしんです。",
+            "romaji": "Amerika shusshin desu."
           },
           {
             "id": "mp2-7",
@@ -351,7 +433,10 @@
             "tags": [
               "origin"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "アメリカ出身。",
+            "reading": "あめりかしゅっしん。",
+            "romaji": "Amerika shusshin."
           },
           {
             "id": "mp2-8",
@@ -364,7 +449,11 @@
               "questions"
             ],
             "context_notes": "can feel direct; usually asked among peers",
-            "translated": false
+            "translated": true,
+            "japanese": "おいくつですか。",
+            "reading": "おいくつですか。",
+            "romaji": "oikutsu desu ka.",
+            "literal_note": "A polite way to ask someone's age; among close peers, 年齢 is often asked more casually."
           },
           {
             "id": "mp2-9",
@@ -376,7 +465,10 @@
             "tags": [
               "questions"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "何歳？",
+            "reading": "なんさい？",
+            "romaji": "nansai?"
           },
           {
             "id": "mp2-10",
@@ -388,7 +480,10 @@
             "tags": [
               "numbers"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "27歳です。",
+            "reading": "にじゅうななさいです。",
+            "romaji": "nijuu nana sai desu."
           },
           {
             "id": "mp2-11",
@@ -400,7 +495,10 @@
             "tags": [
               "questions"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "お仕事は何をしていますか？",
+            "reading": "おしごとはなにをしていますか？",
+            "romaji": "oshigoto wa nani o shiteimasu ka?"
           },
           {
             "id": "mp2-12",
@@ -412,7 +510,10 @@
             "tags": [
               "occupations"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "会社員です。",
+            "reading": "かいしゃいんです。",
+            "romaji": "kaishain desu"
           },
           {
             "id": "mp2-13",
@@ -424,7 +525,10 @@
             "tags": [
               "occupations"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "学生です。",
+            "reading": "がくせいです。",
+            "romaji": "gakusei desu"
           },
           {
             "id": "mp2-14",
@@ -436,7 +540,10 @@
             "tags": [
               "te-iru-form"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "日本語を勉強しています。",
+            "reading": "にほんごをべんきょうしています。",
+            "romaji": "nihongo o benkyou shiteimasu"
           },
           {
             "id": "mp2-15",
@@ -449,7 +556,10 @@
               "te-iru-form"
             ],
             "context_notes": "contracted casual speech version",
-            "translated": false
+            "translated": true,
+            "japanese": "日本語を勉強してる。",
+            "reading": "にほんごをべんきょうしてる。",
+            "romaji": "nihongo o benkyou shiteru"
           },
           {
             "id": "mp2-16",
@@ -462,7 +572,17 @@
               "set-phrase"
             ],
             "context_notes": "",
-            "translated": false
+            "translated": true,
+            "japanese": "はじめまして、[name]です。",
+            "reading": "はじめまして、なまえです。",
+            "romaji": "hajimemashite, [name] desu",
+            "placeholders": [
+              {
+                "tag": "name",
+                "resolveAs": "learner",
+                "readingSubstitute": "なまえ"
+              }
+            ]
           },
           {
             "id": "mp2-17",
@@ -474,7 +594,10 @@
             "tags": [
               "questions"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "お名前は何ですか？",
+            "reading": "おなまえはなんですか？",
+            "romaji": "onamae wa nan desu ka?"
           },
           {
             "id": "mp2-18",
@@ -486,7 +609,10 @@
             "tags": [
               "questions"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "名前は何？",
+            "reading": "なまえはなに？",
+            "romaji": "namae wa nani?"
           },
           {
             "id": "mp2-19",
@@ -498,7 +624,10 @@
             "tags": [
               "questions"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "どこに住んでるの？",
+            "reading": "どこにすんでるの？",
+            "romaji": "doko ni sunderu no?"
           },
           {
             "id": "mp2-20",
@@ -510,7 +639,10 @@
             "tags": [
               "te-iru-form"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "東京に住んでいます。",
+            "reading": "とうきょうにすんでいます。",
+            "romaji": "toukyou ni sundeimasu"
           }
         ]
       },
@@ -532,7 +664,10 @@
             "tags": [
               "body-expressions"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "お腹すいた。",
+            "reading": "おなかすいた。",
+            "romaji": "onaka suita"
           },
           {
             "id": "mp3-2",
@@ -546,7 +681,10 @@
               "te-iru-form"
             ],
             "context_notes": "alternate phrasing, ongoing-state feel",
-            "translated": false
+            "translated": true,
+            "japanese": "お腹すいてる。",
+            "reading": "おなかすいてる。",
+            "romaji": "onaka suiteru"
           },
           {
             "id": "mp3-3",
@@ -558,7 +696,10 @@
             "tags": [
               "body-expressions"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "喉乾いた。",
+            "reading": "のどかわいた。",
+            "romaji": "nodo kawaita"
           },
           {
             "id": "mp3-4",
@@ -570,7 +711,10 @@
             "tags": [
               "i-adjectives"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "眠い。",
+            "reading": "ねむい。",
+            "romaji": "nemui"
           },
           {
             "id": "mp3-5",
@@ -582,7 +726,10 @@
             "tags": [
               "past-tense"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "疲れた。",
+            "reading": "つかれた。",
+            "romaji": "tsukareta"
           },
           {
             "id": "mp3-6",
@@ -595,7 +742,10 @@
               "requests"
             ],
             "context_notes": "casual, said to friend or family, not a stranger",
-            "translated": false
+            "translated": true,
+            "japanese": "水もらえる？",
+            "reading": "みずもらえる？",
+            "romaji": "mizu moraeru?"
           },
           {
             "id": "mp3-7",
@@ -607,7 +757,10 @@
             "tags": [
               "requests"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "お水をお願いします。",
+            "reading": "おみずをおねがいします。",
+            "romaji": "omizu o onegaishimasu"
           },
           {
             "id": "mp3-8",
@@ -619,7 +772,10 @@
             "tags": [
               "tai-form"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "トイレ行きたい。",
+            "reading": "といれいきたい。",
+            "romaji": "toire ikitai"
           },
           {
             "id": "mp3-9",
@@ -631,7 +787,10 @@
             "tags": [
               "questions"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "トイレはどこですか？",
+            "reading": "といれはどこですか？",
+            "romaji": "toire wa doko desu ka?"
           },
           {
             "id": "mp3-10",
@@ -643,7 +802,10 @@
             "tags": [
               "tai-form"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "休みたい。",
+            "reading": "やすみたい。",
+            "romaji": "yasumitai"
           },
           {
             "id": "mp3-11",
@@ -655,7 +817,10 @@
             "tags": [
               "te-form-request"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "ちょっと待って。",
+            "reading": "ちょっとまって。",
+            "romaji": "chotto matte"
           },
           {
             "id": "mp3-12",
@@ -667,7 +832,10 @@
             "tags": [
               "te-form-request"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "少々お待ちください。",
+            "reading": "しょうしょうおまちください。",
+            "romaji": "shoushou omachi kudasai"
           },
           {
             "id": "mp3-13",
@@ -679,7 +847,10 @@
             "tags": [
               "te-form-request"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "手伝って。",
+            "reading": "てつだって。",
+            "romaji": "tetsudatte"
           },
           {
             "id": "mp3-14",
@@ -691,7 +862,10 @@
             "tags": [
               "requests"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "手伝ってくれる？",
+            "reading": "てつだってくれる？",
+            "romaji": "tetsudatte kureru?"
           },
           {
             "id": "mp3-15",
@@ -703,7 +877,10 @@
             "tags": [
               "requests"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "手伝ってもらえますか？",
+            "reading": "てつだってもらえますか？",
+            "romaji": "tetsudatte moraemasu ka?"
           },
           {
             "id": "mp3-16",
@@ -716,7 +893,10 @@
               "hoshii",
               "i-adjectives"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "これが欲しい。",
+            "reading": "これがほしい。",
+            "romaji": "kore ga hoshii"
           },
           {
             "id": "mp3-17",
@@ -728,7 +908,10 @@
             "tags": [
               "negation"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "それはいらない。",
+            "reading": "それはいらない。",
+            "romaji": "sore wa iranai"
           },
           {
             "id": "mp3-18",
@@ -741,7 +924,11 @@
               "negation"
             ],
             "context_notes": "polite way to decline something offered",
-            "translated": false
+            "translated": true,
+            "japanese": "大丈夫、いらない。",
+            "reading": "だいじょうぶ、いらない。",
+            "romaji": "daijoubu, iranai",
+            "literal_note": "大丈夫 here naturally means 'I'm okay / no thanks,' not literally 'safe' or 'all right.'"
           },
           {
             "id": "mp3-19",
@@ -754,7 +941,10 @@
               "te-mo-ii",
               "i-adjectives"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "寒いんだけど、ヒーターつけてもいい？",
+            "reading": "さむいんだけど、ひーたーつけてもいい？",
+            "romaji": "samui n da kedo, hiitaa tsukete mo ii?"
           },
           {
             "id": "mp3-20",
@@ -766,7 +956,10 @@
             "tags": [
               "body-expressions"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "お腹いっぱい。",
+            "reading": "おなかいっぱい。",
+            "romaji": "onaka ippai"
           }
         ]
       },
@@ -788,7 +981,10 @@
             "tags": [
               "past-tense"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "今起きた。",
+            "reading": "いまおきた。",
+            "romaji": "ima okita"
           },
           {
             "id": "mp4-2",
@@ -800,7 +996,10 @@
             "tags": [
               "dictionary-form"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "もう寝る。",
+            "reading": "もうねる。",
+            "romaji": "mou neru"
           },
           {
             "id": "mp4-3",
@@ -812,7 +1011,10 @@
             "tags": [
               "dictionary-form"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "今から食べる。",
+            "reading": "いまからたべる。",
+            "romaji": "ima kara taberu"
           },
           {
             "id": "mp4-4",
@@ -824,7 +1026,10 @@
             "tags": [
               "te-kuru"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "シャワー浴びてくる。",
+            "reading": "しゃわーあびてくる。",
+            "romaji": "shawaa abite kuru"
           },
           {
             "id": "mp4-5",
@@ -838,7 +1043,10 @@
               "questions"
             ],
             "context_notes": "could be said to a partner, roommate, or child",
-            "translated": false
+            "translated": true,
+            "japanese": "歯磨いた？",
+            "reading": "はみがいた？",
+            "romaji": "hamigaita?"
           },
           {
             "id": "mp4-6",
@@ -850,7 +1058,10 @@
             "tags": [
               "obligation"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "仕事行かなきゃ。",
+            "reading": "しごといかなきゃ。",
+            "romaji": "shigoto ikanakya"
           },
           {
             "id": "mp4-7",
@@ -862,7 +1073,10 @@
             "tags": [
               "nouns"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "今日休み。",
+            "reading": "きょうやすみ。",
+            "romaji": "kyou yasumi"
           },
           {
             "id": "mp4-8",
@@ -875,7 +1089,10 @@
               "te-iru-form",
               "questions"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "何してるの？",
+            "reading": "なにしてるの？",
+            "romaji": "nani shiteru no?"
           },
           {
             "id": "mp4-9",
@@ -887,7 +1104,10 @@
             "tags": [
               "negation"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "何もしてない。",
+            "reading": "なにもしてない。",
+            "romaji": "nani mo shitenai"
           },
           {
             "id": "mp4-10",
@@ -901,7 +1121,10 @@
               "past-tense"
             ],
             "context_notes": "relaxed, doing nothing productive",
-            "translated": false
+            "translated": true,
+            "japanese": "ごろごろしてた。",
+            "reading": "ごろごろしてた。",
+            "romaji": "gorogoro shiteta"
           },
           {
             "id": "mp4-11",
@@ -913,7 +1136,10 @@
             "tags": [
               "obligation"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "洗濯しなきゃ。",
+            "reading": "せんたくしなきゃ。",
+            "romaji": "sentaku shinakya"
           },
           {
             "id": "mp4-12",
@@ -925,7 +1151,10 @@
             "tags": [
               "hou-ga-ii"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "そろそろ片づけたほうがいいかも。",
+            "reading": "そろそろかたづけたほうがいいかも。",
+            "romaji": "sorosoro katazuketa hou ga ii kamo"
           },
           {
             "id": "mp4-13",
@@ -937,7 +1166,10 @@
             "tags": [
               "te-kuru"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "ちょっと買い物してくる。",
+            "reading": "ちょっとかいものしてくる。",
+            "romaji": "chotto kaimono shite kuru"
           },
           {
             "id": "mp4-14",
@@ -949,7 +1181,10 @@
             "tags": [
               "te-kuru"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "ちょっと出かけてくる。",
+            "reading": "ちょっとでかけてくる。",
+            "romaji": "chotto dekakete kuru"
           },
           {
             "id": "mp4-15",
@@ -962,7 +1197,10 @@
               "te-kuru",
               "past-tense"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "今帰ってきた。",
+            "reading": "いまかえってきた。",
+            "romaji": "ima kaette kita"
           },
           {
             "id": "mp4-16",
@@ -975,7 +1213,10 @@
               "set-phrase"
             ],
             "context_notes": "said when arriving home, standard set phrase",
-            "translated": false
+            "translated": true,
+            "japanese": "ただいま。",
+            "reading": "ただいま。",
+            "romaji": "tadaima"
           },
           {
             "id": "mp4-17",
@@ -988,7 +1229,10 @@
               "set-phrase"
             ],
             "context_notes": "response to someone arriving home",
-            "translated": false
+            "translated": true,
+            "japanese": "おかえり。",
+            "reading": "おかえり。",
+            "romaji": "okaeri"
           },
           {
             "id": "mp4-18",
@@ -1001,7 +1245,10 @@
               "set-phrase"
             ],
             "context_notes": "said when leaving home",
-            "translated": false
+            "translated": true,
+            "japanese": "行ってきます。",
+            "reading": "いってきます。",
+            "romaji": "ittekimasu"
           },
           {
             "id": "mp4-19",
@@ -1014,7 +1261,10 @@
               "set-phrase"
             ],
             "context_notes": "response to someone leaving home",
-            "translated": false
+            "translated": true,
+            "japanese": "いってらっしゃい。",
+            "reading": "いってらっしゃい。",
+            "romaji": "itterasshai"
           },
           {
             "id": "mp4-20",
@@ -1026,7 +1276,10 @@
             "tags": [
               "tai-form-negative"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "今日は何もしたくない。",
+            "reading": "きょうはなにもしたくない。",
+            "romaji": "kyou wa nani mo shitakunai"
           }
         ]
       },
@@ -1048,7 +1301,10 @@
             "tags": [
               "questions"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "これ何？",
+            "reading": "これなに？",
+            "romaji": "kore nani?"
           },
           {
             "id": "mp5-2",
@@ -1060,7 +1316,10 @@
             "tags": [
               "questions"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "それ何？",
+            "reading": "それなに？",
+            "romaji": "sore nani?"
           },
           {
             "id": "mp5-3",
@@ -1072,7 +1331,10 @@
             "tags": [
               "questions"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "なんで？",
+            "reading": "なんで？",
+            "romaji": "nande?"
           },
           {
             "id": "mp5-4",
@@ -1084,7 +1346,10 @@
             "tags": [
               "questions"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "どうして？",
+            "reading": "どうして？",
+            "romaji": "doushite?"
           },
           {
             "id": "mp5-5",
@@ -1096,7 +1361,10 @@
             "tags": [
               "questions"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "どうやるの？",
+            "reading": "どうやるの？",
+            "romaji": "dou yaru no?"
           },
           {
             "id": "mp5-6",
@@ -1108,7 +1376,10 @@
             "tags": [
               "questions"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "いつ？",
+            "reading": "いつ？",
+            "romaji": "itsu?"
           },
           {
             "id": "mp5-7",
@@ -1120,7 +1391,10 @@
             "tags": [
               "questions"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "誰と行くの？",
+            "reading": "だれといくの？",
+            "romaji": "dare to iku no?"
           },
           {
             "id": "mp5-8",
@@ -1132,7 +1406,10 @@
             "tags": [
               "questions"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "どっちのほうがいい？",
+            "reading": "どっちのほうがいい？",
+            "romaji": "docchi no hou ga ii?"
           },
           {
             "id": "mp5-9",
@@ -1144,7 +1421,10 @@
             "tags": [
               "past-tense"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "わかった。",
+            "reading": "わかった。",
+            "romaji": "wakatta"
           },
           {
             "id": "mp5-10",
@@ -1157,7 +1437,10 @@
               "negation"
             ],
             "context_notes": "casual contracted tone, slightly whiny",
-            "translated": false
+            "translated": true,
+            "japanese": "わかんない。",
+            "reading": "わかんない。",
+            "romaji": "wakannai"
           },
           {
             "id": "mp5-11",
@@ -1169,7 +1452,10 @@
             "tags": [
               "adverbs"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "たぶん。",
+            "reading": "たぶん。",
+            "romaji": "tabun."
           },
           {
             "id": "mp5-12",
@@ -1181,7 +1467,10 @@
             "tags": [
               "adverbs"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "たぶんそう。",
+            "reading": "たぶんそう。",
+            "romaji": "tabun sou."
           },
           {
             "id": "mp5-13",
@@ -1193,7 +1482,10 @@
             "tags": [
               "negation"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "わかんない。",
+            "reading": "わかんない。",
+            "romaji": "wakannai."
           },
           {
             "id": "mp5-14",
@@ -1205,7 +1497,10 @@
             "tags": [
               "fillers"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "うーん、どうだろうね。",
+            "reading": "うーん、どうだろうね。",
+            "romaji": "uun, dou darou ne."
           },
           {
             "id": "mp5-15",
@@ -1217,7 +1512,10 @@
             "tags": [
               "opinion"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "それは違うと思う。",
+            "reading": "それはちがうとおもう。",
+            "romaji": "sore wa chigau to omou."
           },
           {
             "id": "mp5-16",
@@ -1230,7 +1528,10 @@
               "questions",
               "past-tense"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "え、なんて言った？",
+            "reading": "え、なんていった？",
+            "romaji": "e, nante itta?"
           },
           {
             "id": "mp5-17",
@@ -1242,7 +1543,10 @@
             "tags": [
               "te-form-request"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "もう一回言って。",
+            "reading": "もういっかいいって。",
+            "romaji": "mou ikkai itte."
           },
           {
             "id": "mp5-18",
@@ -1254,7 +1558,11 @@
             "tags": [
               "negation"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "それ、よくわかんない。",
+            "reading": "それ、よくわかんない。",
+            "romaji": "sore, yoku wakannai.",
+            "literal_note": "Literally closer to 'I don't really understand that,' which is a more natural casual Japanese way to express 'That doesn't make sense to me.'"
           },
           {
             "id": "mp5-19",
@@ -1266,7 +1574,10 @@
             "tags": [
               "fillers"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "あー、なるほど。",
+            "reading": "あー、なるほど。",
+            "romaji": "aa, naruhodo."
           },
           {
             "id": "mp5-20",
@@ -1278,7 +1589,10 @@
             "tags": [
               "fillers"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "たしかに、そうだね。",
+            "reading": "たしかに、そうだね。",
+            "romaji": "tashika ni, sou da ne."
           }
         ]
       },
@@ -1300,7 +1614,10 @@
             "tags": [
               "na-adjectives"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "それ好き。",
+            "reading": "それすき。",
+            "romaji": "sore suki."
           },
           {
             "id": "mp6-2",
@@ -1312,7 +1629,10 @@
             "tags": [
               "na-adjectives"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "それ好きじゃない。",
+            "reading": "それすきじゃない。",
+            "romaji": "sore suki janai."
           },
           {
             "id": "mp6-3",
@@ -1326,7 +1646,10 @@
               "intensifiers"
             ],
             "context_notes": "enthusiastic slangy intensifier expected in translation",
-            "translated": false
+            "translated": true,
+            "japanese": "めっちゃ好き。",
+            "reading": "めっちゃすき。",
+            "romaji": "meccha suki."
           },
           {
             "id": "mp6-4",
@@ -1339,7 +1662,10 @@
               "slang"
             ],
             "context_notes": "mild surprise/casual admission, younger speaker tone",
-            "translated": false
+            "translated": true,
+            "japanese": "意外と好きかも。",
+            "reading": "いがいとすきかも。",
+            "romaji": "igaito suki kamo."
           },
           {
             "id": "mp6-5",
@@ -1351,7 +1677,10 @@
             "tags": [
               "negation"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "そこまでハマってないかな。",
+            "reading": "そこまではまってないかな。",
+            "romaji": "soko made hamatte nai kana."
           },
           {
             "id": "mp6-6",
@@ -1364,7 +1693,10 @@
               "na-adjectives"
             ],
             "context_notes": "lukewarm, noncommittal reaction",
-            "translated": false
+            "translated": true,
+            "japanese": "うーん、まあまあかな。",
+            "reading": "うーん、まあまあかな。",
+            "romaji": "uun, maamaa kana."
           },
           {
             "id": "mp6-7",
@@ -1376,7 +1708,10 @@
             "tags": [
               "hedging"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "まあ、悪くないかな。",
+            "reading": "まあ、わるくないかな。",
+            "romaji": "maa, warukunai kana."
           },
           {
             "id": "mp6-8",
@@ -1388,7 +1723,10 @@
             "tags": [
               "to-omou"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "いいと思う。",
+            "reading": "いいとおもう。",
+            "romaji": "ii to omou."
           },
           {
             "id": "mp6-9",
@@ -1400,7 +1738,10 @@
             "tags": [
               "negation"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "そうは思わない。",
+            "reading": "そうはおもわない。",
+            "romaji": "sou wa omowanai."
           },
           {
             "id": "mp6-10",
@@ -1413,7 +1754,11 @@
               "slang",
               "hedging"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "個人的にはアリ。",
+            "reading": "こじんてきにはあり。",
+            "romaji": "kojinteki ni wa ari.",
+            "literal_note": "アリ literally means 'acceptable/valid,' but in casual Japanese it often means 'I'm into it' or 'I can get behind that.'"
           },
           {
             "id": "mp6-11",
@@ -1426,7 +1771,10 @@
               "slang"
             ],
             "context_notes": "playful, slightly feminine-leaning casual tone is fine",
-            "translated": false
+            "translated": true,
+            "japanese": "いや、それはナシかな。",
+            "reading": "いや、それはなしかな。",
+            "romaji": "iya, sore wa nashi kana."
           },
           {
             "id": "mp6-12",
@@ -1438,7 +1786,10 @@
             "tags": [
               "negation"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "興味ない。",
+            "reading": "きょうみない。",
+            "romaji": "kyoumi nai."
           },
           {
             "id": "mp6-13",
@@ -1450,7 +1801,10 @@
             "tags": [
               "set-phrase"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "ちょっと気になる。",
+            "reading": "ちょっときになる。",
+            "romaji": "chotto ki ni naru."
           },
           {
             "id": "mp6-14",
@@ -1463,7 +1817,10 @@
               "set-phrase"
             ],
             "context_notes": "can sound dismissive depending on tone",
-            "translated": false
+            "translated": true,
+            "japanese": "別に、どうでもいい。",
+            "reading": "べつに、どうでもいい。",
+            "romaji": "betsu ni, dou demo ii."
           },
           {
             "id": "mp6-15",
@@ -1475,7 +1832,10 @@
             "tags": [
               "adverbs"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "正直、そこまででもない。",
+            "reading": "しょうじき、そこまででもない。",
+            "romaji": "shoujiki, soko made demo nai."
           },
           {
             "id": "mp6-16",
@@ -1487,7 +1847,10 @@
             "tags": [
               "past-tense"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "思ったよりよかった。",
+            "reading": "おもったよりよかった。",
+            "romaji": "omotta yori yokatta."
           },
           {
             "id": "mp6-17",
@@ -1499,7 +1862,10 @@
             "tags": [
               "comparison"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "思ったよりよかった。",
+            "reading": "おもったよりよかった。",
+            "romaji": "omotta yori yokatta."
           },
           {
             "id": "mp6-18",
@@ -1511,7 +1877,10 @@
             "tags": [
               "past-tense"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "正直、微妙だった。",
+            "reading": "しょうじき、びみょうだった。",
+            "romaji": "shoujiki, bimyou datta."
           },
           {
             "id": "mp6-19",
@@ -1523,7 +1892,10 @@
             "tags": [
               "to-omou"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "私もそう思う。",
+            "reading": "わたしもそうおもう。",
+            "romaji": "watashi mo sou omou."
           },
           {
             "id": "mp6-20",
@@ -1535,7 +1907,10 @@
             "tags": [
               "hedging"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "まあ、人によるかな。",
+            "reading": "まあ、ひとによるかな。",
+            "romaji": "maa, hito ni yoru kana."
           }
         ]
       },
@@ -1557,7 +1932,10 @@
             "tags": [
               "past-tense"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "昨日、友だちと遊んだ。",
+            "reading": "きのう、ともだちとあそんだ。",
+            "romaji": "kinou, tomodachi to asonda"
           },
           {
             "id": "mp7-2",
@@ -1569,7 +1947,10 @@
             "tags": [
               "past-tense"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "先週、映画を観に行った。",
+            "reading": "せんしゅう、えいがをみにいった。",
+            "romaji": "senshuu, eiga o mi ni itta"
           },
           {
             "id": "mp7-3",
@@ -1582,7 +1963,10 @@
               "experience-koto-ga-aru",
               "questions"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "前にそこ行ったことある？",
+            "reading": "まえにそこいったことある？",
+            "romaji": "mae ni soko itta koto aru"
           },
           {
             "id": "mp7-4",
@@ -1595,7 +1979,10 @@
               "experience-koto-ga-aru",
               "negation"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "そこ、一回も行ったことない。",
+            "reading": "そこ、いっかいもいったことない。",
+            "romaji": "soko, ikkai mo itta koto nai"
           },
           {
             "id": "mp7-5",
@@ -1607,7 +1994,11 @@
             "tags": [
               "experience-koto-ga-aru"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "それ、前に一回食べたことある。",
+            "reading": "それ、まえにいっかいたべたことある。",
+            "romaji": "sore, mae ni ikkai tabeta koto aru",
+            "literal_note": "Uses 食べたことある ('have eaten it before'), since English 'had it' usually refers to food/drink in casual conversation."
           },
           {
             "id": "mp7-6",
@@ -1619,7 +2010,10 @@
             "tags": [
               "past-habitual"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "ていうか、前そこで働いてた。",
+            "reading": "ていうか、まえそこで はたらいてた。",
+            "romaji": "te iu ka, mae soko de hataraite ta"
           },
           {
             "id": "mp7-7",
@@ -1631,7 +2025,10 @@
             "tags": [
               "experience-koto-ga-aru"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "その話、前に聞いたことある。",
+            "reading": "そのはなし、まえにきいたことある。",
+            "romaji": "sono hanashi, mae ni kiita koto aru"
           },
           {
             "id": "mp7-8",
@@ -1643,7 +2040,10 @@
             "tags": [
               "tara-form"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "気づいたらもう夜だった。",
+            "reading": "きづいたらもうよるだった。",
+            "romaji": "kizuitara mou yoru datta"
           },
           {
             "id": "mp7-9",
@@ -1655,7 +2055,10 @@
             "tags": [
               "past-tense"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "それ、びっくりした！",
+            "reading": "それ、びっくりした！",
+            "romaji": "sore, bikkuri shita"
           },
           {
             "id": "mp7-10",
@@ -1668,7 +2071,10 @@
               "past-tense",
               "interjections"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "一瞬まじでビビった。",
+            "reading": "いっしゅんまじでびびった。",
+            "romaji": "isshun maji de bibitta"
           },
           {
             "id": "mp7-11",
@@ -1680,7 +2086,10 @@
             "tags": [
               "i-adjective-past"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "危なかった。",
+            "reading": "あぶなかった。",
+            "romaji": "abunakatta"
           },
           {
             "id": "mp7-12",
@@ -1694,7 +2103,10 @@
               "emphasis"
             ],
             "context_notes": "casual, softly complaining/venting tone inviting sympathy",
-            "translated": false
+            "translated": true,
+            "japanese": "ほんと、めっちゃ焦った。",
+            "reading": "ほんと、めっちゃあせった。",
+            "romaji": "honto, meccha asetta"
           },
           {
             "id": "mp7-13",
@@ -1706,7 +2118,10 @@
             "tags": [
               "te-kara"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "終わったらメッセージするね。",
+            "reading": "おわったらめっせーじするね。",
+            "romaji": "owattara messeeji suru ne"
           },
           {
             "id": "mp7-14",
@@ -1718,7 +2133,10 @@
             "tags": [
               "totan"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "終わったとたん、雨が降り出した。",
+            "reading": "おわったとたん、あめがふりだした。",
+            "romaji": "owatta totan, ame ga furidashita"
           },
           {
             "id": "mp7-15",
@@ -1730,7 +2148,10 @@
             "tags": [
               "negative-past"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "結局、行かなかった。",
+            "reading": "けっきょく、いかなかった。",
+            "romaji": "kekkyoku, ikanakatta"
           },
           {
             "id": "mp7-16",
@@ -1742,7 +2163,10 @@
             "tags": [
               "past-tense"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "やっと終わった！",
+            "reading": "やっとおわった！",
+            "romaji": "yatto owatta"
           },
           {
             "id": "mp7-17",
@@ -1754,7 +2178,10 @@
             "tags": [
               "negative-past"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "その時はまだ知らなかった。",
+            "reading": "そのときはまだしらなかった。",
+            "romaji": "sono toki wa mada shiranakatta"
           },
           {
             "id": "mp7-18",
@@ -1766,7 +2193,10 @@
             "tags": [
               "conditional"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "今思い返すと、恥ずかしい。",
+            "reading": "いまおもいかえすと、はずかしい。",
+            "romaji": "ima omoikaesu to, hazukashii"
           },
           {
             "id": "mp7-19",
@@ -1778,7 +2208,10 @@
             "tags": [
               "chau-form"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "笑っちゃった。",
+            "reading": "わらっちゃった。",
+            "romaji": "waracchatta"
           },
           {
             "id": "mp7-20",
@@ -1790,7 +2223,10 @@
             "tags": [
               "sou-appearance"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "泣きそうになった。",
+            "reading": "なきそうになった。",
+            "romaji": "nakisou ni natta"
           }
         ]
       },
@@ -1812,7 +2248,10 @@
             "tags": [
               "te-mo-ii"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "これ使っていい？",
+            "reading": "これつかっていい？",
+            "romaji": "kore tsukatte ii"
           },
           {
             "id": "mp8-2",
@@ -1824,7 +2263,10 @@
             "tags": [
               "te-mo-ii"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "ここに座ってもいいですか？",
+            "reading": "ここにすわってもいいですか？",
+            "romaji": "koko ni suwatte mo ii desu ka"
           },
           {
             "id": "mp8-3",
@@ -1836,7 +2278,10 @@
             "tags": [
               "te-mo-ii"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "写真撮ってもいい？",
+            "reading": "しゃしんとってもいい？",
+            "romaji": "shashin totte mo ii"
           },
           {
             "id": "mp8-4",
@@ -1848,7 +2293,10 @@
             "tags": [
               "set-phrase"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "ねえ、ちょっとお願いしてもいい？",
+            "reading": "ねえ、ちょっとおねがいしてもいい？",
+            "romaji": "nee, chotto onegai shite mo ii"
           },
           {
             "id": "mp8-5",
@@ -1860,7 +2308,10 @@
             "tags": [
               "te-kureru"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "これ、やってくれる？",
+            "reading": "これ、やってくれる？",
+            "romaji": "kore, yatte kureru"
           },
           {
             "id": "mp8-6",
@@ -1873,7 +2324,10 @@
               "negative-question-request"
             ],
             "context_notes": "softer, more indirect request tone",
-            "translated": false
+            "translated": true,
+            "japanese": "これ、やってくれない？",
+            "reading": "これ、やってくれない？",
+            "romaji": "kore, yatte kurenai"
           },
           {
             "id": "mp8-7",
@@ -1885,7 +2339,10 @@
             "tags": [
               "te-form-request"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "悪いんだけど、これ借りてもいい？",
+            "reading": "わるいんだけど、これかりてもいい？",
+            "romaji": "waruin dakedo, kore karite mo ii"
           },
           {
             "id": "mp8-8",
@@ -1897,7 +2354,10 @@
             "tags": [
               "te-mo-ii"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "先に行ってて。",
+            "reading": "さきにいってて。",
+            "romaji": "saki ni ittete"
           },
           {
             "id": "mp8-9",
@@ -1909,7 +2369,10 @@
             "tags": [
               "demo-ii"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "あとでもいい？",
+            "reading": "あとでもいい？",
+            "romaji": "ato demo ii"
           },
           {
             "id": "mp8-10",
@@ -1921,7 +2384,10 @@
             "tags": [
               "nakute-ii"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "無理しなくていいよ。",
+            "reading": "むりしなくていいよ。",
+            "romaji": "muri shinakute ii yo"
           },
           {
             "id": "mp8-11",
@@ -1933,7 +2399,10 @@
             "tags": [
               "naide-form"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "あんまり無理しないでね。",
+            "reading": "あんまり むり しないで ね。",
+            "romaji": "anmari muri shinaide ne"
           },
           {
             "id": "mp8-12",
@@ -1945,7 +2414,10 @@
             "tags": [
               "te-form-request"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "やめて。",
+            "reading": "やめて。",
+            "romaji": "yamete"
           },
           {
             "id": "mp8-13",
@@ -1957,7 +2429,10 @@
             "tags": [
               "te-form-request"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "静かにして。",
+            "reading": "しずか に して。",
+            "romaji": "shizuka ni shite"
           },
           {
             "id": "mp8-14",
@@ -1969,7 +2444,10 @@
             "tags": [
               "te-moraeru"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "もう少し静かにしてもらえますか？",
+            "reading": "もう すこし しずか に して もらえます か？",
+            "romaji": "mou sukoshi shizuka ni shite moraemasu ka"
           },
           {
             "id": "mp8-15",
@@ -1981,7 +2459,10 @@
             "tags": [
               "nakute-ii"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "急がなくていいよ。",
+            "reading": "いそがなくて いい よ。",
+            "romaji": "isoganakute ii yo"
           },
           {
             "id": "mp8-16",
@@ -1994,7 +2475,10 @@
               "te-form-request"
             ],
             "context_notes": "can sound blunt, fine casually not with strangers",
-            "translated": false
+            "translated": true,
+            "japanese": "ちょっとどいて。",
+            "reading": "ちょっと どいて。",
+            "romaji": "chotto doite"
           },
           {
             "id": "mp8-17",
@@ -2006,7 +2490,10 @@
             "tags": [
               "te-itadakeru"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "すみません、通していただけますか？",
+            "reading": "すみません、とおして いただけます か？",
+            "romaji": "sumimasen, tooshite itadakemasu ka"
           },
           {
             "id": "mp8-18",
@@ -2018,7 +2505,10 @@
             "tags": [
               "te-mo-ii"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "ちょっとお願いしてもいい？",
+            "reading": "ちょっと おねがい しても いい？",
+            "romaji": "chotto onegai shitemo ii"
           },
           {
             "id": "mp8-19",
@@ -2030,7 +2520,10 @@
             "tags": [
               "naide-form"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "気にしないで。",
+            "reading": "き に しないで。",
+            "romaji": "ki ni shinaide"
           },
           {
             "id": "mp8-20",
@@ -2042,7 +2535,10 @@
             "tags": [
               "te-oku-form"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "そのままにしておいて。",
+            "reading": "そのまま に して おいて。",
+            "romaji": "sonomama ni shite oite"
           }
         ]
       },
@@ -2064,7 +2560,10 @@
             "tags": [
               "te-iru-form"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "次、いつ空いてる？",
+            "reading": "つぎ、いつ あいてる？",
+            "romaji": "tsugi, itsu aiteru"
           },
           {
             "id": "mp9-2",
@@ -2076,7 +2575,10 @@
             "tags": [
               "na-adjectives"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "今週末、空いてる？",
+            "reading": "こんしゅうまつ、あいてる？",
+            "romaji": "konshuumatsu, aiteru"
           },
           {
             "id": "mp9-3",
@@ -2088,7 +2590,10 @@
             "tags": [
               "invitation"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "今度どこか行かない？",
+            "reading": "こんど どこか いかない？",
+            "romaji": "kondo dokoka ikanai"
           },
           {
             "id": "mp9-4",
@@ -2100,7 +2605,10 @@
             "tags": [
               "questions"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "何時に会う？",
+            "reading": "なんじ に あう？",
+            "romaji": "nanji ni au"
           },
           {
             "id": "mp9-5",
@@ -2112,7 +2620,10 @@
             "tags": [
               "volitional-form"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "駅の前で待ち合わせしよう。",
+            "reading": "えき の まえ で まちあわせ しよう。",
+            "romaji": "eki no mae de machiawase shiyou"
           },
           {
             "id": "mp9-6",
@@ -2124,7 +2635,10 @@
             "tags": [
               "demo-ii"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "自分は何時でも大丈夫だよ。",
+            "reading": "じぶん は なんじ でも だいじょうぶ だ よ。",
+            "romaji": "jibun wa nanji demo daijoubu da yo"
           },
           {
             "id": "mp9-7",
@@ -2136,7 +2650,10 @@
             "tags": [
               "kamo"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "遅れるかも。",
+            "reading": "おくれる かも。",
+            "romaji": "okureru kamo"
           },
           {
             "id": "mp9-8",
@@ -2148,7 +2665,10 @@
             "tags": [
               "sou-appearance"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "ちょっと遅れそう、ごめん！",
+            "reading": "ちょっと おくれそう、ごめん！",
+            "romaji": "chotto okuresou, gomen"
           },
           {
             "id": "mp9-9",
@@ -2160,7 +2680,10 @@
             "tags": [
               "tara-form"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "先に着いたら連絡して。",
+            "reading": "さき に ついたら れんらく して。",
+            "romaji": "saki ni tsuitara renraku shite"
           },
           {
             "id": "mp9-10",
@@ -2172,7 +2695,10 @@
             "tags": [
               "tara-form"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "予定変わったら教えて。",
+            "reading": "よてい かわったら おしえて。",
+            "romaji": "yotei kawattara oshiete"
           },
           {
             "id": "mp9-11",
@@ -2184,7 +2710,10 @@
             "tags": [
               "te-mo-ii"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "実は、キャンセルしてもいい？",
+            "reading": "じつは、キャンセル しても いい？",
+            "romaji": "jitsu wa, kyanseru shitemo ii"
           },
           {
             "id": "mp9-12",
@@ -2196,7 +2725,10 @@
             "tags": [
               "te-form-request"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "また今度誘って。",
+            "reading": "また こんど さそって。",
+            "romaji": "mata kondo sasotte"
           },
           {
             "id": "mp9-13",
@@ -2208,7 +2740,10 @@
             "tags": [
               "set-phrase"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "都合いい日ある？",
+            "reading": "つごう いい ひ ある？",
+            "romaji": "tsugou ii hi aru"
           },
           {
             "id": "mp9-14",
@@ -2222,7 +2757,11 @@
               "potential-form"
             ],
             "context_notes": "common noncommittal answer, sometimes used as a soft decline",
-            "translated": false
+            "translated": true,
+            "japanese": "行けたら行くよ。",
+            "reading": "いけたら いく よ。",
+            "romaji": "iketara iku yo",
+            "literal_note": "A very common natural phrase that can be genuinely noncommittal and may also imply a soft decline depending on context."
           },
           {
             "id": "mp9-15",
@@ -2234,7 +2773,10 @@
             "tags": [
               "te-oku-form"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "その日、空けておくね。",
+            "reading": "その ひ、あけて おく ね。",
+            "romaji": "sono hi, akete oku ne"
           },
           {
             "id": "mp9-16",
@@ -2246,7 +2788,10 @@
             "tags": [
               "set-phrase"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "楽しみにしてる！",
+            "reading": "たのしみ に してる！",
+            "romaji": "tanoshimi ni shiteru"
           },
           {
             "id": "mp9-17",
@@ -2259,7 +2804,10 @@
               "idiomatic",
               "past-tense"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "直前に予定が変わった。",
+            "reading": "ちょくぜん に よてい が かわった。",
+            "romaji": "chokuzen ni yotei ga kawatta"
           },
           {
             "id": "mp9-18",
@@ -2271,7 +2819,10 @@
             "tags": [
               "te-oku-form"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "一応、場所送っておくね。",
+            "reading": "いちおう、ばしょ おくって おく ね。",
+            "romaji": "ichiou, basho okutte oku ne"
           },
           {
             "id": "mp9-19",
@@ -2283,7 +2834,10 @@
             "tags": [
               "future-plain"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "また連絡するね。",
+            "reading": "また れんらく する ね。",
+            "romaji": "mata renraku suru ne"
           },
           {
             "id": "mp9-20",
@@ -2295,7 +2849,10 @@
             "tags": [
               "demo"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "別の日でも大丈夫？",
+            "reading": "べつ の ひ でも だいじょうぶ？",
+            "romaji": "betsu no hi demo daijoubu"
           }
         ]
       },
@@ -2317,7 +2874,11 @@
             "tags": [
               "negation"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "今日はほんとについてない。",
+            "reading": "きょうはほんとうについてない。",
+            "romaji": "kyou wa hontou ni tsuite nai",
+            "literal_note": "Literally 'I'm really unlucky today,' which is a natural way to express 'It's just not my day.'"
           },
           {
             "id": "mp10-2",
@@ -2330,7 +2891,10 @@
               "complaint"
             ],
             "context_notes": "can be blunt, fine among friends",
-            "translated": false
+            "translated": true,
+            "japanese": "それめっちゃうざい。",
+            "reading": "それめっちゃうざい。",
+            "romaji": "sore meccha uzai"
           },
           {
             "id": "mp10-3",
@@ -2343,7 +2907,11 @@
               "i-adjectives"
             ],
             "context_notes": "one of the most common casual complaints",
-            "translated": false
+            "translated": true,
+            "japanese": "あー、めんどくさ。",
+            "reading": "あー、めんどくさ。",
+            "romaji": "aa, mendokusa",
+            "literal_note": "Contracted casual speech from めんどくさい; very common for 'What a pain, ugh.'"
           },
           {
             "id": "mp10-4",
@@ -2356,7 +2924,10 @@
               "i-adjectives",
               "slang"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "なんかだるくて、やる気出ない。",
+            "reading": "なんかだるくて、やるきでない。",
+            "romaji": "nanka darukute, yaruki denai"
           },
           {
             "id": "mp10-5",
@@ -2368,7 +2939,10 @@
             "tags": [
               "set-phrase"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "もう無理。限界。",
+            "reading": "もうむり。げんかい。",
+            "romaji": "mou muri. genkai"
           },
           {
             "id": "mp10-6",
@@ -2380,7 +2954,10 @@
             "tags": [
               "onomatopoeia"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "ほんとイライラする。",
+            "reading": "ほんといらいらする。",
+            "romaji": "honto iraira suru"
           },
           {
             "id": "mp10-7",
@@ -2392,7 +2969,10 @@
             "tags": [
               "emotion"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "それちょっと残念だね。",
+            "reading": "それちょっとざんねんだね。",
+            "romaji": "sore chotto zannen da ne"
           },
           {
             "id": "mp10-8",
@@ -2404,7 +2984,10 @@
             "tags": [
               "loanwords"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "これめっちゃテンション上がる！",
+            "reading": "これめっちゃてんしょんあがる！",
+            "romaji": "kore meccha tension agaru!"
           },
           {
             "id": "mp10-9",
@@ -2417,7 +3000,10 @@
               "loanwords",
               "questions"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "なんか落ち込んでるっぽいけど、大丈夫？",
+            "reading": "なんかおちこんでるっぽいけど、だいじょうぶ？",
+            "romaji": "nanka ochikonderu ppoi kedo, daijoubu?"
           },
           {
             "id": "mp10-10",
@@ -2429,7 +3015,10 @@
             "tags": [
               "i-adjectives"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "今日なんか調子悪いんだよね。",
+            "reading": "きょうなんかちょうしわるいんだよね。",
+            "romaji": "kyou nanka choushi warui n da yo ne"
           },
           {
             "id": "mp10-11",
@@ -2442,7 +3031,10 @@
               "te-iru-form",
               "loanwords"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "最近ずっとストレスたまってる。",
+            "reading": "さいきんずっとすとれすたまってる。",
+            "romaji": "saikin zutto sutoresu tamatteru"
           },
           {
             "id": "mp10-12",
@@ -2454,7 +3046,10 @@
             "tags": [
               "te-iru-form"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "ちょっと落ち込んでる。",
+            "reading": "ちょっとおちこんでる。",
+            "romaji": "chotto ochikonderu"
           },
           {
             "id": "mp10-13",
@@ -2466,7 +3061,10 @@
             "tags": [
               "idiomatic"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "なんかムカつくんだよね。",
+            "reading": "なんかむかつくんだよね。",
+            "romaji": "nanka mukatsuku n da yo ne"
           },
           {
             "id": "mp10-14",
@@ -2480,7 +3078,11 @@
               "negation"
             ],
             "context_notes": "venting tone, contracted casual speech",
-            "translated": false
+            "translated": true,
+            "japanese": "もうこれ以上無理だわ。",
+            "reading": "もうこれいじょうむりだわ。",
+            "romaji": "mou kore ijou muri da wa",
+            "literal_note": "Natural venting expression meaning 'I can't handle this anymore,' rather than a literal 'deal with.'"
           },
           {
             "id": "mp10-15",
@@ -2492,7 +3094,10 @@
             "tags": [
               "slang"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "見た目よりきつい。",
+            "reading": "みためよりきつい。",
+            "romaji": "mitame yori kitsui"
           },
           {
             "id": "mp10-16",
@@ -2504,7 +3109,10 @@
             "tags": [
               "tai-form"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "泣きたい。",
+            "reading": "なきたい。",
+            "romaji": "nakitai"
           },
           {
             "id": "mp10-17",
@@ -2516,7 +3124,10 @@
             "tags": [
               "ni-naru"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "たまに全部嫌になる。",
+            "reading": "たまにぜんぶいやになる。",
+            "romaji": "tama ni zenbu iya ni naru"
           },
           {
             "id": "mp10-18",
@@ -2528,7 +3139,10 @@
             "tags": [
               "te-form-request"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "ねえ、ちょっと聞いて。",
+            "reading": "ねえ、ちょっときいて。",
+            "romaji": "nee, chotto kiite"
           },
           {
             "id": "mp10-19",
@@ -2540,7 +3154,10 @@
             "tags": [
               "te-mo-ii"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "ちょっと愚痴ってもいい？",
+            "reading": "ちょっとぐちってもいい？",
+            "romaji": "chotto guchitte mo ii?"
           },
           {
             "id": "mp10-20",
@@ -2552,7 +3169,10 @@
             "tags": [
               "te-kureru"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "話聞いてくれてありがと。",
+            "reading": "はなしきいてくれてありがと。",
+            "romaji": "hanashi kiite kurete arigato"
           }
         ]
       },
@@ -2575,7 +3195,10 @@
               "excuse"
             ],
             "context_notes": "defensive, slightly pouty tone giving an excuse",
-            "translated": false
+            "translated": true,
+            "japanese": "でもほんとに時間なかったんだって！",
+            "reading": "でもほんとにじかんなかったんだって！",
+            "romaji": "demo honto ni jikan nakatta n datte!"
           },
           {
             "id": "mp11-2",
@@ -2587,7 +3210,10 @@
             "tags": [
               "chau-form"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "急に用事入っちゃって。",
+            "reading": "きゅうにようじはいっちゃって。",
+            "romaji": "kyuu ni youji haitchatte"
           },
           {
             "id": "mp11-3",
@@ -2599,7 +3225,10 @@
             "tags": [
               "te-form-reason"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "眠すぎて集中できなかった。",
+            "reading": "ねむすぎてしゅうちゅうできなかった。",
+            "romaji": "nemusugite shuuchuu dekinakatta"
           },
           {
             "id": "mp11-4",
@@ -2611,7 +3240,10 @@
             "tags": [
               "te-form-reason"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "電車が遅れて、遅刻した。",
+            "reading": "でんしゃがおくれて、ちこくした。",
+            "romaji": "densha ga okurete, chikoku shita"
           },
           {
             "id": "mp11-5",
@@ -2623,7 +3255,10 @@
             "tags": [
               "te-form-reason"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "体調悪くて休んだ。",
+            "reading": "たいちょうわるくてやすんだ。",
+            "romaji": "taichou warukute yasunda"
           },
           {
             "id": "mp11-6",
@@ -2635,7 +3270,10 @@
             "tags": [
               "hedging"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "なんかただそう思っただけ。",
+            "reading": "なんかただそうおもっただけ。",
+            "romaji": "nanka tada sou omotta dake"
           },
           {
             "id": "mp11-7",
@@ -2647,7 +3285,10 @@
             "tags": [
               "hedging"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "いや、別にそういうわけじゃないんだけど…",
+            "reading": "いや、べつにそういうわけじゃないんだけど…",
+            "romaji": "iya, betsuni sou iu wake ja nai n dakedo..."
           },
           {
             "id": "mp11-8",
@@ -2659,7 +3300,10 @@
             "tags": [
               "experience-koto-ga-aru"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "ほら、前に失敗したことあるから。",
+            "reading": "ほら、まえにしっぱいしたことあるから。",
+            "romaji": "hora, mae ni shippai shita koto aru kara"
           },
           {
             "id": "mp11-9",
@@ -2671,7 +3315,10 @@
             "tags": [
               "sei-de"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "そのせいで遅れちゃった。",
+            "reading": "そのせいでおくれちゃった。",
+            "romaji": "sono sei de okurechatta"
           },
           {
             "id": "mp11-10",
@@ -2684,7 +3331,10 @@
               "te-form-reason",
               "potential-negative"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "お金なくて買えなかった。",
+            "reading": "おかねなくてかえなかった。",
+            "romaji": "okane nakute kaenakatta"
           },
           {
             "id": "mp11-11",
@@ -2696,7 +3346,10 @@
             "tags": [
               "sugiru"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "忙しすぎて忘れてた。",
+            "reading": "いそがしすぎてわすれてた。",
+            "romaji": "isogashi sugite wasureteta"
           },
           {
             "id": "mp11-12",
@@ -2708,7 +3361,10 @@
             "tags": [
               "sei-da"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "ちゃんと確認しなかったせいだよ。",
+            "reading": "ちゃんとかくにんしなかったせいだよ。",
+            "romaji": "chanto kakunin shinakatta sei da yo"
           },
           {
             "id": "mp11-13",
@@ -2720,7 +3376,10 @@
             "tags": [
               "adverbs"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "特に理由はないよ。",
+            "reading": "とくにりゆうはないよ。",
+            "romaji": "tokuni riyuu wa nai yo"
           },
           {
             "id": "mp11-14",
@@ -2732,7 +3391,10 @@
             "tags": [
               "hedging"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "しいて言うなら、たぶん値段かな。",
+            "reading": "しいていうなら、たぶんねだんかな。",
+            "romaji": "shiite iu nara, tabun nedan kana"
           },
           {
             "id": "mp11-15",
@@ -2744,7 +3406,10 @@
             "tags": [
               "chau-form"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "普通に忘れちゃってた、ごめん。",
+            "reading": "ふつうにわすれちゃってた、ごめん。",
+            "romaji": "futsuu ni wasurechatetta, gomen"
           },
           {
             "id": "mp11-16",
@@ -2756,7 +3421,10 @@
             "tags": [
               "adverbs"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "わざとじゃないよ。",
+            "reading": "わざとじゃないよ。",
+            "romaji": "wazato ja nai yo"
           },
           {
             "id": "mp11-17",
@@ -2769,7 +3437,10 @@
               "sugiru",
               "kamo"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "考えすぎたのかも。",
+            "reading": "かんがえすぎたのかも。",
+            "romaji": "kangae sugita no kamo"
           },
           {
             "id": "mp11-18",
@@ -2781,7 +3452,10 @@
             "tags": [
               "set-phrase"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "ほかに選択肢がなかった。",
+            "reading": "ほかにせんたくしがなかった。",
+            "romaji": "hoka ni sentakushi ga nakatta"
           },
           {
             "id": "mp11-19",
@@ -2793,7 +3467,10 @@
             "tags": [
               "shika-nai"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "それしか選べなかった。",
+            "reading": "それしかえらべなかった。",
+            "romaji": "sore shika erabenakatta"
           },
           {
             "id": "mp11-20",
@@ -2805,7 +3482,10 @@
             "tags": [
               "ato-ni-naru"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "あとで気づいた。",
+            "reading": "あとできづいた。",
+            "romaji": "ato de kizuita"
           }
         ]
       },
@@ -2828,7 +3508,10 @@
               "conditional",
               "tai-form"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "時間があったら行きたいな。",
+            "reading": "じかんがあったらいきたいな。",
+            "romaji": "jikan ga attara ikitai na"
           },
           {
             "id": "mp12-2",
@@ -2840,7 +3523,10 @@
             "tags": [
               "conditional"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "お金があったら買うのに。",
+            "reading": "おかねがあったらかうのに。",
+            "romaji": "okane ga attara kau noni"
           },
           {
             "id": "mp12-3",
@@ -2852,7 +3538,10 @@
             "tags": [
               "conditional"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "できるならしたいけど。",
+            "reading": "できるならしたいけど。",
+            "romaji": "dekiru nara shitai kedo"
           },
           {
             "id": "mp12-4",
@@ -2865,7 +3554,10 @@
               "conditional",
               "kamo"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "雨が降ったら中止になるかも。",
+            "reading": "あめがふったらちゅうしになるかも。",
+            "romaji": "ame ga futtara chuushi ni naru kamo"
           },
           {
             "id": "mp12-5",
@@ -2877,7 +3569,10 @@
             "tags": [
               "hedging"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "無理だと思うけど…",
+            "reading": "むりだとおもうけど…",
+            "romaji": "muri da to omou kedo"
           },
           {
             "id": "mp12-6",
@@ -2889,7 +3584,10 @@
             "tags": [
               "conditional"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "これで間違ってたらごめん。",
+            "reading": "これでまちがってたらごめん。",
+            "romaji": "kore de machigattetara gomen"
           },
           {
             "id": "mp12-7",
@@ -2901,7 +3599,10 @@
             "tags": [
               "conditional"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "自分だったら、たぶんやらないかな。",
+            "reading": "じぶんだったら、たぶんやらないかな。",
+            "romaji": "jibun dattara, tabun yaranai kana"
           },
           {
             "id": "mp12-8",
@@ -2913,7 +3614,10 @@
             "tags": [
               "conditional"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "行けるときで大丈夫だよ。",
+            "reading": "いけるときでだいじょうぶだよ。",
+            "romaji": "ikeru toki de daijoubu da yo"
           },
           {
             "id": "mp12-9",
@@ -2926,7 +3630,10 @@
               "conditional",
               "invitation"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "よかったら、一緒に来る？",
+            "reading": "よかったら、いっしょにくる？",
+            "romaji": "yokattara, issho ni kuru?"
           },
           {
             "id": "mp12-10",
@@ -2938,7 +3645,10 @@
             "tags": [
               "kamoshirenai"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "気のせいかもしれない。",
+            "reading": "きのせいかもしれない。",
+            "romaji": "ki no sei kamo shirenai"
           },
           {
             "id": "mp12-11",
@@ -2950,7 +3660,10 @@
             "tags": [
               "ba-conditional"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "うまくいけばいいな。",
+            "reading": "うまくいけばいいな。",
+            "romaji": "umaku ikeba ii na"
           },
           {
             "id": "mp12-12",
@@ -2962,7 +3675,10 @@
             "tags": [
               "conditional"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "そうなったら困るね。",
+            "reading": "そうなったらこまるね。",
+            "romaji": "sou nattara komaru ne"
           },
           {
             "id": "mp12-13",
@@ -2975,7 +3691,10 @@
               "hou-ga-ii",
               "te-oku-form"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "念のため持ってったほうがいいかも。",
+            "reading": "ねんのためもってったほうがいいかも。",
+            "romaji": "nen no tame mottetta hou ga ii kamo"
           },
           {
             "id": "mp12-14",
@@ -2987,7 +3706,10 @@
             "tags": [
               "set-phrase"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "なんとかなるよ。",
+            "reading": "なんとかなるよ。",
+            "romaji": "nantoka naru yo"
           },
           {
             "id": "mp12-15",
@@ -2999,7 +3721,10 @@
             "tags": [
               "na-adjectives"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "ちょっと何とも言えないな。",
+            "reading": "ちょっとなんともいえないな。",
+            "romaji": "chotto nantomo ienai na"
           },
           {
             "id": "mp12-16",
@@ -3011,7 +3736,10 @@
             "tags": [
               "hedging"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "半々くらいだと思う。",
+            "reading": "はんはんくらいだとおもう。",
+            "romaji": "hanhan kurai da to omou"
           },
           {
             "id": "mp12-17",
@@ -3023,7 +3751,10 @@
             "tags": [
               "tag-question"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "たぶんそういうことになるよね？",
+            "reading": "たぶんそういうことになるよね？",
+            "romaji": "tabun sou iu koto ni naru yo ne"
           },
           {
             "id": "mp12-18",
@@ -3035,7 +3766,10 @@
             "tags": [
               "te-oku-form"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "念のため聞いとく。",
+            "reading": "ねんのためきいとく。",
+            "romaji": "nen no tame kiitoku"
           },
           {
             "id": "mp12-19",
@@ -3047,7 +3781,10 @@
             "tags": [
               "ba-conditional"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "最悪、キャンセルすればいいし。",
+            "reading": "さいあく、キャンセルすればいいし。",
+            "romaji": "saiaku, kyanseru sureba ii shi"
           },
           {
             "id": "mp12-20",
@@ -3059,7 +3796,10 @@
             "tags": [
               "hedging"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "それが必ずしも正しいとは限らないよ。",
+            "reading": "それがかならずしもただしいとはかぎらないよ。",
+            "romaji": "sore ga kanarazushimo tadashii to wa kagiranai yo"
           }
         ]
       },
@@ -3081,7 +3821,10 @@
             "tags": [
               "to-omou"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "いや、それは違うと思う。",
+            "reading": "いや、それはちがうとおもう。",
+            "romaji": "iya, sore wa chigau to omou"
           },
           {
             "id": "mp13-2",
@@ -3094,7 +3837,11 @@
               "negative-question"
             ],
             "context_notes": "colloquial, grammatically loose but very common speech pattern intended",
-            "translated": false
+            "translated": true,
+            "japanese": "でもそれ、ちょっと違くない？",
+            "reading": "でもそれ、ちょっとちがくない？",
+            "romaji": "demo sore, chotto chigakunai?",
+            "literal_note": "Uses the very common colloquial form 違くない instead of the more standard 違わない."
           },
           {
             "id": "mp13-3",
@@ -3106,7 +3853,10 @@
             "tags": [
               "hedging"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "気持ちはわかるけど…",
+            "reading": "きもちはわかるけど…",
+            "romaji": "kimochi wa wakaru kedo..."
           },
           {
             "id": "mp13-4",
@@ -3118,7 +3868,10 @@
             "tags": [
               "hedging"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "言いたいことはわかるけど、それでも…",
+            "reading": "いいたいことはわかるけど、それでも…",
+            "romaji": "iitai koto wa wakaru kedo, soredemo..."
           },
           {
             "id": "mp13-5",
@@ -3130,7 +3883,10 @@
             "tags": [
               "hedging"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "うーん、それはちょっとどうかな。",
+            "reading": "うーん、それはちょっとどうかな。",
+            "romaji": "uun, sore wa chotto dou kana"
           },
           {
             "id": "mp13-6",
@@ -3142,7 +3898,10 @@
             "tags": [
               "hedging"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "個人的には別にいいと思うけど。",
+            "reading": "こじんてきにはべつにいいとおもうけど。",
+            "romaji": "kojinteki ni wa betsuni ii to omou kedo"
           },
           {
             "id": "mp13-7",
@@ -3155,7 +3914,10 @@
               "passive-form",
               "te-mo"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "そう言われても、こっちも困るんだけど。",
+            "reading": "そういわれても、こっちもこまるんだけど。",
+            "romaji": "sou iwaretemo, kocchi mo komaru n da kedo"
           },
           {
             "id": "mp13-8",
@@ -3169,7 +3931,10 @@
               "concession"
             ],
             "context_notes": "reluctant concession before pivoting back to disagreement",
-            "translated": false
+            "translated": true,
+            "japanese": "まあ、そこは認めるとしても、やっぱり…",
+            "reading": "まあ、そこはみとめるとしても、やっぱり…",
+            "romaji": "maa, soko wa mitomeru to shite mo, yappari..."
           },
           {
             "id": "mp13-9",
@@ -3181,7 +3946,10 @@
             "tags": [
               "negative-question"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "その言い方、ちょっときつくない？",
+            "reading": "そのいいかた、ちょっときつくない？",
+            "romaji": "sono iikata, chotto kitsukunai?"
           },
           {
             "id": "mp13-10",
@@ -3193,7 +3961,10 @@
             "tags": [
               "negation"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "別にケンカしたいわけじゃないんだけど。",
+            "reading": "べつにけんかしたいわけじゃないんだけど。",
+            "romaji": "betsuni kenka shitai wake ja nai n da kedo"
           },
           {
             "id": "mp13-11",
@@ -3205,7 +3976,10 @@
             "tags": [
               "te-iru-form"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "話ずれてきてるよ。",
+            "reading": "はなしずれてきてるよ。",
+            "romaji": "hanashi zurete kiteru yo"
           },
           {
             "id": "mp13-12",
@@ -3217,7 +3991,10 @@
             "tags": [
               "hedging"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "で、話戻すけど…",
+            "reading": "で、はなしもどすけど…",
+            "romaji": "de, hanashi modosu kedo..."
           },
           {
             "id": "mp13-13",
@@ -3229,7 +4006,10 @@
             "tags": [
               "suggestion"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "間を取るってのはどう？",
+            "reading": "あいだをとるってのはどう？",
+            "romaji": "aida o toru tte no wa dou?"
           },
           {
             "id": "mp13-14",
@@ -3241,7 +4021,10 @@
             "tags": [
               "volitional-form"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "とりあえず今はそれでいこう。",
+            "reading": "とりあえずいまはそれでいこう。",
+            "romaji": "toriaezu ima wa sore de ikou"
           },
           {
             "id": "mp13-15",
@@ -3253,7 +4036,10 @@
             "tags": [
               "potential-negative"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "そこは譲れない。",
+            "reading": "そこはゆずれない。",
+            "romaji": "soko wa yuzurenai"
           },
           {
             "id": "mp13-16",
@@ -3265,7 +4051,10 @@
             "tags": [
               "negation"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "正直、あんまり納得してない。",
+            "reading": "しょうじき、あんまりなっとくしてない。",
+            "romaji": "shoujiki, anmari nattoku shite nai"
           },
           {
             "id": "mp13-17",
@@ -3277,7 +4066,10 @@
             "tags": [
               "hedging"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "言いたいことはわかるけど、現実的にはきつい。",
+            "reading": "いいたいことはわかるけど、げんじつてきにはきつい。",
+            "romaji": "iitai koto wa wakaru kedo, genjitsuteki ni wa kitsui"
           },
           {
             "id": "mp13-18",
@@ -3289,7 +4081,10 @@
             "tags": [
               "fillers"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "まあ、そういう見方もあるかもね。",
+            "reading": "まあ、そういうみかたもあるかもね。",
+            "romaji": "maa, sou iu mikata mo aru kamo ne"
           },
           {
             "id": "mp13-19",
@@ -3302,7 +4097,10 @@
               "shika-nai",
               "idiomatic"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "もう折れるしかないか。",
+            "reading": "もうおれるしかないか。",
+            "romaji": "mou oreru shika nai ka"
           },
           {
             "id": "mp13-20",
@@ -3316,7 +4114,11 @@
               "volitional-form"
             ],
             "context_notes": "refers to a pointless back-and-forth argument",
-            "translated": false
+            "translated": true,
+            "japanese": "これじゃ平行線だし、もうやめよう。",
+            "reading": "これじゃへいこうせんだし、もうやめよう。",
+            "romaji": "kore ja heikousen da shi, mou yameyou",
+            "literal_note": "平行線 means the discussion is going nowhere, like two parallel lines that never meet."
           }
         ]
       },
@@ -3339,7 +4141,10 @@
               "idiomatic"
             ],
             "context_notes": "refers to the cultural concept of reading the atmosphere/mood of a situation",
-            "translated": false
+            "translated": true,
+            "japanese": "空気読んでよ、もう。",
+            "reading": "くうきよんでよ、もう。",
+            "romaji": "kuuki yonde yo, mou"
           },
           {
             "id": "mp14-2",
@@ -3351,7 +4156,10 @@
             "tags": [
               "chau-form"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "待って、それマジで言うの？",
+            "reading": "まって、それまじでいうの？",
+            "romaji": "matte, sore maji de iu no?"
           },
           {
             "id": "mp14-3",
@@ -3365,7 +4173,11 @@
               "kamo"
             ],
             "context_notes": "metaphor for accidentally upsetting someone, like stepping on a landmine",
-            "translated": false
+            "translated": true,
+            "japanese": "今の、地雷踏んだかも。",
+            "reading": "いまの、じらいふんだかも。",
+            "romaji": "ima no, jirai funda kamo",
+            "literal_note": "地雷を踏む, literally 'step on a landmine,' is a common metaphor for accidentally touching a sensitive subject."
           },
           {
             "id": "mp14-4",
@@ -3378,7 +4190,10 @@
               "honne"
             ],
             "context_notes": "expressing true feelings vs. surface-level politeness",
-            "translated": false
+            "translated": true,
+            "japanese": "正直、あんまり気乗りしない。",
+            "reading": "しょうじき、あんまりきのりしない。",
+            "romaji": "shoujiki, anmari kinori shinai"
           },
           {
             "id": "mp14-5",
@@ -3392,7 +4207,11 @@
               "shika-nai"
             ],
             "context_notes": "refers to the honne/tatemae (true feelings vs public stance) cultural concept pair",
-            "translated": false
+            "translated": true,
+            "japanese": "建前では、それしか言えないかな。",
+            "reading": "たてまえでは、それしかいえないかな。",
+            "romaji": "tatemae de wa, sore shika ienai kana",
+            "literal_note": "建前 refers to the public or official stance, which may differ from one's true feelings."
           },
           {
             "id": "mp14-6",
@@ -3404,7 +4223,10 @@
             "tags": [
               "idiomatic"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "なんか言い方が回りくどいよ。",
+            "reading": "なんかいいかたがまわりくどいよ。",
+            "romaji": "nanka iikata ga mawarikudoi yo"
           },
           {
             "id": "mp14-7",
@@ -3416,7 +4238,10 @@
             "tags": [
               "te-kureru"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "遠慮せずに、はっきり言ってくれていいよ。",
+            "reading": "えんりょせずに、はっきりいってくれていいよ。",
+            "romaji": "enryo sezu ni, hakkiri itte kurete ii yo"
           },
           {
             "id": "mp14-8",
@@ -3429,7 +4254,11 @@
               "idiomatic"
             ],
             "context_notes": "idiom for softening bad news, like wrapping something in a wafer",
-            "translated": false
+            "translated": true,
+            "japanese": "オブラートに包んで言うと…",
+            "reading": "おぶらーとにつつんでいうと…",
+            "romaji": "oburaato ni tsutsunde iu to...",
+            "literal_note": "An idiom meaning 'to put it delicately' or soften what you're about to say."
           },
           {
             "id": "mp14-9",
@@ -3441,7 +4270,10 @@
             "tags": [
               "idiomatic"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "ひねくれた見方かもしれないけど…",
+            "reading": "ひねくれたみかたかもしれないけど…",
+            "romaji": "hinekureta mikata kamo shirenai kedo..."
           },
           {
             "id": "mp14-10",
@@ -3454,7 +4286,11 @@
               "idiomatic"
             ],
             "context_notes": "describes someone secretly scheming, literally 'black-bellied'",
-            "translated": false
+            "translated": true,
+            "japanese": "あの人、けっこう腹黒いよね。",
+            "reading": "あのひと、けっこうはらぐろいよね。",
+            "romaji": "ano hito, kekkou haraguroi yo ne",
+            "literal_note": "腹黒い literally means 'black-bellied' and refers to someone sneaky, scheming, or two-faced."
           },
           {
             "id": "mp14-11",
@@ -3466,7 +4302,10 @@
             "tags": [
               "tsumori"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "冗談のつもりだったんだけど…",
+            "reading": "じょうだんのつもりだったんだけど…",
+            "romaji": "joudan no tsumori dattan da kedo..."
           },
           {
             "id": "mp14-12",
@@ -3478,7 +4317,10 @@
             "tags": [
               "idiomatic"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "悪気はなかったんだよ。",
+            "reading": "わるぎはなかったんだよ。",
+            "romaji": "warugi wa nakattan da yo."
           },
           {
             "id": "mp14-13",
@@ -3490,7 +4332,10 @@
             "tags": [
               "naide-form"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "変なふうに取らないでね？",
+            "reading": "へんなふうにとらないでね？",
+            "romaji": "hen na fuu ni toranaide ne?"
           },
           {
             "id": "mp14-14",
@@ -3502,7 +4347,10 @@
             "tags": [
               "sugiru"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "深読みしすぎだよ。",
+            "reading": "ふかよみしすぎだよ。",
+            "romaji": "fukayomi shisugi da yo."
           },
           {
             "id": "mp14-15",
@@ -3514,7 +4362,10 @@
             "tags": [
               "tsumori"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "そういうつもりじゃなかったんだ。",
+            "reading": "そういうつもりじゃなかったんだ。",
+            "romaji": "sou iu tsumori ja nakattan da."
           },
           {
             "id": "mp14-16",
@@ -3526,7 +4377,10 @@
             "tags": [
               "idiomatic"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "今の言い方、なんか含みあるよね。",
+            "reading": "いまのいいかた、なんかふくみあるよね。",
+            "romaji": "ima no iikata, nanka fukumi aru yo ne."
           },
           {
             "id": "mp14-17",
@@ -3538,7 +4392,10 @@
             "tags": [
               "idiomatic"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "おあいこだから、気にしないで。",
+            "reading": "おあいこだから、きにしないで。",
+            "romaji": "oaiko dakara, kini shinaide."
           },
           {
             "id": "mp14-18",
@@ -3552,7 +4409,11 @@
               "volitional-form"
             ],
             "context_notes": "idiom for forgiving and forgetting, literally 'let it flow away in water'",
-            "translated": false
+            "translated": true,
+            "japanese": "水に流そう。",
+            "reading": "みずにながそう。",
+            "romaji": "mizu ni nagasou.",
+            "literal_note": "Idiomatic: “let's forgive and forget.”"
           },
           {
             "id": "mp14-19",
@@ -3564,7 +4425,10 @@
             "tags": [
               "idiomatic"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "根に持つタイプじゃないから、平気だよ。",
+            "reading": "ねにもちるタイプじゃないから、へいきだよ。",
+            "romaji": "neni motsu taipu ja nai kara, heiki da yo."
           },
           {
             "id": "mp14-20",
@@ -3577,7 +4441,10 @@
               "idiomatic",
               "te-oku-form"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "まあ、大人の対応で流しておくよ。",
+            "reading": "まあ、おとなのたいおうでながしておくよ。",
+            "romaji": "maa, otona no taiou de nagashite oku yo."
           }
         ]
       },
@@ -3600,7 +4467,10 @@
               "slang"
             ],
             "context_notes": "trendy agreement phrase among younger speakers, roughly 'literally that'",
-            "translated": false
+            "translated": true,
+            "japanese": "それな。",
+            "reading": "それな。",
+            "romaji": "sorena."
           },
           {
             "id": "mp15-2",
@@ -3613,7 +4483,11 @@
               "slang",
               "internet-slang"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "それな、めっちゃわかる。",
+            "reading": "それな、めっちゃわかる。",
+            "romaji": "sorena, meccha wakaru.",
+            "literal_note": "Natural slang meaning: “I totally get that.”"
           },
           {
             "id": "mp15-3",
@@ -3627,7 +4501,10 @@
               "sugiru"
             ],
             "context_notes": "used for something emotionally touching, common in fan culture",
-            "translated": false
+            "translated": true,
+            "japanese": "尊すぎる。",
+            "reading": "とうとすぎる。",
+            "romaji": "toutosugiru."
           },
           {
             "id": "mp15-4",
@@ -3640,7 +4517,10 @@
               "slang",
               "loanword"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "エモい。",
+            "reading": "エモい。",
+            "romaji": "emoi."
           },
           {
             "id": "mp15-5",
@@ -3654,7 +4534,10 @@
               "gaming-origin"
             ],
             "context_notes": "originally from shogi/chess 'checkmate,' now slang for a hopeless situation",
-            "translated": false
+            "translated": true,
+            "japanese": "詰んだ、もうゲームオーバーだ。",
+            "reading": "つんだ、もうゲームオーバーだ。",
+            "romaji": "tsunda, mou ge-mu o-ba- da."
           },
           {
             "id": "mp15-6",
@@ -3667,7 +4550,10 @@
               "slang",
               "te-iru-form"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "もうだめだ。",
+            "reading": "もうだめだ。",
+            "romaji": "mou dame da."
           },
           {
             "id": "mp15-7",
@@ -3681,7 +4567,10 @@
               "loanword"
             ],
             "context_notes": "from English 'one chance,' popular slang for 'maybe, possibly'",
-            "translated": false
+            "translated": true,
+            "japanese": "ワンチャンあるかも。",
+            "reading": "ワンチャンあるかも。",
+            "romaji": "wanchan aru kamo."
           },
           {
             "id": "mp15-8",
@@ -3693,7 +4582,10 @@
             "tags": [
               "slang"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "それ、めっちゃわかるやつだよね。",
+            "reading": "それ、めっちゃわかるやつだよね。",
+            "romaji": "sore, meccha wakaru yatsu da yo ne."
           },
           {
             "id": "mp15-9",
@@ -3706,7 +4598,10 @@
               "slang"
             ],
             "context_notes": "uses 'god' as slang intensifying prefix meaning 'amazing'",
-            "translated": false
+            "translated": true,
+            "japanese": "それ、神対応だね。",
+            "reading": "それ、かみたいおうだね。",
+            "romaji": "sore, kamitaiou da ne."
           },
           {
             "id": "mp15-10",
@@ -3720,7 +4615,10 @@
               "fan-culture"
             ],
             "context_notes": "oshi = the person/character you actively support, core fan-culture vocabulary",
-            "translated": false
+            "translated": true,
+            "japanese": "推し、尊い。",
+            "reading": "おし、とおとい。",
+            "romaji": "oshi, toutoi."
           },
           {
             "id": "mp15-11",
@@ -3734,7 +4632,10 @@
               "slang"
             ],
             "context_notes": "refers to a deep, hard-to-escape obsession/hobby, literally 'swamp'",
-            "translated": false
+            "translated": true,
+            "japanese": "これで沼に落ちた。",
+            "reading": "これでぬまにおちた。",
+            "romaji": "kore de numa ni ochita."
           },
           {
             "id": "mp15-12",
@@ -3746,7 +4647,10 @@
             "tags": [
               "slang"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "向こう、かなり圧強いよ。",
+            "reading": "むこう、かなりあつつよいよ。",
+            "romaji": "mukou, kanari atsu tsuyoi yo."
           },
           {
             "id": "mp15-13",
@@ -3758,7 +4662,10 @@
             "tags": [
               "emphasis"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "それは完全に、疑いようなく正しい。",
+            "reading": "それはかんぜんに、うたがいようなくただしい。",
+            "romaji": "sore wa kanzen ni, utagai you naku tadashii."
           },
           {
             "id": "mp15-14",
@@ -3772,7 +4679,10 @@
               "modern-idiom"
             ],
             "context_notes": "uses 'resolution' (as in image quality) metaphorically for depth of understanding, trendy tech-adjacent speech",
-            "translated": false
+            "translated": true,
+            "japanese": "すごい解像度高い考察だね。",
+            "reading": "すごいかいぞうどたかいこうさつだね。",
+            "romaji": "sugoi kaizoudo takai kousatsu da ne."
           },
           {
             "id": "mp15-15",
@@ -3786,7 +4696,10 @@
               "meme-phrase"
             ],
             "context_notes": "well-known internet meme phrase, often used jokingly to dismiss someone's claim",
-            "translated": false
+            "translated": true,
+            "japanese": "それって、ただのあなたの感想じゃない？",
+            "reading": "それって、ただのあなたのかんそうじゃない？",
+            "romaji": "sorette, tada no anata no kansou ja nai?"
           },
           {
             "id": "mp15-16",
@@ -3799,7 +4712,10 @@
               "slang"
             ],
             "context_notes": "used when something is so impressive/moving you can't describe it",
-            "translated": false
+            "translated": true,
+            "japanese": "言葉が出ない。",
+            "reading": "ことばがでない。",
+            "romaji": "kotoba ga denai."
           },
           {
             "id": "mp15-17",
@@ -3812,7 +4728,10 @@
               "idiomatic"
             ],
             "context_notes": "metaphor of piercing/stabbing for something emotionally resonant",
-            "translated": false
+            "translated": true,
+            "japanese": "あの一言、めっちゃ刺さった。",
+            "reading": "あのひとこと、めっちゃささった。",
+            "romaji": "ano hitokoto, meccha sasatta."
           },
           {
             "id": "mp15-18",
@@ -3826,7 +4745,10 @@
               "fan-culture"
             ],
             "context_notes": "fandom-specific slang for disagreeing with someone's take on a character/story",
-            "translated": false
+            "translated": true,
+            "japanese": "いや、それ、キャラとか物語の受け取り方違うんだけど。",
+            "reading": "いや、それ、キャラとかものがたりのうけとりかたちがうんだけど。",
+            "romaji": "iya, sore, kyara toka monogatari no uketorikata chigau n da kedo."
           },
           {
             "id": "mp15-19",
@@ -3838,7 +4760,10 @@
             "tags": [
               "sugiru"
             ],
-            "translated": false
+            "translated": true,
+            "japanese": "それ、理屈が正しすぎて、もう何も返せない。",
+            "reading": "それ、りくつがただしすぎて、もうなにもかえせない。",
+            "romaji": "sore, rikutsu ga tadashi sugite, mou nanimo kaesenai."
           },
           {
             "id": "mp15-20",
@@ -3852,7 +4777,10 @@
               "hyperbole"
             ],
             "context_notes": "playful hyperbolic construction common in enthusiastic fan speech",
-            "translated": false
+            "translated": true,
+            "japanese": "もはや尊さの概念そのもの。",
+            "reading": "もはやとうとさのがいねんそのもの。",
+            "romaji": "mohaya toutosa no gainen sono mono."
           }
         ]
       }

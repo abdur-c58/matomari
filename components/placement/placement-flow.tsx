@@ -96,7 +96,7 @@ export function PlacementFlow() {
         retake: isRetake,
       });
       await setProgress(next);
-      router.replace(`/batch?source=pathway&batch=${startingBatch}&autoStart=1`);
+      router.replace(`/batch/pathway?batch=${startingBatch}`);
     } finally {
       setApplying(false);
     }

@@ -79,6 +79,18 @@ export interface AppSettings {
   placement?: PlacementResult;
   /** UI typeface for Latin headings and body (Japanese uses separate fonts). */
   uiFont?: UiFont;
+  /** Browse display on island/pathway detail pages. */
+  islandBrowseDisplay?: "en" | "jp" | "both";
+  /** Pause between sentences when playing casual playlists (ms). */
+  casualPlaylistPauseMs?: number;
+  /** Playback speed for casual island playlists. */
+  casualPlaylistPlaybackRate?: number;
+}
+
+export interface IslandBatchSnapshot {
+  activeSentenceIds: string[];
+  switchedAwayAt: string;
+  needsReturnReview?: boolean;
 }
 
 export interface UserProgress {
@@ -89,6 +101,10 @@ export interface UserProgress {
   settings: AppSettings;
   completedPathwayBatches: number[];
   completedIslands: string[];
+  /** ISO timestamps when user last opened or studied a unit (keys: "pathway" | "island:<key>"). */
+  studyUnitLastOpened?: Record<string, string>;
+  /** Saved active batches when switching away from an island mid-study. */
+  islandBatchSnapshots?: Record<string, IslandBatchSnapshot>;
 }
 
 export interface DialectStudyProgress {

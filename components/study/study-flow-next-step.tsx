@@ -17,8 +17,8 @@ export function StudyFlowNextStep({
   completedDescription = "You finished this step.",
   className,
 }: StudyFlowNextStepProps) {
-  const { dataset, progress } = useApp();
-  const flow = dataset ? getStudyFlowState(dataset, progress) : null;
+  const { dataset, progress, stats } = useApp();
+  const flow = dataset ? getStudyFlowState(dataset, progress, stats) : null;
 
   return (
     <Card className={className ?? "p-6 text-center"}>

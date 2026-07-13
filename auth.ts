@@ -16,6 +16,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           Google({
             clientId: googleClientId,
             clientSecret: googleClientSecret,
+            authorization: {
+              params: {
+                prompt: "select_account",
+              },
+            },
           }),
         ]
       : [],
@@ -37,8 +42,5 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
       return session;
     },
-  },
-  pages: {
-    signIn: "/settings",
   },
 });

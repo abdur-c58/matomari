@@ -46,7 +46,7 @@ export function StudyFocusBanner({
           )}
         </div>
         <Button variant="ghost" size="sm" asChild className="shrink-0">
-          <Link href={changeHref}>
+          <Link href={changeHref ?? focus.detailHref}>
             Change
             <ChevronRight className="ml-1 h-4 w-4" />
           </Link>
@@ -87,7 +87,7 @@ export function ChooseStudyFocus({
         </p>
       </div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
-        <Link href={`/batch?source=pathway&batch=${suggestedBatchNumber}&autoStart=1`}>
+        <Link href="/batch/pathway">
           <Card variant="interactive" className="h-full border-l-4 border-l-foreground p-4">
             <Compass className="mb-2 h-5 w-5 text-foreground" />
             <p className="font-semibold text-foreground">Continue main pathway</p>
@@ -98,11 +98,11 @@ export function ChooseStudyFocus({
               Batch {suggestedBatchNumber}: {suggestedBatchTitle}
             </p>
             <Button className="mt-3 w-full" size="sm">
-              Start learning
+              Open pathway
             </Button>
           </Card>
         </Link>
-        <Link href="/batch?source=island">
+        <Link href="/batch">
           <Card variant="interactive" className="h-full border-l-4 border-l-mode-meaning p-4">
             <Map className="mb-2 h-5 w-5 text-mode-meaning" />
             <p className="font-semibold text-foreground">Study an island</p>

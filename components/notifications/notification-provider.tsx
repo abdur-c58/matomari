@@ -5,7 +5,6 @@ import { useApp } from "@/components/providers/app-provider";
 import {
   collectPendingNotifications,
   mergeLastSent,
-  registerNotificationServiceWorker,
   showNotification,
 } from "@/lib/notifications/notification-service";
 
@@ -17,12 +16,10 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
   const progressRef = useRef(progress);
   const datasetRef = useRef(dataset);
 
-  progressRef.current = progress;
-  datasetRef.current = dataset;
-
   useEffect(() => {
-    void registerNotificationServiceWorker();
-  }, []);
+    progressRef.current = progress;
+    datasetRef.current = dataset;
+  }, [progress, dataset]);
 
   const runChecks = useCallback(async () => {
     if (checkingRef.current) return;

@@ -99,7 +99,7 @@ function applyReadingSubstitutes(
         ? learnerJapaneseName
         : substitute;
 
-    result = result.replace(substitute, replacement);
+    result = result.split(substitute).join(replacement);
   }
 
   return result;

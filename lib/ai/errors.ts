@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { ZodError } from "zod";
 
 export function formatOpenAIError(error: unknown): { message: string; status: number } {
   if (error instanceof OpenAI.APIError) {
@@ -24,6 +25,14 @@ export function formatOpenAIError(error: unknown): { message: string; status: nu
     return {
       message: error.message || "OpenAI request failed",
       status: error.status ?? 502,
+    };
+  }
+
+  if (error instanceof ZodError) {
+    return {
+      message:
+        "AI returned an invalid island shape (often from catalog reuse). Try generating again.",
+      status: 400,
     };
   }
 

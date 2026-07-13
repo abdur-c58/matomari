@@ -8,13 +8,15 @@ import { AppGate, EmptyState } from "@/components/layout/empty-state";
 import { PreparingSentences } from "@/components/layout/preparing-sentences";
 import { MeaningCheck } from "@/components/listen/meaning-check";
 import { ShadowingMode } from "@/components/listen/shadowing-mode";
+import { StudyStepLocked } from "@/components/study/study-step-locked";
 import { getActiveBatchSentences } from "@/lib/services/batch-service";
+import { getTodayPlanStepAccess } from "@/lib/services/today-plan-service";
 import { useEnsureTranslated } from "@/hooks/use-ensure-translated";
 import { Card } from "@/components/ui/card";
 
 export function ListenPageDesktop() {
   const router = useRouter();
-  const { dataset, progress, updateProgress } = useApp();
+  const { dataset, progress, stats, updateProgress } = useApp();
   const searchParams = useSearchParams();
   const step = searchParams.get("step");
   const welcome = searchParams.get("welcome") === "1";
@@ -44,6 +46,16 @@ export function ListenPageDesktop() {
     () =>
       activeSentences.filter((s) => progress.sentences[s.id]?.meaningConfirmed),
     [activeSentences, progress]
+  );
+
+  const meaningAccess = useMemo(
+    () => getTodayPlanStepAccess("meaning_check", dataset, progress, stats),
+    [dataset, progress, stats]
+  );
+
+  const shadowAccess = useMemo(
+    () => getTodayPlanStepAccess("listen_shadow", dataset, progress, stats),
+    [dataset, progress, stats]
   );
 
   useEffect(() => {
@@ -122,6 +134,17 @@ export function ListenPageDesktop() {
   }
 
   if (phase === "meaning" && unconfirmed.length > 0) {
+    if (!meaningAccess.allowed) {
+      return (
+        <AppGate>
+          <StudyStepLocked
+            lockedReason={meaningAccess.lockedReason ?? "Finish the previous steps first."}
+            continueHref={meaningAccess.continueHref ?? "/"}
+          />
+        </AppGate>
+      );
+    }
+
     return (
       <>
         {welcome && (
@@ -155,6 +178,17 @@ export function ListenPageDesktop() {
           actionLabel="Confirm meanings"
         />
       </div>
+    );
+  }
+
+  if (!shadowAccess.allowed) {
+    return (
+      <AppGate>
+        <StudyStepLocked
+          lockedReason={shadowAccess.lockedReason ?? "Finish the previous steps first."}
+          continueHref={shadowAccess.continueHref ?? "/listen?step=meaning"}
+        />
+      </AppGate>
     );
   }
 

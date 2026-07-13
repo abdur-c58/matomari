@@ -39,20 +39,17 @@ import {
   getMeta,
   setMeta,
 } from "@/lib/db/sync-queue-repository";
+import { mergeRemoteProgressPreservingLocalUi } from "@/lib/progress/merge-remote-progress";
+import { readBrowseUiPreferences } from "@/lib/preferences/browse-ui-preferences";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 import { formatDateKey } from "@/lib/utils";
-import {
-  clearUploadProgress,
-  labelForSyncTable,
-  setUploadProgress,
-  subtitleForSyncTable,
-} from "@/lib/upload-progress";
 import {
   fetchCloudSession,
   pullRemoteSnapshot,
   pushRemoteItems,
 } from "@/lib/sync/cloud-api";
 import { syncAudioToCloud, type AudioSyncResult } from "@/lib/sync/audio-sync";
+import { pullSharedTranslationsIntoLibrary } from "@/lib/services/shared-translations-service";
 
 export type SyncStatus = "idle" | "syncing" | "offline" | "error";
 
@@ -107,6 +104,25 @@ export function isBrowserOnline() {
 
 export function canSyncToCloud() {
   return isSupabaseConfigured() && isBrowserOnline();
+}
+
+const BACKGROUND_FLUSH_MS = 2500;
+let backgroundFlushTimer: number | null = null;
+let backgroundFlushInFlight: Promise<boolean> | null = null;
+
+function scheduleBackgroundSyncFlush(): void {
+  if (typeof window === "undefined") return;
+  if (backgroundFlushTimer) {
+    window.clearTimeout(backgroundFlushTimer);
+  }
+  backgroundFlushTimer = window.setTimeout(() => {
+    backgroundFlushTimer = null;
+    if (!backgroundFlushInFlight) {
+      backgroundFlushInFlight = flushSyncQueue().finally(() => {
+        backgroundFlushInFlight = null;
+      });
+    }
+  }, BACKGROUND_FLUSH_MS);
 }
 
 async function queuePush(table: SyncTable, payload: unknown) {
@@ -217,16 +233,6 @@ export async function flushSyncQueue(): Promise<boolean> {
   try {
     for (let i = 0; i < pending.length; i++) {
       const item = pending[i];
-      const isSingleBlob = pending.length === 1 && item.table === "user_datasets";
-
-      setUploadProgress({
-        active: true,
-        label: labelForSyncTable(item.table, item.payload),
-        subtitle: subtitleForSyncTable(item.table, item.payload),
-        completed: isSingleBlob ? 0 : i,
-        total: isSingleBlob ? 0 : pending.length,
-        indeterminate: isSingleBlob,
-      });
 
       const { ok, error } = await pushRemoteItems([
         { table: item.table, payload: item.payload },
@@ -234,16 +240,6 @@ export async function flushSyncQueue(): Promise<boolean> {
 
       if (ok) {
         await removeSyncItem(item.id);
-        if (!isSingleBlob) {
-          setUploadProgress({
-            active: true,
-            label: labelForSyncTable(item.table, item.payload),
-            subtitle: subtitleForSyncTable(item.table, item.payload),
-            completed: i + 1,
-            total: pending.length,
-            indeterminate: false,
-          });
-        }
       } else {
         hadFailure = true;
         await incrementSyncRetry(item.id);
@@ -271,8 +267,6 @@ export async function flushSyncQueue(): Promise<boolean> {
   } catch {
     setSyncStatus("error");
     return false;
-  } finally {
-    clearUploadProgress();
   }
 }
 
@@ -300,10 +294,25 @@ export async function pullRemoteIfNewer(): Promise<boolean> {
     }
   }
 
+  if (await pullSharedTranslationsIntoLibrary()) {
+    changed = true;
+  }
+
   if (remote.progress) {
     const localUpdated = await getMeta("progressUpdatedAt");
     if (!localUpdated || remote.progress.updatedAt > localUpdated) {
-      await saveProgress(remote.progress.data);
+      const localProgress = await getProgress();
+      const browseUi = readBrowseUiPreferences();
+      const merged = mergeRemoteProgressPreservingLocalUi(remote.progress.data, {
+        ...localProgress,
+        settings: {
+          ...localProgress.settings,
+          islandBrowseDisplay: browseUi.islandBrowseDisplay,
+          casualPlaylistPauseMs: browseUi.casualPlaylistPauseMs,
+          casualPlaylistPlaybackRate: browseUi.casualPlaylistPlaybackRate,
+        },
+      });
+      await saveProgress(merged);
       await setMeta("progressUpdatedAt", remote.progress.updatedAt);
       changed = true;
     }
@@ -380,6 +389,8 @@ export async function manualSync(): Promise<ManualSyncResult> {
 
   setSyncStatus("syncing", "Syncing library to cloud…");
 
+  await pullSharedTranslationsIntoLibrary();
+
   const hasLibrary = await enqueueLocalSnapshot();
   const supabaseOk = await syncAll();
 
@@ -422,7 +433,7 @@ async function persistWithSync(
   await queuePush(table, payload);
 
   if (canSyncToCloud()) {
-    await flushSyncQueue();
+    scheduleBackgroundSyncFlush();
   } else if (isSupabaseConfigured()) {
     setSyncStatus("offline", "No internet connection");
   }
@@ -450,7 +461,7 @@ export async function saveDatasetSynced(
   }
 
   if (canSyncToCloud()) {
-    await flushSyncQueue();
+    scheduleBackgroundSyncFlush();
   } else if (isSupabaseConfigured()) {
     setSyncStatus("offline", "No internet connection");
   }

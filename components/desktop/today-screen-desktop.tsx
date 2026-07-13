@@ -3,23 +3,17 @@
 import Link from "next/link";
 import { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import { useApp } from "@/components/providers/app-provider";
-import { buildTodayPlan } from "@/lib/services/today-plan-service";
 import { getDailyStudyStatus } from "@/lib/services/daily-progress-service";
 import { shouldShowPlacement } from "@/lib/services/placement-service";
 import { useSyncTodayCompletion } from "@/hooks/use-sync-today-completion";
+import { useAutoResumeDailyFocus } from "@/hooks/use-auto-resume-daily-focus";
+import { resolveDailyBatchConfig } from "@/lib/services/daily-focus-service";
 import {
   getStudyFocusLabel,
   getStudyFocusProgress,
-  getSuggestedPathwayBatch,
-  getPathwayBatchStats,
-  getIslandSummaries,
 } from "@/lib/services/study-focus-service";
-import {
-  StudyFocusBanner,
-  ChooseStudyFocus,
-} from "@/components/batch/study-focus-banner";
+import { StudyFocusBanner } from "@/components/batch/study-focus-banner";
 import { StudyFlowGuide } from "@/components/study/study-flow-guide";
 import { AppGate } from "@/components/layout/empty-state";
 import { DesktopPageShell } from "@/components/layout/desktop-page-shell";
@@ -28,13 +22,14 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AskButton } from "@/components/ai/ask-button";
 import { TodayHero } from "@/components/today/today-hero";
-import { TodayPlanCard } from "@/components/today/today-plan-card";
-import { fadeUp, staggerContainer } from "@/lib/motion";
+import { TodayPlanGrid } from "@/components/today/today-plan-grid";
+import { CasualListenProgress } from "@/components/study/casual-listen-progress";
 
 export function TodayScreenDesktop() {
   const router = useRouter();
   const { dataset, progress, stats, loading, syncStatus } = useApp();
   useSyncTodayCompletion();
+  useAutoResumeDailyFocus();
 
   useEffect(() => {
     if (loading || !dataset) return;
@@ -43,33 +38,23 @@ export function TodayScreenDesktop() {
     }
   }, [loading, dataset, progress, router]);
 
-  const plan = useMemo(
-    () => buildTodayPlan(dataset, progress, stats),
-    [dataset, progress, stats]
-  );
-
   const studyFocus = useMemo(
     () => (dataset ? getStudyFocusLabel(dataset, progress) : null),
     [dataset, progress]
   );
 
   const focusProgress = useMemo(
-    () => (dataset ? getStudyFocusProgress(dataset, progress) : { activeCount: 0, confirmedCount: 0 }),
+    () =>
+      dataset
+        ? getStudyFocusProgress(dataset, progress)
+        : { activeCount: 0, confirmedCount: 0 },
     [dataset, progress]
   );
 
-  const chooseFocusMeta = useMemo(() => {
-    if (!dataset || progress.batchConfig) return null;
-    const suggested = getSuggestedPathwayBatch(dataset, progress);
-    const batchStats = getPathwayBatchStats(dataset, progress);
-    const batch = batchStats.find((b) => b.batchNumber === suggested);
-    const islands = getIslandSummaries(dataset, progress);
-    return {
-      suggestedBatchNumber: suggested,
-      suggestedBatchTitle: batch?.title ?? `Batch ${suggested}`,
-      islandCount: islands.length,
-    };
-  }, [dataset, progress]);
+  const hasDailyFocus = useMemo(
+    () => Boolean(dataset && resolveDailyBatchConfig(dataset, progress)),
+    [dataset, progress]
+  );
 
   const dailyStatus = useMemo(
     () => getDailyStudyStatus(dataset, progress, stats),
@@ -100,63 +85,52 @@ export function TodayScreenDesktop() {
         />
 
         <div className="mx-auto w-full max-w-[1400px] space-y-6 px-8 pb-6 pt-6">
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_320px]">
-          <div className="space-y-6">
-            {progress.batchConfig && <StudyFlowGuide />}
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_320px]">
+            <div className="space-y-6">
+              {dailyStatus.hasBatch && <CasualListenProgress />}
 
-            {chooseFocusMeta && (
-              <ChooseStudyFocus
-                suggestedBatchTitle={chooseFocusMeta.suggestedBatchTitle}
-                suggestedBatchNumber={chooseFocusMeta.suggestedBatchNumber}
-                islandCount={chooseFocusMeta.islandCount}
+              {hasDailyFocus && <StudyFlowGuide />}
+
+              <TodayPlanGrid
+                layout="grid"
+                cardClassName="desktop-hover-lift h-full"
               />
-            )}
 
-            {plan.length > 0 && (
-              <motion.div
-                className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
-                variants={staggerContainer}
-                initial="hidden"
-                animate="visible"
-              >
-                {plan.map((item, i) => (
-                  <motion.div key={item.type} variants={fadeUp} className="h-full">
-                    <TodayPlanCard item={item} primary={i === 0} className="desktop-hover-lift h-full" />
-                  </motion.div>
-                ))}
-              </motion.div>
-            )}
+              {hasDailyFocus && (
+                <div className="flex gap-3">
+                  <Button variant="secondary" asChild>
+                    <Link href="/prepare">Pre-study</Link>
+                  </Button>
+                  <Button variant="secondary" asChild>
+                    <Link href="/weak">Weak sentences</Link>
+                  </Button>
+                </div>
+              )}
+            </div>
 
-            {progress.batchConfig && (
-              <div className="flex gap-3">
-                <Button variant="secondary" asChild>
-                  <Link href="/prepare">Pre-study</Link>
-                </Button>
-                <Button variant="secondary" asChild>
-                  <Link href="/weak">Weak sentences</Link>
-                </Button>
-              </div>
-            )}
+            <aside className="space-y-4">
+              {studyFocus && (
+                <StudyFocusBanner focus={studyFocus} progress={focusProgress} />
+              )}
+              <Card className="p-4">
+                <p className="text-sm font-medium text-foreground">Need help?</p>
+                <p className="mt-1 text-sm text-muted">
+                  Ask the AI tutor or read the method guide.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <AskButton
+                    context={{ type: "general" }}
+                    label="Ask tutor"
+                    variant="secondary"
+                    size="sm"
+                  />
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link href="/guide">Method guide</Link>
+                  </Button>
+                </div>
+              </Card>
+            </aside>
           </div>
-
-          <aside className="space-y-4">
-            {studyFocus && (
-              <StudyFocusBanner focus={studyFocus} progress={focusProgress} />
-            )}
-            <Card className="p-4">
-              <p className="text-sm font-medium text-foreground">Need help?</p>
-              <p className="mt-1 text-sm text-muted">
-                Ask the AI tutor or read the method guide.
-              </p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <AskButton context={{ type: "general" }} label="Ask tutor" variant="secondary" size="sm" />
-                <Button variant="ghost" size="sm" asChild>
-                  <Link href="/guide">Method guide</Link>
-                </Button>
-              </div>
-            </Card>
-          </aside>
-        </div>
         </div>
       </DesktopPageShell>
     </AppGate>

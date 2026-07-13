@@ -3,6 +3,7 @@ import { getOpenAIClient, getOpenAIModel, isOpenAIConfigured } from "@/lib/ai/op
 import { openAIErrorResponse } from "@/lib/ai/errors";
 import { buildTranslationPrompt } from "@/lib/ai/prompts";
 import { translateRequestSchema, translateResponseSchema } from "@/lib/ai/schemas";
+import { upsertSharedTranslationBatch } from "@/lib/supabase/shared-translations-data";
 
 export async function POST(request: Request) {
   try {
@@ -43,6 +44,14 @@ export async function POST(request: Request) {
     }
 
     const parsed = translateResponseSchema.parse(JSON.parse(raw));
+
+    // Publish to the shared translation pool so every account can fetch by sentence id.
+    try {
+      await upsertSharedTranslationBatch(parsed.translations, dialect);
+    } catch {
+      // Non-fatal — local persist still succeeds if shared publish fails.
+    }
+
     return NextResponse.json(parsed);
   } catch (e) {
     return openAIErrorResponse(e);

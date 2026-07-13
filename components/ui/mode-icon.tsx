@@ -14,6 +14,12 @@ const modeConfig: Record<
   TodayPlanType,
   { icon: LucideIcon; bg: string; text: string; kanji: string }
 > = {
+  return_review: {
+    icon: RefreshCw,
+    bg: "bg-mode-recall/10",
+    text: "text-mode-recall",
+    kanji: "復",
+  },
   meaning_check: {
     icon: Eye,
     bg: "bg-mode-meaning/10",
@@ -65,6 +71,7 @@ export function ModeIcon({
 }
 
 export const modeAccentBorder: Record<TodayPlanType, string> = {
+  return_review: "border-l-mode-recall",
   meaning_check: "border-l-mode-meaning",
   listen_shadow: "border-l-mode-listen",
   active_recall: "border-l-mode-recall",
@@ -72,6 +79,7 @@ export const modeAccentBorder: Record<TodayPlanType, string> = {
 };
 
 export const modeBadgeStyles: Record<TodayPlanType, string> = {
+  return_review: "bg-mode-recall/10 text-mode-recall",
   meaning_check: "bg-mode-meaning/10 text-mode-meaning",
   listen_shadow: "bg-mode-listen/10 text-mode-listen",
   active_recall: "bg-mode-recall/10 text-mode-recall",
@@ -79,6 +87,7 @@ export const modeBadgeStyles: Record<TodayPlanType, string> = {
 };
 
 export const modeKanji: Record<TodayPlanType, string> = {
+  return_review: modeConfig.return_review.kanji,
   meaning_check: modeConfig.meaning_check.kanji,
   listen_shadow: modeConfig.listen_shadow.kanji,
   active_recall: modeConfig.active_recall.kanji,
@@ -86,6 +95,7 @@ export const modeKanji: Record<TodayPlanType, string> = {
 };
 
 export const modeAccentColor: Record<TodayPlanType, string> = {
+  return_review: "var(--mode-recall)",
   meaning_check: "var(--mode-meaning)",
   listen_shadow: "var(--mode-listen)",
   active_recall: "var(--mode-recall)",

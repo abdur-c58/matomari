@@ -6,7 +6,6 @@ import {
   fetchRemoteProgressAdmin,
   fetchRemoteStatsAdmin,
   pushRemoteDataAdmin,
-  checkSyncTablesReady,
 } from "@/lib/supabase/server-sync";
 
 type PushItem = {

@@ -42,6 +42,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { fetchIslandThemeKanji } from "@/lib/services/study-unit-kanji-service";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -123,8 +124,10 @@ function SentenceReviewPanel({
 
 export function CreateManualIslandDialog({
   onCreated,
+  compact = false,
 }: {
   onCreated?: (key: string) => void;
+  compact?: boolean;
 }) {
   const { dataset, addIsland, translateSentenceIds } = useApp();
 
@@ -276,7 +279,16 @@ export function CreateManualIslandDialog({
       }
 
       const island = buildManualIsland(islandKey, name, description, sentences);
-      await addIsland(islandKey, island);
+      const themeKanji = await fetchIslandThemeKanji({
+        title: name.trim(),
+        description: description.trim() || island.description,
+        subtopics: island.subtopics,
+      });
+
+      await addIsland(islandKey, {
+        ...island,
+        ...(themeKanji ? { themeKanji } : {}),
+      });
 
       const ids = island.sentences.filter(needsTranslation).map((s) => s.id);
       if (ids.length === 0) {
@@ -312,9 +324,16 @@ export function CreateManualIslandDialog({
       }}
     >
       <DialogTrigger asChild>
-        <Button variant="outline" className="mt-2 w-full">
-          <PenLine className="mr-2 h-4 w-4" />
-          Create island manually
+        <Button
+          variant="outline"
+          size="sm"
+          className={cn(
+            "shrink-0 rounded-full border-border/70",
+            !compact && "mt-2 w-full"
+          )}
+        >
+          <PenLine className="mr-1.5 h-3.5 w-3.5" />
+          {compact ? "Manual" : "Create island manually"}
         </Button>
       </DialogTrigger>
       <DialogContent className="grid-rows-[auto_minmax(0,1fr)] p-0 sm:p-0">

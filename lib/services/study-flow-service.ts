@@ -1,10 +1,17 @@
 import type { Dataset } from "@/types/sentence";
 import type { UserProgress } from "@/types/progress";
+import type { AppStats } from "@/types/stats";
 import { getActiveBatchIds, getActiveBatchSentences } from "./batch-service";
+import {
+  getReturnReviewIds,
+  withResolvedDailyBatch,
+} from "./daily-focus-service";
+import { hasShadowSessionToday } from "./daily-progress-service";
 import { buildTodayPlan } from "./today-plan-service";
 import { getDueRecallIds, getDueReviewIds } from "./srs-service";
 
 export type StudyFlowStep =
+  | "return_review"
   | "confirm_meanings"
   | "shadow"
   | "active_recall"
@@ -33,6 +40,12 @@ const STEP_META: Record<
   StudyFlowStep,
   { title: string; instruction: string; label: string }
 > = {
+  return_review: {
+    title: "Quick review",
+    instruction:
+      "Before continuing, check you still remember sentences from this island.",
+    label: "Start quick review",
+  },
   confirm_meanings: {
     title: "Confirm meanings",
     instruction:
@@ -65,41 +78,56 @@ const STEP_META: Record<
 };
 
 function resolveCurrentStep(
+  returnReview: number,
   confirmComplete: boolean,
+  shadowedToday: boolean,
   dueRecall: number,
   dueReview: number
 ): StudyFlowStep {
+  if (returnReview > 0) return "return_review";
   if (!confirmComplete) return "confirm_meanings";
+  if (!shadowedToday) return "shadow";
   if (dueRecall > 0) return "active_recall";
   if (dueReview > 0) return "review";
-  if (confirmComplete) return "shadow";
   return "complete";
 }
 
 export function getStudyFlowState(
   dataset: Dataset | null,
-  progress: UserProgress
+  progress: UserProgress,
+  stats?: AppStats | null
 ): StudyFlowState | null {
-  if (!dataset || !progress.batchConfig) return null;
+  const effective = withResolvedDailyBatch(dataset, progress);
+  if (!dataset || !effective?.batchConfig) return null;
 
-  const activeSentences = getActiveBatchSentences(dataset, progress);
-  const activeIds = getActiveBatchIds(progress);
+  const config = effective.batchConfig;
+  const activeSentences = getActiveBatchSentences(dataset, effective, config);
+  const activeIds = getActiveBatchIds(effective, config);
   const activeTotal = activeSentences.length;
 
+  const returnReview = getReturnReviewIds(effective);
   const unconfirmed = activeSentences.filter(
-    (s) => !progress.sentences[s.id]?.meaningConfirmed
+    (s) => !effective.sentences[s.id]?.meaningConfirmed
   );
   const confirmedCount = activeTotal - unconfirmed.length;
   const confirmComplete = unconfirmed.length === 0 && activeTotal > 0;
+  const shadowedToday = stats ? hasShadowSessionToday(stats) : false;
 
-  const dueRecall = getDueRecallIds(progress.sentences, activeIds);
-  const dueReview = getDueReviewIds(progress.sentences);
+  const dueRecall = getDueRecallIds(effective.sentences, activeIds);
+  const dueReview = getDueReviewIds(effective.sentences);
 
   const currentStep = resolveCurrentStep(
+    returnReview.length,
     confirmComplete,
+    shadowedToday,
     dueRecall.length,
     dueReview.length
   );
+
+  const returnReviewHref =
+    returnReview.length > 0
+      ? `/recall?ids=${returnReview.join(",")}&mode=return`
+      : "/recall";
 
   const recallHref =
     dueRecall.length > 0
@@ -111,7 +139,22 @@ export function getStudyFlowState(
       ? `/recall?ids=${dueReview.join(",")}&mode=review`
       : "/recall?mode=review";
 
-  const steps: StudyFlowStepInfo[] = [
+  const steps: StudyFlowStepInfo[] = [];
+
+  if (returnReview.length > 0) {
+    steps.push({
+      step: "return_review",
+      title: STEP_META.return_review.title,
+      instruction: STEP_META.return_review.instruction,
+      href: returnReviewHref,
+      done: 0,
+      total: returnReview.length,
+      isComplete: false,
+      isCurrent: currentStep === "return_review",
+    });
+  }
+
+  steps.push(
     {
       step: "confirm_meanings",
       title: STEP_META.confirm_meanings.title,
@@ -127,9 +170,9 @@ export function getStudyFlowState(
       title: STEP_META.shadow.title,
       instruction: STEP_META.shadow.instruction,
       href: "/listen?step=shadow",
-      done: confirmComplete ? activeTotal : 0,
+      done: confirmComplete && shadowedToday ? activeTotal : 0,
       total: activeTotal,
-      isComplete: false,
+      isComplete: confirmComplete && shadowedToday,
       isCurrent: currentStep === "shadow",
     },
     {
@@ -141,8 +184,8 @@ export function getStudyFlowState(
       total: Math.max(dueRecall.length, confirmComplete ? 1 : 0),
       isComplete: dueRecall.length === 0 && confirmComplete,
       isCurrent: currentStep === "active_recall",
-    },
-  ];
+    }
+  );
 
   if (dueReview.length > 0) {
     steps.push({
@@ -157,19 +200,21 @@ export function getStudyFlowState(
     });
   }
 
-  const plan = buildTodayPlan(dataset, progress);
+  const plan = buildTodayPlan(dataset, progress, stats);
   const nextItem = plan[0];
   const nextHref = nextItem?.href ?? "/listen";
   const nextLabel =
-    nextItem?.type === "meaning_check"
-      ? STEP_META.confirm_meanings.label
-      : nextItem?.type === "listen_shadow"
-        ? STEP_META.shadow.label
-        : nextItem?.type === "active_recall"
-          ? STEP_META.active_recall.label
-          : nextItem?.type === "review"
-            ? STEP_META.review.label
-            : STEP_META.complete.label;
+    nextItem?.type === "return_review"
+      ? STEP_META.return_review.label
+      : nextItem?.type === "meaning_check"
+        ? STEP_META.confirm_meanings.label
+        : nextItem?.type === "listen_shadow"
+          ? STEP_META.shadow.label
+          : nextItem?.type === "active_recall"
+            ? STEP_META.active_recall.label
+            : nextItem?.type === "review"
+              ? STEP_META.review.label
+              : STEP_META.complete.label;
 
   return {
     steps,
@@ -184,7 +229,8 @@ export function getNextStudyHref(
   progress: UserProgress,
   options?: { welcome?: boolean }
 ): string {
-  if (!dataset || !progress.batchConfig) return "/batch";
+  const effective = withResolvedDailyBatch(dataset, progress);
+  if (!dataset || !effective?.batchConfig) return "/batch";
 
   const state = getStudyFlowState(dataset, progress);
   if (!state) return "/batch";
@@ -200,7 +246,8 @@ export function getNextStepAfterShadow(
   dataset: Dataset | null,
   progress: UserProgress
 ): { href: string; label: string } {
-  if (!dataset || !progress.batchConfig) {
+  const effective = withResolvedDailyBatch(dataset, progress);
+  if (!dataset || !effective?.batchConfig) {
     return { href: "/", label: "Back to Today" };
   }
 

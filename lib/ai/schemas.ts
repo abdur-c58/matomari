@@ -93,12 +93,24 @@ export const islandRequestSchema = z.object({
   existingIslandKeys: z.array(z.string()).optional(),
 });
 
+export const generatedIslandSentenceSchema = z.object({
+  id: z.string().min(1),
+  english: z.string().min(1).optional(),
+  register: z.enum(["casual", "polite", "formal"]).optional(),
+  difficulty: z.number().optional(),
+  category: z.string().optional(),
+  subtopic: z.string().optional(),
+  tags: z.array(z.string()).optional(),
+  context_notes: z.string().optional(),
+  translated: z.boolean().optional(),
+});
+
 export const islandGenerationResponseSchema = z.object({
   islandKey: z.string().min(1),
   description: z.string(),
   subtopics: z.array(z.string()),
   reusedIds: z.array(z.string()),
-  sentences: z.array(seedSentenceSchema),
+  sentences: z.array(generatedIslandSentenceSchema),
 });
 
 export const translateRequestSchema = z.object({
@@ -133,6 +145,7 @@ export const islandSuggestionsRequestSchema = z.object({
   existingIslandKeys: z.array(z.string()),
   pathwayBatchTitles: z.array(z.string()),
   pathwaySubtopics: z.array(z.string()).optional(),
+  refresh: z.boolean().optional().default(false),
 });
 
 export const islandSuggestionSchema = z.object({
@@ -162,6 +175,26 @@ export const sentenceReviewResponseSchema = z.object({
   suggestedRegister: z.enum(["casual", "polite", "formal"]),
   suggestedContextNotes: z.string().optional(),
   hasIssues: z.boolean(),
+});
+
+export const sentenceIntentMessageSchema = z.object({
+  role: z.enum(["user", "assistant"]),
+  content: z.string().min(1),
+});
+
+export const sentenceIntentRequestSchema = z.object({
+  english: z.string().min(1).max(500),
+  islandName: z.string().max(120).optional(),
+  register: z.enum(["casual", "polite", "formal"]).optional(),
+  conversationHistory: z.array(sentenceIntentMessageSchema).optional(),
+});
+
+export const sentenceIntentResponseSchema = z.object({
+  status: z.enum(["ready", "clarify"]),
+  question: z.string().optional(),
+  refinedEnglish: z.string().optional(),
+  suggestedRegister: z.enum(["casual", "polite", "formal"]).optional(),
+  suggestedContextNotes: z.string().optional(),
 });
 
 export const transcriptSegmentRequestSchema = z.object({

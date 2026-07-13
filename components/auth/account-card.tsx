@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import { signInWithGoogle, signOutCompletely } from "@/lib/auth/client-auth";
 import { LogIn, LogOut } from "lucide-react";
 import { useApp } from "@/components/providers/app-provider";
 import { Button } from "@/components/ui/button";
@@ -75,7 +76,7 @@ export function AccountCard() {
               Sign in with Google to sync your library across devices.
             </p>
           </div>
-          <Button onClick={() => signIn("google")}>
+          <Button onClick={() => void signInWithGoogle()}>
             <LogIn className="mr-2 h-4 w-4" />
             Sign in
           </Button>
@@ -93,7 +94,7 @@ export function AccountCard() {
             {session.user.email ?? session.user.name ?? "Signed in"}
           </p>
         </div>
-        <Button variant="secondary" onClick={() => signOut()}>
+        <Button variant="secondary" onClick={() => void signOutCompletely()}>
           <LogOut className="mr-2 h-4 w-4" />
           Sign out
         </Button>

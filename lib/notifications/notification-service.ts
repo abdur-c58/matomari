@@ -9,6 +9,7 @@ import {
 import { getDueReviewIds } from "@/lib/services/srs-service";
 import { isDue } from "@/lib/utils";
 import { APP_NAME } from "@/lib/constants/branding";
+import { registerAppServiceWorker } from "@/lib/pwa/register-service-worker";
 
 export function normalizeNotificationPreferences(
   raw: Partial<NotificationPreferences> | undefined
@@ -51,12 +52,7 @@ export async function requestNotificationPermission(): Promise<NotificationPermi
 }
 
 export async function registerNotificationServiceWorker(): Promise<ServiceWorkerRegistration | null> {
-  if (typeof window === "undefined" || !("serviceWorker" in navigator)) return null;
-  try {
-    return await navigator.serviceWorker.register("/sw.js", { scope: "/" });
-  } catch {
-    return null;
-  }
+  return registerAppServiceWorker();
 }
 
 function todayKey(): string {
@@ -160,7 +156,7 @@ export function collectPendingNotifications(
         tag: `kotoshima-island-${islandKey}`,
         title: `${label} island`,
         body: `${dueCount} review${dueCount === 1 ? "" : "s"} waiting in your ${label} island.`,
-        url: `/batch?source=island`,
+        url: `/batch/island/${islandKey}`,
         lastSentPatch: {
           islands: { ...(prefs.lastSent.islands ?? {}), [islandKey]: today },
         },

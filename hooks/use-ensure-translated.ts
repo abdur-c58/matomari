@@ -14,10 +14,12 @@ export function useEnsureTranslated(sentenceIds: string[]) {
   const [error, setError] = useState<string | null>(null);
 
   const sentenceIdsRef = useRef(sentenceIds);
-  sentenceIdsRef.current = sentenceIds;
-
   const ensureTranslatedRef = useRef(ensureTranslated);
-  ensureTranslatedRef.current = ensureTranslated;
+
+  useEffect(() => {
+    sentenceIdsRef.current = sentenceIds;
+    ensureTranslatedRef.current = ensureTranslated;
+  }, [sentenceIds, ensureTranslated]);
 
   const run = useCallback(async () => {
     const ids = sentenceIdsRef.current.filter(Boolean);

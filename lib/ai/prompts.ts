@@ -7,6 +7,21 @@ const METHOD_SUMMARY = `${APP_NAME} is a Japanese learning app using a three-ste
 3. Active recall from English prompts with honest self-rating (1-5 stars)
 Sentences retire from the active batch at 4+ stars and enter spaced repetition review.`;
 
+/**
+ * Shared rules for AI-generated study sentences (islands, translation, review).
+ * One sentences[] entry = one study card; english may hold multiple sentences when natural.
+ */
+export const STUDY_SENTENCE_SHAPE_RULES = `STUDY UNIT SHAPE:
+- Each entry in a sentences array is ONE study unit (one card in the app).
+- The english field may contain multiple sentences when they form a natural mini-unit (e.g. a remark and a closely related follow-up, or a situation plus a natural reaction). Separate sentences with ". " and use normal punctuation.
+- Do not merge unrelated lines to reduce count. Do not split a natural pair into separate entries when learners would study them together.
+- Keep each unit concise and speakable in one shadowing pass — typically one or two short sentences, not a paragraph.
+
+LEARNER PERSONALIZATION ([name]):
+- When personalization fits the theme or situation, use [name] in english for the learner's own name — not only introductions, but also possessions, experiences, stories, apologies, requests, and other natural contexts at the target level.
+- [name] may appear once or multiple times per unit, in any grammatical role (subject, possessive, object, etc.). Vary phrasing across the set; avoid repeating the same [name] template.
+- Use [name] only where it genuinely improves usefulness — most sentences in a set should not use it. Never use ___ or underscores; always [name].`;
+
 export function buildTutorSystemPrompt(
   context: TutorContext,
   summary: DatasetSummary
@@ -91,6 +106,7 @@ export function buildIslandGenerationPrompt(
       difficulty: s.difficulty,
       category: s.category,
       hasJapanese: Boolean(s.japanese?.trim()),
+      ...(s.japanese?.trim() ? { japanese: s.japanese.trim() } : {}),
     }))
   );
 
@@ -129,15 +145,18 @@ RULES:
     }
   ]
 }
-2. For reusedIds: include ONLY {"id": "existing-id"} in sentences — they will be resolved from catalog.
-3. For NEW sentences: English only — do NOT include japanese/reading/romaji. Use id pattern "{islandKey}-001", etc.
+2. For reusedIds: list catalog ids in reusedIds AND in sentences use ONLY {"id": "existing-id"} — no other fields.
+3. For NEW sentences: include ALL fields (english, register, difficulty, category, subtopic, tags). English only — no japanese/reading/romaji. Use id pattern "{islandKey}-001", etc.
 4. Set translated: false on all new sentences.
 5. NO duplicate english text within the island.
 6. NO duplicate ids within the island.
-7. Prefer reusing 20-40% of catalog entries when they fit the theme AND match the target level.
-8. New English sentences must be practical, natural phrases for the theme at the target level.
-9. subtopics array should list all subtopics used in sentences.
-10. Match grammar complexity, sentence length, and vocabulary to the target level — do not exceed it.`;
+7. When reusing catalog sentences, do NOT reuse two entries with the same japanese translation.
+8. Prefer reusing 20-40% of catalog entries when they fit the theme AND match the target level.
+9. New English sentences must be practical, natural phrases for the theme at the target level.
+10. subtopics array should list all subtopics used in sentences.
+11. Match grammar complexity, sentence length, and vocabulary to the target level — do not exceed it.
+
+${STUDY_SENTENCE_SHAPE_RULES}`;
 }
 
 export function buildIslandSuggestionsPrompt(input: {
@@ -250,6 +269,7 @@ PHILOSOPHY:
 - Prefer natural spoken Japanese over textbook-stiff phrasing
 - Match the register field exactly: casual = plain/informal, polite = です/ます, formal = keigo where appropriate
 - Use category, subtopic, tags, and context_notes for situational tone
+- If english contains multiple sentences, translate them as ONE study unit — preserve the same number and flow of sentences in japanese, reading, and romaji
 - For standard dialect, the TTS engine speaks directly from the japanese kanji/kana surface form (it handles pitch accent and intonation correctly from kanji) — reading is the authoritative pronunciation guide for learners and the kana fallback when a surface form can't be used (placeholders, mixed scripts). It must be 100% kana (hiragana/katakana), never kanji, and must reflect every reading choice in japanese exactly — correct pitch accent, compound verbs, rendaku, and particle は→わ / へ→え where spoken
 - Keep loanwords in katakana in reading (アメリカ not あめりか). For sokuon clusters (しゅっしん, がっこう), write them precisely — small ゅ/ょ and っ are required
 - Use Japanese punctuation in reading for natural delivery: 、 before a trailing exasperated もう/ね, ？ for questions, ！ for emphasis. Example: くうきよんでよ、もう。
@@ -258,10 +278,11 @@ PHILOSOPHY:
 PLACEHOLDERS (template blanks):
 - If English or context_notes indicate a fill-in blank (e.g. learner's own name, location, time):
   - Use [tag] syntax in japanese, english, and romaji (e.g. [name], [place]) — never use ___ or underscores in any field
-  - reading must be 100% kana with NO brackets — use a natural spoken substitute (e.g. なまえ for [name])
+  - reading must be 100% kana with NO brackets — use a natural spoken substitute at each position (e.g. なまえ for [name])
   - Include placeholders array on each translation that needs it:
     { "tag": "name", "resolveAs": "learner", "readingSubstitute": "なまえ" }
-  - resolveAs "learner" when the learner fills in their own info (self-introduction); "literal" when referring to someone else (e.g. "my friend [name]")
+  - resolveAs "learner" when [name] refers to the studying user (including narrative, possessive, and multi-clause sentences — not only self-introductions); "literal" when the blank is someone else's name or a generic slot
+  - Repeat [name] in japanese/reading substitutes at every occurrence; use the same readingSubstitute each time unless context requires a different spoken form (e.g. possessive)
   - For Kansai, phonetic_reading must also use kana substitutes (no brackets), matching placeholder positions
 
 Return valid JSON only:
@@ -300,7 +321,7 @@ TASK:
 
 For each sentence:
 - japanese: the study line as it appears (or naturally trimmed) in the transcript
-- english: natural English meaning for the learner
+- english: natural English meaning for the learner; may be multiple sentences in one entry when the excerpt is a natural mini-unit
 - reading: kana-only pronunciation guide for TTS — hiragana/katakana ONLY, no kanji; match spoken delivery
 - romaji: optional romaji
 - register: casual | polite | formal — match how it is spoken
@@ -344,13 +365,15 @@ export function buildSentenceReviewPrompt(input: {
 
   return `Review this English sentence for a Japanese language-learning app. The learner will translate it to Japanese later.
 
+${STUDY_SENTENCE_SHAPE_RULES}
+
 ${context ? `${context}\n` : ""}
 SENTENCE:
 "${input.english}"
 
 Return JSON only:
 {
-  "correctedEnglish": "grammar-corrected version; if already fine, return the original unchanged",
+  "correctedEnglish": "grammar-corrected version; preserve multiple sentences when they form one natural study unit; if already fine, return the original unchanged",
   "grammarNotes": ["0-2 brief bullets on grammar fixes, or empty if none"],
   "toneQuestions": ["0-2 short questions ONLY if tone/register/situation is ambiguous — e.g. 'Is this spoken to a friend or coworker?'"],
   "suggestedRegister": "casual" | "polite" | "formal",
@@ -359,6 +382,54 @@ Return JSON only:
 }
 
 Be concise. Skip toneQuestions when the sentence is clear. Do not over-correct natural spoken English.`;
+}
+
+export function buildSentenceIntentPrompt(input: {
+  english: string;
+  islandName?: string;
+  register?: string;
+  conversationHistory?: { role: "user" | "assistant"; content: string }[];
+}): string {
+  const history =
+    input.conversationHistory?.length ?
+      `\nPRIOR CLARIFICATION:\n${input.conversationHistory
+        .map((m) => `${m.role}: ${m.content}`)
+        .join("\n")}\n`
+    : "";
+
+  const context = [
+    input.islandName ? `Island theme: ${input.islandName}` : null,
+    input.register ? `Preferred register if known: ${input.register}` : null,
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  return `You help a Japanese learner add a custom English sentence to their study island.
+
+${STUDY_SENTENCE_SHAPE_RULES}
+
+Decide whether the meaning is clear enough to translate to Japanese, or whether you need ONE short clarification question.
+
+${context ? `${context}\n` : ""}${history}
+CURRENT INPUT:
+"${input.english}"
+
+Return JSON only:
+{
+  "status": "ready" | "clarify",
+  "question": "only when status is clarify — one short question",
+  "refinedEnglish": "when status is ready — clean English to translate; may include multiple sentences when the learner input is one natural study unit",
+  "suggestedRegister": "casual" | "polite" | "formal",
+  "suggestedContextNotes": "optional one-line note for translator"
+}
+
+Rules:
+- Use "ready" when the intended meaning is clear from the text alone (plus any clarification history).
+- Use "clarify" ONLY when multiple plausible meanings exist and context is insufficient.
+- Do not ask about register if the sentence already implies it clearly.
+- Do not hardcode rules about specific words — judge ambiguity from meaning and context.
+- Minimize interruptions: prefer "ready" when a reasonable default interpretation exists.
+- If clarifying, ask exactly one focused question under 120 characters.`;
 }
 
 export function buildNameTranslationPrompt(name: string): string {

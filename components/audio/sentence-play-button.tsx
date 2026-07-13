@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Loader2, Play } from "lucide-react";
 import { useApp } from "@/components/providers/app-provider";
 import { audioSession, type TtsRequest } from "@/lib/audio/audio-session";
 import { getTtsTextFromFields } from "@/lib/audio/tts-text";
 import type { SentencePlaceholder } from "@/types/sentence";
 import type { Dialect } from "@/lib/constants/dialect";
+import type { AudioSessionState } from "@/types/audio";
 import { getPrimaryTranslation } from "@/lib/preferences/translation-preferences";
 import { useLearnerJapaneseName } from "@/hooks/use-learner-japanese-name";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,7 @@ export type SentenceAudioFields = {
   dialect?: Dialect;
   disabled?: boolean;
   className?: string;
+  appearance?: "default" | "minimal";
 };
 
 function buildTtsRequest(
@@ -62,6 +64,7 @@ export function SentenceAudioControls({
   dialect: dialectProp,
   disabled = false,
   className,
+  appearance = "default",
 }: SentenceAudioFields) {
   const { audioUnlocked, unlockAudio, audioState, progress } = useApp();
   const learnerJapaneseName = useLearnerJapaneseName();
@@ -78,13 +81,6 @@ export function SentenceAudioControls({
         ttsSource: "surface",
       })
   );
-
-  useEffect(() => {
-    if (!active) return;
-    if (audioState === "ready" || audioState === "paused" || audioState === "error") {
-      setActive(false);
-    }
-  }, [audioState, active]);
 
   const loading = active && audioState === "loading";
   const playing = active && audioState === "playing";
@@ -104,6 +100,14 @@ export function SentenceAudioControls({
 
     audioSession.stopPlaylist();
     setActive(true);
+
+    const onStateChange = (state: AudioSessionState) => {
+      if (state === "ready" || state === "paused" || state === "error") {
+        setActive(false);
+        audioSession.removeListener(onStateChange);
+      }
+    };
+    audioSession.setListener(onStateChange);
 
     const request = buildTtsRequest(
       {
@@ -126,27 +130,36 @@ export function SentenceAudioControls({
     if (audioSession.getState() === "error") {
       toast.error("Could not play audio");
       setActive(false);
+      audioSession.removeListener(onStateChange);
     }
   };
+
+  const isMinimal = appearance === "minimal";
 
   return (
     <Button
       type="button"
-      variant="outline"
+      variant={isMinimal ? "ghost" : "outline"}
       size="icon"
       disabled={disabled || !canPlay || loading}
       aria-label={playing ? "Playing sentence" : "Play sentence"}
+      data-long-press-ignore
       className={cn(
-        "size-9 min-h-9 min-w-9 shrink-0 rounded-full p-0 px-0 text-foreground",
-        playing && "border-mode-listen text-mode-listen",
+        isMinimal
+          ? "h-6 min-h-6 w-6 min-w-6 shrink-0 rounded-none border-0 bg-transparent p-0 text-muted shadow-none hover:bg-transparent hover:text-foreground"
+          : "size-9 min-h-9 min-w-9 shrink-0 rounded-full p-0 px-0 text-foreground",
+        playing && (isMinimal ? "text-mode-listen" : "border-mode-listen text-mode-listen"),
         className
       )}
       onClick={handlePlay}
     >
       {loading ? (
-        <Loader2 className="h-4 w-4 animate-spin" />
+        <Loader2 className={cn("animate-spin", isMinimal ? "h-3.5 w-3.5" : "h-4 w-4")} />
       ) : (
-        <Play className="h-4 w-4 fill-current" strokeWidth={2} />
+        <Play
+          className={cn("fill-current", isMinimal ? "h-3.5 w-3.5" : "h-4 w-4")}
+          strokeWidth={2}
+        />
       )}
     </Button>
   );

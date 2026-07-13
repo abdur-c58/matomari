@@ -128,6 +128,100 @@ export function getBatchStarterCandidateIds(
   return [...unseen, ...active, ...retired];
 }
 
+function buildBatchFromIds(
+  dataset: Dataset,
+  config: Omit<BatchConfig, "activeSentenceIds">,
+  progress: UserProgress,
+  activeIds: string[]
+): { config: BatchConfig; progress: UserProgress } {
+  const batchSize = clampBatchSize(config.batchSize);
+  const ids = activeIds.slice(0, batchSize);
+  const today = formatDateKey();
+  const sentences = { ...progress.sentences };
+  const sourceKey =
+    config.sourceType === "pathway"
+      ? String(config.pathwayBatchNumber)
+      : config.islandKey ?? "";
+
+  for (const id of ids) {
+    const existing = sentences[id];
+    sentences[id] = {
+      ...(existing ??
+        createDefaultSentenceProgress(id, config.sourceType, sourceKey)),
+      batchStatus: "active",
+      firstSeenAt: existing?.firstSeenAt ?? today,
+      sourceType: config.sourceType,
+      sourceKey,
+    };
+  }
+
+  const fullConfig = { ...config, batchSize, activeSentenceIds: ids };
+  return {
+    config: fullConfig,
+    progress: {
+      ...progress,
+      batchConfig: fullConfig,
+      sentences,
+    },
+  };
+}
+
+export function resumeOrInitializeBatch(
+  dataset: Dataset,
+  config: Omit<BatchConfig, "activeSentenceIds">,
+  progress: UserProgress
+): { config: BatchConfig; progress: UserProgress } {
+  const batchSize = clampBatchSize(config.batchSize);
+  const normalized = { ...config, batchSize };
+
+  if (normalized.sourceType === "island" && normalized.islandKey) {
+    const snapshot = progress.islandBatchSnapshots?.[normalized.islandKey];
+    if (snapshot?.activeSentenceIds.length) {
+      return buildBatchFromIds(
+        dataset,
+        normalized,
+        progress,
+        snapshot.activeSentenceIds
+      );
+    }
+  }
+
+  const inProgress = getInProgressActiveIdsForSource(
+    dataset,
+    progress,
+    normalized
+  );
+  if (inProgress.length > 0) {
+    return buildBatchFromIds(dataset, normalized, progress, inProgress);
+  }
+
+  return initializeBatch(dataset, normalized, progress);
+}
+
+export function getInProgressActiveIdsForSource(
+  dataset: Dataset,
+  progress: UserProgress,
+  config: Pick<
+    BatchConfig,
+    "sourceType" | "pathwayBatchNumber" | "islandKey" | "subtopic"
+  >
+): string[] {
+  const sourceKey = getBatchSourceKey(config);
+  const sourceIds = new Set(
+    getSentencesFromSource(dataset, config).map((s) => s.id)
+  );
+
+  return Object.values(progress.sentences)
+    .filter(
+      (sp) =>
+        sp.batchStatus === "active" &&
+        sp.sourceType === config.sourceType &&
+        sp.sourceKey === sourceKey &&
+        sourceIds.has(sp.sentenceId)
+    )
+    .map((sp) => sp.sentenceId);
+}
+
 export function initializeBatch(
   dataset: Dataset,
   config: Omit<BatchConfig, "activeSentenceIds">,
@@ -232,18 +326,22 @@ export function retireSentence(
 
 export function getActiveBatchSentences(
   dataset: Dataset,
-  progress: UserProgress
+  progress: UserProgress,
+  config?: BatchConfig | null
 ): Sentence[] {
-  const config = progress.batchConfig;
-  if (!config) return [];
+  const activeConfig = config ?? progress.batchConfig;
+  if (!activeConfig) return [];
   const all = getAllSentences(dataset);
-  return config.activeSentenceIds
+  return activeConfig.activeSentenceIds
     .map((id) => all.get(id))
     .filter((s): s is NonNullable<typeof s> => !!s);
 }
 
-export function getActiveBatchIds(progress: UserProgress): string[] {
-  return progress.batchConfig?.activeSentenceIds ?? [];
+export function getActiveBatchIds(
+  progress: UserProgress,
+  config?: BatchConfig | null
+): string[] {
+  return (config ?? progress.batchConfig)?.activeSentenceIds ?? [];
 }
 
 export function shouldRetire(rating: number | null): boolean {

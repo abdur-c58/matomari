@@ -28,6 +28,8 @@ export interface DailySnapshot {
    * does not reset when the active batch is swapped on the same day.
    */
   completedTasks?: string[];
+  /** Unique sentence ids heard via casual browse playlists today. */
+  listenedSentenceIds?: string[];
 }
 
 export interface MasteryEvent {

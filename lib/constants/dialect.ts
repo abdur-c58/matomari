@@ -25,3 +25,12 @@ export const DIALECT_OPTIONS: {
 export function getDialectLabel(dialect: Dialect): string {
   return DIALECT_OPTIONS.find((o) => o.value === dialect)?.label ?? dialect;
 }
+
+export const DIALECT_SHORT_LABELS: Record<Dialect, string> = {
+  standard: "Standard",
+  kansai: "Kansai",
+};
+
+export function getDialectShortLabel(dialect: Dialect): string {
+  return DIALECT_SHORT_LABELS[dialect];
+}

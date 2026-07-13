@@ -11,11 +11,18 @@ import { cn } from "@/lib/utils";
 type StudyFlowGuideProps = {
   compact?: boolean;
   className?: string;
+  onStartFormalStudy?: () => void;
+  startLabel?: string;
 };
 
-export function StudyFlowGuide({ compact = false, className }: StudyFlowGuideProps) {
-  const { dataset, progress } = useApp();
-  const flow = dataset ? getStudyFlowState(dataset, progress) : null;
+export function StudyFlowGuide({
+  compact = false,
+  className,
+  onStartFormalStudy,
+  startLabel,
+}: StudyFlowGuideProps) {
+  const { dataset, progress, stats } = useApp();
+  const flow = dataset ? getStudyFlowState(dataset, progress, stats) : null;
 
   if (!flow) return null;
 
@@ -26,7 +33,11 @@ export function StudyFlowGuide({ compact = false, className }: StudyFlowGuidePro
       : 0;
 
   const mainSteps = flow.steps.filter(
-    (s) => s.step === "confirm_meanings" || s.step === "shadow" || s.step === "active_recall"
+    (s) =>
+      s.step === "return_review" ||
+      s.step === "confirm_meanings" ||
+      s.step === "shadow" ||
+      s.step === "active_recall"
   );
 
   return (
@@ -81,12 +92,22 @@ export function StudyFlowGuide({ compact = false, className }: StudyFlowGuidePro
         </>
       )}
 
-      <Button className={cn("mt-4", compact ? "w-full" : "w-full sm:w-auto")} asChild>
-        <Link href={flow.nextHref}>
-          {flow.nextLabel}
+      {onStartFormalStudy ? (
+        <Button
+          className={cn("mt-4", compact ? "w-full" : "w-full sm:w-auto")}
+          onClick={onStartFormalStudy}
+        >
+          {startLabel ?? flow.nextLabel}
           <ChevronRight className="ml-1 h-4 w-4" />
-        </Link>
-      </Button>
+        </Button>
+      ) : (
+        <Button className={cn("mt-4", compact ? "w-full" : "w-full sm:w-auto")} asChild>
+          <Link href={flow.nextHref}>
+            {flow.nextLabel}
+            <ChevronRight className="ml-1 h-4 w-4" />
+          </Link>
+        </Button>
+      )}
     </Card>
   );
 }

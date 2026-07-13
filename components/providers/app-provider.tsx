@@ -11,7 +11,7 @@ import {
   type ReactNode,
 } from "react";
 import { useSession } from "next-auth/react";
-import type { Dataset, Island, TranslatedFields, UserLibrary } from "@/types/sentence";
+import type { Dataset, Island, Sentence, TranslatedFields, UserLibrary } from "@/types/sentence";
 import type { Dialect } from "@/lib/constants/dialect";
 import type { SentenceProgress, UserProgress } from "@/types/progress";
 import type { AppStats } from "@/types/stats";
@@ -36,12 +36,17 @@ import {
   flushSyncQueue,
   onSyncStatusChange,
   onSyncStatusMessageChange,
+  isBrowserOnline,
   canSyncToCloud,
   type SyncStatus,
   type ManualSyncResult,
 } from "@/lib/sync/sync-service";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
-import { addIsland as mergeIsland } from "@/lib/services/dataset-mutation-service";
+import {
+  addIsland as mergeIsland,
+  appendSentenceToIsland as mergeSentenceToIsland,
+  setIslandThemeKanji as mergeIslandThemeKanji,
+} from "@/lib/services/dataset-mutation-service";
 import { resolveImportDataset } from "@/lib/services/import-service";
 import {
   translateSentences,
@@ -53,6 +58,7 @@ import {
   needsRetranslationForDialect,
 } from "@/lib/services/dialect-translation-service";
 import { getPrimaryTranslation } from "@/lib/preferences/translation-preferences";
+import { readBrowseUiPreferences } from "@/lib/preferences/browse-ui-preferences";
 import {
   normalizeUserProgress,
   prepareProgressForSave,
@@ -65,6 +71,7 @@ import {
   getDailyStudyStatus,
   mergeTodayStudyComplete,
 } from "@/lib/services/daily-progress-service";
+import { pullSharedTranslationsIntoLibrary } from "@/lib/services/shared-translations-service";
 
 async function maybeRecordTodayStudyComplete(
   dataset: Dataset | null,
@@ -91,6 +98,8 @@ interface AppContextValue {
   importDataset: (json: unknown, merge?: boolean) => Promise<void>;
   importDatasets: (payloads: { json: unknown; fileName?: string }[]) => Promise<void>;
   addIsland: (islandKey: string, island: Island) => Promise<void>;
+  setIslandThemeKanji: (islandKey: string, themeKanji: string) => Promise<void>;
+  appendSentenceToIsland: (islandKey: string, sentence: Sentence) => Promise<void>;
   ensureTranslated: (sentenceIds: string[]) => Promise<void>;
   translateSentenceIds: (
     sentenceIds: string[],
@@ -109,7 +118,9 @@ interface AppContextValue {
     sentenceId: string,
     update: Partial<SentenceProgress> | ((prev: SentenceProgress) => SentenceProgress)
   ) => Promise<void>;
-  setProgress: (progress: UserProgress) => Promise<void>;
+  setProgress: (
+    progress: UserProgress | ((prev: UserProgress) => UserProgress)
+  ) => Promise<void>;
   setStats: (stats: AppStats) => Promise<void>;
   audioState: AudioSessionState;
   unlockAudio: () => Promise<void>;
@@ -132,15 +143,33 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
   const [userLibrary, setUserLibrary] = useState<UserLibrary | null>(null);
   const translationMutexRef = useRef(Promise.resolve());
+  const progressSaveMutexRef = useRef(Promise.resolve());
+  const progressRef = useRef(progress);
+
+  useEffect(() => {
+    progressRef.current = progress;
+  }, [progress]);
 
   const applyLocalSnapshot = useCallback(
     async (snapshot: Awaited<ReturnType<typeof loadLocalSnapshot>>) => {
+      const browseUi = readBrowseUiPreferences();
+      const mergedProgress = normalizeUserProgress({
+        ...snapshot.progress,
+        settings: {
+          ...snapshot.progress.settings,
+          islandBrowseDisplay: browseUi.islandBrowseDisplay,
+          casualPlaylistPauseMs: browseUi.casualPlaylistPauseMs,
+          casualPlaylistPlaybackRate: browseUi.casualPlaylistPlaybackRate,
+        },
+      });
+
       setDataset(snapshot.dataset);
       setUserLibrary(snapshot.library);
-      setProgressState(normalizeUserProgress(snapshot.progress));
+      progressRef.current = mergedProgress;
+      setProgressState(mergedProgress);
       setStatsState(snapshot.stats);
       setLastSyncedAt(snapshot.lastSyncedAt);
-      return snapshot;
+      return { ...snapshot, progress: mergedProgress };
     },
     []
   );
@@ -160,16 +189,28 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setLoading(true);
       setError(null);
 
+      if (!isBrowserOnline()) {
+        setSyncStatus("offline");
+        setSyncStatusMessage("No internet connection");
+      }
+
       const local = await loadLocalSnapshot();
       await applyLocalSnapshot(local);
+
+      if (!isBrowserOnline()) {
+        return;
+      }
 
       if (canSyncToCloud()) {
         await syncFromCloud();
       }
 
+      await pullSharedTranslationsIntoLibrary();
+
       const d = await getDatasetSynced();
       let p = await getProgressSynced();
       const localAfterSync = await loadLocalSnapshot();
+      await applyLocalSnapshot(localAfterSync);
 
       const hasStoredTranslations =
         Boolean(localAfterSync.library?.sentenceTranslations) &&
@@ -332,6 +373,27 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [dataset]
   );
 
+  const setIslandThemeKanji = useCallback(
+    async (islandKey: string, themeKanji: string) => {
+      if (!dataset) return;
+      const next = mergeIslandThemeKanji(dataset, islandKey, themeKanji);
+      if (next === dataset) return;
+      await saveDatasetSynced(next);
+      setDataset(next);
+    },
+    [dataset]
+  );
+
+  const appendSentenceToIsland = useCallback(
+    async (islandKey: string, sentence: Sentence) => {
+      if (!dataset) throw new Error("No dataset loaded");
+      const next = mergeSentenceToIsland(dataset, islandKey, sentence);
+      await saveDatasetSynced(next);
+      setDataset(next);
+    },
+    [dataset]
+  );
+
   const getSentenceTranslation = useCallback(
     (sentenceId: string, dialect: Dialect): TranslatedFields | null => {
       return getSentenceTranslationFields(
@@ -378,7 +440,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       try {
         const dialect = options?.dialect ?? getPrimaryTranslation(progress.settings);
 
-        let current = await getDatasetSynced();
+        const current = await getDatasetSynced();
         if (!current || sentenceIds.length === 0) {
           return { translatedCount: 0, total: 0 };
         }
@@ -519,7 +581,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       sentenceId: string,
       update: Partial<SentenceProgress> | ((prev: SentenceProgress) => SentenceProgress)
     ) => {
-      const next = await updateSentenceProgressSynced(sentenceId, update);
+      const next = normalizeUserProgress(await updateSentenceProgressSynced(sentenceId, update));
+      progressRef.current = next;
       setProgressState(next);
       const completedStats = await maybeRecordTodayStudyComplete(dataset, next, stats);
       if (completedStats) {
@@ -530,20 +593,40 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [dataset, stats]
   );
 
-  const setProgress = useCallback(async (p: UserProgress) => {
-    const previousPrimary = getPrimaryTranslation(progress.settings);
-    const nextSettings = { ...progress.settings, ...p.settings };
-    const next = prepareProgressForSave({ ...progress, ...p, settings: nextSettings });
+  const setProgress = useCallback(
+    async (p: UserProgress | ((prev: UserProgress) => UserProgress)) => {
+      const prior = progressSaveMutexRef.current;
+      let release!: () => void;
+      const gate = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      progressSaveMutexRef.current = prior.then(() => gate);
+      await prior;
 
-    await saveProgressSynced(next);
-    setProgressState(normalizeUserProgress(next));
+      try {
+        const current = progressRef.current;
+        const patch = typeof p === "function" ? p(current) : p;
+        const previousPrimary = getPrimaryTranslation(current.settings);
+        const nextSettings = { ...current.settings, ...patch.settings };
+        const next = normalizeUserProgress(
+          prepareProgressForSave({ ...current, ...patch, settings: nextSettings })
+        );
 
-    const nextPrimary = getPrimaryTranslation(next.settings);
-    if (nextPrimary !== previousPrimary) {
-      const d = await getDatasetSynced();
-      if (d) setDataset(d);
-    }
-  }, [progress]);
+        progressRef.current = next;
+        setProgressState(next);
+        await saveProgressSynced(next);
+
+        const nextPrimary = getPrimaryTranslation(next.settings);
+        if (nextPrimary !== previousPrimary) {
+          const d = await getDatasetSynced();
+          if (d) setDataset(d);
+        }
+      } finally {
+        release();
+      }
+    },
+    []
+  );
 
   const setStats = useCallback(async (s: AppStats) => {
     await saveStatsSynced(s);
@@ -578,6 +661,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       importDataset,
       importDatasets,
       addIsland,
+      setIslandThemeKanji,
+      appendSentenceToIsland,
       ensureTranslated,
       translateSentenceIds,
       translateAllUntranslated,
@@ -608,6 +693,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       importDataset,
       importDatasets,
       addIsland,
+      setIslandThemeKanji,
+      appendSentenceToIsland,
       ensureTranslated,
       translateSentenceIds,
       translateAllUntranslated,

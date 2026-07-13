@@ -3,9 +3,10 @@ import type { UserProgress } from "@/types/progress";
 import type { AppStats, DailySnapshot } from "@/types/stats";
 import { formatDateKey } from "@/lib/utils";
 import { getActiveBatchIds, getActiveBatchSentences } from "./batch-service";
+import { withResolvedDailyBatch } from "./daily-focus-service";
 import { getDueRecallIds, getDueReviewIds } from "./srs-service";
 
-export type DailyStudyTaskId = "meanings" | "recall" | "review";
+export type DailyStudyTaskId = "meanings" | "shadow" | "recall" | "review";
 
 export type DailyStudyTask = {
   id: DailyStudyTaskId;
@@ -30,6 +31,13 @@ function dateKeyOffset(days: number): string {
   const d = new Date();
   d.setDate(d.getDate() + days);
   return formatDateKey(d);
+}
+
+export function hasShadowSessionToday(stats: AppStats): boolean {
+  const today = formatDateKey();
+  return stats.modeSessions.some(
+    (s) => s.mode === "shadow" && s.startedAt.slice(0, 10) === today
+  );
 }
 
 export function getMinutesStudiedOnDate(stats: AppStats, date: string): number {
@@ -65,7 +73,8 @@ export function getDailyStudyStatus(
   const studiedToday = stats.activeDays.includes(date);
   const minutesToday = Math.round(getMinutesStudiedOnDate(stats, date) / 60000);
 
-  if (!dataset || !progress.batchConfig) {
+  const effective = withResolvedDailyBatch(dataset, progress);
+  if (!dataset || !effective?.batchConfig) {
     return {
       date,
       hasBatch: false,
@@ -79,16 +88,18 @@ export function getDailyStudyStatus(
     };
   }
 
-  const activeSentences = getActiveBatchSentences(dataset, progress);
-  const activeIds = getActiveBatchIds(progress);
+  const config = effective.batchConfig;
+  const activeSentences = getActiveBatchSentences(dataset, effective, config);
+  const activeIds = getActiveBatchIds(effective, config);
   const unconfirmed = activeSentences.filter(
-    (s) => !progress.sentences[s.id]?.meaningConfirmed
+    (s) => !effective.sentences[s.id]?.meaningConfirmed
   );
-  const dueRecall = getDueRecallIds(progress.sentences, activeIds);
-  const dueReview = getDueReviewIds(progress.sentences);
+  const confirmComplete =
+    unconfirmed.length === 0 && activeSentences.length > 0;
+  const shadowedToday = hasShadowSessionToday(stats);
+  const dueRecall = getDueRecallIds(effective.sentences, activeIds);
+  const dueReview = getDueReviewIds(effective.sentences);
 
-  // Tasks finished earlier today stay finished even after a batch change, so
-  // switching the active batch mid-day never unchecks completed work.
   const completedToday = new Set<DailyStudyTaskId>(
     (todaySnapshot?.completedTasks ?? []) as DailyStudyTaskId[]
   );
@@ -98,9 +109,19 @@ export function getDailyStudyStatus(
       id: "meanings",
       label: "Confirm meanings",
       done:
-        completedToday.has("meanings") ||
-        (unconfirmed.length === 0 && activeSentences.length > 0),
+        completedToday.has("meanings") || confirmComplete,
       remaining: unconfirmed.length,
+    },
+    {
+      id: "shadow",
+      label: "Listen & shadow",
+      done:
+        completedToday.has("shadow") ||
+        !confirmComplete ||
+        shadowedToday ||
+        activeSentences.length === 0,
+      remaining:
+        confirmComplete && !shadowedToday ? activeSentences.length : 0,
     },
     {
       id: "recall",
@@ -146,7 +167,6 @@ export function mergeTodayTaskCompletion(
   const existing = stats.dailySnapshots.find((s) => s.date === date);
   const merged = new Set<string>([...(existing?.completedTasks ?? []), ...taskIds]);
 
-  // No change — avoid a redundant write (and re-render loops).
   if (existing && merged.size === (existing.completedTasks?.length ?? 0)) {
     return stats;
   }

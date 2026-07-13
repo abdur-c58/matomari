@@ -8,6 +8,7 @@ export interface StudyFocus {
   label: string;
   shortLabel: string;
   detail: string;
+  detailHref: string;
 }
 
 export interface PathwayBatchStat {
@@ -166,6 +167,7 @@ export function getStudyFocusLabel(
       label: `Pathway · Batch ${config.pathwayBatchNumber} — ${title}`,
       shortLabel: "Main pathway",
       detail: title,
+      detailHref: `/batch/pathway?batch=${config.pathwayBatchNumber}`,
     };
   }
 
@@ -179,6 +181,7 @@ export function getStudyFocusLabel(
       label: `Island · ${title}${subtopic}`,
       shortLabel: "Topic island",
       detail: island?.description ?? title,
+      detailHref: `/batch/island/${config.islandKey}`,
     };
   }
 
