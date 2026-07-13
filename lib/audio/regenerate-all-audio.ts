@@ -3,8 +3,8 @@ import { getAllSentences } from "@/lib/validation/dataset-schema";
 import { isTranslated } from "@/lib/sentence-utils";
 import { getSpokenScript } from "@/lib/audio/tts-text";
 import { generateServerAudio } from "@/lib/audio/generate-audio";
-import { ElevenLabsQuotaError } from "@/lib/audio/tts-errors";
-import { isElevenLabsConfigured, isR2Configured } from "@/lib/env";
+import { TtsQuotaError } from "@/lib/audio/tts-errors";
+import { isFishAudioConfigured, isR2Configured } from "@/lib/env";
 import {
   deleteAllR2Audio,
   deleteR2Object,
@@ -63,8 +63,8 @@ export async function regenerateAllAudio(
     errors: [],
   };
 
-  if (!isElevenLabsConfigured()) {
-    result.errors.push("ELEVENLABS_API_KEY is not configured");
+  if (!isFishAudioConfigured()) {
+    result.errors.push("FISH_AUDIO_API_KEY is not configured");
     return result;
   }
 
@@ -100,7 +100,7 @@ export async function regenerateAllAudio(
       await upsertAudioMetadata(hash, sentence.id, r2Key);
       result.generated++;
     } catch (e) {
-      if (e instanceof ElevenLabsQuotaError) {
+      if (e instanceof TtsQuotaError) {
         result.quotaExceeded = true;
         result.errors.push(`Quota exceeded at ${sentence.id}`);
         break;

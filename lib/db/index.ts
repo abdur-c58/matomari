@@ -82,6 +82,7 @@ export const DEFAULT_PROGRESS: UserProgress = {
     showKansaiDialect: false,
     kansaiAsPrimary: false,
     onboardingCompleted: false,
+    placementCompleted: false,
     uiFont: DEFAULT_UI_FONT,
     notifications: { ...DEFAULT_NOTIFICATION_PREFERENCES, lastSent: {} },
   },

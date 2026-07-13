@@ -45,6 +45,7 @@ export const onboardingSteps: OnboardingStep[] = [
     body: [
       `${APP_NAME} teaches practical Japanese through real sentences — not grammar tables.`,
       "You work in small batches, confirm meanings, shadow native audio, and recall Japanese from English prompts. Sentences move from new to confident to mastered.",
+      "If you already know some Japanese, we'll help you find the right place to start.",
     ],
     icon: Sparkles,
     kanji: "言",

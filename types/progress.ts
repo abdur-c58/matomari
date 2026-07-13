@@ -37,6 +37,23 @@ import { DEFAULT_DIALECT } from "@/lib/constants/dialect";
 import type { NotificationPreferences } from "@/lib/constants/notifications";
 import type { UiFont } from "@/lib/constants/ui-font";
 
+export type PlacementLevel =
+  | "brand_new"
+  | "beginner"
+  | "elementary"
+  | "intermediate"
+  | "upper_intermediate"
+  | "advanced";
+
+export interface PlacementResult {
+  completedAt: string;
+  level: PlacementLevel;
+  levelMode: "fluency" | "jlpt";
+  startingBatch: number;
+  skippedBatches: number[];
+  probeAdjustments?: number;
+}
+
 export interface AppSettings {
   batchSize: number;
   /** @deprecated Derived from showKansaiDialect + kansaiAsPrimary — kept for sync compat */
@@ -57,6 +74,9 @@ export interface AppSettings {
   /** Product tour completed (synced across devices). */
   onboardingCompleted?: boolean;
   onboardingCompletedAt?: string;
+  /** Pathway placement completed — used to skip batches for returning learners. */
+  placementCompleted?: boolean;
+  placement?: PlacementResult;
   /** UI typeface for Latin headings and body (Japanese uses separate fonts). */
   uiFont?: UiFont;
 }

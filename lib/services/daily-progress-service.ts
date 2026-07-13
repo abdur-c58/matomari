@@ -87,29 +87,37 @@ export function getDailyStudyStatus(
   const dueRecall = getDueRecallIds(progress.sentences, activeIds);
   const dueReview = getDueReviewIds(progress.sentences);
 
+  // Tasks finished earlier today stay finished even after a batch change, so
+  // switching the active batch mid-day never unchecks completed work.
+  const completedToday = new Set<DailyStudyTaskId>(
+    (todaySnapshot?.completedTasks ?? []) as DailyStudyTaskId[]
+  );
+
   const tasks: DailyStudyTask[] = [
     {
       id: "meanings",
       label: "Confirm meanings",
-      done: unconfirmed.length === 0 && activeSentences.length > 0,
+      done:
+        completedToday.has("meanings") ||
+        (unconfirmed.length === 0 && activeSentences.length > 0),
       remaining: unconfirmed.length,
     },
     {
       id: "recall",
       label: "Active recall due",
-      done: dueRecall.length === 0,
+      done: completedToday.has("recall") || dueRecall.length === 0,
       remaining: dueRecall.length,
     },
     {
       id: "review",
       label: "Review due",
-      done: dueReview.length === 0,
+      done: completedToday.has("review") || dueReview.length === 0,
       remaining: dueReview.length,
     },
   ];
 
   const isComplete =
-    activeSentences.length > 0 &&
+    (activeSentences.length > 0 || completedToday.size > 0) &&
     tasks.every((t) => t.done);
 
   return {
@@ -125,6 +133,46 @@ export function getDailyStudyStatus(
   };
 }
 
+/**
+ * Persist the set of study tasks finished today (date-keyed, batch-agnostic).
+ * Returns the same stats object when there is nothing new to record.
+ */
+export function mergeTodayTaskCompletion(
+  stats: AppStats,
+  taskIds: DailyStudyTaskId[]
+): AppStats {
+  if (taskIds.length === 0) return stats;
+  const date = formatDateKey();
+  const existing = stats.dailySnapshots.find((s) => s.date === date);
+  const merged = new Set<string>([...(existing?.completedTasks ?? []), ...taskIds]);
+
+  // No change — avoid a redundant write (and re-render loops).
+  if (existing && merged.size === (existing.completedTasks?.length ?? 0)) {
+    return stats;
+  }
+
+  const nextSnapshot: DailySnapshot = {
+    date,
+    weakCount: existing?.weakCount ?? 0,
+    masteredCount: existing?.masteredCount ?? 0,
+    totalSentences: existing?.totalSentences ?? 0,
+    studyComplete: existing?.studyComplete,
+    completedAt: existing?.completedAt,
+    completedTasks: [...merged],
+  };
+
+  const dailySnapshots = [
+    ...stats.dailySnapshots.filter((s) => s.date !== date),
+    nextSnapshot,
+  ].sort((a, b) => a.date.localeCompare(b.date));
+
+  const activeDays = stats.activeDays.includes(date)
+    ? stats.activeDays
+    : [...stats.activeDays, date].sort();
+
+  return { ...stats, dailySnapshots, activeDays };
+}
+
 export function mergeTodayStudyComplete(
   stats: AppStats,
   snapshot?: Partial<DailySnapshot>
@@ -138,6 +186,7 @@ export function mergeTodayStudyComplete(
     totalSentences: existing?.totalSentences ?? snapshot?.totalSentences ?? 0,
     studyComplete: true,
     completedAt: existing?.completedAt ?? new Date().toISOString(),
+    completedTasks: existing?.completedTasks,
   };
 
   const dailySnapshots = [

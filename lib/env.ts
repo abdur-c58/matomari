@@ -1,5 +1,5 @@
 const DEFAULT_OPENAI_MODEL = "gpt-5.4-mini";
-const DEFAULT_ELEVENLABS_VOICE_ID = "pNInz6obpgDQGcFmaJgB";
+const DEFAULT_FISH_AUDIO_MODEL = "s2.1-pro-free";
 const DEFAULT_R2_BUCKET_NAME = "shima-audio";
 
 export function getSupabaseUrl(): string | undefined {
@@ -38,28 +38,42 @@ export function isOpenAIConfigured(): boolean {
   return Boolean(getOpenAIApiKey());
 }
 
-export function getElevenLabsApiKey(): string | undefined {
-  return process.env.ELEVENLABS_API_KEY;
+export function getFishAudioApiKey(): string | undefined {
+  return process.env.FISH_AUDIO_API_KEY;
 }
 
-export function getElevenLabsVoiceId(): string {
-  return process.env.ELEVENLABS_VOICE_ID ?? DEFAULT_ELEVENLABS_VOICE_ID;
+/** Fish Audio TTS model sent via the required `model` header (e.g. s2.1-pro-free, s2.1-pro, s2-pro). */
+export function getFishAudioModel(): string {
+  return process.env.FISH_AUDIO_MODEL?.trim() || DEFAULT_FISH_AUDIO_MODEL;
 }
 
-export function getKansaiVoiceId(): string | undefined {
-  const id = process.env.KANSAI_VOICE_ID?.trim();
+/** Standard-dialect Fish Audio voice model id (reference_id). */
+export function getFishAudioVoiceId(): string | undefined {
+  const id = process.env.FISH_AUDIO_VOICE_ID?.trim();
   return id || undefined;
 }
 
-export function getElevenLabsVoiceIdForDialect(dialect: "standard" | "kansai" = "standard"): string {
-  if (dialect === "kansai") {
-    return getKansaiVoiceId() ?? getElevenLabsVoiceId();
-  }
-  return getElevenLabsVoiceId();
+/** Kansai-dialect Fish Audio voice model id (reference_id). */
+export function getFishAudioKansaiVoiceId(): string | undefined {
+  const id = process.env.FISH_AUDIO_KANSAI_VOICE_ID?.trim();
+  return id || undefined;
 }
 
-export function isElevenLabsConfigured(): boolean {
-  return Boolean(getElevenLabsApiKey());
+/**
+ * Fish Audio voice model id (reference_id) for a dialect. Returns undefined when
+ * no voice is configured, in which case Fish Audio uses its default voice.
+ */
+export function getFishAudioVoiceIdForDialect(
+  dialect: "standard" | "kansai" = "standard"
+): string | undefined {
+  if (dialect === "kansai") {
+    return getFishAudioKansaiVoiceId() ?? getFishAudioVoiceId();
+  }
+  return getFishAudioVoiceId();
+}
+
+export function isFishAudioConfigured(): boolean {
+  return Boolean(getFishAudioApiKey());
 }
 
 export function getR2AccountId(): string | undefined {

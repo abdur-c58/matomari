@@ -1,5 +1,6 @@
 import type { Dataset } from "@/types/sentence";
 import type { UserProgress } from "@/types/progress";
+import { getPlacementStartingBatch } from "./placement-service";
 import { getActiveBatchSentences } from "./batch-service";
 
 export interface StudyFocus {
@@ -107,13 +108,27 @@ export function getSuggestedPathwayBatch(
   progress: UserProgress
 ): number {
   const stats = getPathwayBatchStats(dataset, progress);
+  const placementStart = getPlacementStartingBatch(progress);
 
   const firstIncomplete = stats.find((b) => !b.complete);
-  if (firstIncomplete) return firstIncomplete.batchNumber;
+  if (firstIncomplete) {
+    const batchNum = firstIncomplete.batchNumber;
+    if (placementStart != null) {
+      return Math.max(placementStart, batchNum);
+    }
+    return batchNum;
+  }
 
   const firstUnstudied = stats.find((b) => b.studied < b.total);
-  if (firstUnstudied) return firstUnstudied.batchNumber;
+  if (firstUnstudied) {
+    const batchNum = firstUnstudied.batchNumber;
+    if (placementStart != null) {
+      return Math.max(placementStart, batchNum);
+    }
+    return batchNum;
+  }
 
+  if (placementStart != null) return placementStart;
   return stats[0]?.batchNumber ?? 1;
 }
 

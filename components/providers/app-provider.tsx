@@ -177,7 +177,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
       if (p.settings.onboardingCompleted === undefined) {
         const hasSentenceProgress = Object.keys(p.sentences).length > 0;
-        const isLegacyUser = hasSentenceProgress || hasStoredTranslations;
+        const isLegacyUser =
+          hasSentenceProgress ||
+          hasStoredTranslations ||
+          p.completedPathwayBatches.length > 0;
         p = {
           ...p,
           settings: {
@@ -190,6 +193,25 @@ export function AppProvider({ children }: { children: ReactNode }) {
         };
         await saveProgressSynced(p);
         setProgressState(normalizeUserProgress(p));
+      }
+
+      if (p.settings.placementCompleted === undefined) {
+        const hasSentenceProgress = Object.keys(p.sentences).length > 0;
+        const isLegacyUser =
+          hasSentenceProgress ||
+          hasStoredTranslations ||
+          p.completedPathwayBatches.length > 0;
+        if (isLegacyUser) {
+          p = {
+            ...p,
+            settings: {
+              ...p.settings,
+              placementCompleted: true,
+            },
+          };
+          await saveProgressSynced(p);
+          setProgressState(normalizeUserProgress(p));
+        }
       }
 
       if (d) {
@@ -227,7 +249,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     refresh();
     audioSession.setListener((state) => {
       setAudioState(state);
-      setAudioUnlocked(state !== "locked");
+      // Source of truth is the session's actual unlock flag, not the state
+      // machine — some transitions (e.g. stopPlaylist) move state to "ready"
+      // without unlocking, which previously caused the play button to appear
+      // and then silently fail back to "locked".
+      setAudioUnlocked(audioSession.isUnlocked());
     });
   }, [refresh]);
 

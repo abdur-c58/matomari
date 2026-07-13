@@ -17,8 +17,15 @@ import {
 import { NotificationPreferencesSection } from "@/components/settings/notification-preferences-section";
 import { DialectPreferencesSection } from "@/components/settings/dialect-preferences-section";
 import { FontPreferencesSection } from "@/components/settings/font-preferences-section";
+import { PreferencesSaveBar } from "@/components/settings/preferences-save-bar";
+import { UnsavedPreferencesDialog } from "@/components/settings/unsaved-preferences-dialog";
 import { parseReturnTo } from "@/lib/utils/dialect-preferences";
 import { useSavePreferences } from "@/components/settings/use-save-preferences";
+import { useScrollAtBottom } from "@/hooks/use-scroll-at-bottom";
+import { useUnsavedPreferencesGuard } from "@/hooks/use-unsaved-preferences-guard";
+import { cn } from "@/lib/utils";
+
+const LEAVE_HREF = "/settings";
 
 export function PreferencesScreenMobile() {
   const searchParams = useSearchParams();
@@ -54,18 +61,42 @@ export function PreferencesScreenMobile() {
   }, [uiFont, progress.settings.uiFont]);
 
   const returnTo = parseReturnTo(searchParams);
-  const { handleSave, saving } = useSavePreferences({
+  const { handleSave, saving, hasUnsavedChanges } = useSavePreferences({
     showKansaiDialect,
     kansaiAsPrimary,
     uiFont,
     notifications,
     returnTo,
   });
+  const { isAtBottom, sentinelRef } = useScrollAtBottom();
+  const {
+    dialogOpen,
+    pendingHref,
+    requestLeave,
+    completeLeave,
+    dismissDialog,
+    setDialogOpen,
+  } = useUnsavedPreferencesGuard({
+    enabled: hasUnsavedChanges,
+    leaveHref: LEAVE_HREF,
+  });
+
+  const floatingSave = !isAtBottom;
 
   return (
     <>
-      <PageShell className="pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))]">
-        <PageHeader title="Preferences" backHref="/settings" />
+      <PageShell
+        className={cn(
+          floatingSave
+            ? "pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))]"
+            : "pb-[max(1rem,env(safe-area-inset-bottom,0px))]"
+        )}
+      >
+        <PageHeader
+          title="Preferences"
+          backHref={LEAVE_HREF}
+          onBackClick={() => requestLeave(LEAVE_HREF)}
+        />
 
         <FontPreferencesSection uiFont={uiFont} onChange={setUiFont} />
 
@@ -87,15 +118,33 @@ export function PreferencesScreenMobile() {
             dataset={dataset}
           />
         </Card>
-      </PageShell>
 
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 px-4 py-3 backdrop-blur-sm pb-[max(0.75rem,env(safe-area-inset-bottom,0px))]">
-        <div className="mx-auto max-w-lg">
-          <Button className="w-full" onClick={handleSave} loading={saving}>
+        <div ref={sentinelRef} className="h-px" aria-hidden />
+
+        {isAtBottom && (
+          <Button className="w-full" onClick={() => handleSave()} loading={saving}>
             Save preferences
           </Button>
-        </div>
-      </div>
+        )}
+      </PageShell>
+
+      <PreferencesSaveBar
+        visible={floatingSave}
+        onSave={() => handleSave()}
+        saving={saving}
+        hasUnsavedChanges={hasUnsavedChanges}
+      />
+
+      <UnsavedPreferencesDialog
+        open={dialogOpen}
+        onOpenChange={(open) => {
+          if (!open) dismissDialog();
+          else setDialogOpen(true);
+        }}
+        saving={saving}
+        onDiscard={() => completeLeave(pendingHref ?? LEAVE_HREF)}
+        onSaveAndExit={() => handleSave(pendingHref ?? returnTo)}
+      />
     </>
   );
 }

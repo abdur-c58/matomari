@@ -1,5 +1,5 @@
 /**
- * Wipe R2 audio + metadata and regenerate all sentence TTS with current ElevenLabs settings.
+ * Wipe R2 audio + metadata and regenerate all sentence TTS with current Fish Audio settings.
  *
  * Usage:
  *   npm run regenerate-audio

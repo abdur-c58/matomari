@@ -16,6 +16,7 @@ import { SyncIndicator } from "@/components/ui/sync-indicator";
 import { AccountCard } from "@/components/auth/account-card";
 import { AskButton } from "@/components/ai/ask-button";
 import { OnboardingReplaySection } from "@/components/settings/onboarding-replay-section";
+import { PlacementRetakeSection } from "@/components/settings/placement-retake-section";
 import { exportDataset } from "@/lib/db/dataset-repository";
 import { fetchCloudSession } from "@/lib/sync/cloud-api";
 import type { ManualSyncResult } from "@/lib/sync/sync-service";
@@ -41,7 +42,7 @@ function formatManualSyncToast(result: ManualSyncResult) {
       `Audio: ${result.audio.uploaded} uploaded, ${result.audio.skipped} already cached`
     );
     if (result.audio.quotaExceeded) {
-      parts.push("ElevenLabs quota reached — tap Sync again later for remaining audio");
+      parts.push("TTS credits exhausted — tap Sync again later for remaining audio");
     } else if (result.audio.failed > 0) {
       parts.push(`${result.audio.failed} audio files failed`);
     }
@@ -196,6 +197,7 @@ export function SettingsScreenMobile() {
 
       <section className="mb-6 space-y-3">
         <p className="text-sm font-medium text-muted">Help</p>
+        <PlacementRetakeSection />
         <OnboardingReplaySection />
         <AskButton
           context={{ type: "general" }}

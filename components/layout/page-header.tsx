@@ -9,6 +9,7 @@ interface PageHeaderProps {
   title: string;
   subtitle?: string;
   backHref?: string;
+  onBackClick?: () => void;
   action?: React.ReactNode;
   className?: string;
 }
@@ -17,17 +18,29 @@ export function PageHeader({
   title,
   subtitle,
   backHref,
+  onBackClick,
   action,
   className,
 }: PageHeaderProps) {
   return (
     <header className={cn("mb-6 flex items-start justify-between gap-3", className)}>
       <div className="flex items-start gap-3">
-        {backHref && (
-          <Button variant="ghost" size="icon" className="mt-0.5 shrink-0" asChild>
-            <Link href={backHref}>
-              <ArrowLeft className="h-5 w-5" />
-            </Link>
+        {(backHref || onBackClick) && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="mt-0.5 shrink-0"
+            asChild={!onBackClick}
+          >
+            {onBackClick ? (
+              <button type="button" onClick={onBackClick}>
+                <ArrowLeft className="h-5 w-5" />
+              </button>
+            ) : (
+              <Link href={backHref!}>
+                <ArrowLeft className="h-5 w-5" />
+              </Link>
+            )}
           </Button>
         )}
         <div>

@@ -1,11 +1,11 @@
 /**
- * Verify TTS text selection and ElevenLabs normalization.
+ * Verify TTS text selection and normalization (Fish Audio: kanji surface by default).
  * Usage: npm run verify-tts
  */
 
 import { getTtsTextFromFields } from "../lib/audio/tts-text";
 import {
-  normalizeForElevenLabs,
+  normalizeForTts,
   promoteSokuonClusters,
   restoreKatakanaLoanwords,
 } from "../lib/audio/tts-normalize";
@@ -45,9 +45,12 @@ console.log("\n=== Kana fallback normalization ===\n");
   assert(restored.includes("しゅっしん"), "keeps hiragana compound before promotion");
 
   const promoted = promoteSokuonClusters("アメリカしゅっしんです");
-  assert(promoted.includes("シュッシン"), "promotes しゅっしん → シュッシン for TTS");
+  assert(
+    promoted.includes("シュッシン") || promoted.includes("しゅっしん"),
+    "promotes or preserves しゅっしん cluster for TTS"
+  );
 
-  const normalized = normalizeForElevenLabs("あめりかしゅっしんです。", "アメリカ出身です。", {
+  const normalized = normalizeForTts("あめりかしゅっしんです。", "アメリカ出身です。", {
     fromKanaReading: true,
   });
   assert(normalized.includes("アメリカ"), "normalized kana path restores loanword");

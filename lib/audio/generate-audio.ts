@@ -9,14 +9,14 @@ import {
   isR2Configured,
 } from "@/lib/storage/r2-client";
 import { upsertAudioMetadata } from "@/lib/supabase/server-data";
-import { getElevenLabsApiKey, getElevenLabsVoiceIdForDialect } from "@/lib/env";
+import { getFishAudioApiKey, getFishAudioVoiceIdForDialect } from "@/lib/env";
 import type { Dialect } from "@/lib/constants/dialect";
 import {
   buildTtsCacheKey,
-  getElevenLabsModel,
-  getElevenLabsVoiceSettings,
-} from "@/lib/audio/elevenlabs-config";
-import { ElevenLabsQuotaError, ElevenLabsTTSError } from "@/lib/audio/tts-errors";
+  getTtsModel,
+  getFishAudioSettings,
+} from "@/lib/audio/tts-config";
+import { TtsQuotaError, TtsGenerationError } from "@/lib/audio/tts-errors";
 
 const CACHE_DIR = path.join(process.cwd(), "data", "audio-cache");
 
@@ -48,41 +48,48 @@ export interface TTSProvider {
   generate(spokenText: string, sentenceId: string): Promise<ArrayBuffer>;
 }
 
-export class ElevenLabsProvider implements TTSProvider {
+export class FishAudioProvider implements TTSProvider {
   constructor(
     private apiKey: string,
-    private voiceId: string
+    private voiceId?: string
   ) {}
 
   async generate(spokenText: string, _sentenceId: string): Promise<ArrayBuffer> {
-    const voiceSettings = getElevenLabsVoiceSettings();
-    const response = await fetch(
-      `https://api.elevenlabs.io/v1/text-to-speech/${this.voiceId}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "xi-api-key": this.apiKey,
-          Accept: "audio/mpeg",
+    const settings = getFishAudioSettings();
+    const response = await fetch("https://api.fish.audio/v1/tts", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${this.apiKey}`,
+        // Required by Fish Audio to select the synthesis model.
+        model: getTtsModel(),
+      },
+      body: JSON.stringify({
+        text: spokenText,
+        ...(this.voiceId ? { reference_id: this.voiceId } : {}),
+        format: "mp3",
+        temperature: settings.temperature,
+        top_p: settings.top_p,
+        prosody: {
+          speed: settings.speed,
+          volume: settings.volume,
         },
-        body: JSON.stringify({
-          text: spokenText,
-          model_id: getElevenLabsModel(),
-          language_code: "ja",
-          voice_settings: voiceSettings,
-        }),
-      }
-    );
+      }),
+    });
 
     if (!response.ok) {
       const body = await response.text().catch(() => "");
-      if (response.status === 429 || body.toLowerCase().includes("quota")) {
-        throw new ElevenLabsQuotaError(
-          body || "ElevenLabs quota exceeded"
-        );
+      // 402 = out of credits, 429 = rate limit — both are "come back later" cases.
+      if (
+        response.status === 402 ||
+        response.status === 429 ||
+        body.toLowerCase().includes("quota") ||
+        body.toLowerCase().includes("credit")
+      ) {
+        throw new TtsQuotaError(body || "Fish Audio credits/quota exhausted");
       }
-      throw new ElevenLabsTTSError(
-        `ElevenLabs TTS failed: ${response.status}`,
+      throw new TtsGenerationError(
+        `Fish Audio TTS failed: ${response.status}`,
         response.status
       );
     }
@@ -118,14 +125,14 @@ export async function generateServerAudio(
     }
   }
 
-  const apiKey = getElevenLabsApiKey();
-  const voiceId = getElevenLabsVoiceIdForDialect(dialect);
+  const apiKey = getFishAudioApiKey();
+  const voiceId = getFishAudioVoiceIdForDialect(dialect);
 
   if (!apiKey) {
     throw new Error("TTS_NOT_CONFIGURED");
   }
 
-  const provider = new ElevenLabsProvider(apiKey, voiceId);
+  const provider = new FishAudioProvider(apiKey, voiceId);
   const arrayBuffer = await provider.generate(ttsText, sentenceId);
   const buffer = Buffer.from(arrayBuffer);
 

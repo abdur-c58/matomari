@@ -19,6 +19,7 @@ import { bulkApplySentenceRatings } from "../lib/services/bulk-rating-service";
 import { normalizeUserProgress } from "../lib/progress/dialect-progress";
 import type { Dataset } from "../types/sentence";
 import type { UserProgress } from "../types/progress";
+import { DEFAULT_NOTIFICATION_PREFERENCES } from "../lib/constants/notifications";
 
 let passed = 0;
 let failed = 0;
@@ -67,11 +68,12 @@ function baseSp(overrides: Partial<SentenceProgress> = {}): SentenceProgress {
 function minimalDataset(sentenceId = "s1"): Dataset {
   return {
     main_pathway: {
+      description: "Test pathway",
       batches: [
         {
           batch_number: 1,
-          title: "Test",
-          difficulty_range: [1, 1],
+          batch_title: "Test",
+          target_difficulty_range: [1, 1],
           sentences: [
             {
               id: sentenceId,
@@ -81,6 +83,7 @@ function minimalDataset(sentenceId = "s1"): Dataset {
               category: "test",
               subtopic: "test",
               tags: [],
+              translated: false,
             },
           ],
         },
@@ -98,6 +101,7 @@ function minimalProgress(sentenceId = "s1"): UserProgress {
       dialectChosen: true,
       showKansaiDialect: false,
       kansaiAsPrimary: false,
+      notifications: { ...DEFAULT_NOTIFICATION_PREFERENCES, lastSent: {} },
     },
     sentences: {
       [sentenceId]: baseSp({ sentenceId, batchStatus: "active" }),

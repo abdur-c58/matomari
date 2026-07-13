@@ -3,7 +3,7 @@ import type { Dialect } from "@/lib/constants/dialect";
 import { enhanceTtsProsody, type TtsProsodyContext } from "@/lib/audio/tts-prosody";
 import {
   canUseJapaneseSurfaceForTts,
-  normalizeForElevenLabs,
+  normalizeForTts,
 } from "@/lib/audio/tts-normalize";
 import { resolveReadingForTts } from "@/lib/sentence/placeholders";
 
@@ -64,7 +64,7 @@ function resolveKanaReadingPath(
   }
 
   if (!fromKana) return null;
-  return normalizeForElevenLabs(fromKana, japanese, { fromKanaReading: true });
+  return normalizeForTts(fromKana, japanese, { fromKanaReading: true });
 }
 
 function resolveBaseReading(
@@ -85,7 +85,7 @@ function resolveBaseReading(
         )
       : options!.phonetic_reading!.trim();
     return resolved
-      ? normalizeForElevenLabs(resolved, japanese, { fromKanaReading: true })
+      ? normalizeForTts(resolved, japanese, { fromKanaReading: true })
       : null;
   }
 
@@ -94,7 +94,7 @@ function resolveBaseReading(
   }
 
   if (canUseJapaneseSurfaceForTts(japanese, dialect)) {
-    return normalizeForElevenLabs(japanese!.trim(), japanese, { fromKanaReading: false });
+    return normalizeForTts(japanese!.trim(), japanese, { fromKanaReading: false });
   }
 
   return resolveKanaReadingPath(japanese, reading, options ?? {});
@@ -140,7 +140,7 @@ export function assertTtsText(
   return text;
 }
 
-/** Kana reading + delivery cues (pauses, sighs) for ElevenLabs — used for synthesis & cache keys. */
+/** Kana reading + delivery cues (pauses, sighs) for TTS — used for synthesis & cache keys. */
 export function getSpokenScript(
   sentence: {
     japanese?: string | null;

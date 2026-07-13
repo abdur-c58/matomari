@@ -12,7 +12,7 @@ async function main() {
   const { deletedR2 } = await clearAudioCaches();
   console.log(`Done. Removed ${deletedR2} R2 object(s) and all audio_metadata rows.`);
   console.log(
-    "New standard audio uses kanji surface by default (cache version surface-kanji-v1)."
+    "Regenerate with: npm run regenerate-audio (requires FISH_AUDIO_API_KEY + R2)."
   );
 }
 

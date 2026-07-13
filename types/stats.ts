@@ -22,6 +22,12 @@ export interface DailySnapshot {
   totalSentences: number;
   studyComplete?: boolean;
   completedAt?: string;
+  /**
+   * Study task ids finished on this date. Once a task is completed for the day
+   * it stays completed regardless of later batch changes, so the checklist
+   * does not reset when the active batch is swapped on the same day.
+   */
+  completedTasks?: string[];
 }
 
 export interface MasteryEvent {

@@ -195,7 +195,7 @@ export function buildTranslationPrompt(
 - reading: kana-only display pronunciation of japanese (hiragana/katakana only, no kanji)
 - phonetic_reading: REQUIRED for Kansai — a separate kana-only TTS script that makes a standard Japanese TTS voice sound Kansai:
   - Write how the line should SOUND in Osaka-ben, not just a literal kana transcription of japanese
-  - Exaggerate accent cues ElevenLabs can follow: elongated vowels (ええ, ほんまあ), へん/ひん instead of ない where spoken, や/やで instead of だ, わ for particle は, え for particle へ
+  - Exaggerate accent cues the TTS engine can follow: elongated vowels (ええ, ほんまあ), へん/ひん instead of ない where spoken, や/やで instead of だ, わ for particle は, え for particle へ
   - Use natural Kansai rhythm and endings (〜やねん, 〜ちゃう, 〜せん, めっちゃ, なんでや, せやな)
   - Must be 100% kana — no kanji, no IPA — and must differ from reading when accent helps
   - Example: japanese「本当に、なんでそんなことするの？」 → reading「ほんとうに、なんでそんなことするの？」 → phonetic_reading「ほんま、なんでそないことすんねん！」
@@ -218,8 +218,8 @@ PHILOSOPHY:
 - Prefer natural spoken Japanese over textbook-stiff phrasing
 - Match the register field exactly: casual = plain/informal, polite = です/ます, formal = keigo where appropriate
 - Use category, subtopic, tags, and context_notes for situational tone
-- The reading field is the authoritative pronunciation guide for TTS (standard) or learner display (Kansai) — it must be 100% kana (hiragana/katakana), never kanji, and must reflect every reading choice in japanese (including compound verbs, rendaku, and particle は→わ / へ→え where spoken)
-- Keep loanwords in katakana in reading (アメリカ not あめりか). For sokuon clusters (しゅっしん, がっこう), write them precisely — small ゅ/ょ and っ are required; the app may use japanese surface form for Standard TTS when safe
+- For standard dialect, the TTS engine speaks directly from the japanese kanji/kana surface form (it handles pitch accent and intonation correctly from kanji) — reading is the authoritative pronunciation guide for learners and the kana fallback when a surface form can't be used (placeholders, mixed scripts). It must be 100% kana (hiragana/katakana), never kanji, and must reflect every reading choice in japanese exactly — correct pitch accent, compound verbs, rendaku, and particle は→わ / へ→え where spoken
+- Keep loanwords in katakana in reading (アメリカ not あめりか). For sokuon clusters (しゅっしん, がっこう), write them precisely — small ゅ/ょ and っ are required
 - Use Japanese punctuation in reading for natural delivery: 、 before a trailing exasperated もう/ね, ？ for questions, ！ for emphasis. Example: くうきよんでよ、もう。
 - For emotionally loaded lines (frustration, sighing もう, exasperation), put the comma BEFORE the emotional tail so TTS can pause — e.g. NOT くうきよんでよもう。
 

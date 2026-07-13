@@ -207,6 +207,7 @@ export function BatchSelectorMobile() {
             selectedBatch={Number(pathwayBatch)}
             suggestedBatch={suggestedBatch}
             activeBatchNumber={activeBatchNumber}
+            skippedBatchNumbers={progress.settings.placement?.skippedBatches ?? []}
             dataset={dataset}
             progress={progress}
             onSelect={(n) => setPathwayBatch(String(n))}

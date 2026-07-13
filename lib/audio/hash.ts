@@ -1,4 +1,4 @@
-import { buildTtsCacheKey } from "@/lib/audio/elevenlabs-config";
+import { buildTtsCacheKey } from "@/lib/audio/tts-config";
 import type { Dialect } from "@/lib/constants/dialect";
 
 export async function getTextHashAsync(

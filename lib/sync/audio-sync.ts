@@ -119,7 +119,7 @@ export async function syncAudioToCloud(
       setUploadProgress({
         active: true,
         label: quotaHit
-          ? "ElevenLabs quota reached — audio sync paused"
+          ? "TTS credits exhausted — audio sync paused"
           : `Uploading audio (${completed} / ${targets.length})`,
         subtitle: "Saving TTS files to cloud storage",
         completed,

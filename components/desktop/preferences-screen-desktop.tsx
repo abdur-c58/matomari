@@ -17,8 +17,15 @@ import {
 import { NotificationPreferencesSection } from "@/components/settings/notification-preferences-section";
 import { DialectPreferencesSection } from "@/components/settings/dialect-preferences-section";
 import { FontPreferencesSection } from "@/components/settings/font-preferences-section";
+import { PreferencesSaveBar } from "@/components/settings/preferences-save-bar";
+import { UnsavedPreferencesDialog } from "@/components/settings/unsaved-preferences-dialog";
 import { parseReturnTo } from "@/lib/utils/dialect-preferences";
 import { useSavePreferences } from "@/components/settings/use-save-preferences";
+import { useScrollAtBottom } from "@/hooks/use-scroll-at-bottom";
+import { useUnsavedPreferencesGuard } from "@/hooks/use-unsaved-preferences-guard";
+import { cn } from "@/lib/utils";
+
+const LEAVE_HREF = "/settings";
 
 export function PreferencesScreenDesktop() {
   const searchParams = useSearchParams();
@@ -54,45 +61,84 @@ export function PreferencesScreenDesktop() {
   }, [uiFont, progress.settings.uiFont]);
 
   const returnTo = parseReturnTo(searchParams);
-  const { handleSave, saving } = useSavePreferences({
+  const { handleSave, saving, hasUnsavedChanges } = useSavePreferences({
     showKansaiDialect,
     kansaiAsPrimary,
     uiFont,
     notifications,
     returnTo,
   });
+  const { isAtBottom, sentinelRef } = useScrollAtBottom();
+  const {
+    dialogOpen,
+    pendingHref,
+    completeLeave,
+    dismissDialog,
+    setDialogOpen,
+  } = useUnsavedPreferencesGuard({
+    enabled: hasUnsavedChanges,
+    leaveHref: LEAVE_HREF,
+  });
+
+  const floatingSave = !isAtBottom;
 
   return (
-    <DesktopPageShell>
-      <DesktopPageHeader
-        title="Preferences"
-        subtitle="Font, dialect, voice accent, and notifications"
-      />
-
-      <FontPreferencesSection uiFont={uiFont} onChange={setUiFont} />
-
-      <DialectPreferencesSection
-        showKansaiDialect={showKansaiDialect}
-        kansaiAsPrimary={kansaiAsPrimary}
-        onShowKansaiChange={setShowKansaiDialect}
-        onKansaiPrimaryChange={setKansaiAsPrimary}
-      />
-
-      <Card className="mb-6 p-4">
-        <Label className="text-base">Notifications</Label>
-        <p className="mt-1 mb-4 text-sm text-muted leading-relaxed">
-          Daily study nudges, review reminders, and optional per-island alerts.
-        </p>
-        <NotificationPreferencesSection
-          notifications={notifications}
-          onChange={setNotifications}
-          dataset={dataset}
+    <>
+      <DesktopPageShell
+        className={cn(floatingSave && "pb-[calc(5rem+env(safe-area-inset-bottom,0px))]")}
+      >
+        <DesktopPageHeader
+          title="Preferences"
+          subtitle="Font, dialect, voice accent, and notifications"
         />
-      </Card>
 
-      <Button className="w-full" onClick={handleSave} loading={saving}>
-        Save preferences
-      </Button>
-    </DesktopPageShell>
+        <FontPreferencesSection uiFont={uiFont} onChange={setUiFont} />
+
+        <DialectPreferencesSection
+          showKansaiDialect={showKansaiDialect}
+          kansaiAsPrimary={kansaiAsPrimary}
+          onShowKansaiChange={setShowKansaiDialect}
+          onKansaiPrimaryChange={setKansaiAsPrimary}
+        />
+
+        <Card className="mb-6 p-4">
+          <Label className="text-base">Notifications</Label>
+          <p className="mt-1 mb-4 text-sm text-muted leading-relaxed">
+            Daily study nudges, review reminders, and optional per-island alerts.
+          </p>
+          <NotificationPreferencesSection
+            notifications={notifications}
+            onChange={setNotifications}
+            dataset={dataset}
+          />
+        </Card>
+
+        <div ref={sentinelRef} className="h-px" aria-hidden />
+
+        {isAtBottom && (
+          <Button className="w-full max-w-md" onClick={() => handleSave()} loading={saving}>
+            Save preferences
+          </Button>
+        )}
+      </DesktopPageShell>
+
+      <PreferencesSaveBar
+        visible={floatingSave}
+        onSave={() => handleSave()}
+        saving={saving}
+        hasUnsavedChanges={hasUnsavedChanges}
+      />
+
+      <UnsavedPreferencesDialog
+        open={dialogOpen}
+        onOpenChange={(open) => {
+          if (!open) dismissDialog();
+          else setDialogOpen(true);
+        }}
+        saving={saving}
+        onDiscard={() => completeLeave(pendingHref ?? LEAVE_HREF)}
+        onSaveAndExit={() => handleSave(pendingHref ?? returnTo)}
+      />
+    </>
   );
 }

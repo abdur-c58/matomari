@@ -10,12 +10,14 @@ const ROOT = path.join(import.meta.dirname, "..");
 const PWA_SOURCE = path.join(ROOT, "public", "logonew.png");
 const SPLASH_DIR = path.join(ROOT, "public", "splash");
 
-const WHITE_BG = { r: 255, g: 255, b: 255, alpha: 1 } as const;
-const BLACK_BG = { r: 0, g: 0, b: 0, alpha: 1 } as const;
+type RgbaBackground = { r: number; g: number; b: number; alpha: number };
+
+const WHITE_BG: RgbaBackground = { r: 255, g: 255, b: 255, alpha: 1 };
+const BLACK_BG: RgbaBackground = { r: 0, g: 0, b: 0, alpha: 1 };
 
 const LOGO_SCALE = 0.22;
 
-async function prepareLogoSource(background: typeof WHITE_BG): Promise<Buffer> {
+async function prepareLogoSource(background: RgbaBackground): Promise<Buffer> {
   const trimmed = await sharp(PWA_SOURCE).trim({ threshold: 12 }).toBuffer();
   const meta = await sharp(trimmed).metadata();
   const maxDim = Math.max(meta.width ?? 0, meta.height ?? 0);
@@ -46,7 +48,7 @@ async function prepareDarkLogo(): Promise<Buffer> {
 async function renderSplash(
   width: number,
   height: number,
-  background: typeof WHITE_BG,
+  background: RgbaBackground,
   logoSource: Buffer
 ): Promise<Buffer> {
   const logoSize = Math.round(Math.min(width, height) * LOGO_SCALE);
@@ -69,7 +71,7 @@ async function renderSplash(
 
 async function generateTheme(
   theme: SplashTheme,
-  background: typeof WHITE_BG,
+  background: RgbaBackground,
   logoSource: Buffer
 ) {
   const outDir = path.join(SPLASH_DIR, theme);

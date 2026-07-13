@@ -15,6 +15,7 @@
     "generate-og-image": "npx tsx scripts/generate-og-image.ts",
     "verify-srs": "npx tsx scripts/verify-srs.ts",
     "verify-tts": "npx tsx --env-file=.env.local scripts/verify-tts.ts",
+    "test-fish-audio": "npx tsx --env-file=.env.local scripts/test-fish-audio-model.ts",
     "clear-standard-audio": "npx tsx --env-file=.env.local scripts/clear-standard-audio.ts",
     "clear-all-translations": "npx tsx --env-file=.env.local scripts/clear-all-translations.ts"
   },

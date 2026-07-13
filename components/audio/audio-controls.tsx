@@ -6,7 +6,6 @@ import {
   Pause,
   Repeat,
   ListMusic,
-  Volume2,
   ChevronDown,
   ChevronUp,
   SkipBack,
@@ -104,16 +103,11 @@ export function AudioControls({
   const currentIndex = playlistState?.currentIndex ?? 0;
   const isPlaylistActive = Boolean(playlistState && playlistMode);
 
-  if (!audioUnlocked) {
-    return (
-      <Button className={cn("w-full", className)} size="lg" onClick={unlockAudio}>
-        <Volume2 className="mr-2 h-5 w-5" />
-        Tap to enable audio
-      </Button>
-    );
-  }
-
   const handlePlay = async () => {
+    if (!audioUnlocked) {
+      await unlockAudio();
+      if (!audioSession.isUnlocked()) return;
+    }
     audioSession.setPlaybackRate(speed);
     if (playlistMode && playlist?.length) {
       audioSession.setLoop(loop);

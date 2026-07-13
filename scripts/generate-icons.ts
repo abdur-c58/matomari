@@ -8,8 +8,10 @@ const TAB_SOURCE = path.join(ROOT, "public", "readmeimage.png");
 const ICONS_DIR = path.join(ROOT, "public", "icons");
 const APP_DIR = path.join(ROOT, "app");
 
-const WHITE_BG = { r: 255, g: 255, b: 255, alpha: 1 } as const;
-const BLACK_BG = { r: 0, g: 0, b: 0, alpha: 1 } as const;
+type RgbaBackground = { r: number; g: number; b: number; alpha: number };
+
+const WHITE_BG: RgbaBackground = { r: 255, g: 255, b: 255, alpha: 1 };
+const BLACK_BG: RgbaBackground = { r: 0, g: 0, b: 0, alpha: 1 };
 
 /** Outer breathing room after trim — keeps maskable icons from feeling cramped. */
 const PWA_OUTER_MARGIN_RATIO = 0.055;
@@ -28,7 +30,7 @@ const TAB_SIZES = {
 } as const;
 
 /** Trim whitespace, center on square canvas, add a small uniform margin. */
-async function preparePwaSource(source: string, background: typeof WHITE_BG): Promise<Buffer> {
+async function preparePwaSource(source: string, background: RgbaBackground): Promise<Buffer> {
   const trimmed = await sharp(source).trim({ threshold: 12 }).toBuffer();
   const meta = await sharp(trimmed).metadata();
   const width = meta.width ?? 0;
@@ -56,7 +58,7 @@ async function preparePwaSource(source: string, background: typeof WHITE_BG): Pr
 async function renderIcon(
   source: string | Buffer,
   size: number,
-  background: typeof WHITE_BG,
+  background: RgbaBackground,
   paddingRatio = 0
 ) {
   const padding = Math.round(size * paddingRatio);

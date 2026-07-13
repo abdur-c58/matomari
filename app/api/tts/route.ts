@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { generateServerAudio } from "@/lib/audio/generate-audio";
 import { getSpokenScriptFromFields } from "@/lib/audio/tts-text";
-import { ElevenLabsQuotaError } from "@/lib/audio/tts-errors";
+import { TtsQuotaError } from "@/lib/audio/tts-errors";
 import type { Dialect } from "@/lib/constants/dialect";
 import type { Register, SentencePlaceholder } from "@/types/sentence";
 
@@ -87,7 +87,7 @@ export async function POST(request: Request) {
       },
     });
   } catch (e) {
-    if (e instanceof ElevenLabsQuotaError) {
+    if (e instanceof TtsQuotaError) {
       return NextResponse.json(
         { error: e.message, code: "QUOTA_EXCEEDED" },
         { status: 429 }

@@ -402,7 +402,7 @@ export async function manualSync(): Promise<ManualSyncResult> {
   if (!supabaseOk) {
     message = getSyncStatusMessage() ?? "Could not sync to Supabase";
   } else if (audio.quotaExceeded) {
-    message = "Library synced. ElevenLabs quota reached — audio sync paused; tap Sync again later.";
+    message = "Library synced. TTS credits exhausted — audio sync paused; tap Sync again later.";
   } else if (audio.failed > 0) {
     message = "Library synced. Some audio files could not be uploaded.";
   }

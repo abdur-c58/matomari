@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useApp } from "@/components/providers/app-provider";
 import { buildTodayPlan } from "@/lib/services/today-plan-service";
 import { getDailyStudyStatus } from "@/lib/services/daily-progress-service";
+import { shouldShowPlacement } from "@/lib/services/placement-service";
 import { useSyncTodayCompletion } from "@/hooks/use-sync-today-completion";
 import {
   getStudyFocusLabel,
@@ -30,8 +32,16 @@ import { TodayPlanCard } from "@/components/today/today-plan-card";
 import { fadeUp, staggerContainer } from "@/lib/motion";
 
 export function TodayScreenDesktop() {
+  const router = useRouter();
   const { dataset, progress, stats, loading, syncStatus } = useApp();
   useSyncTodayCompletion();
+
+  useEffect(() => {
+    if (loading || !dataset) return;
+    if (shouldShowPlacement(progress)) {
+      router.replace("/placement");
+    }
+  }, [loading, dataset, progress, router]);
 
   const plan = useMemo(
     () => buildTodayPlan(dataset, progress, stats),

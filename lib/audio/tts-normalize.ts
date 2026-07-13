@@ -24,8 +24,9 @@ export function hasPlaceholderTags(text: string | undefined | null): boolean {
 }
 
 /**
- * Standard Japanese with kanji/katakana — ElevenLabs handles compounds like 出身
- * and loanwords better than all-hiragana readings (e.g. しゅっしん → "susushin").
+ * Standard Japanese with kanji/katakana — Fish Audio reads compounds like 出身
+ * and loanwords with correct pitch accent from the surface form, far better than
+ * an all-hiragana reading (e.g. しゅっしん loses the pitch cues kanji carries).
  */
 export function canUseJapaneseSurfaceForTts(
   japanese: string | undefined | null,
@@ -54,7 +55,7 @@ export function restoreKatakanaLoanwords(kanaText: string, japanese: string): st
 }
 
 /**
- * Promote hiragana morphemes with sokuon (っ) to katakana — helps ElevenLabs with
+ * Promote hiragana morphemes with sokuon (っ) to katakana — helps TTS engines with
  * しゅっしん (shu+sshin) and similar contracted sequences.
  *
  * Threshold raised to ≥5 chars to avoid over-transforming short common words like
@@ -69,22 +70,9 @@ export function promoteSokuonClusters(text: string): string {
 }
 
 /**
- * Insert spaces between long katakana runs to help ElevenLabs segment words.
- * Only applied when the overall text is long enough to benefit.
+ * Final polish for text sent to the TTS engine (after surface vs reading is chosen).
  */
-export function insertTtsWordBoundaries(text: string): string {
-  // Skip for short phrases — spacing short katakana causes choppy delivery
-  if (text.replace(/\s/g, "").length < 12) return text;
-  return text
-    .replace(/([\u30a0-\u30ff]{4,})([\u30a0-\u30ff]{3,})/g, "$1 $2")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-/**
- * Final polish for text sent to ElevenLabs (after surface vs reading is chosen).
- */
-export function normalizeForElevenLabs(
+export function normalizeForTts(
   text: string,
   japanese?: string | null,
   options?: { fromKanaReading?: boolean }
@@ -97,11 +85,7 @@ export function normalizeForElevenLabs(
       result = restoreKatakanaLoanwords(result, japanese.trim());
     }
     if (!KANJI_PATTERN.test(result)) {
-      const before = result;
       result = promoteSokuonClusters(result);
-      if (result !== before) {
-        result = insertTtsWordBoundaries(result);
-      }
     }
   }
 

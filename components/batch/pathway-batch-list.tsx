@@ -13,6 +13,7 @@ export function PathwayBatchList({
   selectedBatch,
   suggestedBatch,
   activeBatchNumber = null,
+  skippedBatchNumbers = [],
   dataset,
   progress,
   onSelect,
@@ -21,6 +22,7 @@ export function PathwayBatchList({
   selectedBatch: number;
   suggestedBatch: number;
   activeBatchNumber?: number | null;
+  skippedBatchNumbers?: number[];
   dataset?: Dataset | null;
   progress?: UserProgress | null;
   onSelect: (batchNumber: number) => void;
@@ -31,6 +33,7 @@ export function PathwayBatchList({
         const selected = batch.batchNumber === selectedBatch;
         const recommended = batch.batchNumber === suggestedBatch && !batch.complete;
         const isActiveFocus = batch.batchNumber === activeBatchNumber;
+        const placementSkipped = skippedBatchNumbers.includes(batch.batchNumber);
 
         const detail =
           dataset && progress
@@ -63,7 +66,10 @@ export function PathwayBatchList({
                       Batch {batch.batchNumber}
                     </span>
                     {recommended && <Badge variant="default">Recommended</Badge>}
-                    {batch.complete && <Badge variant="success">Complete</Badge>}
+                    {placementSkipped && <Badge variant="outline">Skipped</Badge>}
+                    {batch.complete && !placementSkipped && (
+                      <Badge variant="success">Complete</Badge>
+                    )}
                     {isActiveFocus && <Badge variant="secondary">Active</Badge>}
                   </div>
                   <p className="mt-0.5 font-medium text-foreground">{batch.title}</p>
