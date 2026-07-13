@@ -130,7 +130,7 @@ async function main() {
     "\nNext: open Kotoshima, Sync now, then click 'Translate all' to retranslate sentences."
   );
 }
-
+// main
 main().catch((e) => {
   console.error(e);
   process.exit(1);
