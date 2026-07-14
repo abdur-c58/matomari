@@ -139,6 +139,7 @@ export function SentenceCard({
                   english={sentence.english}
                   placeholders={compactPlayFields.placeholders ?? sentence.placeholders}
                   dialect={primaryDialect}
+                  speaker={sentence.speaker}
                   disabled={!viewHasTranslation}
                   className="mt-0.5"
                 />

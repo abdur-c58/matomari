@@ -40,8 +40,6 @@ const chipClass = (active: boolean) =>
 
 const GROUP_OPTIONS: { value: LibraryGroupBy; label: string }[] = [
   { value: "none", label: "No grouping" },
-  { value: "source", label: "Pathway vs island" },
-  { value: "pathwayBatch", label: "Pathway batch" },
   { value: "island", label: "Island" },
   { value: "category", label: "Category" },
   { value: "subtopic", label: "Subtopic" },
@@ -185,61 +183,6 @@ export function FilterDrawer({ filters, onChange, meta, activeFilterCount }: Fil
               ))}
             </div>
           </section>
-
-          <section>
-            <Label className="mb-3 block">Source</Label>
-            <div className="flex flex-wrap gap-2">
-              {[
-                { v: null, l: "All" },
-                { v: "pathway" as const, l: "Main pathway" },
-                { v: "island" as const, l: "Islands" },
-              ].map(({ v, l }) => (
-                <button
-                  key={l}
-                  type="button"
-                  className={chipClass(filters.sourceType === v)}
-                  onClick={() =>
-                    onChange({
-                      ...filters,
-                      sourceType: v,
-                      pathwayBatch: v === "island" ? null : filters.pathwayBatch,
-                      islandKey: v === "pathway" ? null : filters.islandKey,
-                    })
-                  }
-                >
-                  {l}
-                </button>
-              ))}
-            </div>
-          </section>
-
-          {meta.pathwayBatches.length > 0 && (
-            <section>
-              <Label>Pathway batch</Label>
-              <Select
-                value={filters.pathwayBatch !== null ? String(filters.pathwayBatch) : "all"}
-                onValueChange={(v) =>
-                  onChange({
-                    ...filters,
-                    pathwayBatch: v === "all" ? null : Number(v),
-                    sourceType: v === "all" ? filters.sourceType : "pathway",
-                  })
-                }
-              >
-                <SelectTrigger className="mt-2">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All batches</SelectItem>
-                  {meta.pathwayBatches.map((b) => (
-                    <SelectItem key={b.number} value={String(b.number)}>
-                      Batch {b.number}: {b.title}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </section>
-          )}
 
           {meta.islandKeys.length > 0 && (
             <section>
@@ -464,26 +407,6 @@ export function LibraryQuickFilters({
       active: filters.status === "unrated",
       onToggle: () =>
         onChange({ ...filters, status: filters.status === "unrated" ? null : "unrated" }),
-    },
-    {
-      label: "Pathway",
-      active: filters.sourceType === "pathway",
-      onToggle: () =>
-        onChange({
-          ...filters,
-          sourceType: filters.sourceType === "pathway" ? null : "pathway",
-          islandKey: null,
-        }),
-    },
-    {
-      label: "Islands",
-      active: filters.sourceType === "island",
-      onToggle: () =>
-        onChange({
-          ...filters,
-          sourceType: filters.sourceType === "island" ? null : "island",
-          pathwayBatch: null,
-        }),
     },
   ];
 

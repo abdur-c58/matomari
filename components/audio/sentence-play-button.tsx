@@ -5,7 +5,7 @@ import { Loader2, Play } from "lucide-react";
 import { useApp } from "@/components/providers/app-provider";
 import { audioSession, type TtsRequest } from "@/lib/audio/audio-session";
 import { getTtsTextFromFields } from "@/lib/audio/tts-text";
-import type { SentencePlaceholder } from "@/types/sentence";
+import type { NarrationSpeaker, SentencePlaceholder } from "@/types/sentence";
 import type { Dialect } from "@/lib/constants/dialect";
 import type { AudioSessionState } from "@/types/audio";
 import { getPrimaryTranslation } from "@/lib/preferences/translation-preferences";
@@ -25,6 +25,7 @@ export type SentenceAudioFields = {
   english?: string;
   placeholders?: SentencePlaceholder[];
   dialect?: Dialect;
+  speaker?: NarrationSpeaker;
   disabled?: boolean;
   className?: string;
   appearance?: "default" | "minimal";
@@ -43,6 +44,7 @@ function buildTtsRequest(
     placeholders: fields.placeholders,
     learnerName: learnerJapaneseName,
     dialect,
+    speaker: fields.speaker === "B" ? "B" : "A",
     register: fields.register,
     tags: fields.tags,
     context_notes: fields.context_notes,
@@ -62,6 +64,7 @@ export function SentenceAudioControls({
   english,
   placeholders,
   dialect: dialectProp,
+  speaker,
   disabled = false,
   className,
   appearance = "default",
@@ -121,6 +124,7 @@ export function SentenceAudioControls({
         english,
         placeholders,
         dialect,
+        speaker,
       },
       dialect,
       learnerJapaneseName

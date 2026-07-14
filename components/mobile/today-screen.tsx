@@ -1,11 +1,9 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useApp } from "@/components/providers/app-provider";
 import { getDailyStudyStatus } from "@/lib/services/daily-progress-service";
-import { shouldShowPlacement } from "@/lib/services/placement-service";
 import { useSyncTodayCompletion } from "@/hooks/use-sync-today-completion";
 import { useAutoResumeDailyFocus } from "@/hooks/use-auto-resume-daily-focus";
 import { resolveDailyBatchConfig } from "@/lib/services/daily-focus-service";
@@ -27,17 +25,9 @@ import { TodayPlanGrid } from "@/components/today/today-plan-grid";
 import { CasualListenProgress } from "@/components/study/casual-listen-progress";
 
 export function TodayScreenMobile() {
-  const router = useRouter();
   const { dataset, progress, stats, loading, syncStatus } = useApp();
   useSyncTodayCompletion();
   useAutoResumeDailyFocus();
-
-  useEffect(() => {
-    if (loading || !dataset) return;
-    if (shouldShowPlacement(progress)) {
-      router.replace("/placement");
-    }
-  }, [loading, dataset, progress, router]);
 
   const studyFocus = useMemo(
     () => (dataset ? getStudyFocusLabel(dataset, progress) : null),

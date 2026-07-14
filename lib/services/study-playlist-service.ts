@@ -33,6 +33,7 @@ export function sentenceToTtsRequest(
     phonetic_reading: fields.phonetic_reading,
     placeholders: fields.placeholders ?? sentence.placeholders,
     dialect,
+    speaker: sentence.speaker === "B" ? "B" : "A",
     register: sentence.register,
     tags: sentence.tags,
     context_notes: sentence.context_notes,

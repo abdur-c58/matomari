@@ -12,10 +12,16 @@ import { toast } from "sonner";
 
 function formatTranslationError(error: unknown): string {
   if (error instanceof TranslationError && error.code === "NOT_CONFIGURED") {
-    return "AI is not configured. Add OPENAI_API_KEY to translate sentences.";
+    return "AI is not configured yet. Add OPENAI_API_KEY in .env.local to translate sentences.";
   }
-  if (error instanceof Error) return error.message;
-  return "Translation failed";
+  if (error instanceof Error) {
+    const msg = error.message;
+    if (/quota|rate limit|429|billing/i.test(msg)) {
+      return msg;
+    }
+    return msg || "Translation couldn’t finish. You can try again in a moment.";
+  }
+  return "Translation couldn’t finish. You can try again in a moment.";
 }
 
 function useTranslateAllRun(dialect: Dialect) {
@@ -23,6 +29,11 @@ function useTranslateAllRun(dialect: Dialect) {
   const [translating, setTranslating] = useState(false);
   const [progress, setProgress] = useState({ completed: 0, total: 0 });
   const [error, setError] = useState<string | null>(null);
+
+  const dismiss = useCallback(() => {
+    setTranslating(false);
+    setError(null);
+  }, []);
 
   const runTranslation = useCallback(async () => {
     if (!dataset) return;
@@ -38,6 +49,8 @@ function useTranslateAllRun(dialect: Dialect) {
           setProgress({ completed, total: totalCount }),
       });
 
+      setTranslating(false);
+
       if (translatedCount === 0) {
         toast.info("All sentences are already translated");
       } else {
@@ -47,12 +60,20 @@ function useTranslateAllRun(dialect: Dialect) {
       }
     } catch (e) {
       setError(formatTranslationError(e));
-    } finally {
       setTranslating(false);
     }
   }, [dataset, dialect, translateAllUntranslated]);
 
-  return { translating, progress, error, runTranslation, setTranslating };
+  const showOverlay = translating || Boolean(error);
+
+  return {
+    translating,
+    showOverlay,
+    progress,
+    error,
+    runTranslation,
+    dismiss,
+  };
 }
 
 export function TranslateAllButton({
@@ -63,12 +84,12 @@ export function TranslateAllButton({
   const { getUntranslatedCount, progress: userProgress } = useApp();
   const dialect = getPrimaryTranslation(userProgress.settings);
   const untranslatedCount = getUntranslatedCount(dialect);
-  const { translating, progress, error, runTranslation, setTranslating } =
+  const { showOverlay, progress, error, runTranslation, dismiss } =
     useTranslateAllRun(dialect);
 
-  if (untranslatedCount === 0) return null;
+  if (untranslatedCount === 0 && !showOverlay) return null;
 
-  if (translating && variant === "overlay") {
+  if (showOverlay && variant === "overlay") {
     return (
       <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background/95 px-4 backdrop-blur-sm">
         <TranslationProgress
@@ -77,16 +98,18 @@ export function TranslateAllButton({
           error={error}
           onRetry={error ? runTranslation : undefined}
           title="Translating all sentences…"
-          subtitle="Main pathway and all islands"
+          subtitle="All islands"
         />
         {error && (
-          <Button variant="ghost" className="mt-2" onClick={() => setTranslating(false)}>
+          <Button variant="ghost" className="mt-2" onClick={dismiss}>
             Back to library
           </Button>
         )}
       </div>
     );
   }
+
+  if (untranslatedCount === 0) return null;
 
   return (
     <Button variant="secondary" size="sm" onClick={runTranslation}>
@@ -100,12 +123,12 @@ export function TranslateKansaiAllButton() {
   const { getUntranslatedCount, progress: userProgress } = useApp();
   const showKansai = userProgress.settings.showKansaiDialect ?? false;
   const untranslatedCount = getUntranslatedCount("kansai");
-  const { translating, progress, error, runTranslation, setTranslating } =
+  const { showOverlay, progress, error, runTranslation, dismiss } =
     useTranslateAllRun("kansai");
 
-  if (!showKansai || untranslatedCount === 0) return null;
+  if ((!showKansai || untranslatedCount === 0) && !showOverlay) return null;
 
-  if (translating) {
+  if (showOverlay) {
     return (
       <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background/95 px-4 backdrop-blur-sm">
         <TranslationProgress
@@ -114,16 +137,18 @@ export function TranslateKansaiAllButton() {
           error={error}
           onRetry={error ? runTranslation : undefined}
           title="Translating Kansai…"
-          subtitle="Main pathway and all islands"
+          subtitle="All islands"
         />
         {error && (
-          <Button variant="ghost" className="mt-2" onClick={() => setTranslating(false)}>
+          <Button variant="ghost" className="mt-2" onClick={dismiss}>
             Back to library
           </Button>
         )}
       </div>
     );
   }
+
+  if (!showKansai || untranslatedCount === 0) return null;
 
   return (
     <Button variant="outline" size="sm" onClick={runTranslation}>

@@ -8,6 +8,7 @@ import {
 } from "@/lib/sentence-utils";
 import type { Dialect } from "@/lib/constants/dialect";
 import { DEFAULT_DIALECT } from "@/lib/constants/dialect";
+import { KANSAI_FEATURE_ENABLED } from "@/lib/constants/kansai-feature";
 import { isValidKanaReading } from "@/lib/audio/tts-text";
 import { validatePlaceholderTranslations } from "@/lib/sentence/placeholders";
 import { getSentenceTranslationFields } from "@/lib/services/dialect-translation-service";
@@ -202,6 +203,12 @@ export async function translateSentences(
   options?: TranslateOptions
 ): Promise<{ dataset: Dataset; translatedCount: number }> {
   const dialect = options?.dialect ?? DEFAULT_DIALECT;
+  if (dialect === "kansai" && !KANSAI_FEATURE_ENABLED) {
+    throw new TranslationError(
+      "Kansai translation is temporarily unavailable.",
+      "REQUEST_FAILED"
+    );
+  }
   const all = getAllSentences(dataset);
   const targets = sentenceIds
     .map((id) => all.get(id))

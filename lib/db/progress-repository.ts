@@ -34,6 +34,8 @@ export async function getProgress(): Promise<UserProgress> {
       batchConfig: progress.batchConfig ?? null,
       completedPathwayBatches: progress.completedPathwayBatches ?? [],
       completedIslands: progress.completedIslands ?? [],
+      islandFolders: progress.islandFolders ?? [],
+      islandFolderAssignments: progress.islandFolderAssignments ?? {},
       byDialect: progress.byDialect,
     });
   } catch {

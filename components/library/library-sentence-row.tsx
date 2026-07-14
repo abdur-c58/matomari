@@ -194,6 +194,7 @@ export function LibrarySentenceRow({
           english={sentence.english}
           placeholders={sentence.placeholders}
           dialect={primaryDialect}
+          speaker={sentence.speaker}
           disabled={!translated}
           className="mt-0.5"
         />

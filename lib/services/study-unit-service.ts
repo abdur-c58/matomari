@@ -1,11 +1,14 @@
 import type { Dataset } from "@/types/sentence";
-import type { UserProgress } from "@/types/progress";
+import type { IslandFolder, UserProgress } from "@/types/progress";
+import type { PremadeCatalog, PremadeFolder } from "@/types/premade-catalog";
 import {
   getIslandSummaries,
   getPathwayBatchStats,
   isIslandComplete,
   isPathwayBatchComplete,
 } from "@/lib/services/study-focus-service";
+import { sanitizeIslandFolders } from "@/lib/services/island-folder-service";
+import { isPremadeIslandKey } from "@/lib/services/shared-premade-service";
 import { PATHWAY_THEME_KANJI } from "@/lib/services/study-unit-kanji-service";
 
 export type StudyUnitRef =
@@ -15,6 +18,8 @@ export type StudyUnitRef =
 export type StudyUnitStatus = "in_progress" | "untouched" | "completed";
 
 export type StudyUnitStatusFilter = "all" | StudyUnitStatus;
+
+export type IslandOriginFilter = "all" | "premade" | "user";
 
 export interface StudyUnitSummary {
   ref: StudyUnitRef;
@@ -26,6 +31,10 @@ export interface StudyUnitSummary {
   status: StudyUnitStatus;
   lastStudiedAt: string | null;
   isPathway: boolean;
+  isPremade: boolean;
+  isFeatured: boolean;
+  /** Multi-speaker dialogue island (e.g. Q&A). */
+  isNarration: boolean;
   themeKanji: string;
 }
 
@@ -40,12 +49,6 @@ export function parseStudyUnitKey(key: string): StudyUnitRef | null {
     return islandKey ? { kind: "island", key: islandKey } : null;
   }
   return null;
-}
-
-function isSentenceStudied(sentenceId: string, progress: UserProgress): boolean {
-  const sp = progress.sentences[sentenceId];
-  if (!sp) return false;
-  return sp.batchStatus !== "unseen" || sp.rating !== null;
 }
 
 function deriveLastStudiedAt(
@@ -67,7 +70,8 @@ function deriveStatus(complete: boolean, studiedCount: number): StudyUnitStatus 
 
 export function getStudyUnits(
   dataset: Dataset,
-  progress: UserProgress
+  progress: UserProgress,
+  premadeCatalog: PremadeCatalog | null = null
 ): StudyUnitSummary[] {
   const pathwayStats = getPathwayBatchStats(dataset, progress);
   const pathwaySentenceCount = pathwayStats.reduce((n, b) => n + b.total, 0);
@@ -91,11 +95,15 @@ export function getStudyUnits(
     status: deriveStatus(pathwayComplete, pathwayStudied),
     lastStudiedAt: deriveLastStudiedAt(progress, pathwayRef, pathwayStudied),
     isPathway: true,
+    isPremade: false,
+    isFeatured: false,
+    isNarration: false,
     themeKanji: PATHWAY_THEME_KANJI,
   };
 
   const islands = getIslandSummaries(dataset, progress).map((island) => {
     const ref: StudyUnitRef = { kind: "island", key: island.key };
+    const data = dataset.islands[island.key];
     return {
       ref,
       title: island.title,
@@ -111,11 +119,35 @@ export function getStudyUnits(
       ),
       lastStudiedAt: deriveLastStudiedAt(progress, ref, island.studiedCount),
       isPathway: false,
-      themeKanji: dataset.islands[island.key]?.themeKanji ?? "島",
+      isPremade: isPremadeIslandKey(island.key, premadeCatalog),
+      isFeatured: Boolean(data?.featured),
+      isNarration: data?.format === "narration",
+      themeKanji: data?.themeKanji ?? "島",
     } satisfies StudyUnitSummary;
   });
 
+  // Pathway kept for silent compose/legacy progress; Islands UI filters it out.
   return [pathwayUnit, ...islands];
+}
+
+export function getIslandStudyUnits(
+  dataset: Dataset,
+  progress: UserProgress,
+  premadeCatalog: PremadeCatalog | null = null
+): StudyUnitSummary[] {
+  return getStudyUnits(dataset, progress, premadeCatalog).filter((u) => !u.isPathway);
+}
+
+export function filterStudyUnitsByOrigin(
+  units: StudyUnitSummary[],
+  originFilter: IslandOriginFilter
+): StudyUnitSummary[] {
+  if (originFilter === "all") return units;
+  return units.filter((unit) => {
+    if (unit.isPathway) return originFilter === "user";
+    if (originFilter === "premade") return unit.isPremade;
+    return !unit.isPremade;
+  });
 }
 
 export function getCanonicalStudyUnitOrder(units: StudyUnitSummary[]): StudyUnitSummary[] {
@@ -146,13 +178,25 @@ export function filterStudyUnits(
 }
 
 export interface GroupedStudyUnits {
+  /** Featured essentials (e.g. 300 islands) — always rendered first. */
+  featured: StudyUnitSummary[];
   inProgress: StudyUnitSummary[];
   untouched: StudyUnitSummary[];
   completed: StudyUnitSummary[];
 }
 
+function compareFeaturedTitle(a: StudyUnitSummary, b: StudyUnitSummary): number {
+  return a.title.localeCompare(b.title);
+}
+
 export function groupStudyUnits(units: StudyUnitSummary[]): GroupedStudyUnits {
-  const inProgress = units
+  const featured = units
+    .filter((u) => u.isFeatured)
+    .sort(compareFeaturedTitle);
+
+  const rest = units.filter((u) => !u.isFeatured);
+
+  const inProgress = rest
     .filter((u) => u.status === "in_progress")
     .sort((a, b) => {
       const aTime = a.lastStudiedAt ? new Date(a.lastStudiedAt).getTime() : 0;
@@ -160,15 +204,101 @@ export function groupStudyUnits(units: StudyUnitSummary[]): GroupedStudyUnits {
       return bTime - aTime;
     });
 
-  const untouched = units
+  const untouched = rest
     .filter((u) => u.status === "untouched")
     .sort((a, b) => a.title.localeCompare(b.title));
 
-  const completed = units
+  const completed = rest
     .filter((u) => u.status === "completed")
     .sort((a, b) => a.title.localeCompare(b.title));
 
-  return { inProgress, untouched, completed };
+  return { featured, inProgress, untouched, completed };
+}
+
+export interface FolderedStudyUnits {
+  pinnedPathway: StudyUnitSummary | null;
+  premadeFolders: { folder: PremadeFolder; grouped: GroupedStudyUnits }[];
+  premadeUnfoldered: GroupedStudyUnits;
+  userFolders: { folder: IslandFolder; grouped: GroupedStudyUnits }[];
+  unfoldered: GroupedStudyUnits;
+}
+
+function groupedHasUnits(grouped: GroupedStudyUnits): boolean {
+  return (
+    grouped.featured.length > 0 ||
+    grouped.inProgress.length > 0 ||
+    grouped.untouched.length > 0 ||
+    grouped.completed.length > 0
+  );
+}
+
+export function organizeStudyUnitsForDisplay(
+  units: StudyUnitSummary[],
+  progress: UserProgress,
+  dataset: Dataset,
+  premadeCatalog: PremadeCatalog | null = null
+): FolderedStudyUnits {
+  const sanitized = sanitizeIslandFolders(progress, dataset, premadeCatalog);
+  const userAssignments = sanitized.islandFolderAssignments ?? {};
+  const userFolders = sanitized.islandFolders ?? [];
+  const premadeAssignments = premadeCatalog?.islandFolderAssignments ?? {};
+  const premadeFolders = [...(premadeCatalog?.folders ?? [])].sort(
+    (a, b) => a.order - b.order
+  );
+
+  const islands = units.filter((u) => !u.isPathway);
+
+  const premadeByFolderId = new Map<string, StudyUnitSummary[]>();
+  const premadeUnfolderedIslands: StudyUnitSummary[] = [];
+  const userByFolderId = new Map<string, StudyUnitSummary[]>();
+  const userUnfolderedIslands: StudyUnitSummary[] = [];
+
+  for (const island of islands) {
+    if (island.ref.kind !== "island") continue;
+
+    if (island.isPremade) {
+      const folderId = premadeAssignments[island.ref.key];
+      if (folderId && premadeFolders.some((f) => f.id === folderId)) {
+        const bucket = premadeByFolderId.get(folderId) ?? [];
+        bucket.push(island);
+        premadeByFolderId.set(folderId, bucket);
+      } else {
+        premadeUnfolderedIslands.push(island);
+      }
+      continue;
+    }
+
+    const folderId = userAssignments[island.ref.key];
+    if (folderId && userFolders.some((f) => f.id === folderId)) {
+      const bucket = userByFolderId.get(folderId) ?? [];
+      bucket.push(island);
+      userByFolderId.set(folderId, bucket);
+    } else {
+      userUnfolderedIslands.push(island);
+    }
+  }
+
+  const premadeFolderSections = premadeFolders
+    .map((folder) => ({
+      folder,
+      grouped: groupStudyUnits(premadeByFolderId.get(folder.id) ?? []),
+    }))
+    .filter(({ grouped }) => groupedHasUnits(grouped));
+
+  const userFolderSections = userFolders
+    .map((folder) => ({
+      folder,
+      grouped: groupStudyUnits(userByFolderId.get(folder.id) ?? []),
+    }))
+    .filter(({ grouped }) => groupedHasUnits(grouped));
+
+  return {
+    pinnedPathway: null,
+    premadeFolders: premadeFolderSections,
+    premadeUnfoldered: groupStudyUnits(premadeUnfolderedIslands),
+    userFolders: userFolderSections,
+    unfoldered: groupStudyUnits(userUnfolderedIslands),
+  };
 }
 
 export function touchStudyUnit(

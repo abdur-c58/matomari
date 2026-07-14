@@ -103,6 +103,48 @@ async function upsertUserLibrary(
   }
 }
 
+async function clearSharedSentenceTranslations(
+  cfg: { url: string; key: string }
+): Promise<number> {
+  const countRes = await fetch(
+    `${cfg.url}/rest/v1/shared_sentence_translations?select=sentence_id`,
+    {
+      headers: {
+        ...restHeaders(cfg.key),
+        Prefer: "count=exact",
+        Range: "0-0",
+      },
+    }
+  );
+
+  if (countRes.status === 404 || countRes.status === 406) {
+    console.log("shared_sentence_translations table not found — skipped.");
+    return 0;
+  }
+
+  const range = countRes.headers.get("content-range");
+  const total = range?.includes("/")
+    ? Number(range.split("/")[1] || 0)
+    : 0;
+
+  const delRes = await fetch(
+    `${cfg.url}/rest/v1/shared_sentence_translations?sentence_id=not.is.null`,
+    {
+      method: "DELETE",
+      headers: restHeaders(cfg.key, { Prefer: "return=minimal" }),
+    }
+  );
+
+  if (!delRes.ok) {
+    const body = await delRes.text();
+    throw new Error(
+      `Failed to clear shared_sentence_translations (${delRes.status}): ${body}`
+    );
+  }
+
+  return Number.isFinite(total) ? total : 0;
+}
+
 function countTranslatedPathwaySentences(main_pathway: Dataset["main_pathway"]): number {
   return main_pathway.batches.reduce(
     (n, batch) =>
@@ -161,6 +203,21 @@ async function main() {
 
   console.log("=== Clearing all translations (standard + Kansai) ===\n");
 
+  const cfg = getRestConfig();
+
+  try {
+    const sharedCleared = await clearSharedSentenceTranslations(cfg);
+    console.log(
+      `Shared translation pool: cleared ${sharedCleared} sentence_id row(s).\n`
+    );
+  } catch (e) {
+    console.warn(
+      `Warning: shared_sentence_translations clear failed: ${
+        e instanceof Error ? e.message : e
+      }\n`
+    );
+  }
+
   const pathway = await loadPathwayForStrip();
   if (pathway) {
     const before = countTranslatedPathwaySentences(pathway);
@@ -180,7 +237,6 @@ async function main() {
     console.log("No shared pathway found in Supabase or public/main-pathway.json.");
   }
 
-  const cfg = getRestConfig();
   const rows = await fetchAllUserDatasets(cfg);
   console.log(`\nProcessing ${rows.length} user_datasets row(s)…\n`);
 

@@ -15,7 +15,6 @@ import {
   type NotificationPreferences,
 } from "@/lib/constants/notifications";
 import { NotificationPreferencesSection } from "@/components/settings/notification-preferences-section";
-import { DialectPreferencesSection } from "@/components/settings/dialect-preferences-section";
 import { FontPreferencesSection } from "@/components/settings/font-preferences-section";
 import { PreferencesSaveBar } from "@/components/settings/preferences-save-bar";
 import { UnsavedPreferencesDialog } from "@/components/settings/unsaved-preferences-dialog";
@@ -30,28 +29,15 @@ const LEAVE_HREF = "/settings";
 export function PreferencesScreenMobile() {
   const searchParams = useSearchParams();
   const { dataset, progress } = useApp();
-  const [showKansaiDialect, setShowKansaiDialect] = useState(
-    progress.settings.showKansaiDialect ?? false
-  );
-  const [kansaiAsPrimary, setKansaiAsPrimary] = useState(
-    progress.settings.kansaiAsPrimary ?? false
-  );
   const [uiFont, setUiFont] = useState<UiFont>(resolveUiFont(progress.settings.uiFont));
   const [notifications, setNotifications] = useState<NotificationPreferences>(
     progress.settings.notifications ?? DEFAULT_NOTIFICATION_PREFERENCES
   );
 
   useEffect(() => {
-    setShowKansaiDialect(progress.settings.showKansaiDialect ?? false);
-    setKansaiAsPrimary(progress.settings.kansaiAsPrimary ?? false);
     setUiFont(resolveUiFont(progress.settings.uiFont));
     setNotifications(progress.settings.notifications ?? DEFAULT_NOTIFICATION_PREFERENCES);
-  }, [
-    progress.settings.showKansaiDialect,
-    progress.settings.kansaiAsPrimary,
-    progress.settings.uiFont,
-    progress.settings.notifications,
-  ]);
+  }, [progress.settings.uiFont, progress.settings.notifications]);
 
   useEffect(() => {
     document.documentElement.dataset.uiFont = uiFont;
@@ -62,8 +48,8 @@ export function PreferencesScreenMobile() {
 
   const returnTo = parseReturnTo(searchParams);
   const { handleSave, saving, hasUnsavedChanges } = useSavePreferences({
-    showKansaiDialect,
-    kansaiAsPrimary,
+    showKansaiDialect: false,
+    kansaiAsPrimary: false,
     uiFont,
     notifications,
     returnTo,
@@ -99,13 +85,6 @@ export function PreferencesScreenMobile() {
         />
 
         <FontPreferencesSection uiFont={uiFont} onChange={setUiFont} />
-
-        <DialectPreferencesSection
-          showKansaiDialect={showKansaiDialect}
-          kansaiAsPrimary={kansaiAsPrimary}
-          onShowKansaiChange={setShowKansaiDialect}
-          onKansaiPrimaryChange={setKansaiAsPrimary}
-        />
 
         <Card className="mb-6 p-4">
           <Label className="text-base">Notifications</Label>

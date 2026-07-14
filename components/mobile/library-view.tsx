@@ -1,12 +1,12 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useDeferredValue, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useApp } from "@/components/providers/app-provider";
 import { AppGate, EmptyState } from "@/components/layout/empty-state";
 import { PageShell } from "@/components/layout/page-shell";
 import { PageHeader } from "@/components/layout/page-header";
-import { LibrarySentenceRow } from "@/components/library/library-sentence-row";
+import { LibraryBufferedSentenceCard } from "@/components/library/library-buffered-sentence-card";
 import {
   ActiveFilterBadges,
   FilterDrawer,
@@ -25,7 +25,6 @@ import {
 } from "@/lib/services/library-service";
 import { getActiveBatchIds } from "@/lib/services/batch-service";
 import { bulkApplySentenceRatings } from "@/lib/services/bulk-rating-service";
-import { suggestRating } from "@/lib/services/rating-service";
 import { BulkRateDialog } from "@/components/library/bulk-rate-dialog";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -41,6 +40,7 @@ function formatLabel(key: string): string {
 export function LibraryViewMobile() {
   const { dataset, progress, setProgress } = useApp();
   const [filters, setFilters] = useState<LibraryFilters>(defaultLibraryFilters);
+  const deferredFilters = useDeferredValue(filters);
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDialogOpen, setBulkDialogOpen] = useState(false);
@@ -59,23 +59,29 @@ export function LibraryViewMobile() {
   );
 
   const filtered = useMemo(
-    () => filterLibrarySentences(allSentences, progress, filters),
-    [allSentences, progress, filters]
+    () => filterLibrarySentences(allSentences, progress, deferredFilters),
+    [allSentences, progress, deferredFilters]
   );
 
   const groups = useMemo(() => {
     if (!dataset) return [{ key: "all", label: "All", sentences: filtered }];
-    return groupLibrarySentences(filtered, progress, filters.groupBy, dataset);
-  }, [filtered, progress, filters.groupBy, dataset]);
+    return groupLibrarySentences(
+      filtered,
+      progress,
+      deferredFilters.groupBy,
+      dataset
+    );
+  }, [filtered, progress, deferredFilters.groupBy, dataset]);
 
   const activeIds = useMemo(() => new Set(getActiveBatchIds(progress)), [progress]);
   const activeFilterCount = countActiveFilters(filters);
   const activeLabels = meta ? describeActiveFilters(filters, meta) : [];
+  const filtersPending = deferredFilters !== filters;
 
   const canSelect =
-    filters.sourceType === "island" ||
-    filters.islandKey !== null ||
-    filters.groupBy === "island";
+    deferredFilters.sourceType === "island" ||
+    deferredFilters.islandKey !== null ||
+    deferredFilters.groupBy === "island";
 
   const exitSelectionMode = useCallback(() => {
     setSelectionMode(false);
@@ -145,21 +151,6 @@ export function LibraryViewMobile() {
     setFilters({ ...defaultLibraryFilters, search: filters.search });
   }, [filters.search]);
 
-  const defaultProgress = (sentenceId: string) => ({
-    sentenceId,
-    rating: null,
-    recallHistory: [],
-    meaningConfirmed: false,
-    batchStatus: "unseen" as const,
-    srsNextReview: null,
-    srsIntervalIndex: 0,
-    retiredAt: null,
-    firstSeenAt: null,
-    masteredAt: null,
-    sourceType: "pathway" as const,
-    sourceKey: "",
-  });
-
   return (
     <AppGate>
       <PageShell className={cn(selectionMode && selectedIds.size > 0 && "pb-24")}>
@@ -200,12 +191,8 @@ export function LibraryViewMobile() {
           }
         />
 
-        <div className="sticky top-0 z-10 -mx-4 mb-3 bg-background/90 px-4 py-2 backdrop-blur-xl">
-          <div className="flex gap-2">
-            <LibrarySearch
-              value={filters.search}
-              onChange={(search) => setFilters({ ...filters, search })}
-            />
+        <div className="sticky top-0 z-10 -mx-4 mb-4 space-y-2 bg-background/90 px-4 py-2 backdrop-blur-xl">
+          <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2.5">
             {meta && (
               <FilterDrawer
                 filters={filters}
@@ -214,8 +201,12 @@ export function LibraryViewMobile() {
                 activeFilterCount={activeFilterCount}
               />
             )}
+            <LibrarySearch
+              value={filters.search}
+              onChange={(search) => setFilters({ ...filters, search })}
+            />
+            <LibraryQuickFilters filters={filters} onChange={setFilters} />
           </div>
-          <LibraryQuickFilters filters={filters} onChange={setFilters} />
           <ActiveFilterBadges
             labels={activeLabels}
             onClear={clearFilters}
@@ -225,20 +216,23 @@ export function LibraryViewMobile() {
         {filtered.length === 0 ? (
           <EmptyState
             title="No matches"
-            description="Try adjusting your search or filters."
+            description={
+              filtersPending ? "Updating results…" : "Try adjusting your search or filters."
+            }
           />
         ) : (
           <motion.div
-            className="space-y-4"
+            className={cn("space-y-4", filtersPending && "opacity-70")}
             variants={staggerContainer}
             initial="hidden"
             animate="visible"
-            key={`${filters.groupBy}-${filtered.length}-${filters.search}`}
+            key={`${deferredFilters.groupBy}-${filtered.length}-${deferredFilters.search}`}
           >
             <AnimatePresence mode="popLayout">
               {groups.map((group) => {
                 const isIslandGroup =
-                  filters.groupBy === "island" && group.key !== "main-pathway";
+                  deferredFilters.groupBy === "island" &&
+                  group.key !== "main-pathway";
                 const groupIslandIds = group.sentences
                   .filter((s) => s.sourceType === "island")
                   .map((s) => s.id);
@@ -253,7 +247,7 @@ export function LibraryViewMobile() {
                     exit="exit"
                     transition={smoothTransition}
                   >
-                    {filters.groupBy !== "none" && (
+                    {deferredFilters.groupBy !== "none" && (
                       <div className="mb-1 flex items-baseline justify-between gap-2 px-1">
                         <h2 className="font-display text-sm font-semibold text-foreground">
                           {group.label}
@@ -277,26 +271,17 @@ export function LibraryViewMobile() {
                         </div>
                       </div>
                     )}
-                    <Card className="overflow-hidden px-2 py-0">
-                      {group.sentences.map((s) => {
-                        const sp = progress.sentences[s.id] ?? defaultProgress(s.id);
-                        const isSelectable = s.sourceType === "island";
-                        return (
-                          <LibrarySentenceRow
-                            key={s.id}
-                            sentence={s}
-                            progress={progress.sentences[s.id]}
-                            isActive={activeIds.has(s.id)}
-                            suggestedRating={suggestRating(sp)}
-                            onRate={(r) => handleRate(s.id, r)}
-                            selectionMode={selectionMode && canSelect}
-                            selectable={isSelectable}
-                            selected={selectedIds.has(s.id)}
-                            onToggleSelect={() => toggleSelect(s.id)}
-                          />
-                        );
-                      })}
-                    </Card>
+                    <LibraryBufferedSentenceCard
+                      sentences={group.sentences}
+                      resetKey={`${deferredFilters.groupBy}:${group.key}:${deferredFilters.search}:${filtered.length}`}
+                      progress={progress}
+                      activeIds={activeIds}
+                      selectionMode={selectionMode}
+                      canSelect={canSelect}
+                      selectedIds={selectedIds}
+                      onToggleSelect={toggleSelect}
+                      onRate={(id, rating) => void handleRate(id, rating)}
+                    />
                   </motion.section>
                 );
               })}

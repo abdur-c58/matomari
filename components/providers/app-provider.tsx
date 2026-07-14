@@ -71,6 +71,8 @@ import {
   getDailyStudyStatus,
   mergeTodayStudyComplete,
 } from "@/lib/services/daily-progress-service";
+import type { PremadeCatalog } from "@/types/premade-catalog";
+import { isPremadeIslandKey } from "@/lib/services/shared-premade-service";
 import { pullSharedTranslationsIntoLibrary } from "@/lib/services/shared-translations-service";
 
 async function maybeRecordTodayStudyComplete(
@@ -86,6 +88,8 @@ async function maybeRecordTodayStudyComplete(
 interface AppContextValue {
   dataset: Dataset | null;
   userLibrary: UserLibrary | null;
+  premadeCatalog: PremadeCatalog | null;
+  isPremadeIslandKey: (key: string) => boolean;
   progress: UserProgress;
   stats: AppStats;
   loading: boolean;
@@ -142,6 +146,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [syncStatusMessage, setSyncStatusMessage] = useState<string | null>(null);
   const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
   const [userLibrary, setUserLibrary] = useState<UserLibrary | null>(null);
+  const [premadeCatalog, setPremadeCatalog] = useState<PremadeCatalog | null>(null);
   const translationMutexRef = useRef(Promise.resolve());
   const progressSaveMutexRef = useRef(Promise.resolve());
   const progressRef = useRef(progress);
@@ -165,6 +170,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
       setDataset(snapshot.dataset);
       setUserLibrary(snapshot.library);
+      setPremadeCatalog(snapshot.premadeCatalog);
       progressRef.current = mergedProgress;
       setProgressState(mergedProgress);
       setStatsState(snapshot.stats);
@@ -645,10 +651,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return result;
   }, [applyLocalSnapshot]);
 
+  const isPremadeIslandKeyFn = useCallback(
+    (key: string) => isPremadeIslandKey(key, premadeCatalog),
+    [premadeCatalog]
+  );
+
   const value = useMemo(
     () => ({
       dataset,
       userLibrary,
+      premadeCatalog,
+      isPremadeIslandKey: isPremadeIslandKeyFn,
       progress,
       stats,
       loading,
@@ -681,6 +694,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [
       dataset,
       userLibrary,
+      premadeCatalog,
+      isPremadeIslandKeyFn,
       progress,
       stats,
       loading,

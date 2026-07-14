@@ -139,7 +139,7 @@ export function getIslandSummaries(
 ): IslandSummary[] {
   return Object.entries(dataset.islands).map(([key, island]) => ({
     key,
-    title: formatLabel(key),
+    title: island.title?.trim() || formatLabel(key.replace(/^premade_/, "")),
     description: island.description,
     sentenceCount: island.sentences.length,
     studiedCount: island.sentences.filter((s) => isSentenceStudied(s.id, progress)).length,
@@ -167,21 +167,23 @@ export function getStudyFocusLabel(
       label: `Pathway · Batch ${config.pathwayBatchNumber} — ${title}`,
       shortLabel: "Main pathway",
       detail: title,
-      detailHref: `/batch/pathway?batch=${config.pathwayBatchNumber}`,
+      detailHref: "/batch",
     };
   }
 
   if (config.sourceType === "island" && config.islandKey) {
     const island = dataset.islands[config.islandKey];
-    const title = formatLabel(config.islandKey);
+    const title =
+      island?.title?.trim() ||
+      formatLabel(config.islandKey.replace(/^premade_/, ""));
     const subtopic =
       config.subtopic ? ` · ${formatLabel(config.subtopic)}` : "";
     return {
       sourceType: "island",
       label: `Island · ${title}${subtopic}`,
       shortLabel: "Topic island",
-      detail: island?.description ?? title,
-      detailHref: `/batch/island/${config.islandKey}`,
+      detail: title,
+      detailHref: `/batch/island/${encodeURIComponent(config.islandKey)}`,
     };
   }
 

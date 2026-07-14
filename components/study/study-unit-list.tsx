@@ -4,14 +4,21 @@ import { useMemo, useState } from "react";
 import { useApp } from "@/components/providers/app-provider";
 import {
   filterStudyUnits,
-  getStudyUnits,
-  groupStudyUnits,
-  studyUnitKey,
+  filterStudyUnitsByOrigin,
+  getIslandStudyUnits,
+  organizeStudyUnitsForDisplay,
+  type IslandOriginFilter,
   type StudyUnitStatusFilter,
 } from "@/lib/services/study-unit-service";
-import { StudyUnitCard } from "@/components/study/study-unit-card";
+import { getUserFolders } from "@/lib/services/island-folder-service";
 import { CreateIslandDialog } from "@/components/ai/create-island-dialog";
 import { CreateManualIslandDialog } from "@/components/islands/create-manual-island-dialog";
+import { CreateIslandFolderDialog } from "@/components/islands/create-island-folder-dialog";
+import {
+  IslandFolderSection,
+  PremadeIslandFolderSection,
+  UnfolderedStudyUnitsSection,
+} from "@/components/islands/island-folder-section";
 import { useEnsureIslandKanji } from "@/hooks/use-ensure-island-kanji";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -24,39 +31,62 @@ const STATUS_FILTERS: { value: StudyUnitStatusFilter; label: string }[] = [
   { value: "completed", label: "Completed" },
 ];
 
-function unitHref(unit: ReturnType<typeof getStudyUnits>[number]) {
-  return unit.ref.kind === "pathway"
-    ? "/batch/pathway"
-    : `/batch/island/${encodeURIComponent(unit.ref.key)}`;
+const ORIGIN_FILTERS: { value: IslandOriginFilter; label: string }[] = [
+  { value: "all", label: "All" },
+  { value: "premade", label: "Premade" },
+  { value: "user", label: "Mine" },
+];
+
+function hasGroupedUnits(grouped: {
+  featured?: unknown[];
+  inProgress: unknown[];
+  untouched: unknown[];
+  completed: unknown[];
+}): boolean {
+  return (
+    (grouped.featured?.length ?? 0) > 0 ||
+    grouped.inProgress.length > 0 ||
+    grouped.untouched.length > 0 ||
+    grouped.completed.length > 0
+  );
 }
 
 export function StudyUnitList() {
-  const { dataset, progress } = useApp();
+  const { dataset, progress, premadeCatalog } = useApp();
   useEnsureIslandKanji();
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StudyUnitStatusFilter>("all");
+  const [originFilter, setOriginFilter] = useState<IslandOriginFilter>("all");
 
   const allUnits = useMemo(
-    () => (dataset ? getStudyUnits(dataset, progress) : []),
-    [dataset, progress]
+    () => (dataset ? getIslandStudyUnits(dataset, progress, premadeCatalog) : []),
+    [dataset, progress, premadeCatalog]
   );
 
-  const filtered = useMemo(
-    () => filterStudyUnits(allUnits, query, statusFilter),
-    [allUnits, query, statusFilter]
+  const filtered = useMemo(() => {
+    const byOrigin = filterStudyUnitsByOrigin(allUnits, originFilter);
+    return filterStudyUnits(byOrigin, query, statusFilter);
+  }, [allUnits, originFilter, query, statusFilter]);
+
+  const organized = useMemo(
+    () =>
+      dataset
+        ? organizeStudyUnitsForDisplay(filtered, progress, dataset, premadeCatalog)
+        : null,
+    [filtered, progress, dataset, premadeCatalog]
   );
 
-  const grouped = useMemo(() => groupStudyUnits(filtered), [filtered]);
+  const userFolders = getUserFolders(progress);
+  const showStatusHeaders = statusFilter === "all";
+  const showUserActions = originFilter !== "premade";
 
-  const renderUnit = (unit: (typeof allUnits)[number]) => (
-    <StudyUnitCard
-      key={studyUnitKey(unit.ref)}
-      unit={unit}
-      href={unitHref(unit)}
-    />
-  );
+  if (!dataset || !organized) return null;
 
-  if (!dataset) return null;
+  const hasContent =
+    organized.premadeFolders.length > 0 ||
+    hasGroupedUnits(organized.premadeUnfoldered) ||
+    organized.userFolders.length > 0 ||
+    hasGroupedUnits(organized.unfoldered);
 
   return (
     <div className="space-y-4">
@@ -67,6 +97,24 @@ export function StudyUnitList() {
           placeholder="Search islands…"
           className="min-w-[12rem] flex-1 rounded-full border-border/70 bg-surface-raised"
         />
+        <div className="inline-flex shrink-0 rounded-full border border-border/70 bg-surface-raised p-0.5">
+          {ORIGIN_FILTERS.map((f) => (
+            <Button
+              key={f.value}
+              type="button"
+              size="sm"
+              variant={originFilter === f.value ? "default" : "ghost"}
+              className={cn(
+                "h-8 rounded-full px-3 text-xs",
+                originFilter === f.value &&
+                  "bg-foreground text-background hover:bg-foreground/90 hover:text-background"
+              )}
+              onClick={() => setOriginFilter(f.value)}
+            >
+              {f.label}
+            </Button>
+          ))}
+        </div>
         <div className="inline-flex shrink-0 rounded-full border border-border/70 bg-surface-raised p-0.5">
           {STATUS_FILTERS.map((f) => (
             <Button
@@ -85,54 +133,51 @@ export function StudyUnitList() {
             </Button>
           ))}
         </div>
-        <CreateIslandDialog compact />
-        <CreateManualIslandDialog compact />
+        {showUserActions && (
+          <>
+            <CreateIslandFolderDialog compact />
+            <CreateIslandDialog compact />
+            <CreateManualIslandDialog compact />
+          </>
+        )}
       </div>
 
-      {statusFilter === "all" ? (
-        <div className="space-y-5">
-          {grouped.inProgress.length > 0 && (
-            <section className="space-y-2">
-              <div className="flex items-center gap-3">
-                <h2 className="text-xs font-semibold uppercase tracking-wide text-muted">
-                  In progress
-                </h2>
-                <div className="h-px flex-1 bg-border" />
-              </div>
-              <div className="space-y-2">{grouped.inProgress.map(renderUnit)}</div>
-            </section>
-          )}
-          {grouped.untouched.length > 0 && (
-            <section className="space-y-2">
-              <div className="flex items-center gap-3">
-                <h2 className="text-xs font-semibold uppercase tracking-wide text-muted">
-                  Untouched
-                </h2>
-                <div className="h-px flex-1 bg-border" />
-              </div>
-              <div className="space-y-2">{grouped.untouched.map(renderUnit)}</div>
-            </section>
-          )}
-          {grouped.completed.length > 0 && (
-            <section className="space-y-2">
-              <div className="flex items-center gap-3">
-                <h2 className="text-xs font-semibold uppercase tracking-wide text-muted">
-                  Completed
-                </h2>
-                <div className="h-px flex-1 bg-border" />
-              </div>
-              <div className="space-y-2">{grouped.completed.map(renderUnit)}</div>
-            </section>
-          )}
-        </div>
-      ) : (
-        <div className="space-y-2">
-          {filtered.map(renderUnit)}
-          {filtered.length === 0 && (
-            <p className="py-8 text-center text-sm text-muted">No islands match.</p>
-          )}
-        </div>
-      )}
+      <div className="space-y-5">
+        {organized.premadeFolders.map(({ folder, grouped }) => (
+          <PremadeIslandFolderSection
+            key={folder.id}
+            folder={folder}
+            grouped={grouped}
+          />
+        ))}
+
+        <UnfolderedStudyUnitsSection
+          grouped={organized.premadeUnfoldered}
+          folders={[]}
+          showStatusHeaders={showStatusHeaders}
+          title="Other premade islands"
+        />
+
+        {organized.userFolders.map(({ folder, grouped }) => (
+          <IslandFolderSection
+            key={folder.id}
+            folder={folder}
+            grouped={grouped}
+            folders={userFolders}
+            showStatusHeaders={showStatusHeaders}
+          />
+        ))}
+
+        <UnfolderedStudyUnitsSection
+          grouped={organized.unfoldered}
+          folders={userFolders}
+          showStatusHeaders={showStatusHeaders}
+        />
+
+        {!hasContent && (
+          <p className="py-8 text-center text-sm text-muted">No islands match.</p>
+        )}
+      </div>
     </div>
   );
 }

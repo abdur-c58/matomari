@@ -22,7 +22,7 @@ type DialectTranslationBlockProps = {
   dialect: Dialect;
   sentenceMeta: Pick<
     Sentence,
-    "register" | "tags" | "context_notes" | "english" | "placeholders"
+    "register" | "tags" | "context_notes" | "english" | "placeholders" | "speaker"
   >;
   showLabel?: boolean;
   showPlayButton?: boolean;
@@ -170,6 +170,7 @@ export function DialectTranslationBlock({
             english={sentenceMeta.english}
             placeholders={placeholderSentence.placeholders}
             dialect={dialect}
+            speaker={sentenceMeta.speaker}
             appearance={playButtonAppearance}
             className="mt-0.5"
           />

@@ -95,7 +95,7 @@ export async function regenerateAllAudio(
       const { hash, r2Key } = await generateServerAudio(
         spokenText,
         sentence.id,
-        { force: true }
+        { force: true, speaker: sentence.speaker === "B" ? "B" : "A" }
       );
       await upsertAudioMetadata(hash, sentence.id, r2Key);
       result.generated++;

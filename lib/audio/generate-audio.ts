@@ -11,6 +11,7 @@ import {
 import { upsertAudioMetadata } from "@/lib/supabase/server-data";
 import { getFishAudioApiKey, getFishAudioVoiceIdForDialect } from "@/lib/env";
 import type { Dialect } from "@/lib/constants/dialect";
+import type { NarrationSpeaker } from "@/types/sentence";
 import {
   buildTtsCacheKey,
   getTtsModel,
@@ -24,9 +25,12 @@ const CACHE_DIR = path.join(process.cwd(), "data", "audio-cache");
 export function getTextHash(
   sentenceId: string,
   ttsText: string,
-  dialect: Dialect = "standard"
+  dialect: Dialect = "standard",
+  speaker: NarrationSpeaker = "A"
 ): string {
-  return createHash("sha256").update(buildTtsCacheKey(sentenceId, ttsText, dialect)).digest("hex");
+  return createHash("sha256")
+    .update(buildTtsCacheKey(sentenceId, ttsText, dialect, speaker))
+    .digest("hex");
 }
 
 async function readFilesystemCache(hash: string): Promise<Buffer | null> {
@@ -101,10 +105,11 @@ export class FishAudioProvider implements TTSProvider {
 export async function generateServerAudio(
   ttsText: string,
   sentenceId: string,
-  options?: { force?: boolean; dialect?: Dialect }
+  options?: { force?: boolean; dialect?: Dialect; speaker?: NarrationSpeaker }
 ): Promise<{ buffer: Buffer; hash: string; cached: boolean; r2Key: string }> {
   const dialect = options?.dialect ?? "standard";
-  const hash = getTextHash(sentenceId, ttsText, dialect);
+  const speaker = options?.speaker ?? "A";
+  const hash = getTextHash(sentenceId, ttsText, dialect, speaker);
   const r2Key = getAudioR2Key(hash);
   const force = options?.force === true;
 
@@ -126,7 +131,7 @@ export async function generateServerAudio(
   }
 
   const apiKey = getFishAudioApiKey();
-  const voiceId = getFishAudioVoiceIdForDialect(dialect);
+  const voiceId = getFishAudioVoiceIdForDialect(dialect, speaker);
 
   if (!apiKey) {
     throw new Error("TTS_NOT_CONFIGURED");

@@ -53,6 +53,7 @@ export function ShadowingMode({ sentences }: { sentences: Sentence[] }) {
       placeholders: s.placeholders,
       learnerName: learnerJapaneseName,
       dialect,
+      speaker: s.speaker === "B" ? "B" : "A",
       register: s.register,
       tags: s.tags,
       context_notes: s.context_notes,

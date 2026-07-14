@@ -1,21 +1,30 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { Sentence } from "@/types/sentence";
 import { useApp } from "@/components/providers/app-provider";
 import { BrowseSentenceCard } from "@/components/study/browse-sentence-card";
+import { SpeakerChip } from "@/components/study/speaker-chip";
 import { bulkApplySentenceRatings } from "@/lib/services/bulk-rating-service";
 import { suggestRating } from "@/lib/services/rating-service";
+import { groupNarrationTurns } from "@/lib/study/narration-turns";
 import type { IslandBrowseDisplay } from "@/lib/constants/island-browse";
 import { useLongPress } from "@/hooks/use-long-press";
 import { MOBILE_MEDIA_QUERY, useIsMobileViewport } from "@/hooks/use-is-mobile-viewport";
 import { useSwipeable } from "react-swipeable";
 import { Button } from "@/components/ui/button";
+import { BufferedListSentinel } from "@/components/ui/buffered-list";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { getAppScrollTargets } from "@/lib/utils/scroll-container";
 import { audioSession } from "@/lib/audio/audio-session";
+import {
+  buildPlaylistFromSentences,
+} from "@/lib/services/study-playlist-service";
+import { getPrimaryTranslation } from "@/lib/preferences/translation-preferences";
+import { useBufferedVisibleCount } from "@/hooks/use-buffered-visible-count";
+import { MessagesSquare } from "lucide-react";
 
 const AUTO_SCROLL_GUARD_MS = 900;
 
@@ -76,6 +85,7 @@ function BrowseSentenceRow({
   isMobile,
   displayMode,
   expansionStep,
+  showSpeaker,
   onExpand,
   onCollapse,
   progress,
@@ -92,6 +102,7 @@ function BrowseSentenceRow({
   isMobile: boolean;
   displayMode: IslandBrowseDisplay;
   expansionStep: number;
+  showSpeaker?: boolean;
   onExpand: () => void;
   onCollapse: () => void;
   progress: ReturnType<typeof useApp>["progress"]["sentences"][string] | undefined;
@@ -122,6 +133,8 @@ function BrowseSentenceRow({
     delta: 40,
   });
 
+  const speaker = sentence.speaker === "A" || sentence.speaker === "B" ? sentence.speaker : null;
+
   const row = (
     <motion.div
       ref={rowRef}
@@ -151,16 +164,25 @@ function BrowseSentenceRow({
           : undefined
       }
     >
-      <BrowseSentenceCard
-        sentence={sentence}
-        progress={progress}
-        displayMode={displayMode}
-        expansionStep={expansionStep}
-        onExpand={onExpand}
-        onCollapse={onCollapse}
-        onRate={onRate}
-        suggestedRating={progress ? suggestRating(progress) : null}
-      />
+      <div className={cn(showSpeaker && speaker && "flex items-stretch gap-2")}>
+        {showSpeaker && speaker && (
+          <div className="flex w-6 shrink-0 flex-col items-center pt-3.5">
+            <SpeakerChip speaker={speaker} />
+          </div>
+        )}
+        <div className="min-w-0 flex-1">
+          <BrowseSentenceCard
+            sentence={sentence}
+            progress={progress}
+            displayMode={displayMode}
+            expansionStep={expansionStep}
+            onExpand={onExpand}
+            onCollapse={onCollapse}
+            onRate={onRate}
+            suggestedRating={progress ? suggestRating(progress) : null}
+          />
+        </div>
+      </div>
     </motion.div>
   );
 
@@ -195,6 +217,7 @@ export function BrowseSentenceList({
   playingSentenceId = null,
   onManualScroll,
   selectionCount = 0,
+  narration = false,
 }: {
   sentences: Sentence[];
   displayMode: IslandBrowseDisplay;
@@ -207,8 +230,10 @@ export function BrowseSentenceList({
   playingSentenceId?: string | null;
   onManualScroll?: () => void;
   selectionCount?: number;
+  /** Pair A→B turns and show speaker chips. */
+  narration?: boolean;
 }) {
-  const { dataset, progress, setProgress } = useApp();
+  const { dataset, progress, setProgress, userLibrary, unlockAudio } = useApp();
   const isMobile = useIsMobileViewport(MOBILE_MEDIA_QUERY);
   const listRef = useRef<HTMLDivElement>(null);
   const rowRefs = useRef<Map<string, HTMLDivElement>>(new Map());
@@ -218,6 +243,31 @@ export function BrowseSentenceList({
   const [showResync, setShowResync] = useState(false);
   const [playlistActive, setPlaylistActive] = useState(
     () => audioSession.getPlaylistState() !== null
+  );
+
+  const narrationTurns = useMemo(
+    () => (narration ? groupNarrationTurns(sentences) : null),
+    [narration, sentences]
+  );
+
+  const listItems = narrationTurns ?? sentences;
+  const listResetKey = useMemo(
+    () =>
+      `${narration ? "n" : "s"}:${sentences.length}:${sentences[0]?.id ?? ""}:${sentences[sentences.length - 1]?.id ?? ""}`,
+    [narration, sentences]
+  );
+
+  const { visibleCount, hasMore, sentinelRef, ensureVisible } =
+    useBufferedVisibleCount(listItems.length, {
+      initial: 40,
+      step: 40,
+      rootMarginPx: 1200,
+      resetKey: listResetKey,
+    });
+
+  const visibleItems = useMemo(
+    () => listItems.slice(0, visibleCount),
+    [listItems, visibleCount]
   );
 
   useEffect(() => {
@@ -235,6 +285,15 @@ export function BrowseSentenceList({
     }, AUTO_SCROLL_GUARD_MS);
   }, []);
 
+  const sentencesRef = useRef(sentences);
+  const narrationTurnsRef = useRef(narrationTurns);
+  const ensureVisibleRef = useRef(ensureVisible);
+  const beginAutoScrollRef = useRef(beginAutoScroll);
+
+  sentencesRef.current = sentences;
+  narrationTurnsRef.current = narrationTurns;
+  ensureVisibleRef.current = ensureVisible;
+  beginAutoScrollRef.current = beginAutoScroll;
   const markManualScroll = useCallback(() => {
     if (!playingSentenceId || userScrolledRef.current || autoScrollingRef.current) return;
     userScrolledRef.current = true;
@@ -276,11 +335,28 @@ export function BrowseSentenceList({
 
   useEffect(() => {
     if (!playingSentenceId || userScrolledRef.current) return;
-    const el = rowRefs.current.get(playingSentenceId);
+    const turns = narrationTurnsRef.current;
+    if (turns) {
+      const turnIdx = turns.findIndex((turn) =>
+        turn.kind === "single"
+          ? turn.sentence.id === playingSentenceId
+          : turn.a.id === playingSentenceId || turn.b.id === playingSentenceId
+      );
+      if (turnIdx >= 0) ensureVisibleRef.current(turnIdx);
+    } else {
+      const playIndex = sentencesRef.current.findIndex(
+        (s) => s.id === playingSentenceId
+      );
+      if (playIndex >= 0) ensureVisibleRef.current(playIndex);
+    }
+    const el =
+      [...rowRefs.current.entries()].find(([key]) =>
+        key.startsWith(`${playingSentenceId}::`)
+      )?.[1] ?? null;
     if (!el) return;
-    beginAutoScroll();
+    beginAutoScrollRef.current();
     el.scrollIntoView({ block: "center", behavior: "smooth" });
-  }, [beginAutoScroll, playingSentenceId]);
+  }, [playingSentenceId, visibleCount, listResetKey]);
 
   useEffect(() => {
     if (!playingSentenceId) return;
@@ -322,11 +398,28 @@ export function BrowseSentenceList({
     if (!playingSentenceId) return;
     userScrolledRef.current = false;
     setShowResync(false);
-    const el = rowRefs.current.get(playingSentenceId);
+    const turns = narrationTurnsRef.current;
+    if (turns) {
+      const turnIdx = turns.findIndex((turn) =>
+        turn.kind === "single"
+          ? turn.sentence.id === playingSentenceId
+          : turn.a.id === playingSentenceId || turn.b.id === playingSentenceId
+      );
+      if (turnIdx >= 0) ensureVisibleRef.current(turnIdx);
+    } else {
+      const playIndex = sentencesRef.current.findIndex(
+        (s) => s.id === playingSentenceId
+      );
+      if (playIndex >= 0) ensureVisibleRef.current(playIndex);
+    }
+    const el =
+      [...rowRefs.current.entries()].find(([key]) =>
+        key.startsWith(`${playingSentenceId}::`)
+      )?.[1] ?? null;
     if (!el) return;
-    beginAutoScroll();
+    beginAutoScrollRef.current();
     el.scrollIntoView({ block: "center", behavior: "smooth" });
-  }, [beginAutoScroll, playingSentenceId]);
+  }, [playingSentenceId]);
 
   const showJumpPill = showResync && Boolean(playingSentenceId);
   const jumpBottomClass = bottomFabClass({
@@ -360,6 +453,67 @@ export function BrowseSentenceList({
     [dataset, progress, setProgress]
   );
 
+  const handlePlayTurn = useCallback(
+    async (pair: Sentence[]) => {
+      const { playlist, skipped } = buildPlaylistFromSentences(pair, progress, {
+        dialect: getPrimaryTranslation(progress.settings),
+        translations: userLibrary?.sentenceTranslations,
+      });
+      if (playlist.length === 0) {
+        toast.error(
+          skipped > 0
+            ? "Translate both lines to play this turn."
+            : "Nothing to play."
+        );
+        return;
+      }
+      await unlockAudio();
+      audioSession.stopPlaylist();
+      await audioSession.playPlaylist(playlist, 400);
+    },
+    [progress, unlockAudio, userLibrary?.sentenceTranslations]
+  );
+
+  const renderRow = (
+    sentence: Sentence,
+    index: number,
+    opts?: { showSpeaker?: boolean }
+  ) => {
+    const sp = progress.sentences[sentence.id];
+    const selected = isSelected?.(sentence.id) ?? false;
+    const isPlaying = playingSentenceId === sentence.id;
+    const rowKey = `${sentence.id}::${index}`;
+
+    return (
+      <div
+        key={rowKey}
+        ref={(el) => {
+          if (el) rowRefs.current.set(rowKey, el);
+          else rowRefs.current.delete(rowKey);
+        }}
+      >
+        <BrowseSentenceRow
+          sentence={sentence}
+          index={index}
+          selectionMode={selectionMode}
+          selected={selected}
+          isPlaying={isPlaying}
+          isMobile={isMobile}
+          displayMode={displayMode}
+          expansionStep={expandedSentenceId === sentence.id ? expansionStep : 0}
+          showSpeaker={opts?.showSpeaker}
+          onExpand={() => handleExpand(sentence.id)}
+          onCollapse={() => handleCollapse(sentence.id)}
+          progress={sp}
+          onToggleSelect={onToggleSelect}
+          onEnterSelectionAt={onEnterSelectionAt}
+          onRequestSelectionMode={onRequestSelectionMode}
+          onRate={(rating) => void handleRate(sentence.id, rating)}
+        />
+      </div>
+    );
+  };
+
   if (sentences.length === 0) {
     return (
       <p className="py-8 text-center text-sm text-muted">No sentences in this island yet.</p>
@@ -373,43 +527,67 @@ export function BrowseSentenceList({
         listBottomPadding
       )}
     >
-      <div ref={listRef} className="space-y-2">
+      <div ref={listRef} className={cn(narration ? "space-y-3" : "space-y-2")}>
         {selectionMode && <SelectionModeHint isMobile={isMobile} />}
-        {sentences.map((sentence, index) => {
-          const sp = progress.sentences[sentence.id];
-          const selected = isSelected?.(sentence.id) ?? false;
-          const isPlaying = playingSentenceId === sentence.id;
+        {narrationTurns
+          ? (
+              visibleItems as ReturnType<typeof groupNarrationTurns>
+            ).map((turn, turnIndex) => {
+              if (turn.kind === "single") {
+                return renderRow(turn.sentence, turn.index, { showSpeaker: true });
+              }
 
-          return (
-            <div
-              key={sentence.id}
-              ref={(el) => {
-                if (el) rowRefs.current.set(sentence.id, el);
-                else rowRefs.current.delete(sentence.id);
-              }}
-            >
-              <BrowseSentenceRow
-                sentence={sentence}
-                index={index}
-                selectionMode={selectionMode}
-                selected={selected}
-                isPlaying={isPlaying}
-                isMobile={isMobile}
-                displayMode={displayMode}
-                expansionStep={
-                  expandedSentenceId === sentence.id ? expansionStep : 0
-                }
-                onExpand={() => handleExpand(sentence.id)}
-                onCollapse={() => handleCollapse(sentence.id)}
-                progress={sp}
-                onToggleSelect={onToggleSelect}
-                onEnterSelectionAt={onEnterSelectionAt}
-                onRequestSelectionMode={onRequestSelectionMode}
-                onRate={(rating) => void handleRate(sentence.id, rating)}
-              />
-            </div>
-          );
-        })}
+              const pairPlaying =
+                playingSentenceId === turn.a.id || playingSentenceId === turn.b.id;
+
+              return (
+                <div
+                  key={`turn-${turnIndex}-${turn.aIndex}-${turn.bIndex}`}
+                  className={cn(
+                    "narration-turn rounded-2xl border border-border/45 bg-muted/[0.12] p-1.5",
+                    pairPlaying && "narration-turn--active"
+                  )}
+                >
+                  <div className="mb-1 flex items-center justify-between gap-2 px-1.5 pt-0.5">
+                    <span className="text-[10px] font-medium uppercase tracking-wide text-muted">
+                      Turn {turnIndex + 1}
+                    </span>
+                    {!selectionMode && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        data-long-press-ignore
+                        className="h-7 gap-1.5 px-2 text-xs text-muted hover:text-foreground"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          void handlePlayTurn([turn.a, turn.b]);
+                        }}
+                      >
+                        <MessagesSquare className="h-3.5 w-3.5" />
+                        Play turn
+                      </Button>
+                    )}
+                  </div>
+                  <div className="space-y-1.5">
+                    {renderRow(turn.a, turn.aIndex, { showSpeaker: true })}
+                    <div
+                      className="mx-8 border-l border-dashed border-border/55 pl-0"
+                      aria-hidden
+                    />
+                    {renderRow(turn.b, turn.bIndex, { showSpeaker: true })}
+                  </div>
+                </div>
+              );
+            })
+          : (visibleItems as Sentence[]).map((sentence, index) =>
+              renderRow(sentence, index)
+            )}
+        <BufferedListSentinel
+          hasMore={hasMore}
+          sentinelRef={sentinelRef}
+          remaining={listItems.length - visibleCount}
+        />
       </div>
 
       <AnimatePresence>

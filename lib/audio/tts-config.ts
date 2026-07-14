@@ -11,6 +11,7 @@
 
 import { getFishAudioModel, getFishAudioVoiceIdForDialect } from "@/lib/env";
 import type { Dialect } from "@/lib/constants/dialect";
+import type { NarrationSpeaker } from "@/types/sentence";
 
 /** Bumped when switching TTS engine/settings so cached audio regenerates. */
 const STANDARD_TTS_CACHE_VERSION = "fish-s21-free-v1";
@@ -44,7 +45,10 @@ export function getFishAudioSettings(): FishAudioSettings {
 }
 
 /** Included in audio cache keys so setting changes regenerate audio. */
-export function getTtsSettingsFingerprint(dialect: Dialect = "standard"): string {
+export function getTtsSettingsFingerprint(
+  dialect: Dialect = "standard",
+  speaker: NarrationSpeaker = "A"
+): string {
   const s = getFishAudioSettings();
   const parts = [
     getTtsModel(),
@@ -52,8 +56,9 @@ export function getTtsSettingsFingerprint(dialect: Dialect = "standard"): string
     s.top_p.toFixed(2),
     s.speed.toFixed(2),
     s.volume.toFixed(2),
-    getFishAudioVoiceIdForDialect(dialect) ?? "default",
+    getFishAudioVoiceIdForDialect(dialect, speaker) ?? "default",
     dialect,
+    speaker,
   ];
   if (dialect === "standard") {
     parts.push(STANDARD_TTS_CACHE_VERSION);
@@ -64,7 +69,8 @@ export function getTtsSettingsFingerprint(dialect: Dialect = "standard"): string
 export function buildTtsCacheKey(
   sentenceId: string,
   ttsText: string,
-  dialect: Dialect = "standard"
+  dialect: Dialect = "standard",
+  speaker: NarrationSpeaker = "A"
 ): string {
-  return `${getTtsSettingsFingerprint(dialect)}:${sentenceId}:${ttsText}`;
+  return `${getTtsSettingsFingerprint(dialect, speaker)}:${sentenceId}:${ttsText}`;
 }

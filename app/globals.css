@@ -842,22 +842,44 @@ html[data-ui-font="bitter"] h2.font-bold {
 @keyframes dialog-in {
   from {
     opacity: 0;
-    transform: translate(-50%, -50%) scale(0.96);
+    scale: 0.96;
   }
   to {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
+    scale: 1;
   }
 }
 
 @keyframes dialog-out {
   from {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
+    scale: 1;
   }
   to {
     opacity: 0;
-    transform: translate(-50%, -50%) scale(0.96);
+    scale: 0.96;
+  }
+}
+
+@keyframes select-in {
+  from {
+    opacity: 0;
+    scale: 0.96;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+@keyframes select-out {
+  from {
+    opacity: 1;
+    scale: 1;
+  }
+  to {
+    opacity: 0;
+    scale: 0.96;
   }
 }
 
@@ -938,19 +960,27 @@ html[data-ui-font="bitter"] h2.font-bold {
 }
 
 .radix-overlay[data-state="open"] {
-  animation: overlay-fade-in 250ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: overlay-fade-in 220ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 .radix-overlay[data-state="closed"] {
-  animation: overlay-fade-out 220ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: overlay-fade-out 200ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 .radix-dialog-content[data-state="open"] {
-  animation: dialog-in 280ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: dialog-in 240ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 .radix-dialog-content[data-state="closed"] {
-  animation: dialog-out 220ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: dialog-out 200ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.radix-select-content[data-state="open"] {
+  animation: select-in 160ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.radix-select-content[data-state="closed"] {
+  animation: select-out 120ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 .radix-dropdown-content[data-state="open"] {
@@ -1067,6 +1097,185 @@ html[data-ui-font="bitter"] h2.font-bold {
 
 .decorated-study-surface--pathway {
   --study-accent: #e87b35;
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, #e87b35 16%, var(--surface)) 0%,
+      color-mix(in srgb, #e87b35 7%, var(--surface)) 45%,
+      color-mix(in srgb, #e87b35 12%, var(--surface-raised)) 100%
+    );
+}
+
+.decorated-study-surface--pathway::before {
+  opacity: 0.72;
+  background-color: color-mix(in srgb, #e87b35 42%, transparent);
+  mix-blend-mode: overlay;
+}
+
+.decorated-study-surface--essentials {
+  --study-accent: #a11f2a;
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, #a11f2a 18%, var(--surface)) 0%,
+      color-mix(in srgb, #a11f2a 8%, var(--surface)) 45%,
+      color-mix(in srgb, #a11f2a 14%, var(--surface-raised)) 100%
+    );
+}
+
+.decorated-study-surface--essentials::before {
+  opacity: 0.82;
+  background-color: color-mix(in srgb, #a11f2a 55%, transparent);
+  mix-blend-mode: overlay;
+}
+
+.decorated-study-surface--narration {
+  --study-accent: #9b87c7;
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, #9b87c7 20%, var(--surface)) 0%,
+      color-mix(in srgb, #9b87c7 9%, var(--surface)) 45%,
+      color-mix(in srgb, #9b87c7 16%, var(--surface-raised)) 100%
+    );
+}
+
+.decorated-study-surface--narration::before {
+  opacity: 0.8;
+  background-color: color-mix(in srgb, #9b87c7 58%, transparent);
+  mix-blend-mode: overlay;
+}
+
+.essentials-island-glow {
+  position: relative;
+}
+
+.essentials-island-glow::before {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  z-index: 0;
+  border-radius: 1.15rem;
+  background: radial-gradient(
+    120% 100% at 50% 50%,
+    color-mix(in srgb, #a11f2a 48%, transparent) 0%,
+    color-mix(in srgb, #a11f2a 20%, transparent) 52%,
+    transparent 74%
+  );
+  filter: blur(12px);
+  opacity: 0.7;
+  animation: essentials-island-glow-breathe 3.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.essentials-island-glow > * {
+  position: relative;
+  z-index: 1;
+}
+
+.essentials-island-card {
+  border-color: color-mix(in srgb, #a11f2a 70%, transparent) !important;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, #a11f2a 50%, transparent),
+    0 0 26px color-mix(in srgb, #a11f2a 28%, transparent);
+  transition:
+    border-color 200ms ease,
+    box-shadow 200ms ease,
+    transform 200ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .essentials-island-glow:hover .essentials-island-card {
+    border-color: #e0707a !important;
+    box-shadow:
+      0 0 0 1px #e0707a,
+      0 0 18px color-mix(in srgb, #c94a56 70%, transparent),
+      0 0 42px color-mix(in srgb, #a11f2a 55%, transparent),
+      var(--shadow-md);
+  }
+
+  .essentials-island-glow:hover::before {
+    opacity: 1;
+    filter: blur(14px);
+  }
+}
+
+@keyframes essentials-island-glow-breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(0.985);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.015);
+  }
+}
+
+.narration-island-glow {
+  position: relative;
+}
+
+.narration-island-glow::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  z-index: 0;
+  border-radius: 1rem;
+  background: radial-gradient(
+    120% 110% at 50% 50%,
+    color-mix(in srgb, #9b87c7 36%, transparent) 0%,
+    color-mix(in srgb, #9b87c7 14%, transparent) 55%,
+    transparent 78%
+  );
+  filter: blur(6px);
+  opacity: 0.55;
+  animation: narration-island-glow-breathe 3.6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.narration-island-glow > * {
+  position: relative;
+  z-index: 1;
+}
+
+.narration-island-card {
+  border-color: color-mix(in srgb, #9b87c7 55%, transparent) !important;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, #9b87c7 28%, transparent),
+    0 0 10px color-mix(in srgb, #9b87c7 16%, transparent);
+  transition:
+    border-color 200ms ease,
+    box-shadow 200ms ease,
+    transform 200ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .narration-island-glow:hover .narration-island-card {
+    border-color: #c4b5e0 !important;
+    box-shadow:
+      0 0 0 1px #c4b5e0,
+      0 0 12px color-mix(in srgb, #b39ddb 45%, transparent),
+      0 0 22px color-mix(in srgb, #9b87c7 28%, transparent),
+      var(--shadow-md);
+  }
+
+  .narration-island-glow:hover::before {
+    opacity: 0.8;
+    filter: blur(7px);
+  }
+}
+
+@keyframes narration-island-glow-breathe {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(0.99);
+  }
+  50% {
+    opacity: 0.65;
+    transform: scale(1.01);
+  }
 }
 
 .decorated-study-surface-kanji {
@@ -1231,6 +1440,11 @@ html[data-ui-font="bitter"] h2.font-bold {
 
 .jump-to-current-pill__btn:hover {
   opacity: 0.92;
+}
+
+.narration-turn--active {
+  border-color: color-mix(in srgb, var(--mode-listen) 35%, transparent);
+  background: color-mix(in srgb, var(--mode-listen) 5%, var(--surface-raised, var(--background)));
 }
 
 .onboarding-step-kanji {

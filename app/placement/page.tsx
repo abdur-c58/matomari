@@ -1,11 +1,5 @@
-import { Suspense } from "react";
-import { PlacementPage } from "@/components/placement/placement-page";
-import { LoadingState } from "@/components/layout/empty-state";
+import { redirect } from "next/navigation";
 
 export default function PlacementRoute() {
-  return (
-    <Suspense fallback={<LoadingState />}>
-      <PlacementPage />
-    </Suspense>
-  );
+  redirect("/batch");
 }

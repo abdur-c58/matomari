@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 
 type DecoratedStudySurfaceProps = {
   kanji: string;
-  variant?: "island" | "pathway";
+  variant?: "island" | "pathway" | "essentials" | "narration";
   className?: string;
   children: ReactNode;
 };
@@ -21,6 +21,8 @@ export function DecoratedStudySurface({
       className={cn(
         "decorated-study-surface",
         variant === "pathway" && "decorated-study-surface--pathway",
+        variant === "essentials" && "decorated-study-surface--essentials",
+        variant === "narration" && "decorated-study-surface--narration",
         className
       )}
     >

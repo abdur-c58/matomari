@@ -31,10 +31,18 @@ export function TranslationProgress({
     >
       {error ? (
         <>
-          <p className="max-w-sm text-sm text-destructive">{error}</p>
+          <div className="w-full max-w-sm space-y-3 rounded-2xl border border-border/70 bg-surface-raised/80 px-4 py-4 text-left">
+            <p className="text-sm font-medium text-foreground">Paused translation</p>
+            {total > 0 && (
+              <p className="text-xs tabular-nums text-muted">
+                Saved {completed} of {total} so far
+              </p>
+            )}
+            <p className="text-sm leading-relaxed text-muted">{error}</p>
+          </div>
           {onRetry && (
             <Button variant="secondary" onClick={onRetry}>
-              Retry
+              Try again
             </Button>
           )}
         </>

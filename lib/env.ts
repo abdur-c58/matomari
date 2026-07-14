@@ -47,25 +47,50 @@ export function getFishAudioModel(): string {
   return process.env.FISH_AUDIO_MODEL?.trim() || DEFAULT_FISH_AUDIO_MODEL;
 }
 
-/** Standard-dialect Fish Audio voice model id (reference_id). */
+/** Standard-dialect Fish Audio voice model id (reference_id) — speaker A. */
 export function getFishAudioVoiceId(): string | undefined {
   const id = process.env.FISH_AUDIO_VOICE_ID?.trim();
   return id || undefined;
 }
 
-/** Kansai-dialect Fish Audio voice model id (reference_id). */
+/** Kansai-dialect Fish Audio voice model id (reference_id) — speaker A. */
 export function getFishAudioKansaiVoiceId(): string | undefined {
   const id = process.env.FISH_AUDIO_KANSAI_VOICE_ID?.trim();
   return id || undefined;
 }
 
+/** Standard-dialect Fish Audio voice for narration speaker B. */
+export function getFishAudioVoiceIdB(): string | undefined {
+  const id = process.env.FISH_AUDIO_VOICE_ID_B?.trim();
+  return id || undefined;
+}
+
+/** Kansai-dialect Fish Audio voice for narration speaker B. */
+export function getFishAudioKansaiVoiceIdB(): string | undefined {
+  const id = process.env.FISH_AUDIO_KANSAI_VOICE_ID_B?.trim();
+  return id || undefined;
+}
+
 /**
- * Fish Audio voice model id (reference_id) for a dialect. Returns undefined when
- * no voice is configured, in which case Fish Audio uses its default voice.
+ * Fish Audio voice model id (reference_id) for a dialect + narration speaker.
+ * Speaker B falls back to A for that dialect when unset.
  */
 export function getFishAudioVoiceIdForDialect(
-  dialect: "standard" | "kansai" = "standard"
+  dialect: "standard" | "kansai" = "standard",
+  speaker: "A" | "B" = "A"
 ): string | undefined {
+  if (speaker === "B") {
+    if (dialect === "kansai") {
+      return (
+        getFishAudioKansaiVoiceIdB() ??
+        getFishAudioVoiceIdB() ??
+        getFishAudioKansaiVoiceId() ??
+        getFishAudioVoiceId()
+      );
+    }
+    return getFishAudioVoiceIdB() ?? getFishAudioVoiceId();
+  }
+
   if (dialect === "kansai") {
     return getFishAudioKansaiVoiceId() ?? getFishAudioVoiceId();
   }

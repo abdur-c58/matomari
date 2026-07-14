@@ -9,7 +9,7 @@ export function BatchSelectorMobile() {
   return (
     <AppGate>
       <PageShell>
-        <PageHeader title="Islands" subtitle="Browse islands and the main pathway." />
+        <PageHeader title="Islands" subtitle="Browse premade themes and your own islands." />
         <StudyUnitList />
       </PageShell>
     </AppGate>

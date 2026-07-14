@@ -252,8 +252,8 @@ Examples:
 romaji:
 - Latin transliteration of how phonetic_reading SOUNDS in Osaka-ben — not a hyōjungo reading of kanji.`
       : `DIALECT: Standard Japanese (hyōjungo)
-- Tokyo-based neutral Japanese understandable nationwide
-- Avoid regional dialect markers unless the English clearly calls for them`;
+- Use neutral Tokyo-based standard Japanese that sounds natural nationwide
+- Avoid regional dialect features unless the English explicitly requires them`;
 
   const kansaiFields =
     dialect === "kansai"
@@ -261,19 +261,37 @@ romaji:
       "phonetic_reading": "KANSAI TTS SCRIPT — kana-only spoken Osaka-ben form of japanese; same meaning, sentence type, and register; pronunciation adjustments only"`
       : "";
 
-  return `Translate these English sentences into natural Japanese for a casual-first language learning app.
-
-${dialectBlock}
-
-PHILOSOPHY:
+  const philosophyBlock =
+    dialect === "kansai"
+      ? `PHILOSOPHY:
 - Prefer natural spoken Japanese over textbook-stiff phrasing
 - Match the register field exactly: casual = plain/informal, polite = です/ます, formal = keigo where appropriate
 - Use category, subtopic, tags, and context_notes for situational tone
 - If english contains multiple sentences, translate them as ONE study unit — preserve the same number and flow of sentences in japanese, reading, and romaji
-- For standard dialect, the TTS engine speaks directly from the japanese kanji/kana surface form (it handles pitch accent and intonation correctly from kanji) — reading is the authoritative pronunciation guide for learners and the kana fallback when a surface form can't be used (placeholders, mixed scripts). It must be 100% kana (hiragana/katakana), never kanji, and must reflect every reading choice in japanese exactly — correct pitch accent, compound verbs, rendaku, and particle は→わ / へ→え where spoken
 - Keep loanwords in katakana in reading (アメリカ not あめりか). For sokuon clusters (しゅっしん, がっこう), write them precisely — small ゅ/ょ and っ are required
 - Use Japanese punctuation in reading for natural delivery: 、 before a trailing exasperated もう/ね, ？ for questions, ！ for emphasis. Example: くうきよんでよ、もう。
-- For emotionally loaded lines (frustration, sighing もう, exasperation), put the comma BEFORE the emotional tail so TTS can pause — e.g. NOT くうきよんでよもう。
+- For emotionally loaded lines (frustration, sighing もう, exasperation), put the comma BEFORE the emotional tail so TTS can pause — e.g. NOT くうきよんでよもう。`
+      : `PHILOSOPHY:
+- Translate into natural spoken Japanese for the stated situation, not English-shaped Japanese
+- Match the register field exactly: casual = plain/informal, polite = です/ます, formal = keigo when appropriate
+- Use category, subtopic, tags, and context_notes as real constraints to pick domain-native vocabulary and phrasing. Prefer the term actually used in that setting (e.g. airport 搭乗口, hotel フロント, restaurant お会計, station 改札)
+- Omit explicit subjects/pronouns like あなた / きみ unless needed for clarity, contrast, or emphasis
+- Prefer standard Japanese terms over unnecessary loanwords when a native term is more natural in context; use loanwords when they are the normal Japanese term
+- Restructure freely to sound idiomatic Japanese; avoid literal word-order calques, stiff textbook phrasing, and over-literal possessives
+- If english contains multiple sentences, translate them as ONE study unit — preserve the same number and flow of sentences in japanese, reading, and romaji
+- For standard dialect, the TTS engine speaks directly from the japanese kanji/kana surface form. Reading is the authoritative pronunciation guide for learners and the kana fallback when a surface form can't be used (placeholders, mixed scripts). Reading must be 100% kana (hiragana/katakana), never kanji, and must reflect every reading choice in japanese exactly — including compound readings, rendaku, and spoken particles は→わ / へ→え
+- Keep loanwords in katakana in reading (アメリカ not あめりか). Write sokuon and small kana precisely (e.g. しゅっしん, がっこう)
+- Use Japanese punctuation in reading for natural delivery: 、 before a trailing emotional tail like もう/ね, ？ for questions, ！ for emphasis. Example: くうきよんでよ、もう。
+- For emotionally loaded lines, put the comma before the emotional tail so TTS pauses correctly — e.g. NOT くうきよんでよもう。
+- Examples:
+  - Bad: あなたのゲートはコンコースの一番奥にあります。 → Good: 搭乗口はコンコースの一番奥にあります。
+  - Bad: あなたは先に行って。 → Good: 先に行って。`;
+
+  return `Translate these English sentences into natural Japanese for a casual-first language learning app.
+
+${dialectBlock}
+
+${philosophyBlock}
 
 PLACEHOLDERS (template blanks):
 - If English or context_notes indicate a fill-in blank (e.g. learner's own name, location, time):

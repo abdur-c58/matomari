@@ -18,6 +18,7 @@ export const seedSentenceSchema = z.object({
   tags: z.array(z.string()),
   context_notes: z.string().optional(),
   translated: z.boolean().default(false),
+  speaker: z.enum(["A", "B"]).optional(),
 });
 
 export const sentencePlaceholderSchema = z.object({
@@ -55,6 +56,11 @@ export const islandSchema = z.object({
   description: z.string(),
   subtopics: z.array(z.string()),
   sentences: z.array(z.unknown()),
+  title: z.string().optional(),
+  themeKanji: z.string().optional(),
+  featured: z.boolean().optional(),
+  format: z.enum(["standard", "narration"]).optional(),
+  speakers: z.array(z.enum(["A", "B"])).optional(),
 });
 
 export const datasetSchema = z.object({
@@ -80,7 +86,13 @@ function normalizeDatasetSentences(raw: z.infer<typeof datasetSchema>): Dataset 
       Object.entries(raw.islands).map(([key, island]) => [
         key,
         {
-          ...island,
+          description: island.description,
+          subtopics: island.subtopics,
+          title: island.title,
+          themeKanji: island.themeKanji,
+          featured: island.featured,
+          format: island.format,
+          speakers: island.speakers,
           sentences: island.sentences.map((s) => normalizeLegacySentence(s)),
         },
       ])

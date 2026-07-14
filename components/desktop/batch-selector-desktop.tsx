@@ -11,7 +11,7 @@ export function BatchSelectorDesktop() {
       <PageShell className="max-w-6xl">
         <PageHeader
           title="Islands"
-          subtitle="Browse the main pathway and your topic islands in one place."
+          subtitle="Browse premade themes and your own topic islands in one place."
         />
         <StudyUnitList />
       </PageShell>

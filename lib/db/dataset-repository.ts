@@ -6,6 +6,11 @@ import {
   resolveComposedDataset,
 } from "@/lib/services/shared-pathway-service";
 import {
+  fetchSharedPremadeCatalog,
+  filterUserIslands,
+  getPremadeIslandKeys,
+} from "@/lib/services/shared-premade-service";
+import {
   applyDialectTranslations,
   collectTranslationsForDialect,
   mergeSentenceTranslations,
@@ -105,7 +110,12 @@ export async function appendSentenceTranslations(
 }
 
 export async function saveDataset(data: Dataset): Promise<void> {
-  const [existing, progress] = await Promise.all([getUserLibrary(), getProgress()]);
+  const [existing, progress, premadeCatalog] = await Promise.all([
+    getUserLibrary(),
+    getProgress(),
+    fetchSharedPremadeCatalog(),
+  ]);
+  const premadeKeys = getPremadeIslandKeys(premadeCatalog);
   const dialect = getPrimaryTranslation(progress.settings);
   const sentenceTranslations = collectTranslationsForDialect(
     data,
@@ -113,7 +123,7 @@ export async function saveDataset(data: Dataset): Promise<void> {
     existing?.sentenceTranslations ?? {}
   );
   await saveUserLibrary({
-    islands: data.islands,
+    islands: filterUserIslands(data.islands, premadeKeys),
     sentenceTranslations,
   });
 }

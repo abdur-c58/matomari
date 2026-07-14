@@ -13,10 +13,16 @@ import type { Dialect } from "@/lib/constants/dialect";
 
 function formatTranslationError(error: unknown): string {
   if (error instanceof TranslationError && error.code === "NOT_CONFIGURED") {
-    return "AI is not configured. Add OPENAI_API_KEY to translate sentences.";
+    return "AI is not configured yet. Add OPENAI_API_KEY in .env.local to translate sentences.";
   }
-  if (error instanceof Error) return error.message;
-  return "Translation failed";
+  if (error instanceof Error) {
+    const msg = error.message;
+    if (/quota|rate limit|429|billing/i.test(msg)) {
+      return msg;
+    }
+    return msg || "Translation couldn’t finish. You can try again in a moment.";
+  }
+  return "Translation couldn’t finish. You can try again in a moment.";
 }
 
 function TranslateAllButtonDesktopInner({
@@ -34,12 +40,19 @@ function TranslateAllButtonDesktopInner({
   const [progress, setProgress] = useState({ completed: 0, total: 0 });
   const [error, setError] = useState<string | null>(null);
 
+  const dialogOpen = translating || Boolean(error);
+
+  const dismiss = useCallback(() => {
+    setTranslating(false);
+    setError(null);
+  }, []);
+
   const runTranslation = useCallback(async () => {
-    if (!dataset || untranslatedCount === 0) return;
+    if (!dataset || (untranslatedCount === 0 && !error)) return;
 
     setError(null);
     setTranslating(true);
-    setProgress({ completed: 0, total: untranslatedCount });
+    setProgress({ completed: 0, total: Math.max(untranslatedCount, 1) });
 
     try {
       const { translatedCount, total } = await translateAllUntranslated({
@@ -47,6 +60,8 @@ function TranslateAllButtonDesktopInner({
         onProgress: (completed, totalCount) =>
           setProgress({ completed, total: totalCount }),
       });
+
+      setTranslating(false);
 
       if (translatedCount === 0) {
         toast.info("All sentences are already translated");
@@ -57,21 +72,27 @@ function TranslateAllButtonDesktopInner({
       }
     } catch (e) {
       setError(formatTranslationError(e));
-    } finally {
       setTranslating(false);
     }
-  }, [dataset, dialect, untranslatedCount, translateAllUntranslated]);
+  }, [dataset, dialect, error, untranslatedCount, translateAllUntranslated]);
 
-  if (untranslatedCount === 0) return null;
+  if (untranslatedCount === 0 && !dialogOpen) return null;
 
   return (
     <>
-      <Button variant={variant} size="sm" onClick={runTranslation}>
-        <Languages className="mr-2 h-4 w-4" />
-        {label} ({untranslatedCount})
-      </Button>
+      {untranslatedCount > 0 && (
+        <Button variant={variant} size="sm" onClick={runTranslation}>
+          <Languages className="mr-2 h-4 w-4" />
+          {label} ({untranslatedCount})
+        </Button>
+      )}
 
-      <Dialog open={translating} onOpenChange={(v) => !v && !error && setTranslating(false)}>
+      <Dialog
+        open={dialogOpen}
+        onOpenChange={(open) => {
+          if (!open) dismiss();
+        }}
+      >
         <DialogContent className="sm:max-w-md">
           <TranslationProgress
             compact
@@ -84,10 +105,10 @@ function TranslateAllButtonDesktopInner({
                 ? "Translating Kansai…"
                 : "Translating all sentences…"
             }
-            subtitle="Main pathway and all islands"
+            subtitle="All islands"
           />
           {error && (
-            <Button variant="ghost" className="mt-2 w-full" onClick={() => setTranslating(false)}>
+            <Button variant="ghost" className="mt-2 w-full" onClick={dismiss}>
               Close
             </Button>
           )}

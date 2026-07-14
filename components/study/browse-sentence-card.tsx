@@ -188,6 +188,7 @@ function EnDialectSection({
           english={sentence.english}
           placeholders={placeholders}
           dialect={dialect}
+          speaker={sentence.speaker}
           appearance="minimal"
         />
       </div>
@@ -460,6 +461,7 @@ export function BrowseSentenceCard({
                         english={sentence.english}
                         placeholders={primaryFields.placeholders ?? sentence.placeholders}
                         dialect={primaryDialect}
+                        speaker={sentence.speaker}
                       />
                     )}
                   </div>

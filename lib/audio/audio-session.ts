@@ -2,7 +2,7 @@
 
 import type { AudioSessionState } from "@/types/audio";
 import type { Dialect } from "@/lib/constants/dialect";
-import type { SentencePlaceholder } from "@/types/sentence";
+import type { NarrationSpeaker, SentencePlaceholder } from "@/types/sentence";
 import { getCachedAudio, saveCachedAudio, deleteCachedAudio } from "@/lib/db/audio-cache-repository";
 import { getTextHashAsync } from "@/lib/audio/hash";
 import { getSpokenScriptFromFields, type TtsScriptSource } from "@/lib/audio/tts-text";
@@ -23,6 +23,8 @@ export interface TtsRequest {
   placeholders?: SentencePlaceholder[];
   learnerName?: string | null;
   dialect?: Dialect;
+  /** Narration speaker voice (defaults to A). */
+  speaker?: NarrationSpeaker;
   register?: string;
   tags?: string[];
   context_notes?: string;
@@ -389,12 +391,18 @@ export class AudioSessionManager {
 
   async fetchAudioBlob(request: TtsRequest): Promise<Blob> {
     const dialect = request.dialect ?? "standard";
+    const speaker = request.speaker === "B" ? "B" : "A";
     const spokenText = this.resolveSpokenText(request);
     if (!spokenText) {
       throw new Error("Missing kana reading for pronunciation");
     }
 
-    const textHash = await getTextHashAsync(request.sentenceId, spokenText, dialect);
+    const textHash = await getTextHashAsync(
+      request.sentenceId,
+      spokenText,
+      dialect,
+      speaker
+    );
     const force = request.forceRegenerate === true;
 
     if (!force) {
@@ -421,6 +429,7 @@ export class AudioSessionManager {
         placeholders: request.placeholders,
         learnerName: request.learnerName,
         dialect,
+        speaker,
         register: request.register,
         tags: request.tags,
         context_notes: request.context_notes,
@@ -443,7 +452,8 @@ export class AudioSessionManager {
     const blob = await response.blob();
     const serverHash = response.headers.get("X-Audio-Hash");
     const cacheHash =
-      serverHash ?? (await getTextHashAsync(request.sentenceId, spokenText, dialect));
+      serverHash ??
+      (await getTextHashAsync(request.sentenceId, spokenText, dialect, speaker));
     await saveCachedAudio({
       sentenceId: request.sentenceId,
       textHash: cacheHash,

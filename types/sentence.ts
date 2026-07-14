@@ -2,6 +2,11 @@ import type { Dialect } from "@/lib/constants/dialect";
 
 export type Register = "casual" | "polite" | "formal";
 
+/** Dialogue speaker for narration-format islands. */
+export type NarrationSpeaker = "A" | "B";
+
+export type IslandFormat = "standard" | "narration";
+
 export interface SeedSentence {
   id: string;
   english: string;
@@ -12,6 +17,8 @@ export interface SeedSentence {
   tags: string[];
   context_notes?: string;
   translated: boolean;
+  /** Speaker turn for narration islands (A/B). */
+  speaker?: NarrationSpeaker;
 }
 
 export type PlaceholderResolveAs = "learner" | "literal";
@@ -46,8 +53,16 @@ export interface Island {
   description: string;
   subtopics: string[];
   sentences: Sentence[];
+  /** Optional display title override (defaults to formatted island key). */
+  title?: string;
   /** Decorative kanji watermark for study UI (1–2 characters). */
   themeKanji?: string;
+  /** Highlighted premade islands (e.g. 300 Essentials) — orange pathway-style chrome. */
+  featured?: boolean;
+  /** standard = flat list; narration = multi-speaker dialogue. */
+  format?: IslandFormat;
+  /** Speakers used when format is narration (default A, B). */
+  speakers?: NarrationSpeaker[];
 }
 
 export interface Dataset {

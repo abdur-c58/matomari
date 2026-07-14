@@ -16,6 +16,7 @@ import {
   normalizeStoredLibrary,
   resolveComposedDataset,
 } from "@/lib/services/shared-pathway-service";
+import { fetchSharedPremadeCatalog } from "@/lib/services/shared-premade-service";
 import {
   getProgress,
   saveProgress,
@@ -150,14 +151,15 @@ function normalizeRemoteLibrary(payload: unknown): UserLibrary {
 }
 
 export async function loadLocalSnapshot() {
-  const [library, progress, stats, lastSyncedAt] = await Promise.all([
+  const [library, progress, stats, lastSyncedAt, premadeCatalog] = await Promise.all([
     getUserLibrary(),
     getProgress(),
     getStats(),
     getMeta("lastSyncedAt"),
+    fetchSharedPremadeCatalog(),
   ]);
   const dataset = await getComposedDataset();
-  return { dataset, library, progress, stats, lastSyncedAt };
+  return { dataset, library, progress, stats, lastSyncedAt, premadeCatalog };
 }
 
 /** Force-queue the latest local dataset, progress, and stats for cloud upload. */

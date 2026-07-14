@@ -5,6 +5,27 @@ export async function registerAppServiceWorker(): Promise<ServiceWorkerRegistrat
     return null;
   }
 
+  // Never control the page during local Next/Turbopack HMR — stale chunk caches
+  // cause "module factory is not available" / lucide icon import failures.
+  const isLocalDev =
+    process.env.NODE_ENV === "development" ||
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1";
+
+  if (isLocalDev) {
+    try {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map((reg) => reg.unregister()));
+      if ("caches" in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map((key) => caches.delete(key)));
+      }
+    } catch {
+      // ignore cleanup failures
+    }
+    return null;
+  }
+
   try {
     const registration = await navigator.serviceWorker.register("/sw.js", {
       scope: "/",

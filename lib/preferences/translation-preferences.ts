@@ -1,5 +1,6 @@
 import type { Dialect } from "@/lib/constants/dialect";
 import { DEFAULT_DIALECT } from "@/lib/constants/dialect";
+import { KANSAI_FEATURE_ENABLED } from "@/lib/constants/kansai-feature";
 import type { AppSettings } from "@/types/progress";
 
 export type TranslationPreferenceSettings = Pick<
@@ -11,7 +12,11 @@ export type TranslationPreferenceSettings = Pick<
 export function getPrimaryTranslation(
   settings: TranslationPreferenceSettings
 ): Dialect {
-  if (settings.showKansaiDialect && settings.kansaiAsPrimary) {
+  if (
+    KANSAI_FEATURE_ENABLED &&
+    settings.showKansaiDialect &&
+    settings.kansaiAsPrimary
+  ) {
     return "kansai";
   }
   return "standard";
@@ -21,7 +26,7 @@ export function getPrimaryTranslation(
 export function getAlternateTranslation(
   settings: TranslationPreferenceSettings
 ): Dialect | null {
-  if (!settings.showKansaiDialect) return null;
+  if (!KANSAI_FEATURE_ENABLED || !settings.showKansaiDialect) return null;
   return getPrimaryTranslation(settings) === "standard" ? "kansai" : "standard";
 }
 
@@ -29,6 +34,15 @@ export function getAlternateTranslation(
 export function resolveTranslationSettings(
   settings: Partial<AppSettings>
 ): Pick<AppSettings, "showKansaiDialect" | "kansaiAsPrimary" | "dialect" | "dialectChosen"> {
+  if (!KANSAI_FEATURE_ENABLED) {
+    return {
+      showKansaiDialect: false,
+      kansaiAsPrimary: false,
+      dialect: "standard",
+      dialectChosen: true,
+    };
+  }
+
   const hasNewFields =
     settings.showKansaiDialect !== undefined || settings.kansaiAsPrimary !== undefined;
 
@@ -61,7 +75,7 @@ export function resolveTranslationSettings(
 export function summarizeTranslationPreferences(
   settings: TranslationPreferenceSettings
 ): string {
-  if (!settings.showKansaiDialect) {
+  if (!KANSAI_FEATURE_ENABLED || !settings.showKansaiDialect) {
     return "Standard Japanese";
   }
   if (settings.kansaiAsPrimary) {

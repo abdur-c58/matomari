@@ -3,7 +3,11 @@ import { generateServerAudio } from "@/lib/audio/generate-audio";
 import { getSpokenScriptFromFields } from "@/lib/audio/tts-text";
 import { TtsQuotaError } from "@/lib/audio/tts-errors";
 import type { Dialect } from "@/lib/constants/dialect";
-import type { Register, SentencePlaceholder } from "@/types/sentence";
+import type {
+  NarrationSpeaker,
+  Register,
+  SentencePlaceholder,
+} from "@/types/sentence";
 
 export async function POST(request: Request) {
   try {
@@ -16,6 +20,7 @@ export async function POST(request: Request) {
       placeholders,
       learnerName,
       dialect = "standard",
+      speaker = "A",
       register,
       tags,
       context_notes,
@@ -30,6 +35,7 @@ export async function POST(request: Request) {
       placeholders?: SentencePlaceholder[];
       learnerName?: string | null;
       dialect?: Dialect;
+      speaker?: NarrationSpeaker;
       register?: Register;
       tags?: string[];
       context_notes?: string;
@@ -37,6 +43,9 @@ export async function POST(request: Request) {
       force?: boolean;
       ttsSource?: "surface" | "reading";
     };
+
+    const resolvedSpeaker: NarrationSpeaker =
+      speaker === "B" ? "B" : "A";
 
     if (!sentenceId || !japanese) {
       return NextResponse.json(
@@ -74,6 +83,7 @@ export async function POST(request: Request) {
 
     const { buffer, cached, hash } = await generateServerAudio(spokenText, sentenceId, {
       dialect,
+      speaker: resolvedSpeaker,
       force: force === true,
     });
 

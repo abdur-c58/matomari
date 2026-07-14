@@ -5,12 +5,15 @@ import {
   getBatchStarterCandidateIds,
   getInProgressActiveIdsForSource,
 } from "@/lib/services/batch-service";
-import { getSuggestedPathwayBatch } from "@/lib/services/study-focus-service";
 import {
   parseStudyUnitKey,
   studyUnitKey,
   type StudyUnitRef,
 } from "@/lib/services/study-unit-service";
+
+/** First-folder featured island — default study focus when nothing is active. */
+export const DEFAULT_STUDY_ISLAND_KEY = "premade_300_language_essentials";
+export const DEFAULT_STUDY_ISLAND_TITLE = "300 Language Essentials";
 
 export function getMostRecentStudyUnit(progress: UserProgress): StudyUnitRef | null {
   const entries = Object.entries(progress.studyUnitLastOpened ?? {});
@@ -19,9 +22,22 @@ export function getMostRecentStudyUnit(progress: UserProgress): StudyUnitRef | n
   entries.sort(([, a], [, b]) => new Date(b).getTime() - new Date(a).getTime());
   for (const [key] of entries) {
     const ref = parseStudyUnitKey(key);
-    if (ref) return ref;
+    if (ref?.kind === "island") return ref;
   }
   return null;
+}
+
+export function getDefaultStudyIslandKey(dataset: Dataset): string | null {
+  if (dataset.islands[DEFAULT_STUDY_ISLAND_KEY]) {
+    return DEFAULT_STUDY_ISLAND_KEY;
+  }
+
+  for (const [key, island] of Object.entries(dataset.islands)) {
+    if (island.title?.trim() === DEFAULT_STUDY_ISLAND_TITLE) return key;
+  }
+
+  const keys = Object.keys(dataset.islands);
+  return keys[0] ?? null;
 }
 
 function synthesizeConfigFromSource(
@@ -54,21 +70,25 @@ function synthesizeConfigFromSource(
   return null;
 }
 
-function buildPathwayBatchConfig(
+function buildIslandBatchConfig(
   dataset: Dataset,
   progress: UserProgress,
-  batchNumber: number
-): BatchConfig {
+  islandKey: string
+): BatchConfig | null {
+  if (!dataset.islands[islandKey]) return null;
+
   const base = {
-    sourceType: "pathway" as const,
-    pathwayBatchNumber: batchNumber,
-    islandKey: null,
+    sourceType: "island" as const,
+    pathwayBatchNumber: null,
+    islandKey,
     subtopic: null,
     batchSize: progress.settings.batchSize,
   };
 
   const synthesized = synthesizeConfigFromSource(dataset, progress, base);
-  if (synthesized) return synthesized;
+  if (synthesized && synthesized.activeSentenceIds.length > 0) {
+    return synthesized;
+  }
 
   const batchSize = clampBatchSize(base.batchSize);
   const candidates = getBatchStarterCandidateIds(dataset, base, progress);
@@ -79,39 +99,46 @@ function buildPathwayBatchConfig(
   };
 }
 
+function isUsableIslandConfig(
+  dataset: Dataset,
+  config: BatchConfig | null
+): config is BatchConfig {
+  return Boolean(
+    config &&
+      config.sourceType === "island" &&
+      config.islandKey &&
+      dataset.islands[config.islandKey]
+  );
+}
+
+/**
+ * Always resolve an island study batch when islands exist.
+ * Pathway configs are ignored; default is 300 Language Essentials.
+ */
 export function resolveDailyBatchConfig(
   dataset: Dataset | null,
   progress: UserProgress
 ): BatchConfig | null {
   if (!dataset) return null;
-  if (progress.batchConfig) return progress.batchConfig;
 
-  const recent = getMostRecentStudyUnit(progress);
-
-  if (recent?.kind === "island") {
-    const islandConfig = synthesizeConfigFromSource(dataset, progress, {
-      sourceType: "island",
-      islandKey: recent.key,
-      pathwayBatchNumber: null,
-      subtopic: null,
-      batchSize: progress.settings.batchSize,
-    });
-    if (islandConfig) return islandConfig;
+  if (isUsableIslandConfig(dataset, progress.batchConfig)) {
+    if (progress.batchConfig.activeSentenceIds.length > 0) {
+      return progress.batchConfig;
+    }
+    return buildIslandBatchConfig(dataset, progress, progress.batchConfig.islandKey!);
   }
 
-  const pathwayActive = Object.values(progress.sentences).filter(
-    (sp) => sp.batchStatus === "active" && sp.sourceType === "pathway"
-  );
-  if (pathwayActive.length > 0) {
-    const batchNumber = Number(pathwayActive[0].sourceKey);
-    if (Number.isFinite(batchNumber)) {
-      const pathwayConfig = buildPathwayBatchConfig(dataset, progress, batchNumber);
-      if (pathwayConfig.activeSentenceIds.length > 0) return pathwayConfig;
+  const recent = getMostRecentStudyUnit(progress);
+  if (recent?.kind === "island") {
+    const recentConfig = buildIslandBatchConfig(dataset, progress, recent.key);
+    if (recentConfig && recentConfig.activeSentenceIds.length > 0) {
+      return recentConfig;
     }
   }
 
-  const suggestedBatch = getSuggestedPathwayBatch(dataset, progress);
-  return buildPathwayBatchConfig(dataset, progress, suggestedBatch);
+  const defaultKey = getDefaultStudyIslandKey(dataset);
+  if (!defaultKey) return null;
+  return buildIslandBatchConfig(dataset, progress, defaultKey);
 }
 
 export function withResolvedDailyBatch(
@@ -120,7 +147,12 @@ export function withResolvedDailyBatch(
 ): UserProgress | null {
   const config = resolveDailyBatchConfig(dataset, progress);
   if (!config) return null;
-  if (progress.batchConfig) return progress;
+  if (
+    isUsableIslandConfig(dataset!, progress.batchConfig) &&
+    progress.batchConfig.activeSentenceIds.length > 0
+  ) {
+    return progress;
+  }
   return { ...progress, batchConfig: config };
 }
 
@@ -235,7 +267,8 @@ export function getSwitchFromLabel(
   const config = progress.batchConfig;
   if (!config) return "current study";
   if (config.sourceType === "island" && config.islandKey) {
-    return config.islandKey.replace(/_/g, " ");
+    const titled = dataset?.islands[config.islandKey]?.title;
+    return titled ?? config.islandKey.replace(/_/g, " ");
   }
   if (config.sourceType === "pathway" && config.pathwayBatchNumber !== null) {
     const batch = dataset?.main_pathway.batches.find(
@@ -251,7 +284,8 @@ export function getSwitchToLabel(
   dataset: Dataset | null
 ): string {
   if (target.sourceType === "island" && target.islandKey) {
-    return target.islandKey.replace(/_/g, " ");
+    const titled = dataset?.islands[target.islandKey]?.title;
+    return titled ?? target.islandKey.replace(/_/g, " ");
   }
   if (target.sourceType === "pathway" && target.pathwayBatchNumber !== null) {
     const batch = dataset?.main_pathway.batches.find(

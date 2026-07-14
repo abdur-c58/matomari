@@ -93,6 +93,12 @@ export interface IslandBatchSnapshot {
   needsReturnReview?: boolean;
 }
 
+export interface IslandFolder {
+  id: string;
+  name: string;
+  createdAt: string;
+}
+
 export interface UserProgress {
   /** Per-dialect study state; active dialect is also denormalized to top-level fields. */
   byDialect?: Partial<Record<Dialect, DialectStudyProgress>>;
@@ -105,6 +111,10 @@ export interface UserProgress {
   studyUnitLastOpened?: Record<string, string>;
   /** Saved active batches when switching away from an island mid-study. */
   islandBatchSnapshots?: Record<string, IslandBatchSnapshot>;
+  /** User-created folders for organizing islands on the Islands page. */
+  islandFolders?: IslandFolder[];
+  /** Island key → folder id; missing key means unfoldered. */
+  islandFolderAssignments?: Record<string, string>;
 }
 
 export interface DialectStudyProgress {

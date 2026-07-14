@@ -1,6 +1,8 @@
 import type { Dataset, UserLibrary } from "@/types/sentence";
+import type { PremadeCatalog } from "@/types/premade-catalog";
 import { parseDataset } from "@/lib/validation/dataset-schema";
 import { getMeta, setMeta } from "@/lib/db/sync-queue-repository";
+import { fetchSharedPremadeCatalog } from "@/lib/services/shared-premade-service";
 
 const CACHE_KEY = "sharedPathwayCache";
 const CACHE_UPDATED_KEY = "sharedPathwayUpdatedAt";
@@ -13,11 +15,15 @@ export type SharedPathwayResult = {
 
 export function composeDataset(
   mainPathway: Dataset["main_pathway"],
-  library: UserLibrary | null
+  library: UserLibrary | null,
+  premadeCatalog: PremadeCatalog | null = null
 ): Dataset {
   return parseDataset({
     main_pathway: mainPathway,
-    islands: library?.islands ?? {},
+    islands: {
+      ...(premadeCatalog?.islands ?? {}),
+      ...(library?.islands ?? {}),
+    },
   });
 }
 
@@ -116,7 +122,10 @@ export async function fetchSharedMainPathway(options?: {
 export async function resolveComposedDataset(
   library: UserLibrary | null
 ): Promise<Dataset | null> {
-  const shared = await fetchSharedMainPathway();
+  const [shared, premadeCatalog] = await Promise.all([
+    fetchSharedMainPathway(),
+    fetchSharedPremadeCatalog(),
+  ]);
   if (!shared) return null;
-  return composeDataset(shared.main_pathway, library);
+  return composeDataset(shared.main_pathway, library, premadeCatalog);
 }

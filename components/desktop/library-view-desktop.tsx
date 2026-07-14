@@ -1,12 +1,12 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useDeferredValue, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useApp } from "@/components/providers/app-provider";
 import { AppGate, EmptyState } from "@/components/layout/empty-state";
 import { DesktopPageShell } from "@/components/layout/desktop-page-shell";
 import { DesktopPageHeader } from "@/components/layout/desktop-page-header";
-import { LibrarySentenceRow } from "@/components/library/library-sentence-row";
+import { LibraryBufferedSentenceCard } from "@/components/library/library-buffered-sentence-card";
 import {
   ActiveFilterBadges,
   FilterDrawer,
@@ -25,13 +25,13 @@ import {
 } from "@/lib/services/library-service";
 import { getActiveBatchIds } from "@/lib/services/batch-service";
 import { bulkApplySentenceRatings } from "@/lib/services/bulk-rating-service";
-import { suggestRating } from "@/lib/services/rating-service";
 import { BulkRateDialog } from "@/components/library/bulk-rate-dialog";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { TranslateAllButtonDesktop, TranslateKansaiAllButtonDesktop } from "@/components/desktop/translate-all-button-desktop";
 import { toast } from "sonner";
 import { listItem, smoothTransition, staggerContainer } from "@/lib/motion";
+import { cn } from "@/lib/utils";
 
 function formatLabel(key: string): string {
   return key.replace(/_/g, " ");
@@ -40,6 +40,7 @@ function formatLabel(key: string): string {
 export function LibraryViewDesktop() {
   const { dataset, progress, setProgress } = useApp();
   const [filters, setFilters] = useState<LibraryFilters>(defaultLibraryFilters);
+  const deferredFilters = useDeferredValue(filters);
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDialogOpen, setBulkDialogOpen] = useState(false);
@@ -58,23 +59,29 @@ export function LibraryViewDesktop() {
   );
 
   const filtered = useMemo(
-    () => filterLibrarySentences(allSentences, progress, filters),
-    [allSentences, progress, filters]
+    () => filterLibrarySentences(allSentences, progress, deferredFilters),
+    [allSentences, progress, deferredFilters]
   );
 
   const groups = useMemo(() => {
     if (!dataset) return [{ key: "all", label: "All", sentences: filtered }];
-    return groupLibrarySentences(filtered, progress, filters.groupBy, dataset);
-  }, [filtered, progress, filters.groupBy, dataset]);
+    return groupLibrarySentences(
+      filtered,
+      progress,
+      deferredFilters.groupBy,
+      dataset
+    );
+  }, [filtered, progress, deferredFilters.groupBy, dataset]);
 
   const activeIds = useMemo(() => new Set(getActiveBatchIds(progress)), [progress]);
   const activeFilterCount = countActiveFilters(filters);
   const activeLabels = meta ? describeActiveFilters(filters, meta) : [];
+  const filtersPending = deferredFilters !== filters;
 
   const canSelect =
-    filters.sourceType === "island" ||
-    filters.islandKey !== null ||
-    filters.groupBy === "island";
+    deferredFilters.sourceType === "island" ||
+    deferredFilters.islandKey !== null ||
+    deferredFilters.groupBy === "island";
 
   const exitSelectionMode = useCallback(() => {
     setSelectionMode(false);
@@ -144,21 +151,6 @@ export function LibraryViewDesktop() {
     setFilters({ ...defaultLibraryFilters, search: filters.search });
   }, [filters.search]);
 
-  const defaultProgress = (sentenceId: string) => ({
-    sentenceId,
-    rating: null,
-    recallHistory: [],
-    meaningConfirmed: false,
-    batchStatus: "unseen" as const,
-    srsNextReview: null,
-    srsIntervalIndex: 0,
-    retiredAt: null,
-    firstSeenAt: null,
-    masteredAt: null,
-    sourceType: "pathway" as const,
-    sourceKey: "",
-  });
-
   return (
     <AppGate>
       <DesktopPageShell fullWidth>
@@ -199,142 +191,119 @@ export function LibraryViewDesktop() {
           }
         />
 
-        <div className="flex min-h-0 gap-0 rounded-xl border border-border bg-surface">
-          {meta && (
-            <aside className="hidden w-52 shrink-0 flex-col border-r border-border p-4 lg:flex xl:w-60">
-              <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted">
-                Filters
-              </p>
-              <div className="mb-3">
-                <FilterDrawer
-                  filters={filters}
-                  onChange={setFilters}
-                  meta={meta}
-                  activeFilterCount={activeFilterCount}
-                />
-              </div>
-            </aside>
+        <div className="space-y-4">
+          {selectionMode && selectedIds.size > 0 && (
+            <Card className="flex items-center gap-2 border-foreground/20 p-3">
+              <span className="flex-1 text-sm font-medium tabular-nums">
+                {selectedIds.size} selected
+              </span>
+              <Button variant="ghost" size="sm" onClick={() => setSelectedIds(new Set())}>
+                Clear
+              </Button>
+              <Button size="sm" onClick={() => openBulkDialog([...selectedIds])}>
+                Rate
+              </Button>
+            </Card>
           )}
 
-          <div className="min-w-0 flex-1 p-4">
-            {selectionMode && selectedIds.size > 0 && (
-              <Card className="mb-4 flex items-center gap-2 border-foreground/20 p-3">
-                <span className="flex-1 text-sm font-medium tabular-nums">
-                  {selectedIds.size} selected
-                </span>
-                <Button variant="ghost" size="sm" onClick={() => setSelectedIds(new Set())}>
-                  Clear
-                </Button>
-                <Button size="sm" onClick={() => openBulkDialog([...selectedIds])}>
-                  Rate
-                </Button>
-              </Card>
-            )}
-
-            <div className="mb-4 flex flex-wrap items-center gap-2">
-              <LibrarySearch
-                value={filters.search}
-                onChange={(search) => setFilters({ ...filters, search })}
+          <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2.5">
+            {meta && (
+              <FilterDrawer
+                filters={filters}
+                onChange={setFilters}
+                meta={meta}
+                activeFilterCount={activeFilterCount}
               />
-              {meta && (
-                <div className="lg:hidden">
-                  <FilterDrawer
-                    filters={filters}
-                    onChange={setFilters}
-                    meta={meta}
-                    activeFilterCount={activeFilterCount}
-                  />
-                </div>
-              )}
-              <LibraryQuickFilters filters={filters} onChange={setFilters} />
-            </div>
-            <ActiveFilterBadges
-              labels={activeLabels}
-              onClear={clearFilters}
+            )}
+            <LibrarySearch
+              value={filters.search}
+              onChange={(search) => setFilters({ ...filters, search })}
             />
-
-            {filtered.length === 0 ? (
-              <EmptyState
-                title="No matches"
-                description="Try adjusting your search or filters."
-              />
-            ) : (
-              <motion.div
-                className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-2"
-                variants={staggerContainer}
-                initial="hidden"
-                animate="visible"
-                key={`${filters.groupBy}-${filtered.length}-${filters.search}`}
-              >
-                <AnimatePresence mode="popLayout">
-                  {groups.map((group) => {
-                    const isIslandGroup =
-                      filters.groupBy === "island" && group.key !== "main-pathway";
-                    const groupIslandIds = group.sentences
-                      .filter((s) => s.sourceType === "island")
-                      .map((s) => s.id);
-
-                    return (
-                      <motion.section
-                        key={group.key}
-                        layout
-                        variants={listItem}
-                        initial="hidden"
-                        animate="visible"
-                        exit="exit"
-                        transition={smoothTransition}
-                      >
-                        {filters.groupBy !== "none" && (
-                          <div className="mb-1 flex items-baseline justify-between gap-2 px-1">
-                            <h2 className="font-display text-sm font-semibold text-foreground">
-                              {group.label}
-                            </h2>
-                            <div className="flex items-center gap-2">
-                              {isIslandGroup && groupIslandIds.length > 0 && (
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-7 px-2 text-xs"
-                                  onClick={() =>
-                                    openBulkDialog(groupIslandIds, formatLabel(group.key))
-                                  }
-                                >
-                                  Rate all
-                                </Button>
-                              )}
-                              <span className="text-xs tabular-nums text-muted">
-                                {group.sentences.length}
-                              </span>
-                            </div>
-                          </div>
-                        )}
-                        <Card className="overflow-hidden px-2 py-0">
-                          {group.sentences.map((s) => {
-                            const sp = progress.sentences[s.id] ?? defaultProgress(s.id);
-                            const isSelectable = s.sourceType === "island";
-                            return (
-                              <LibrarySentenceRow
-                                key={s.id}
-                                sentence={s}
-                                progress={progress.sentences[s.id]}
-                                isActive={activeIds.has(s.id)}
-                                suggestedRating={suggestRating(sp)}
-                                onRate={(r) => handleRate(s.id, r)}
-                                selectionMode={selectionMode && canSelect}
-                                selectable={isSelectable}
-                                selected={selectedIds.has(s.id)}
-                                onToggleSelect={() => toggleSelect(s.id)}
-                              />
-                            );
-                          })}
-                        </Card>
-                      </motion.section>
-                    );
-                  })}
-                </AnimatePresence>
-              </motion.div>
-            )}
+            <LibraryQuickFilters filters={filters} onChange={setFilters} />
           </div>
+
+          <ActiveFilterBadges labels={activeLabels} onClear={clearFilters} />
+
+          {filtered.length === 0 ? (
+            <EmptyState
+              title="No matches"
+              description={
+                filtersPending
+                  ? "Updating results…"
+                  : "Try adjusting your search or filters."
+              }
+            />
+          ) : (
+            <motion.div
+              className={cn(
+                "grid grid-cols-1 gap-4 xl:grid-cols-2",
+                filtersPending && "opacity-70"
+              )}
+              variants={staggerContainer}
+              initial="hidden"
+              animate="visible"
+              key={`${deferredFilters.groupBy}-${filtered.length}-${deferredFilters.search}`}
+            >
+              <AnimatePresence mode="popLayout">
+                {groups.map((group) => {
+                  const isIslandGroup =
+                    deferredFilters.groupBy === "island" &&
+                    group.key !== "main-pathway";
+                  const groupIslandIds = group.sentences
+                    .filter((s) => s.sourceType === "island")
+                    .map((s) => s.id);
+
+                  return (
+                    <motion.section
+                      key={group.key}
+                      layout
+                      variants={listItem}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                      transition={smoothTransition}
+                    >
+                      {deferredFilters.groupBy !== "none" && (
+                        <div className="mb-1 flex items-baseline justify-between gap-2 px-1">
+                          <h2 className="font-display text-sm font-semibold text-foreground">
+                            {group.label}
+                          </h2>
+                          <div className="flex items-center gap-2">
+                            {isIslandGroup && groupIslandIds.length > 0 && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 px-2 text-xs"
+                                onClick={() =>
+                                  openBulkDialog(groupIslandIds, formatLabel(group.key))
+                                }
+                              >
+                                Rate all
+                              </Button>
+                            )}
+                            <span className="text-xs tabular-nums text-muted">
+                              {group.sentences.length}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                      <LibraryBufferedSentenceCard
+                        sentences={group.sentences}
+                        resetKey={`${deferredFilters.groupBy}:${group.key}:${deferredFilters.search}:${filtered.length}`}
+                        progress={progress}
+                        activeIds={activeIds}
+                        selectionMode={selectionMode}
+                        canSelect={canSelect}
+                        selectedIds={selectedIds}
+                        onToggleSelect={toggleSelect}
+                        onRate={(id, rating) => void handleRate(id, rating)}
+                      />
+                    </motion.section>
+                  );
+                })}
+              </AnimatePresence>
+            </motion.div>
+          )}
         </div>
 
         <BulkRateDialog

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Compass, Map } from "lucide-react";
+import { Map } from "lucide-react";
 import type { StudyUnitSummary } from "@/lib/services/study-unit-service";
 import { DecoratedStudySurface } from "@/components/study/decorated-study-surface";
 import { Badge } from "@/components/ui/badge";
@@ -19,50 +19,107 @@ export function StudyUnitCard({
       ? Math.round((unit.studiedCount / unit.sentenceCount) * 100)
       : 0;
 
+  const featured = unit.isFeatured;
+  const narration = unit.isNarration && !featured;
+
   return (
-    <Link href={href} className="group block">
+    <Link
+      href={href}
+      className={cn(
+        "group block rounded-xl",
+        featured && "essentials-island-glow",
+        narration && "narration-island-glow"
+      )}
+    >
       <DecoratedStudySurface
         kanji={unit.themeKanji}
-        variant={unit.isPathway ? "pathway" : "island"}
+        variant={featured ? "essentials" : narration ? "narration" : "island"}
         className={cn(
-          "min-h-[4.5rem] rounded-xl border border-border/70 p-3 transition-all",
-          unit.isPathway && "border-orange-300/40",
-          "hover:border-foreground/30 desktop-hover-lift"
+          "rounded-xl border transition-all",
+          featured
+            ? "essentials-island-card min-h-[10.5rem] border-red-700/70 p-5 sm:min-h-[12rem] sm:p-6"
+            : cn(
+                "desktop-hover-lift min-h-[4.5rem] p-3",
+                narration
+                  ? "narration-island-card border-violet-300/70 hover:border-violet-400/80"
+                  : "border-border/70 hover:border-foreground/30"
+              )
         )}
       >
-        <div className="flex items-center gap-3">
-          <div
-            className={cn(
-              "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg",
-              unit.isPathway
-                ? "bg-orange-500/15 text-orange-700"
-                : "bg-surface-raised text-foreground"
-            )}
-          >
-            {unit.isPathway ? (
-              <Compass className="h-4 w-4" />
-            ) : (
+        <div className={cn("flex items-center", featured ? "gap-0" : "gap-3")}>
+          {!featured && (
+            <div
+              className={cn(
+                "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-foreground",
+                narration ? "bg-violet-500/15 text-violet-200" : "bg-surface-raised"
+              )}
+            >
               <Map className="h-4 w-4" />
-            )}
-          </div>
+            </div>
+          )}
 
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <p className="truncate font-semibold text-foreground">{unit.title}</p>
+              <p
+                className={cn(
+                  "font-semibold text-foreground",
+                  featured
+                    ? "font-display text-xl leading-snug sm:text-2xl"
+                    : "truncate"
+                )}
+              >
+                {unit.title}
+              </p>
+              {featured && (
+                <Badge className="border-transparent bg-red-950/35 text-[11px] text-red-100">
+                  Essentials
+                </Badge>
+              )}
+              {narration && (
+                <Badge className="border-transparent bg-violet-950/30 text-[10px] text-violet-100">
+                  Narration
+                </Badge>
+              )}
               {unit.complete && <Badge variant="success">Complete</Badge>}
               {unit.status === "in_progress" && !unit.complete && (
                 <Badge variant="secondary">In progress</Badge>
               )}
             </div>
-            <p className="truncate text-xs text-muted">{unit.description}</p>
-            <div className="mt-1.5 flex items-center gap-2">
-              <div className="h-1 min-w-0 flex-1 overflow-hidden rounded-full bg-border">
+            <p
+              className={cn(
+                "text-muted",
+                featured
+                  ? "mt-1.5 text-sm leading-relaxed sm:line-clamp-3 sm:text-base"
+                  : "truncate text-xs"
+              )}
+            >
+              {unit.description}
+            </p>
+            <div className={cn("flex items-center gap-2", featured ? "mt-4" : "mt-1.5")}>
+              <div
+                className={cn(
+                  "min-w-0 flex-1 overflow-hidden rounded-full bg-border",
+                  featured ? "h-2" : "h-1"
+                )}
+              >
                 <div
-                  className="h-full rounded-full bg-foreground transition-[width]"
+                  className={cn(
+                    "h-full rounded-full transition-[width]",
+                    featured
+                      ? "bg-red-800"
+                      : narration
+                        ? "bg-violet-500"
+                        : "bg-foreground"
+                  )}
                   style={{ width: `${pct}%` }}
                 />
               </div>
-              <span className="shrink-0 text-[10px] tabular-nums text-muted">
+              <span
+                className={cn(
+                  "shrink-0 tabular-nums text-muted",
+                  featured ? "text-sm" : "text-[10px]"
+                )}
+              >
                 {unit.studiedCount}/{unit.sentenceCount}
               </span>
             </div>

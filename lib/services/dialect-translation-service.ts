@@ -155,6 +155,8 @@ export function getUntranslatedIdsForDialect(
 ): string[] {
   const ids: string[] = [];
   for (const [, sentence] of getAllSentences(dataset)) {
+    // Pathway is retired from the product surface — translate/library are islands only.
+    if (sentence.sourceType === "pathway") continue;
     if (getSentenceTranslationFields(sentence.id, dialect, translations, sentence)) {
       continue;
     }

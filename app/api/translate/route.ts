@@ -4,6 +4,7 @@ import { openAIErrorResponse } from "@/lib/ai/errors";
 import { buildTranslationPrompt } from "@/lib/ai/prompts";
 import { translateRequestSchema, translateResponseSchema } from "@/lib/ai/schemas";
 import { upsertSharedTranslationBatch } from "@/lib/supabase/shared-translations-data";
+import { KANSAI_FEATURE_ENABLED } from "@/lib/constants/kansai-feature";
 
 export async function POST(request: Request) {
   try {
@@ -13,6 +14,16 @@ export async function POST(request: Request) {
 
     const body = await request.json();
     const { sentences, dialect } = translateRequestSchema.parse(body);
+
+    if (dialect === "kansai" && !KANSAI_FEATURE_ENABLED) {
+      return NextResponse.json(
+        {
+          error:
+            "Kansai translation is temporarily unavailable. Standard Japanese is still available.",
+        },
+        { status: 403 }
+      );
+    }
 
     if (sentences.length === 0) {
       return NextResponse.json({ translations: {} });

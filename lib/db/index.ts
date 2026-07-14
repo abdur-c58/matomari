@@ -88,6 +88,8 @@ export const DEFAULT_PROGRESS: UserProgress = {
   },
   completedPathwayBatches: [],
   completedIslands: [],
+  islandFolders: [],
+  islandFolderAssignments: {},
 };
 
 export const DEFAULT_STATS: AppStats = {

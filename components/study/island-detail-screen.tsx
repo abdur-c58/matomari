@@ -2,15 +2,15 @@
 
 import { useParams } from "next/navigation";
 import { useApp } from "@/components/providers/app-provider";
-import { AppGate } from "@/components/layout/empty-state";
+import { AppGate, EmptyState } from "@/components/layout/empty-state";
 import { PageShell } from "@/components/layout/page-shell";
 import { StudyUnitDetailShell } from "@/components/study/study-unit-detail-shell";
-import { EmptyState } from "@/components/layout/empty-state";
+import { premadeFolderHref } from "@/components/islands/island-folder-section";
 
 export function IslandDetailScreen() {
   const params = useParams();
   const key = decodeURIComponent(String(params.key ?? ""));
-  const { dataset } = useApp();
+  const { dataset, premadeCatalog } = useApp();
   const island = dataset?.islands[key];
 
   if (!island) {
@@ -28,7 +28,11 @@ export function IslandDetailScreen() {
     );
   }
 
-  const title = key.replace(/_/g, " ");
+  const title = island.title?.trim() || key.replace(/_/g, " ");
+  const folderId = premadeCatalog?.islandFolderAssignments[key];
+  const folder = folderId
+    ? premadeCatalog?.folders.find((f) => f.id === folderId)
+    : null;
 
   return (
     <AppGate>
@@ -39,6 +43,8 @@ export function IslandDetailScreen() {
           islandKey={key}
           showCustomSentence
           themeKanji={island.themeKanji}
+          backHref={folder ? premadeFolderHref(folder.id) : "/batch"}
+          backLabel={folder ? folder.name : "All islands"}
         />
       </PageShell>
     </AppGate>

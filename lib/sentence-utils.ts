@@ -21,6 +21,7 @@ export function toSeedPayload(s: Sentence): SeedSentence {
     tags: s.tags,
     context_notes: s.context_notes,
     translated: s.translated,
+    ...(s.speaker ? { speaker: s.speaker } : {}),
   };
 }
 
@@ -47,6 +48,10 @@ export function normalizeLegacySentence(raw: unknown): Sentence {
     context_notes: contextNotes,
     translated: s.translated === true || hasJapanese,
   };
+
+  if (s.speaker === "A" || s.speaker === "B") {
+    sentence.speaker = s.speaker;
+  }
 
   if (hasJapanese) {
     sentence.japanese = japanese!;

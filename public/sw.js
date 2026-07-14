@@ -1,6 +1,6 @@
 /* Kotoshima offline service worker — keep notification handling and add app shell caching. */
 
-const CACHE_VERSION = "kotoshima-offline-v1";
+const CACHE_VERSION = "kotoshima-offline-v2";
 const PRECACHE_URLS = [
   "/offline.html",
   "/manifest.json",
@@ -14,13 +14,13 @@ function isSameOrigin(url) {
 }
 
 function isStaticAsset(pathname) {
+  // Do not cache-first Next.js chunks — they change often and poison HMR/offline.
+  if (pathname.startsWith("/_next/")) return false;
+
   return (
-    pathname.startsWith("/_next/static/") ||
     pathname.startsWith("/icons/") ||
     pathname.endsWith(".woff2") ||
     pathname.endsWith(".woff") ||
-    pathname.endsWith(".css") ||
-    pathname.endsWith(".js") ||
     pathname.endsWith(".png") ||
     pathname.endsWith(".jpg") ||
     pathname.endsWith(".webp")
@@ -123,6 +123,9 @@ self.addEventListener("fetch", (event) => {
   if (!isSameOrigin(url)) return;
 
   if (url.pathname.startsWith("/api/")) return;
+
+  // Always let Next.js / Turbopack serve its own modules fresh.
+  if (url.pathname.startsWith("/_next/")) return;
 
   if (request.mode === "navigate") {
     event.respondWith(networkFirstNavigation(request));

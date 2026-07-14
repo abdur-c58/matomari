@@ -43,3 +43,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# temporary English naturalness audit (local only)
+/unnatural-english-sentences.txt
+/_all_english_sentences.json
+/_en_scan_chunks/

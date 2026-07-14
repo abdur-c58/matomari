@@ -28,6 +28,7 @@ import { PlaylistDialectDialog } from "@/components/study/playlist-dialect-dialo
 import { PATHWAY_THEME_KANJI } from "@/lib/services/study-unit-kanji-service";
 import type { Dialect } from "@/lib/constants/dialect";
 import { getPrimaryTranslation } from "@/lib/preferences/translation-preferences";
+import { cn } from "@/lib/utils";
 
 export function StudyUnitDetailShell({
   title,
@@ -37,6 +38,8 @@ export function StudyUnitDetailShell({
   pathwayBatchNumber: initialBatch,
   showCustomSentence = false,
   themeKanji,
+  backHref = "/batch",
+  backLabel = "All islands",
 }: {
   title: string;
   description: string;
@@ -45,6 +48,8 @@ export function StudyUnitDetailShell({
   pathwayBatchNumber?: number;
   showCustomSentence?: boolean;
   themeKanji?: string;
+  backHref?: string;
+  backLabel?: string;
 }) {
   const { dataset, progress, setProgress } = useApp();
   const { startFormalStudy, switchPrompt, confirmSwitch, cancelSwitch } =
@@ -235,28 +240,47 @@ export function StudyUnitDetailShell({
         ? dataset?.islands[islandKey]?.themeKanji ?? "島"
         : "島");
 
+  const island = !isPathway && islandKey ? dataset?.islands[islandKey] : undefined;
+  const isNarration = island?.format === "narration";
+  const narratorLabels = (island?.speakers ?? ["A", "B"]).join(" / ");
+
   if (!dataset) return null;
 
   return (
     <div className="space-y-4">
       <Link
-        href="/batch"
+        href={backHref}
         className="inline-flex items-center gap-1 text-sm text-muted hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" />
-        All islands
+        {backLabel}
       </Link>
 
       <DecoratedStudySurface
         kanji={headerKanji}
-        variant={isPathway ? "pathway" : "island"}
-        className={isPathway ? "border-orange-300/40" : undefined}
+        variant={
+          isPathway ? "pathway" : isNarration ? "narration" : "island"
+        }
+        className={cn(
+          isPathway && "border-orange-300/40",
+          isNarration && "narration-island-card border-violet-300/60"
+        )}
       >
-        <h1 className="font-display text-xl font-semibold text-foreground">{title}</h1>
+        <div className="flex flex-wrap items-center gap-2">
+          <h1 className="font-display text-xl font-semibold text-foreground">{title}</h1>
+          {isNarration && (
+            <span className="inline-flex items-center rounded-md border border-violet-300/35 bg-violet-950/30 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-violet-100">
+              Narration
+            </span>
+          )}
+        </div>
         {!isPathway && description && (
           <p className="mt-1 text-sm text-muted">{description}</p>
         )}
-        <p className="mt-2 text-xs text-muted">{sentences.length} sentences</p>
+        <p className="mt-2 text-xs text-muted">
+          {sentences.length} sentences
+          {isNarration ? ` · 2 speakers · ${narratorLabels}` : ""}
+        </p>
       </DecoratedStudySurface>
 
       <StudyFlowGuide
@@ -313,6 +337,7 @@ export function StudyUnitDetailShell({
         onClearSelection={clear}
         selectionCount={selectionCount}
         playingSentenceId={playingSentenceId}
+        narration={isNarration}
       />
 
       {showCustomSentence && islandKey && (
@@ -324,15 +349,13 @@ export function StudyUnitDetailShell({
         />
       )}
 
-      {switchPrompt && (
-        <IslandSwitchDialog
-          open
-          fromLabel={switchPrompt.fromLabel}
-          toLabel={switchPrompt.toLabel}
-          onConfirm={() => void confirmSwitch()}
-          onCancel={cancelSwitch}
-        />
-      )}
+      <IslandSwitchDialog
+        open={switchPrompt != null}
+        fromLabel={switchPrompt?.fromLabel ?? ""}
+        toLabel={switchPrompt?.toLabel ?? ""}
+        onConfirm={() => void confirmSwitch()}
+        onCancel={cancelSwitch}
+      />
 
       <PlaylistDialectDialog
         open={dialectDialogOpen}

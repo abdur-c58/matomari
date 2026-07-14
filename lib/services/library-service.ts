@@ -92,7 +92,10 @@ export interface LibraryGroup {
 }
 
 export function getLibrarySentences(dataset: Dataset): LibrarySentence[] {
-  return Array.from(getAllSentences(dataset).values());
+  // Pathway curriculum is retired from the product surface — library is islands only.
+  return Array.from(getAllSentences(dataset).values()).filter(
+    (s) => s.sourceType === "island"
+  );
 }
 
 export function buildLibraryMeta(dataset: Dataset): LibraryMeta {
@@ -116,10 +119,7 @@ export function buildLibraryMeta(dataset: Dataset): LibraryMeta {
     subtopics: [...subtopics].sort(),
     tags: [...tags].sort(),
     islandKeys: Object.keys(dataset.islands).sort(),
-    pathwayBatches: dataset.main_pathway.batches.map((b) => ({
-      number: b.batch_number,
-      title: b.batch_title,
-    })),
+    pathwayBatches: [],
     registers: [...registers].sort(),
     difficulties: [...difficulties].sort((a, a2) => a - a2),
   };
@@ -160,6 +160,9 @@ export function filterLibrarySentences(
   const activeIds = new Set(getActiveBatchIds(progress));
 
   let result = sentences.filter((s) => {
+    // Pathway sentences are excluded at getLibrarySentences; keep guard for callers.
+    if (s.sourceType === "pathway") return false;
+
     const sp = progress.sentences[s.id];
     const rating = sp?.rating ?? null;
 

@@ -36,10 +36,11 @@ const SelectContent = React.forwardRef<
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
-        "relative z-50 max-h-72 min-w-[8rem] overflow-hidden rounded-xl border border-mist bg-paper shadow-md",
+        "radix-select-content relative z-[60] max-h-72 min-w-[8rem] overflow-hidden rounded-xl border border-mist bg-paper shadow-md origin-[var(--radix-select-content-transform-origin)]",
         className
       )}
       position={position}
+      collisionPadding={12}
       {...props}
     >
       <SelectPrimitive.Viewport className="p-1">{children}</SelectPrimitive.Viewport>
