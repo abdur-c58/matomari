@@ -188,13 +188,9 @@ export function filterLibrarySentences(
     if (filters.register && s.register !== filters.register) return false;
     if (filters.tag && !s.tags.includes(filters.tag)) return false;
 
-    if (filters.sourceType && s.sourceType !== filters.sourceType) return false;
-    if (filters.pathwayBatch !== null && s.sourceType === "pathway") {
-      if (Number(s.sourceKey) !== filters.pathwayBatch) return false;
-    }
-    if (filters.islandKey && s.sourceType === "island" && s.sourceKey !== filters.islandKey) {
-      return false;
-    }
+    if (filters.sourceType === "pathway") return false;
+    if (filters.pathwayBatch !== null) return false;
+    if (filters.islandKey && s.sourceKey !== filters.islandKey) return false;
 
     if (filters.translated === "yes" && !isTranslated(s)) return false;
     if (filters.translated === "no" && isTranslated(s)) return false;
