@@ -206,23 +206,25 @@ export function LibraryViewDesktop() {
             </Card>
           )}
 
-          <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2.5">
-            {meta && (
-              <FilterDrawer
-                filters={filters}
-                onChange={setFilters}
-                meta={meta}
-                activeFilterCount={activeFilterCount}
+          <div className="sticky top-0 z-10 -mx-8 mb-0 space-y-2 bg-background/90 px-8 py-2 backdrop-blur-xl">
+            <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2.5">
+              {meta && (
+                <FilterDrawer
+                  filters={filters}
+                  onChange={setFilters}
+                  meta={meta}
+                  activeFilterCount={activeFilterCount}
+                />
+              )}
+              <LibrarySearch
+                value={filters.search}
+                onChange={(search) => setFilters({ ...filters, search })}
               />
-            )}
-            <LibrarySearch
-              value={filters.search}
-              onChange={(search) => setFilters({ ...filters, search })}
-            />
-            <LibraryQuickFilters filters={filters} onChange={setFilters} />
-          </div>
+              <LibraryQuickFilters filters={filters} onChange={setFilters} />
+            </div>
 
-          <ActiveFilterBadges labels={activeLabels} onClear={clearFilters} />
+            <ActiveFilterBadges labels={activeLabels} onClear={clearFilters} />
+          </div>
 
           {filtered.length === 0 ? (
             <EmptyState
