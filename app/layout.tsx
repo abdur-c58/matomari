@@ -44,7 +44,7 @@ export const viewport: Viewport = {
     { media: "(prefers-color-scheme: dark)", color: "#000000" },
   ],
 };
-
+// site url
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ??
   (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
