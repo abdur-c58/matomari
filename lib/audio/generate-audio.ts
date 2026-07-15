@@ -8,7 +8,10 @@ import {
   r2ObjectExists,
   isR2Configured,
 } from "@/lib/storage/r2-client";
-import { upsertAudioMetadata } from "@/lib/supabase/server-data";
+import {
+  checksumBuffer,
+  upsertAudioMetadataFull,
+} from "@/lib/supabase/server-data";
 import { getFishAudioApiKey, getFishAudioVoiceIdForDialect } from "@/lib/env";
 import type { Dialect } from "@/lib/constants/dialect";
 import type { NarrationSpeaker } from "@/types/sentence";
@@ -105,7 +108,15 @@ export class FishAudioProvider implements TTSProvider {
 export async function generateServerAudio(
   ttsText: string,
   sentenceId: string,
-  options?: { force?: boolean; dialect?: Dialect; speaker?: NarrationSpeaker }
+  options?: {
+    force?: boolean;
+    dialect?: Dialect;
+    speaker?: NarrationSpeaker;
+    scope?: "canonical" | "user";
+    ownerUserId?: string | null;
+    canonicalSentenceId?: string | null;
+    userSentenceId?: string | null;
+  }
 ): Promise<{ buffer: Buffer; hash: string; cached: boolean; r2Key: string }> {
   const dialect = options?.dialect ?? "standard";
   const speaker = options?.speaker ?? "A";
@@ -113,12 +124,36 @@ export async function generateServerAudio(
   const r2Key = getAudioR2Key(hash);
   const force = options?.force === true;
 
+  const commitMetadata = async (buffer: Buffer) => {
+    await upsertAudioMetadataFull({
+      textHash: hash,
+      sentenceId,
+      r2Key,
+      dialect,
+      speaker,
+      spokenScript: ttsText,
+      byteSize: buffer.byteLength,
+      checksum: checksumBuffer(buffer),
+      scope: options?.scope ?? "canonical",
+      ownerUserId: options?.ownerUserId,
+      canonicalSentenceId: options?.canonicalSentenceId,
+      userSentenceId: options?.userSentenceId,
+      generationStatus: "ready",
+    });
+  };
+
   if (!force) {
     if (isR2Configured()) {
       const exists = await r2ObjectExists(r2Key);
       if (exists) {
         const buffer = await getR2Object(r2Key);
         if (buffer) {
+          // Repair metadata for cache hits that predate expanded columns.
+          try {
+            await commitMetadata(buffer);
+          } catch {
+            // non-fatal
+          }
           return { buffer, hash, cached: true, r2Key };
         }
       }
@@ -142,8 +177,15 @@ export async function generateServerAudio(
   const buffer = Buffer.from(arrayBuffer);
 
   if (isR2Configured()) {
-    await putR2Object(r2Key, buffer);
-    await upsertAudioMetadata(hash, sentenceId, r2Key);
+    const putOk = await putR2Object(r2Key, buffer);
+    if (!putOk) {
+      throw new TtsGenerationError("Failed to upload audio to R2", 502);
+    }
+    const verified = await r2ObjectExists(r2Key);
+    if (!verified) {
+      throw new TtsGenerationError("R2 upload verification failed", 502);
+    }
+    await commitMetadata(buffer);
   } else {
     await saveFilesystemCache(hash, buffer);
   }

@@ -13,8 +13,13 @@ import { getFishAudioModel, getFishAudioVoiceIdForDialect } from "@/lib/env";
 import type { Dialect } from "@/lib/constants/dialect";
 import type { NarrationSpeaker } from "@/types/sentence";
 
-/** Bumped when switching TTS engine/settings so cached audio regenerates. */
-const STANDARD_TTS_CACHE_VERSION = "fish-s21-free-v2-narration-cues";
+/**
+ * Bumped when switching TTS engine/settings so cached audio regenerates.
+ * Do NOT bump for narration-only Fish cue changes — those change the spoken
+ * script (and thus the hash) for affected turns only. A global bump forces
+ * regenerating every sentence on sync.
+ */
+const STANDARD_TTS_CACHE_VERSION = "fish-s21-free-v1";
 
 export interface FishAudioSettings {
   temperature: number;

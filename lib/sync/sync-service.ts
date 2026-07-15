@@ -51,6 +51,7 @@ import {
 } from "@/lib/sync/cloud-api";
 import { syncAudioToCloud, type AudioSyncResult } from "@/lib/sync/audio-sync";
 import { pullSharedTranslationsIntoLibrary } from "@/lib/services/shared-translations-service";
+import { ONLINE_FIRST_ENABLED } from "@/lib/constants/online-first";
 
 export type SyncStatus = "idle" | "syncing" | "offline" | "error";
 
@@ -332,7 +333,10 @@ export async function pullRemoteIfNewer(): Promise<boolean> {
   return changed;
 }
 
-/** Push local changes, then pull remote updates if newer. */
+/**
+ * Online-first: pull cloud source of truth, then flush local outbox.
+ * Legacy mode: flush, pull, flush.
+ */
 export async function syncAll(): Promise<boolean> {
   if (!isSupabaseConfigured()) {
     return false;
@@ -343,13 +347,18 @@ export async function syncAll(): Promise<boolean> {
     return false;
   }
 
-  await flushSyncQueue();
-  await pullRemoteIfNewer();
-  await flushSyncQueue();
+  if (ONLINE_FIRST_ENABLED) {
+    await pullRemoteIfNewer();
+    await flushSyncQueue();
+  } else {
+    await flushSyncQueue();
+    await pullRemoteIfNewer();
+    await flushSyncQueue();
+  }
   return getSyncStatus() === "idle";
 }
 
-/** Full manual sync: push local state, pull remote, upload missing audio to R2. */
+/** Full manual sync with cloud as source of truth (online-first). */
 export async function manualSync(): Promise<ManualSyncResult> {
   const emptyAudio: AudioSyncResult = {
     uploaded: 0,
@@ -389,20 +398,47 @@ export async function manualSync(): Promise<ManualSyncResult> {
     };
   }
 
-  setSyncStatus("syncing", "Syncing library to cloud…");
+  setSyncStatus("syncing", "Syncing with cloud…");
 
+  // Cloud-first: pull shared + remote user state before pushing local mutations.
   await pullSharedTranslationsIntoLibrary();
+  await pullRemoteIfNewer();
 
-  const hasLibrary = await enqueueLocalSnapshot();
+  if (!ONLINE_FIRST_ENABLED) {
+    await enqueueLocalSnapshot();
+  } else {
+    // Still enqueue current local mutations, but only after pull.
+    await enqueueLocalSnapshot();
+  }
+
   const supabaseOk = await syncAll();
 
-  const snapshot = await loadLocalSnapshot();
-  const audio = snapshot.dataset
-    ? await syncAudioToCloud(
-        snapshot.dataset,
-        getPrimaryTranslation(snapshot.progress.settings)
-      )
-    : emptyAudio;
+  let audio = emptyAudio;
+  if (ONLINE_FIRST_ENABLED) {
+    // Do not bulk-generate from the browser; report background job backlog.
+    try {
+      const res = await fetch("/api/audio/jobs/status", { credentials: "include" });
+      const data = res.ok
+        ? ((await res.json()) as { pending?: number })
+        : { pending: 0 };
+      const pending = data.pending ?? 0;
+      audio = {
+        ...emptyAudio,
+        total: pending,
+        skipped: pending,
+      };
+    } catch {
+      audio = emptyAudio;
+    }
+  } else {
+    const snapshot = await loadLocalSnapshot();
+    audio = snapshot.dataset
+      ? await syncAudioToCloud(
+          snapshot.dataset,
+          getPrimaryTranslation(snapshot.progress.settings)
+        )
+      : emptyAudio;
+  }
 
   if (supabaseOk) {
     await setMeta("lastSyncedAt", new Date().toISOString());
@@ -414,10 +450,17 @@ export async function manualSync(): Promise<ManualSyncResult> {
   let message: string | undefined;
   if (!supabaseOk) {
     message = getSyncStatusMessage() ?? "Could not sync to Supabase";
+  } else if (ONLINE_FIRST_ENABLED) {
+    message =
+      audio.total > 0
+        ? `Synced from cloud. ${audio.total} audio job(s) still generating in the background.`
+        : "Synced from cloud.";
   } else if (audio.quotaExceeded) {
     message = "Library synced. TTS credits exhausted — audio sync paused; tap Sync again later.";
   } else if (audio.failed > 0) {
-    message = "Library synced. Some audio files could not be uploaded.";
+    message = audio.firstError
+      ? `Library synced. ${audio.failed} audio file(s) failed (${audio.firstError}).`
+      : "Library synced. Some audio files could not be uploaded.";
   }
 
   return { ok, supabaseOk, message, audio };

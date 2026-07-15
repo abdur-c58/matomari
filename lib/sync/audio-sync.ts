@@ -1,8 +1,10 @@
-import type { Dataset } from "@/types/sentence";
+import type { Dataset, Sentence } from "@/types/sentence";
 import { getAllSentences } from "@/lib/validation/dataset-schema";
 import { isTranslated } from "@/lib/sentence-utils";
 import { getSpokenScript } from "@/lib/audio/tts-text";
+import type { FishAudioDirectives } from "@/lib/audio/fish-audio-cues";
 import type { Dialect } from "@/lib/constants/dialect";
+import type { NarrationSpeaker, SentencePlaceholder } from "@/types/sentence";
 import { setUploadProgress, clearUploadProgress } from "@/lib/upload-progress";
 
 export type AudioSyncResult = {
@@ -11,21 +13,40 @@ export type AudioSyncResult = {
   failed: number;
   quotaExceeded: boolean;
   total: number;
+  /** First failure detail (status/body) for debugging mass upload failures. */
+  firstError?: string;
 };
 
 const CONCURRENCY = 2;
+
+function spokenFieldsFromSentence(sentence: Sentence) {
+  return {
+    japanese: sentence.japanese,
+    reading: sentence.reading,
+    phonetic_reading: sentence.phonetic_reading,
+    placeholders: sentence.placeholders,
+    register: sentence.register,
+    tags: sentence.tags,
+    context_notes: sentence.context_notes,
+    english: sentence.english,
+    fishAudio: sentence.narrationAudio?.fishAudio,
+  };
+}
 
 async function syncOneSentence(request: {
   sentenceId: string;
   japanese: string;
   reading?: string | null;
   phonetic_reading?: string | null;
+  placeholders?: SentencePlaceholder[];
   dialect?: Dialect;
+  speaker?: NarrationSpeaker;
   register?: string;
   tags?: string[];
   context_notes?: string;
   english?: string;
-}): Promise<"uploaded" | "skipped" | "failed" | "quota"> {
+  fishAudio?: FishAudioDirectives;
+}): Promise<{ outcome: "uploaded" | "skipped" | "failed" | "quota"; error?: string }> {
   try {
     const response = await fetch("/api/tts", {
       method: "POST",
@@ -34,21 +55,24 @@ async function syncOneSentence(request: {
     });
 
     if (response.status === 429) {
-      return "quota";
-    }
-
-    if (response.status === 503) {
-      return "failed";
+      return { outcome: "quota" };
     }
 
     if (!response.ok) {
-      return "failed";
+      const body = await response.text().catch(() => "");
+      return {
+        outcome: "failed",
+        error: `${response.status} ${body.slice(0, 180)}`.trim(),
+      };
     }
 
     const cached = response.headers.get("X-Audio-Cached") === "true";
-    return cached ? "skipped" : "uploaded";
-  } catch {
-    return "failed";
+    return { outcome: cached ? "skipped" : "uploaded" };
+  } catch (e) {
+    return {
+      outcome: "failed",
+      error: e instanceof Error ? e.message : "network error",
+    };
   }
 }
 
@@ -68,9 +92,12 @@ export async function syncAudioToCloud(
     return result;
   }
 
-  const targets = [...getAllSentences(dataset).values()].filter(
-    (s) => isTranslated(s) && Boolean(getSpokenScript(s, { dialect }))
-  );
+  const targets = [...getAllSentences(dataset).values()].filter((s) => {
+    if (!isTranslated(s)) return false;
+    return Boolean(
+      getSpokenScript(spokenFieldsFromSentence(s), { dialect })
+    );
+  });
   result.total = targets.length;
 
   if (targets.length === 0) {
@@ -96,16 +123,21 @@ export async function syncAudioToCloud(
         indeterminate: false,
       });
 
-      const outcome = await syncOneSentence({
+      const { outcome, error } = await syncOneSentence({
         sentenceId: sentence.id,
         japanese,
         reading: sentence.reading,
         phonetic_reading: sentence.phonetic_reading,
+        placeholders: sentence.placeholders,
         dialect,
+        speaker: sentence.speaker === "B" ? "B" : "A",
         register: sentence.register,
         tags: sentence.tags,
         context_notes: sentence.context_notes,
         english: sentence.english,
+        ...(sentence.narrationAudio?.fishAudio
+          ? { fishAudio: sentence.narrationAudio.fishAudio }
+          : {}),
       });
       completed++;
 
@@ -114,7 +146,12 @@ export async function syncAudioToCloud(
       else if (outcome === "quota") {
         result.quotaExceeded = true;
         quotaHit = true;
-      } else result.failed++;
+      } else {
+        result.failed++;
+        if (!result.firstError && error) {
+          result.firstError = error;
+        }
+      }
 
       setUploadProgress({
         active: true,

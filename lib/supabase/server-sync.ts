@@ -7,18 +7,41 @@ import { createAdminClient } from "@/lib/supabase/admin";
 export async function pushRemoteDataAdmin(
   userId: string,
   table: SyncTable,
-  payload: unknown
-): Promise<{ ok: boolean; error?: string }> {
+  payload: unknown,
+  options?: { expectedRevision?: number | null }
+): Promise<{ ok: boolean; error?: string; conflict?: boolean; revision?: number }> {
   const supabase = createAdminClient();
   if (!supabase) {
     return { ok: false, error: "Supabase admin client is not configured" };
   }
 
   const now = new Date().toISOString();
+  const { data: existing } = await supabase
+    .from(table)
+    .select("revision, updated_at")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  const currentRevision = Number(existing?.revision ?? 0);
+  if (
+    options?.expectedRevision != null &&
+    existing &&
+    currentRevision !== options.expectedRevision
+  ) {
+    return {
+      ok: false,
+      conflict: true,
+      revision: currentRevision,
+      error: `Revision conflict (expected ${options.expectedRevision}, found ${currentRevision})`,
+    };
+  }
+
+  const nextRevision = currentRevision + 1;
   const row: Record<string, unknown> = {
     user_id: userId,
     data: payload,
     updated_at: now,
+    revision: nextRevision,
   };
 
   if (table === "user_datasets") {
@@ -30,7 +53,7 @@ export async function pushRemoteDataAdmin(
     console.warn(`Supabase push failed (${table}):`, error.message);
     return { ok: false, error: error.message };
   }
-  return { ok: true };
+  return { ok: true, revision: nextRevision };
 }
 
 export async function checkSyncTablesReady(): Promise<{ ready: boolean; error?: string }> {
@@ -54,48 +77,60 @@ export async function checkSyncTablesReady(): Promise<{ ready: boolean; error?: 
 
 export async function fetchRemoteDatasetAdmin(
   userId: string
-): Promise<{ data: Dataset; updatedAt: string } | null> {
+): Promise<{ data: Dataset; updatedAt: string; revision: number } | null> {
   const supabase = createAdminClient();
   if (!supabase) return null;
 
   const { data, error } = await supabase
     .from("user_datasets")
-    .select("data, updated_at")
+    .select("data, updated_at, revision")
     .eq("user_id", userId)
     .maybeSingle();
 
   if (error || !data) return null;
-  return { data: data.data as Dataset, updatedAt: data.updated_at };
+  return {
+    data: data.data as Dataset,
+    updatedAt: data.updated_at,
+    revision: Number(data.revision ?? 1),
+  };
 }
 
 export async function fetchRemoteProgressAdmin(
   userId: string
-): Promise<{ data: UserProgress; updatedAt: string } | null> {
+): Promise<{ data: UserProgress; updatedAt: string; revision: number } | null> {
   const supabase = createAdminClient();
   if (!supabase) return null;
 
   const { data, error } = await supabase
     .from("user_progress")
-    .select("data, updated_at")
+    .select("data, updated_at, revision")
     .eq("user_id", userId)
     .maybeSingle();
 
   if (error || !data) return null;
-  return { data: data.data as UserProgress, updatedAt: data.updated_at };
+  return {
+    data: data.data as UserProgress,
+    updatedAt: data.updated_at,
+    revision: Number(data.revision ?? 1),
+  };
 }
 
 export async function fetchRemoteStatsAdmin(
   userId: string
-): Promise<{ data: AppStats; updatedAt: string } | null> {
+): Promise<{ data: AppStats; updatedAt: string; revision: number } | null> {
   const supabase = createAdminClient();
   if (!supabase) return null;
 
   const { data, error } = await supabase
     .from("user_stats")
-    .select("data, updated_at")
+    .select("data, updated_at, revision")
     .eq("user_id", userId)
     .maybeSingle();
 
   if (error || !data) return null;
-  return { data: data.data as AppStats, updatedAt: data.updated_at };
+  return {
+    data: data.data as AppStats,
+    updatedAt: data.updated_at,
+    revision: Number(data.revision ?? 1),
+  };
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Download, Upload, Cloud, BookOpen, RefreshCw, SlidersHorizontal } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -16,6 +16,7 @@ import { SyncIndicator } from "@/components/ui/sync-indicator";
 import { AccountCard } from "@/components/auth/account-card";
 import { AskButton } from "@/components/ai/ask-button";
 import { OnboardingReplaySection } from "@/components/settings/onboarding-replay-section";
+import { SettingsOfflineAudioCard } from "@/components/offline/offline-audio-controls";
 import { exportDataset } from "@/lib/db/dataset-repository";
 import { fetchCloudSession } from "@/lib/sync/cloud-api";
 import type { ManualSyncResult } from "@/lib/sync/sync-service";
@@ -28,12 +29,17 @@ import {
   EXPORT_FILENAME,
 } from "@/lib/constants/branding";
 import { summarizePreferences } from "@/lib/preferences/preferences-summary";
+import { getPrimaryTranslation } from "@/lib/preferences/translation-preferences";
+import { getAllSentences } from "@/lib/validation/dataset-schema";
+import { isTranslated } from "@/lib/sentence-utils";
 import { toast } from "sonner";
 
 function formatManualSyncToast(result: ManualSyncResult) {
   if (!result.supabaseOk) {
     return result.message ?? "Cloud sync failed";
   }
+
+  if (result.message) return result.message;
 
   const parts = ["Synced library, progress, and stats"];
   if (result.audio.total > 0) {
@@ -43,7 +49,11 @@ function formatManualSyncToast(result: ManualSyncResult) {
     if (result.audio.quotaExceeded) {
       parts.push("TTS credits exhausted — tap Sync again later for remaining audio");
     } else if (result.audio.failed > 0) {
-      parts.push(`${result.audio.failed} audio files failed`);
+      parts.push(
+        result.audio.firstError
+          ? `${result.audio.failed} audio files failed (${result.audio.firstError})`
+          : `${result.audio.failed} audio files failed`
+      );
     }
   }
   return parts.join(". ");
@@ -52,6 +62,7 @@ function formatManualSyncToast(result: ManualSyncResult) {
 export function SettingsScreenMobile() {
   const { data: session } = useSession();
   const {
+    dataset,
     progress,
     setProgress,
     syncStatus,
@@ -63,6 +74,13 @@ export function SettingsScreenMobile() {
   const [tablesError, setTablesError] = useState<string | null>(null);
   const [syncing, setSyncing] = useState(false);
   const batchSize = progress.settings.batchSize;
+  const dialect = getPrimaryTranslation(progress.settings);
+  const translatedIds = useMemo(() => {
+    if (!dataset) return [];
+    return [...getAllSentences(dataset).values()]
+      .filter(isTranslated)
+      .map((s) => s.id);
+  }, [dataset]);
 
   useEffect(() => {
     void fetchCloudSession().then((cloud) => {
@@ -173,6 +191,10 @@ export function SettingsScreenMobile() {
         {isAuthenticated && tablesError && (
           <p className="mt-2 text-xs text-muted">{tablesError}</p>
         )}
+      </Card>
+
+      <Card className="mb-6 p-4">
+        <SettingsOfflineAudioCard sentenceIds={translatedIds} dialect={dialect} />
       </Card>
 
       <section className="mb-6">

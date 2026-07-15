@@ -1,0 +1,280 @@
+import type { Dialect } from "@/lib/constants/dialect";
+import type { AudioManifestItem } from "@/types/audio-manifest";
+import {
+  deleteOfflineAsset,
+  deleteOfflinePackage,
+  estimateOfflineStorageBytes,
+  getOfflinePackage,
+  listOfflineAssets,
+  listOfflinePackages,
+  saveOfflineAsset,
+  saveOfflinePackage,
+} from "@/lib/db/offline-audio-repository";
+import type { DownloadProgress, OfflinePackageRecord } from "@/types/offline-audio";
+
+const ALL_PACKAGE_ID = "__all__";
+
+type ProgressListener = (progress: DownloadProgress | null) => void;
+
+let progress: DownloadProgress | null = null;
+const listeners = new Set<ProgressListener>();
+const abortControllers = new Map<string, AbortController>();
+
+function setProgress(next: DownloadProgress | null) {
+  progress = next;
+  listeners.forEach((l) => l(progress));
+}
+
+export function onDownloadProgress(listener: ProgressListener) {
+  listeners.add(listener);
+  listener(progress);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
+export function getDownloadProgress() {
+  return progress;
+}
+
+async function fetchManifest(
+  sentenceIds: string[],
+  dialect: Dialect
+): Promise<{ items: AudioManifestItem[]; totalBytes: number }> {
+  const chunks: string[][] = [];
+  for (let i = 0; i < sentenceIds.length; i += 200) {
+    chunks.push(sentenceIds.slice(i, i + 200));
+  }
+
+  const items: AudioManifestItem[] = [];
+  let totalBytes = 0;
+  for (const chunk of chunks) {
+    const params = new URLSearchParams({
+      sentenceIds: chunk.join(","),
+      dialect,
+      sign: "1",
+    });
+    const res = await fetch(`/api/audio/manifest?${params}`, {
+      credentials: "include",
+    });
+    if (!res.ok) {
+      throw new Error("Failed to load audio manifest");
+    }
+    const data = (await res.json()) as {
+      items: AudioManifestItem[];
+      totalBytes: number;
+    };
+    items.push(...(data.items ?? []));
+    totalBytes += data.totalBytes ?? 0;
+  }
+  return { items, totalBytes };
+}
+
+async function downloadAssetBlob(
+  item: AudioManifestItem,
+  signal: AbortSignal
+): Promise<Blob> {
+  const url = item.url ?? item.streamPath;
+  const res = await fetch(url, { signal, credentials: "include" });
+  if (!res.ok) throw new Error(`Download failed (${res.status})`);
+  return res.blob();
+}
+
+async function persistPackageDownloads(input: {
+  packageId: string;
+  islandKey: string | null;
+  label: string;
+  dialect: Dialect;
+  sentenceIds: string[];
+  signal: AbortController;
+}): Promise<OfflinePackageRecord> {
+  const { items } = await fetchManifest(input.sentenceIds, input.dialect);
+  let completed = 0;
+  const textHashes: string[] = [];
+  let totalBytes = 0;
+
+  setProgress({
+    active: true,
+    label: `Downloading ${input.label}`,
+    completed: 0,
+    total: items.length,
+    packageId: input.packageId,
+  });
+
+  for (const item of items) {
+    if (input.signal.signal.aborted) throw new Error("Download cancelled");
+
+    const blob = await downloadAssetBlob(item, input.signal.signal);
+    const islandKeys = input.islandKey ? [input.islandKey] : ["__all__"];
+    await saveOfflineAsset({
+      textHash: item.textHash,
+      sentenceId: item.sentenceId,
+      dialect: item.dialect,
+      speaker: item.speaker,
+      byteSize: item.byteSize ?? blob.size,
+      blob,
+      r2Key: item.r2Key,
+      createdAt: new Date().toISOString(),
+      islandKeys,
+    });
+    textHashes.push(item.textHash);
+    totalBytes += item.byteSize ?? blob.size;
+    completed++;
+    setProgress({
+      active: true,
+      label: `Downloading ${input.label}`,
+      completed,
+      total: items.length,
+      packageId: input.packageId,
+    });
+  }
+
+  const record: OfflinePackageRecord = {
+    id: input.packageId,
+    islandKey: input.islandKey,
+    label: input.label,
+    dialect: input.dialect,
+    textHashes,
+    totalBytes,
+    status: items.length === 0 ? "error" : "ready",
+    updatedAt: new Date().toISOString(),
+    lastError:
+      items.length === 0
+        ? "No ready audio assets yet — wait for cloud generation"
+        : undefined,
+  };
+  await saveOfflinePackage(record);
+  return record;
+}
+
+export async function downloadIslandPackage(input: {
+  islandKey: string;
+  label: string;
+  sentenceIds: string[];
+  dialect: Dialect;
+}): Promise<OfflinePackageRecord> {
+  const existing = abortControllers.get(input.islandKey);
+  existing?.abort();
+  const controller = new AbortController();
+  abortControllers.set(input.islandKey, controller);
+
+  try {
+    if (typeof navigator !== "undefined" && "storage" in navigator) {
+      try {
+        await navigator.storage.persist?.();
+      } catch {
+        // ignore
+      }
+    }
+
+    return await persistPackageDownloads({
+      packageId: input.islandKey,
+      islandKey: input.islandKey,
+      label: input.label,
+      dialect: input.dialect,
+      sentenceIds: input.sentenceIds,
+      signal: controller,
+    });
+  } finally {
+    abortControllers.delete(input.islandKey);
+    setProgress(null);
+  }
+}
+
+export async function downloadAllPackages(input: {
+  sentenceIds: string[];
+  dialect: Dialect;
+  label?: string;
+}): Promise<OfflinePackageRecord> {
+  const existing = abortControllers.get(ALL_PACKAGE_ID);
+  existing?.abort();
+  const controller = new AbortController();
+  abortControllers.set(ALL_PACKAGE_ID, controller);
+
+  try {
+    if (typeof navigator !== "undefined" && "storage" in navigator) {
+      try {
+        await navigator.storage.persist?.();
+      } catch {
+        // ignore
+      }
+    }
+
+    return await persistPackageDownloads({
+      packageId: ALL_PACKAGE_ID,
+      islandKey: null,
+      label: input.label ?? "All audio",
+      dialect: input.dialect,
+      sentenceIds: input.sentenceIds,
+      signal: controller,
+    });
+  } finally {
+    abortControllers.delete(ALL_PACKAGE_ID);
+    setProgress(null);
+  }
+}
+
+export function cancelDownload(packageId: string) {
+  abortControllers.get(packageId)?.abort();
+}
+
+export async function removeIslandPackage(islandKey: string): Promise<void> {
+  const pkg = await getOfflinePackage(islandKey);
+  if (!pkg) return;
+
+  const assets = await listOfflineAssets();
+  for (const hash of pkg.textHashes) {
+    const asset = assets.find((a) => a.textHash === hash);
+    if (!asset) continue;
+    const remaining = asset.islandKeys.filter((k) => k !== islandKey);
+    if (remaining.length === 0) {
+      // Keep if referenced by __all__ package
+      const allPkg = await getOfflinePackage(ALL_PACKAGE_ID);
+      if (allPkg?.textHashes.includes(hash)) {
+        await saveOfflineAsset(
+          { ...asset, islandKeys: ["__all__"] },
+          { mergeIslandKeys: false }
+        );
+      } else {
+        await deleteOfflineAsset(hash);
+      }
+    } else {
+      await saveOfflineAsset(
+        { ...asset, islandKeys: remaining },
+        { mergeIslandKeys: false }
+      );
+    }
+  }
+
+  await deleteOfflinePackage(islandKey);
+}
+
+export async function removeAllPackages(): Promise<void> {
+  const packages = await listOfflinePackages();
+  for (const pkg of packages) {
+    await deleteOfflinePackage(pkg.id);
+  }
+  const assets = await listOfflineAssets();
+  for (const asset of assets) {
+    await deleteOfflineAsset(asset.textHash);
+  }
+}
+
+export async function getOfflineInventory() {
+  const [packages, bytes] = await Promise.all([
+    listOfflinePackages(),
+    estimateOfflineStorageBytes(),
+  ]);
+  return { packages, totalBytes: bytes };
+}
+
+export async function isIslandDownloaded(islandKey: string): Promise<boolean> {
+  const pkg = await getOfflinePackage(islandKey);
+  return pkg?.status === "ready" && pkg.textHashes.length > 0;
+}
+
+export function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}

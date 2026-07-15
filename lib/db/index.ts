@@ -3,6 +3,7 @@ import type { Dataset } from "@/types/sentence";
 import type { UserProgress } from "@/types/progress";
 import type { AppStats } from "@/types/stats";
 import type { AudioCacheEntry } from "@/types/audio";
+import type { OfflineAudioAsset, OfflinePackageRecord } from "@/types/offline-audio";
 import type { SyncQueueItem } from "@/lib/repositories/types";
 
 interface LanguageDB extends DBSchema {
@@ -22,6 +23,15 @@ interface LanguageDB extends DBSchema {
     key: string;
     value: AudioCacheEntry;
   };
+  /** Online-first offline packages: assets keyed by server textHash. */
+  audioAssets: {
+    key: string;
+    value: OfflineAudioAsset;
+  };
+  offlinePackages: {
+    key: string;
+    value: OfflinePackageRecord;
+  };
   syncQueue: {
     key: string;
     value: SyncQueueItem;
@@ -33,7 +43,7 @@ interface LanguageDB extends DBSchema {
 }
 
 const DB_NAME = "japanese-learning";
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 
 let dbPromise: Promise<IDBPDatabase<LanguageDB>> | null = null;
 
@@ -59,6 +69,14 @@ export function getDB() {
           }
           if (!db.objectStoreNames.contains("meta")) {
             db.createObjectStore("meta");
+          }
+        }
+        if (oldVersion < 3) {
+          if (!db.objectStoreNames.contains("audioAssets")) {
+            db.createObjectStore("audioAssets");
+          }
+          if (!db.objectStoreNames.contains("offlinePackages")) {
+            db.createObjectStore("offlinePackages");
           }
         }
       },

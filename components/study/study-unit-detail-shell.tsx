@@ -25,6 +25,7 @@ import { getSentencesForStudyUnit, touchStudyUnit } from "@/lib/services/study-u
 import { DecoratedStudySurface } from "@/components/study/decorated-study-surface";
 import { StickyPlayerBar } from "@/components/study/sticky-player-bar";
 import { PlaylistDialectDialog } from "@/components/study/playlist-dialect-dialog";
+import { IslandOfflineControls } from "@/components/offline/offline-audio-controls";
 import { PATHWAY_THEME_KANJI } from "@/lib/services/study-unit-kanji-service";
 import type { Dialect } from "@/lib/constants/dialect";
 import { getPrimaryTranslation } from "@/lib/preferences/translation-preferences";
@@ -281,6 +282,16 @@ export function StudyUnitDetailShell({
           {sentences.length} sentences
           {isNarration ? ` · 2 speakers · ${narratorLabels}` : ""}
         </p>
+        {islandKey && (
+          <div className="mt-3">
+            <IslandOfflineControls
+              islandKey={islandKey}
+              label={title}
+              sentenceIds={sentences.map((s) => s.id)}
+              dialect={getPrimaryTranslation(progress.settings)}
+            />
+          </div>
+        )}
       </DecoratedStudySurface>
 
       {!isNarration && (

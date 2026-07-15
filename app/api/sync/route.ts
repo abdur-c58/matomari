@@ -11,6 +11,7 @@ import {
 type PushItem = {
   table: SyncTable;
   payload: unknown;
+  expectedRevision?: number | null;
 };
 
 export async function GET(request: Request) {
@@ -56,12 +57,21 @@ export async function POST(request: Request) {
   const results: Array<{ table: SyncTable; ok: boolean; error?: string }> = [];
   let lastError: string | undefined;
 
+  let conflict = false;
   for (const item of items) {
-    const result = await pushRemoteDataAdmin(userId, item.table, item.payload);
+    const result = await pushRemoteDataAdmin(userId, item.table, item.payload, {
+      expectedRevision: item.expectedRevision,
+    });
     results.push({ table: item.table, ok: result.ok, error: result.error });
-    if (!result.ok) lastError = result.error;
+    if (!result.ok) {
+      lastError = result.error;
+      if (result.conflict) conflict = true;
+    }
   }
 
   const ok = results.every((result) => result.ok);
-  return NextResponse.json({ ok, results, error: lastError }, { status: ok ? 200 : 502 });
+  return NextResponse.json(
+    { ok, results, error: lastError, conflict },
+    { status: ok ? 200 : conflict ? 409 : 502 }
+  );
 }

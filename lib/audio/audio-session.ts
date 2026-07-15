@@ -5,9 +5,14 @@ import type { Dialect } from "@/lib/constants/dialect";
 import type { FishAudioDirectives } from "@/lib/audio/fish-audio-cues";
 import type { NarrationSpeaker, SentencePlaceholder } from "@/types/sentence";
 import { getCachedAudio, saveCachedAudio, deleteCachedAudio } from "@/lib/db/audio-cache-repository";
+import {
+  getOfflineAsset,
+  getOfflineAssetBySentenceId,
+} from "@/lib/db/offline-audio-repository";
 import { getTextHashAsync } from "@/lib/audio/hash";
 import { getSpokenScriptFromFields, type TtsScriptSource } from "@/lib/audio/tts-text";
 import { stripTtsMarkup } from "@/lib/audio/tts-prosody";
+import { ONLINE_FIRST_ENABLED } from "@/lib/constants/online-first";
 import {
   bindMediaSessionActions,
   clearMediaSession,
@@ -66,6 +71,7 @@ export class AudioSessionManager {
   private _albumTitle?: string;
   private _singleAlbumTitle?: string;
   private mediaSessionBound = false;
+  private objectUrlToRevoke: string | null = null;
 
   // ─── Legacy single-listener compat ─────────────────────────────────────────
 
@@ -395,7 +401,24 @@ export class AudioSessionManager {
     });
   }
 
-  async fetchAudioBlob(request: TtsRequest): Promise<Blob> {
+  private revokeObjectUrl() {
+    if (this.objectUrlToRevoke) {
+      try {
+        URL.revokeObjectURL(this.objectUrlToRevoke);
+      } catch {
+        // ignore
+      }
+      this.objectUrlToRevoke = null;
+    }
+  }
+
+  /**
+   * Online-first: local offline package → signed stream URL → legacy TTS POST.
+   * Returns either a Blob (local/legacy) or a remote stream URL string.
+   */
+  async resolvePlaybackSource(
+    request: TtsRequest
+  ): Promise<{ kind: "blob"; blob: Blob } | { kind: "url"; url: string }> {
     const dialect = request.dialect ?? "standard";
     const speaker = request.speaker === "B" ? "B" : "A";
     const spokenText = this.resolveSpokenText(request);
@@ -412,18 +435,31 @@ export class AudioSessionManager {
     const force = request.forceRegenerate === true;
 
     if (!force) {
+      const offline =
+        (await getOfflineAsset(textHash)) ??
+        (await getOfflineAssetBySentenceId(request.sentenceId));
+      if (offline?.blob) {
+        return { kind: "blob", blob: offline.blob };
+      }
+
       const cached = await getCachedAudio(request.sentenceId);
       if (cached && cached.textHash === textHash) {
-        return cached.blob;
+        return { kind: "blob", blob: cached.blob };
       }
     } else {
       await deleteCachedAudio(request.sentenceId);
     }
 
     if (typeof navigator !== "undefined" && !navigator.onLine) {
-      throw new Error("Audio not cached for offline playback");
+      throw new Error("Audio not downloaded for offline playback");
     }
 
+    if (ONLINE_FIRST_ENABLED) {
+      const source = await this.resolveCloudStream(request, spokenText);
+      if (source) return source;
+    }
+
+    // Legacy path: full POST /api/tts (also used when online-first resolve is unavailable)
     const response = await fetch("/api/tts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -451,23 +487,97 @@ export class AudioSessionManager {
         throw new Error("This sentence needs a kana reading. Try retranslating it.");
       }
       if (response.status === 503) {
-        return this.synthesizeWithWebSpeech(spokenText);
+        return {
+          kind: "blob",
+          blob: await this.synthesizeWithWebSpeech(spokenText),
+        };
       }
       throw new Error("Failed to fetch audio");
     }
 
     const blob = await response.blob();
     const serverHash = response.headers.get("X-Audio-Hash");
-    const cacheHash =
-      serverHash ??
-      (await getTextHashAsync(request.sentenceId, spokenText, dialect, speaker));
+    const cacheHash = serverHash ?? textHash;
     await saveCachedAudio({
       sentenceId: request.sentenceId,
       textHash: cacheHash,
       blob,
       createdAt: new Date().toISOString(),
+      dialect,
+      speaker,
+      byteSize: blob.size,
     });
-    return blob;
+    return { kind: "blob", blob };
+  }
+
+  private async resolveCloudStream(
+    request: TtsRequest,
+    spokenText: string
+  ): Promise<{ kind: "url"; url: string } | null> {
+    const dialect = request.dialect ?? "standard";
+    const speaker = request.speaker === "B" ? "B" : "A";
+
+    for (let attempt = 0; attempt < 4; attempt++) {
+      const response = await fetch("/api/audio/resolve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          sentenceId: request.sentenceId,
+          japanese: request.japanese,
+          reading: request.reading,
+          phonetic_reading: request.phonetic_reading,
+          placeholders: request.placeholders,
+          learnerName: request.learnerName,
+          dialect,
+          speaker,
+          register: request.register,
+          tags: request.tags,
+          context_notes: request.context_notes,
+          english: request.english,
+          fishAudio: request.fishAudio,
+        }),
+      });
+
+      if (response.status === 401 || response.status === 422) {
+        return null;
+      }
+
+      if (!response.ok) {
+        if (attempt === 3) return null;
+        await new Promise((r) => setTimeout(r, 700 * (attempt + 1)));
+        continue;
+      }
+
+      const data = (await response.json()) as {
+        status: string;
+        url?: string;
+        streamPath?: string;
+        message?: string;
+      };
+
+      if (data.status === "ready" && (data.url || data.streamPath)) {
+        return { kind: "url", url: data.url || data.streamPath! };
+      }
+
+      if (data.status === "queued") {
+        await new Promise((r) => setTimeout(r, 900 * (attempt + 1)));
+        continue;
+      }
+      break;
+    }
+
+    void spokenText;
+    return null;
+  }
+
+  /** @deprecated Prefer resolvePlaybackSource — kept for callers expecting blobs. */
+  async fetchAudioBlob(request: TtsRequest): Promise<Blob> {
+    const source = await this.resolvePlaybackSource(request);
+    if (source.kind === "blob") return source.blob;
+    const res = await fetch(source.url, { credentials: "include" });
+    if (!res.ok) throw new Error("Failed to fetch streamed audio");
+    return res.blob();
   }
 
   private synthesizeWithWebSpeech(spokenText: string): Promise<Blob> {
@@ -515,16 +625,22 @@ export class AudioSessionManager {
     this.updateMediaSessionForRequest(request);
     try {
       const audio = this.ensureAudio();
-      const blob = await this.fetchAudioBlob(request);
+      this.revokeObjectUrl();
+      const source = await this.resolvePlaybackSource(request);
 
-      if (blob.size === 0) {
-        await this.speakWebSpeech(spokenText);
-        this.setState("ready");
-        return;
+      if (source.kind === "blob") {
+        if (source.blob.size === 0) {
+          await this.speakWebSpeech(spokenText);
+          this.setState("ready");
+          return;
+        }
+        const url = URL.createObjectURL(source.blob);
+        this.objectUrlToRevoke = url;
+        audio.src = url;
+      } else {
+        audio.src = source.url;
       }
 
-      const url = URL.createObjectURL(blob);
-      audio.src = url;
       audio.loop = this.loopEnabled;
       audio.playbackRate = this._playbackRate;
       await audio.play();
@@ -533,7 +649,14 @@ export class AudioSessionManager {
         await this.speakWebSpeech(spokenText);
         this.setState("ready");
       } catch {
-        this.setState("error", e instanceof Error ? e.message : "Playback error");
+        this.setState(
+          "error",
+          e instanceof Error
+            ? e.message
+            : ONLINE_FIRST_ENABLED
+              ? "Audio is still being prepared. Try again shortly."
+              : "Playback error"
+        );
       }
     }
   }

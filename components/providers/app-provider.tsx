@@ -200,10 +200,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setSyncStatusMessage("No internet connection");
       }
 
-      const local = await loadLocalSnapshot();
-      await applyLocalSnapshot(local);
-
+      // Online-first: pull cloud before applying local when online.
       if (!isBrowserOnline()) {
+        const local = await loadLocalSnapshot();
+        await applyLocalSnapshot(local);
         return;
       }
 
@@ -212,6 +212,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
 
       await pullSharedTranslationsIntoLibrary();
+      const local = await loadLocalSnapshot();
+      await applyLocalSnapshot(local);
 
       const d = await getDatasetSynced();
       let p = await getProgressSynced();

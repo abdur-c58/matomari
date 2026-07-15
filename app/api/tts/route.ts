@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
+import { auth } from "@/auth";
 import { parseFishAudioDirectives } from "@/lib/audio/fish-audio-cues";
 import { generateServerAudio } from "@/lib/audio/generate-audio";
 import { getSpokenScriptFromFields } from "@/lib/audio/tts-text";
 import { TtsQuotaError } from "@/lib/audio/tts-errors";
+import { ONLINE_FIRST_ENABLED } from "@/lib/constants/online-first";
 import type { Dialect } from "@/lib/constants/dialect";
 import type {
   NarrationSpeaker,
@@ -12,6 +14,13 @@ import type {
 
 export async function POST(request: Request) {
   try {
+    if (ONLINE_FIRST_ENABLED) {
+      const session = await auth();
+      if (!session?.user?.supabaseUserId) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
+    }
+
     const body = await request.json();
     const {
       sentenceId,
