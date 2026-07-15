@@ -14,7 +14,7 @@ import type { Dialect } from "@/lib/constants/dialect";
 import type { NarrationSpeaker } from "@/types/sentence";
 
 /** Bumped when switching TTS engine/settings so cached audio regenerates. */
-const STANDARD_TTS_CACHE_VERSION = "fish-s21-free-v1";
+const STANDARD_TTS_CACHE_VERSION = "fish-s21-free-v2-narration-cues";
 
 export interface FishAudioSettings {
   temperature: number;

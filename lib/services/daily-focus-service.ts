@@ -4,6 +4,7 @@ import {
   clampBatchSize,
   getBatchStarterCandidateIds,
   getInProgressActiveIdsForSource,
+  isFormalStudyEligibleIsland,
 } from "@/lib/services/batch-service";
 import {
   parseStudyUnitKey,
@@ -15,29 +16,44 @@ import {
 export const DEFAULT_STUDY_ISLAND_KEY = "premade_300_language_essentials";
 export const DEFAULT_STUDY_ISLAND_TITLE = "300 Language Essentials";
 
-export function getMostRecentStudyUnit(progress: UserProgress): StudyUnitRef | null {
+export function getMostRecentStudyUnit(
+  dataset: Dataset,
+  progress: UserProgress
+): StudyUnitRef | null {
   const entries = Object.entries(progress.studyUnitLastOpened ?? {});
   if (entries.length === 0) return null;
 
   entries.sort(([, a], [, b]) => new Date(b).getTime() - new Date(a).getTime());
   for (const [key] of entries) {
     const ref = parseStudyUnitKey(key);
-    if (ref?.kind === "island") return ref;
+    if (
+      ref?.kind === "island" &&
+      isFormalStudyEligibleIsland(dataset, ref.key)
+    ) {
+      return ref;
+    }
   }
   return null;
 }
 
 export function getDefaultStudyIslandKey(dataset: Dataset): string | null {
-  if (dataset.islands[DEFAULT_STUDY_ISLAND_KEY]) {
+  if (isFormalStudyEligibleIsland(dataset, DEFAULT_STUDY_ISLAND_KEY)) {
     return DEFAULT_STUDY_ISLAND_KEY;
   }
 
   for (const [key, island] of Object.entries(dataset.islands)) {
-    if (island.title?.trim() === DEFAULT_STUDY_ISLAND_TITLE) return key;
+    if (
+      island.title?.trim() === DEFAULT_STUDY_ISLAND_TITLE &&
+      isFormalStudyEligibleIsland(dataset, key)
+    ) {
+      return key;
+    }
   }
 
-  const keys = Object.keys(dataset.islands);
-  return keys[0] ?? null;
+  for (const key of Object.keys(dataset.islands)) {
+    if (isFormalStudyEligibleIsland(dataset, key)) return key;
+  }
+  return null;
 }
 
 function synthesizeConfigFromSource(
@@ -75,7 +91,7 @@ function buildIslandBatchConfig(
   progress: UserProgress,
   islandKey: string
 ): BatchConfig | null {
-  if (!dataset.islands[islandKey]) return null;
+  if (!isFormalStudyEligibleIsland(dataset, islandKey)) return null;
 
   const base = {
     sourceType: "island" as const,
@@ -107,7 +123,7 @@ function isUsableIslandConfig(
     config &&
       config.sourceType === "island" &&
       config.islandKey &&
-      dataset.islands[config.islandKey]
+      isFormalStudyEligibleIsland(dataset, config.islandKey)
   );
 }
 
@@ -128,7 +144,7 @@ export function resolveDailyBatchConfig(
     return buildIslandBatchConfig(dataset, progress, progress.batchConfig.islandKey!);
   }
 
-  const recent = getMostRecentStudyUnit(progress);
+  const recent = getMostRecentStudyUnit(dataset, progress);
   if (recent?.kind === "island") {
     const recentConfig = buildIslandBatchConfig(dataset, progress, recent.key);
     if (recentConfig && recentConfig.activeSentenceIds.length > 0) {

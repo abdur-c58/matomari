@@ -67,9 +67,25 @@ function main() {
     const sentences: Sentence[] = [];
     for (const s of island.sentences) {
       const newEnglish = edits.get(s.id);
-      const sentence: Sentence = newEnglish
+      let sentence: Sentence = newEnglish
         ? { ...s, id: sentenceIdFromEnglish(newEnglish), english: newEnglish }
-        : s;
+        : { ...s };
+      if (sentence.english.includes("[name]")) {
+        const hasName = sentence.placeholders?.some((p) => p.tag === "name");
+        if (!hasName) {
+          sentence = {
+            ...sentence,
+            placeholders: [
+              ...(sentence.placeholders ?? []),
+              {
+                tag: "name",
+                resolveAs: "learner",
+                readingSubstitute: "なまえ",
+              },
+            ],
+          };
+        }
+      }
       if (seen.has(sentence.id)) continue;
       seen.add(sentence.id);
       sentences.push(sentence);

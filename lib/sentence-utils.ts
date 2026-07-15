@@ -1,3 +1,4 @@
+import { parseNarrationAudioDirectives } from "@/lib/audio/fish-audio-cues";
 import { normalizeLegacyUnderscores } from "@/lib/sentence/placeholders";
 import type { Register, SeedSentence, Sentence, SentencePlaceholder, TranslatedFields } from "@/types/sentence";
 
@@ -22,6 +23,7 @@ export function toSeedPayload(s: Sentence): SeedSentence {
     context_notes: s.context_notes,
     translated: s.translated,
     ...(s.speaker ? { speaker: s.speaker } : {}),
+    ...(s.narrationAudio ? { narrationAudio: s.narrationAudio } : {}),
   };
 }
 
@@ -53,6 +55,16 @@ export function normalizeLegacySentence(raw: unknown): Sentence {
     sentence.speaker = s.speaker;
   }
 
+  const narrationAudio = parseNarrationAudioDirectives(s.narrationAudio);
+  if (narrationAudio) {
+    sentence.narrationAudio = narrationAudio;
+  }
+
+  // Seed/catalog may attach placeholders before japanese exists (e.g. [name] English).
+  if (Array.isArray(s.placeholders)) {
+    sentence.placeholders = s.placeholders as SentencePlaceholder[];
+  }
+
   if (hasJapanese) {
     sentence.japanese = japanese!;
     sentence.reading = typeof s.reading === "string" ? s.reading : japanese!;
@@ -64,9 +76,6 @@ export function normalizeLegacySentence(raw: unknown): Sentence {
     if (literalNote) sentence.literal_note = literalNote;
     if (typeof s.phonetic_reading === "string") {
       sentence.phonetic_reading = s.phonetic_reading;
-    }
-    if (Array.isArray(s.placeholders)) {
-      sentence.placeholders = s.placeholders as SentencePlaceholder[];
     }
   }
 

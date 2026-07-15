@@ -2,6 +2,7 @@
 
 import type { AudioSessionState } from "@/types/audio";
 import type { Dialect } from "@/lib/constants/dialect";
+import type { FishAudioDirectives } from "@/lib/audio/fish-audio-cues";
 import type { NarrationSpeaker, SentencePlaceholder } from "@/types/sentence";
 import { getCachedAudio, saveCachedAudio, deleteCachedAudio } from "@/lib/db/audio-cache-repository";
 import { getTextHashAsync } from "@/lib/audio/hash";
@@ -29,6 +30,10 @@ export interface TtsRequest {
   tags?: string[];
   context_notes?: string;
   english?: string;
+  /** Authored Fish cues — compiled into spoken script only. */
+  fishAudio?: FishAudioDirectives;
+  /** Per-turn playlist wait after this item (narration). */
+  pauseAfterMs?: number;
   /** Default surface (kanji sentence). Use "reading" for kana-only fallback. */
   ttsSource?: TtsScriptSource;
   forceRegenerate?: boolean;
@@ -386,6 +391,7 @@ export class AudioSessionManager {
       dialect: request.dialect ?? "standard",
       learnerName: request.learnerName,
       ttsSource: request.ttsSource ?? "surface",
+      fishAudio: request.fishAudio,
     });
   }
 
@@ -434,6 +440,7 @@ export class AudioSessionManager {
         tags: request.tags,
         context_notes: request.context_notes,
         english: request.english,
+        fishAudio: request.fishAudio,
         ttsSource: request.ttsSource ?? "surface",
         force: force,
       }),
@@ -624,7 +631,12 @@ export class AudioSessionManager {
       if (shadowPauseMs > 0) {
         await this.delay(shadowPauseMs, abort.signal);
       } else {
-        await this.delay(pauseMs, abort.signal);
+        const itemPause = items[i].pauseAfterMs;
+        const waitMs =
+          typeof itemPause === "number" && Number.isFinite(itemPause)
+            ? itemPause
+            : pauseMs;
+        await this.delay(waitMs, abort.signal);
       }
     }
 

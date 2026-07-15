@@ -2,7 +2,10 @@
 
 import { useEffect, useRef } from "react";
 import { useApp } from "@/components/providers/app-provider";
-import { resumeOrInitializeBatch } from "@/lib/services/batch-service";
+import {
+  isFormalStudyEligibleIsland,
+  resumeOrInitializeBatch,
+} from "@/lib/services/batch-service";
 import {
   resolveDailyBatchConfig,
   touchStudyUnitFromConfig,
@@ -18,7 +21,7 @@ function hasActiveIslandBatch(
     config &&
       config.sourceType === "island" &&
       config.islandKey &&
-      dataset.islands[config.islandKey] &&
+      isFormalStudyEligibleIsland(dataset, config.islandKey) &&
       config.activeSentenceIds.length > 0
   );
 }

@@ -21,6 +21,25 @@ function getBatchSourceKey(config: Pick<BatchConfig, "sourceType" | "pathwayBatc
     : config.islandKey ?? "";
 }
 
+export function isFormalStudyEligibleIsland(
+  dataset: Dataset,
+  islandKey: string | null | undefined
+): boolean {
+  if (!islandKey) return false;
+  const island = dataset.islands[islandKey];
+  return Boolean(island && island.format !== "narration");
+}
+
+function isFormalStudyEligibleConfig(
+  dataset: Dataset,
+  config: Pick<BatchConfig, "sourceType" | "islandKey">
+): boolean {
+  return (
+    config.sourceType !== "island" ||
+    isFormalStudyEligibleIsland(dataset, config.islandKey)
+  );
+}
+
 export function clampBatchSize(size: number | undefined | null): number {
   const n = Number(size);
   if (!Number.isFinite(n)) return DEFAULT_BATCH_SIZE;
@@ -73,6 +92,7 @@ export function getSentencesFromSource(
   }
 
   if (config.sourceType === "island" && config.islandKey) {
+    if (!isFormalStudyEligibleIsland(dataset, config.islandKey)) return [];
     const island = dataset.islands[config.islandKey];
     if (!island) return [];
     if (config.subtopic) {
@@ -174,6 +194,13 @@ export function resumeOrInitializeBatch(
   const batchSize = clampBatchSize(config.batchSize);
   const normalized = { ...config, batchSize };
 
+  if (!isFormalStudyEligibleConfig(dataset, normalized)) {
+    return {
+      config: { ...normalized, activeSentenceIds: [] },
+      progress,
+    };
+  }
+
   if (normalized.sourceType === "island" && normalized.islandKey) {
     const snapshot = progress.islandBatchSnapshots?.[normalized.islandKey];
     if (snapshot?.activeSentenceIds.length) {
@@ -228,6 +255,13 @@ export function initializeBatch(
   progress: UserProgress
 ): { config: BatchConfig; progress: UserProgress } {
   const batchSize = clampBatchSize(config.batchSize);
+  if (!isFormalStudyEligibleConfig(dataset, config)) {
+    return {
+      config: { ...config, batchSize, activeSentenceIds: [] },
+      progress,
+    };
+  }
+
   const candidates = getBatchStarterCandidateIds(dataset, config, progress);
   const activeIds = candidates.slice(0, batchSize);
   const today = formatDateKey();
@@ -331,6 +365,7 @@ export function getActiveBatchSentences(
 ): Sentence[] {
   const activeConfig = config ?? progress.batchConfig;
   if (!activeConfig) return [];
+  if (!isFormalStudyEligibleConfig(dataset, activeConfig)) return [];
   const all = getAllSentences(dataset);
   return activeConfig.activeSentenceIds
     .map((id) => all.get(id))

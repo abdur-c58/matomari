@@ -8,6 +8,7 @@ import {
   clampBatchSize,
   getActiveBatchSentences,
   initializeBatch,
+  isFormalStudyEligibleIsland,
 } from "@/lib/services/batch-service";
 import { getNextStudyHref } from "@/lib/services/study-flow-service";
 import type { BatchConfig } from "@/types/progress";
@@ -36,6 +37,13 @@ export function useBatchStart(
       options: ApplyBatchOptions = { redirect: true, welcome: true }
     ) => {
       if (!dataset) return false;
+      if (
+        config.sourceType === "island" &&
+        !isFormalStudyEligibleIsland(dataset, config.islandKey)
+      ) {
+        toast.error("Narration islands are for listening, not study sessions.");
+        return false;
+      }
 
       const normalizedBatchSize = clampBatchSize(batchSize);
       const pathwayBatchNumber =

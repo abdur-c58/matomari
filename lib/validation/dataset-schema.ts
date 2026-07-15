@@ -1,5 +1,12 @@
 import { z } from "zod";
 import {
+  FISH_BREAK_CUES,
+  FISH_EFFECT_CUES,
+  FISH_EXPRESSION_CUES,
+  isNarrationPauseMs,
+  NARRATION_PAUSE_MS_OPTIONS,
+} from "@/lib/audio/fish-audio-cues";
+import {
   isTranslated,
   normalizeEnglish,
   normalizeLegacySentence,
@@ -7,6 +14,26 @@ import {
 import type { Dataset, Sentence } from "@/types/sentence";
 
 const registerSchema = z.enum(["casual", "polite", "formal"]);
+
+export const fishAudioDirectivesSchema = z
+  .object({
+    expression: z.enum(FISH_EXPRESSION_CUES).optional(),
+    effect: z.enum(FISH_EFFECT_CUES).optional(),
+    breakCue: z.enum(FISH_BREAK_CUES).optional(),
+  })
+  .refine(
+    (v) => Boolean(v.expression || v.effect || v.breakCue),
+    { message: "fishAudio requires at least one cue" }
+  );
+
+export const narrationAudioSchema = z.object({
+  pauseAfterMs: z
+    .number()
+    .refine(isNarrationPauseMs, {
+      message: `pauseAfterMs must be one of ${NARRATION_PAUSE_MS_OPTIONS.join(", ")}`,
+    }),
+  fishAudio: fishAudioDirectivesSchema.optional(),
+});
 
 export const seedSentenceSchema = z.object({
   id: z.string().min(1),
@@ -19,6 +46,7 @@ export const seedSentenceSchema = z.object({
   context_notes: z.string().optional(),
   translated: z.boolean().default(false),
   speaker: z.enum(["A", "B"]).optional(),
+  narrationAudio: narrationAudioSchema.optional(),
 });
 
 export const sentencePlaceholderSchema = z.object({

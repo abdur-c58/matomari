@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-14T16:11:40.226Z",
+  "updatedAt": "2026-07-15T07:24:48.164Z",
   "folders": [
     {
       "id": "learn_the_basics",
@@ -195,7 +195,14 @@
           "category": "learn_the_basics",
           "subtopic": "100_basic_sentences",
           "tags": [],
-          "translated": false
+          "translated": false,
+          "placeholders": [
+            {
+              "tag": "name",
+              "resolveAs": "learner",
+              "readingSubstitute": "なまえ"
+            }
+          ]
         },
         {
           "id": "premade_sent_76d7f6d03c",
@@ -1677,7 +1684,14 @@
             "essentials",
             "featured"
           ],
-          "translated": false
+          "translated": false,
+          "placeholders": [
+            {
+              "tag": "name",
+              "resolveAs": "learner",
+              "readingSubstitute": "なまえ"
+            }
+          ]
         },
         {
           "id": "premade_sent_59cb92a885",
@@ -1729,7 +1743,14 @@
             "essentials",
             "featured"
           ],
-          "translated": false
+          "translated": false,
+          "placeholders": [
+            {
+              "tag": "name",
+              "resolveAs": "learner",
+              "readingSubstitute": "なまえ"
+            }
+          ]
         },
         {
           "id": "premade_sent_54a8b42fb8",
@@ -1781,7 +1802,14 @@
             "essentials",
             "featured"
           ],
-          "translated": false
+          "translated": false,
+          "placeholders": [
+            {
+              "tag": "name",
+              "resolveAs": "learner",
+              "readingSubstitute": "なまえ"
+            }
+          ]
         },
         {
           "id": "premade_sent_7ef2354097",
@@ -2197,7 +2225,14 @@
             "essentials",
             "featured"
           ],
-          "translated": false
+          "translated": false,
+          "placeholders": [
+            {
+              "tag": "name",
+              "resolveAs": "learner",
+              "readingSubstitute": "なまえ"
+            }
+          ]
         },
         {
           "id": "premade_sent_84ca3b1d0e",
@@ -20846,7 +20881,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_68152502e3",
@@ -20857,7 +20895,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 400,
+            "fishAudio": {
+              "expression": "friendly"
+            }
+          }
         },
         {
           "id": "premade_sent_b420c3086c",
@@ -20868,7 +20912,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_37f55fab24",
@@ -20879,7 +20926,17 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          },
+          "placeholders": [
+            {
+              "tag": "name",
+              "resolveAs": "learner",
+              "readingSubstitute": "なまえ"
+            }
+          ]
         },
         {
           "id": "premade_sent_2f94522912",
@@ -20890,7 +20947,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_b39cae7f5e",
@@ -20901,7 +20961,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_8eef4d23bc",
@@ -20912,7 +20975,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_9ee27f709d",
@@ -20923,7 +20989,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_f666f82a7b",
@@ -20934,7 +21003,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_bdb5b09f61",
@@ -20945,7 +21017,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_ca4df93615",
@@ -20956,7 +21031,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_cd0cd78b0a",
@@ -20967,7 +21045,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_30d73ab6fc",
@@ -20978,7 +21059,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_ffd0e2c128",
@@ -20989,7 +21073,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_345b9830d7",
@@ -21000,7 +21087,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_a53405e4ac",
@@ -21011,7 +21101,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_f3738c4664",
@@ -21022,7 +21115,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_d88f5487f8",
@@ -21033,7 +21129,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_1cc91dff8a",
@@ -21044,7 +21143,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 1000
+          }
         },
         {
           "id": "premade_sent_d197fd098a",
@@ -21055,7 +21157,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_891c907040",
@@ -21066,7 +21171,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_aeefb5869c",
@@ -21077,7 +21185,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_2f404ce5b3",
@@ -21088,7 +21199,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_eb52478650",
@@ -21099,7 +21213,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_8991c5d6a1",
@@ -21110,7 +21227,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_969ac9c084",
@@ -21121,7 +21241,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_1983047472",
@@ -21132,7 +21255,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_e5b1c53cbb",
@@ -21143,7 +21269,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_4432c5e965",
@@ -21154,7 +21283,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_ad0e9affa2",
@@ -21165,7 +21297,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_869e139eb2",
@@ -21176,7 +21311,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_fa5efe0229",
@@ -21187,7 +21325,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_fc5f523732",
@@ -21198,7 +21339,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_93fa15c70c",
@@ -21209,7 +21353,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_f92f0c18df",
@@ -21220,7 +21367,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 1000
+          }
         },
         {
           "id": "premade_sent_cc5f89d8c6",
@@ -21231,7 +21381,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_9a33e9205b",
@@ -21242,7 +21395,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_a12ee25368",
@@ -21253,7 +21409,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_661762dd6b",
@@ -21264,7 +21423,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_96a32764c9",
@@ -21275,7 +21437,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_021ca607d1",
@@ -21286,7 +21451,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_23e13f03a2",
@@ -21297,7 +21465,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_4155f944c4",
@@ -21308,7 +21479,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_a07fb40a13",
@@ -21319,7 +21493,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_2f9c884f9b",
@@ -21330,7 +21507,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_d4d0ea214e",
@@ -21341,7 +21521,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_611b2527d7",
@@ -21352,7 +21535,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_b7f7d986be",
@@ -21363,7 +21549,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_6b8087bed6",
@@ -21374,7 +21563,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_457c96d5f9",
@@ -21385,7 +21577,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_9d74fdbccf",
@@ -21396,7 +21591,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_c4fa43db29",
@@ -21407,7 +21605,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_bbc5ec93a4",
@@ -21418,7 +21619,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_b72e550d1e",
@@ -21429,7 +21633,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_fdf0124ace",
@@ -21440,7 +21647,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_672e9031ba",
@@ -21451,7 +21661,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_a64e980f8d",
@@ -21462,7 +21675,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_b5ddaf650d",
@@ -21473,7 +21689,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_db24d3816f",
@@ -21484,7 +21703,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_5b4046e7cb",
@@ -21495,7 +21717,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_750ab3d55b",
@@ -21506,7 +21731,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_583d2d6c6f",
@@ -21517,7 +21745,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_84f55f116e",
@@ -21528,7 +21759,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_e091ab3f66",
@@ -21539,7 +21773,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_cf57088430",
@@ -21550,7 +21787,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_d08409f6c3",
@@ -21561,7 +21801,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_f896aa2ec0",
@@ -21572,7 +21815,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_15569fb3e9",
@@ -21583,7 +21829,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_93ca8ee3af",
@@ -21594,7 +21843,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_d843143251",
@@ -21605,7 +21857,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_114f116925",
@@ -21616,7 +21871,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_b0dcf495c0",
@@ -21627,7 +21885,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_d637a636f7",
@@ -21638,7 +21899,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_f6ff70a330",
@@ -21649,7 +21913,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_ef94502ebb",
@@ -21660,7 +21927,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_e0622b98ce",
@@ -21671,7 +21941,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_081effdc8b",
@@ -21682,7 +21955,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_80399e5cb7",
@@ -21693,7 +21969,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_012ec093fe",
@@ -21704,7 +21983,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_3614daea95",
@@ -21715,7 +21997,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_1902b783ae",
@@ -21726,7 +22011,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_ac88c0e53b",
@@ -21737,7 +22025,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_f0408cb087",
@@ -21748,7 +22039,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_4011262080",
@@ -21759,7 +22053,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_752436a644",
@@ -21770,7 +22067,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_66e143f7a4",
@@ -21781,7 +22081,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_55033ac114",
@@ -21792,7 +22095,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_0b14f11a9f",
@@ -21803,7 +22109,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_16a939c883",
@@ -21814,7 +22123,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_7a67936cab",
@@ -21825,7 +22137,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_fe603d4e2d",
@@ -21836,7 +22151,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_9fce7f2595",
@@ -21847,7 +22165,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_0be55240e7",
@@ -21858,7 +22179,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_33e732d490",
@@ -21869,7 +22193,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_770b61f8a1",
@@ -21880,7 +22207,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_317d3bcc6e",
@@ -21891,7 +22221,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_12631cff3d",
@@ -21902,7 +22235,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_b537d91ed0",
@@ -21913,7 +22249,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_f95447b451",
@@ -21924,7 +22263,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_1ace79f7c1",
@@ -21935,7 +22277,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_b9fff9db03",
@@ -21946,7 +22291,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_c6e4119dac",
@@ -21957,7 +22305,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_275f79c6c5",
@@ -21968,7 +22319,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_70e877fb98",
@@ -21979,7 +22333,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_b3a4dad131",
@@ -21990,7 +22347,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_68947d61cf",
@@ -22001,7 +22361,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_1c08cc48dc",
@@ -22012,7 +22375,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_177273ac98",
@@ -22023,7 +22389,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_30cb7b5b01",
@@ -22034,7 +22403,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_eba7a16b53",
@@ -22045,7 +22417,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 400
+          }
         },
         {
           "id": "premade_sent_892bed72dd",
@@ -22056,7 +22431,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_4dffb6e33d",
@@ -22067,7 +22445,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 400
+          }
         },
         {
           "id": "premade_sent_9acfb319a2",
@@ -22078,7 +22459,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_9dd9e07e78",
@@ -22089,7 +22473,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 400
+          }
         },
         {
           "id": "premade_sent_f2be7fd9cd",
@@ -22100,7 +22487,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_97e5e3f1e3",
@@ -22111,7 +22501,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 400
+          }
         },
         {
           "id": "premade_sent_35446aa3cf",
@@ -22122,7 +22515,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_e953890656",
@@ -22133,7 +22529,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_00f028f18e",
@@ -22144,7 +22543,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_ad78c1f6dc",
@@ -22155,7 +22557,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_d2666de109",
@@ -22166,7 +22571,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 400
+          }
         },
         {
           "id": "premade_sent_c230fc3a65",
@@ -22177,7 +22585,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_21d7e2f5f7",
@@ -22188,7 +22599,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 400
+          }
         },
         {
           "id": "premade_sent_9d2f681afd",
@@ -22199,7 +22613,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_1c782bd6d1",
@@ -22210,7 +22627,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_5c17ac0f82",
@@ -22221,7 +22641,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 400
+          }
         },
         {
           "id": "premade_sent_07dd6c31cb",
@@ -22232,7 +22655,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_a587762d8f",
@@ -22243,7 +22669,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 400
+          }
         },
         {
           "id": "premade_sent_9bb328dd68",
@@ -22254,7 +22683,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_8c578451fb",
@@ -22265,7 +22697,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 400
+          }
         },
         {
           "id": "premade_sent_6064beff93",
@@ -22276,7 +22711,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_466b8a1622",
@@ -22287,7 +22725,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 400
+          }
         },
         {
           "id": "premade_sent_5bf2eb6f6c",
@@ -22298,7 +22739,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_e2c6925c75",
@@ -22309,7 +22753,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_d0ccb349e7",
@@ -22320,7 +22767,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_e390927d8f",
@@ -22331,7 +22781,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_bb1ea22499",
@@ -22342,7 +22795,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_f83860271f",
@@ -22353,7 +22809,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600,
+            "fishAudio": {
+              "expression": "friendly"
+            }
+          }
         },
         {
           "id": "premade_sent_4fbfe10344",
@@ -22364,7 +22826,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_bfa3fd3608",
@@ -22375,7 +22840,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_7b71faa4b7",
@@ -22386,7 +22854,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_35bf13faf2",
@@ -22397,7 +22868,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 400
+          }
         },
         {
           "id": "premade_sent_c9f1f4f5d6",
@@ -22408,7 +22882,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_3b44b62e07",
@@ -22419,7 +22896,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 400
+          }
         },
         {
           "id": "premade_sent_309b234f9c",
@@ -22430,7 +22910,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_8bf9e15ffd",
@@ -22441,7 +22924,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_366306575c",
@@ -22452,7 +22938,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_3b7cda1758",
@@ -22463,7 +22952,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_7d612cf1b5",
@@ -22474,7 +22966,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_94ffe1c199",
@@ -22485,7 +22980,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_7f6dff20bb",
@@ -22496,7 +22994,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_b4b233c552",
@@ -22507,7 +23008,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_f9f5824e00",
@@ -22518,7 +23022,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_4c3d8e79db",
@@ -22529,7 +23036,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 1000
+          }
         },
         {
           "id": "premade_sent_026ca53f8a",
@@ -22540,7 +23050,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_ccba328f64",
@@ -22551,7 +23064,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_af06f87297",
@@ -22562,7 +23078,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_7953be34a5",
@@ -22573,7 +23092,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_4104923758",
@@ -22584,7 +23106,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_ced96d720a",
@@ -22595,7 +23120,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_40dc4f0be3",
@@ -22606,7 +23134,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_ddd43d9551",
@@ -22617,7 +23148,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_3a19e7d303",
@@ -22628,7 +23162,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 400
+          }
         },
         {
           "id": "premade_sent_0e87909aaa",
@@ -22639,7 +23176,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 400
+          }
         },
         {
           "id": "premade_sent_79df279df9",
@@ -22650,7 +23190,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 400
+          }
         },
         {
           "id": "premade_sent_d1377b83d9",
@@ -22661,7 +23204,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 400
+          }
         },
         {
           "id": "premade_sent_d35f47abd1",
@@ -22672,7 +23218,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 400
+          }
         },
         {
           "id": "premade_sent_ada0da4f68",
@@ -22683,7 +23232,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 400
+          }
         },
         {
           "id": "premade_sent_6f81b19bcc",
@@ -22694,7 +23246,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 400
+          }
         },
         {
           "id": "premade_sent_644617accf",
@@ -22705,7 +23260,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 400
+          }
         },
         {
           "id": "premade_sent_e5f5e50904",
@@ -22716,7 +23274,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 400
+          }
         },
         {
           "id": "premade_sent_7e0662965d",
@@ -22727,7 +23288,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 400
+          }
         },
         {
           "id": "premade_sent_e46912e4cf",
@@ -22738,7 +23302,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 400
+          }
         },
         {
           "id": "premade_sent_795e2bdcc2",
@@ -22749,7 +23316,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 400
+          }
         },
         {
           "id": "premade_sent_0d71be9d01",
@@ -22760,7 +23330,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 400
+          }
         },
         {
           "id": "premade_sent_a3623c3f68",
@@ -22771,7 +23344,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 400
+          }
         },
         {
           "id": "premade_sent_90ef5ebd08",
@@ -22782,7 +23358,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 400
+          }
         },
         {
           "id": "premade_sent_be0cafa1bc",
@@ -22793,7 +23372,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 400
+          }
         },
         {
           "id": "premade_sent_5d92da0d32",
@@ -22804,7 +23386,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 400
+          }
         },
         {
           "id": "premade_sent_a4c0ddb70f",
@@ -22815,7 +23400,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 400
+          }
         },
         {
           "id": "premade_sent_147a7ccfad",
@@ -22826,7 +23414,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_97dcd791ac",
@@ -22837,7 +23428,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_b4d7b86096",
@@ -22848,7 +23442,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_118f28bc18",
@@ -22859,7 +23456,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_e9d9be17f6",
@@ -22870,7 +23470,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_98f8effc74",
@@ -22881,7 +23484,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_b6470eaeb1",
@@ -22892,7 +23498,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_77dd6a77a5",
@@ -22903,7 +23512,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_31b876a50c",
@@ -22914,7 +23526,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_c710c82925",
@@ -22925,7 +23540,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_ff14dcb4a7",
@@ -22936,7 +23554,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_4d7f3e9f56",
@@ -22947,7 +23568,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_f757e1ac07",
@@ -22958,7 +23582,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_cf837364db",
@@ -22969,7 +23596,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_a07e44d1f2",
@@ -22980,7 +23610,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_6899f9f412",
@@ -22991,7 +23624,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_742901d441",
@@ -23002,7 +23638,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_d6993efb8a",
@@ -23013,7 +23652,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_20ecc712c9",
@@ -23024,7 +23666,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_a95a5d5df5",
@@ -23035,7 +23680,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_0eed0df95a",
@@ -23046,7 +23694,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_0201eafc32",
@@ -23057,7 +23708,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_13f012c275",
@@ -23068,7 +23722,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_5f5e4792c4",
@@ -23079,7 +23736,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_307765e2c7",
@@ -23090,7 +23750,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_8b70062c8e",
@@ -23101,7 +23764,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_ee3042628f",
@@ -23112,7 +23778,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_f1811dad3d",
@@ -23123,7 +23792,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_330f5cca38",
@@ -23134,7 +23806,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_665c97438c",
@@ -23145,7 +23820,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_1d131c495c",
@@ -23156,7 +23834,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_0b7d5fa90b",
@@ -23167,7 +23848,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_90c1776bdf",
@@ -23178,7 +23862,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_29550aff77",
@@ -23189,7 +23876,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_fa2015a878",
@@ -23200,7 +23890,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_931f9f5b40",
@@ -23211,7 +23904,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_7971c3ef03",
@@ -23222,7 +23918,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_a5e810b8db",
@@ -23233,7 +23932,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_481aae4728",
@@ -23244,7 +23946,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_cac8564310",
@@ -23255,7 +23960,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_3c41574fe9",
@@ -23266,7 +23974,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_d1db8cb7fb",
@@ -23277,7 +23988,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_25d6368202",
@@ -23288,7 +24002,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_b2b1c7faf4",
@@ -23299,7 +24016,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_7f81f4370f",
@@ -23310,7 +24030,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_3466f7e60b",
@@ -23321,7 +24044,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_ca91437c5e",
@@ -23332,7 +24058,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_f630a05cb6",
@@ -23343,7 +24072,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_655f7664b4",
@@ -23354,7 +24086,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_23474f6500",
@@ -23365,7 +24100,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_a4650b38fc",
@@ -23376,7 +24114,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_05af049491",
@@ -23387,7 +24128,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_063ca51f83",
@@ -23398,7 +24142,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_8d1a35843c",
@@ -23409,7 +24156,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_359fbdff59",
@@ -23420,7 +24170,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_0ddc45adcc",
@@ -23431,7 +24184,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_6f985959a6",
@@ -23442,7 +24198,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_95e3cee408",
@@ -23453,7 +24212,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_ae38f2b7b3",
@@ -23464,7 +24226,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_30c2dfb2f9",
@@ -23475,7 +24240,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_a61080e85a",
@@ -23486,7 +24254,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_19089785da",
@@ -23497,7 +24268,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_c65b135854",
@@ -23508,7 +24282,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_afeaefc9d8",
@@ -23519,7 +24296,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_2d815c91ac",
@@ -23530,7 +24310,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_54eae5e13e",
@@ -23541,7 +24324,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_20d6235b03",
@@ -23552,7 +24338,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_a1010e4105",
@@ -23563,7 +24352,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_aaf8463532",
@@ -23574,7 +24366,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_1dee4925ae",
@@ -23585,7 +24380,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_1deb45ce90",
@@ -23596,7 +24394,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_ddaa83b24c",
@@ -23607,7 +24408,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_29359501b1",
@@ -23618,7 +24422,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_4d2faea601",
@@ -23629,7 +24436,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_4fd1436d04",
@@ -23640,7 +24450,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_cf283b9c23",
@@ -23651,7 +24464,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_7d6af8a93d",
@@ -23662,7 +24478,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_8a9635ae7c",
@@ -23673,7 +24492,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_7138e4c7f1",
@@ -23684,7 +24506,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_8fba0d6bd4",
@@ -23695,7 +24520,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_e11c00cfe1",
@@ -23706,7 +24534,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_0354f63078",
@@ -23717,7 +24548,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_7b687d9d39",
@@ -23728,7 +24562,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_81ff9f797b",
@@ -23739,7 +24576,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_8612f44121",
@@ -23750,7 +24590,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_cc5b5ce9c7",
@@ -23761,7 +24604,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600,
+            "fishAudio": {
+              "expression": "happy"
+            }
+          }
         },
         {
           "id": "premade_sent_1640aeaf0d",
@@ -23772,7 +24621,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_b22bcf8be7",
@@ -23783,7 +24635,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_9bf28a5db9",
@@ -23794,7 +24649,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_4ff424f16e",
@@ -23805,7 +24663,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_6226db9a89",
@@ -23816,7 +24677,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_3e1a1df65c",
@@ -23827,7 +24691,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_315e3ea81f",
@@ -23838,7 +24705,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_186639e263",
@@ -23849,7 +24719,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_50f379acd0",
@@ -23860,7 +24733,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_a0a092a708",
@@ -23871,7 +24747,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_268765f92b",
@@ -23882,7 +24761,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_1fee2e0420",
@@ -23893,7 +24775,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_631cc1ce2d",
@@ -23904,7 +24789,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_8ba8e95584",
@@ -23915,7 +24803,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_7a062be430",
@@ -23926,7 +24817,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_8e95c5e565",
@@ -23937,7 +24831,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_3123832eab",
@@ -23948,7 +24845,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_ff0fc577b0",
@@ -23959,7 +24859,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_1ba4bb43d1",
@@ -23970,7 +24873,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_a682c2e2a3",
@@ -23981,7 +24887,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_aa5255dcf5",
@@ -23992,7 +24901,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_4ecf8202d9",
@@ -24003,7 +24915,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_7be0583bb5",
@@ -24014,7 +24929,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_6a96d6214f",
@@ -24025,7 +24943,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_1c857ef1ca",
@@ -24036,7 +24957,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_a53a1e338f",
@@ -24047,7 +24971,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_8472cc8eb1",
@@ -24058,7 +24985,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_a49ae1c4e3",
@@ -24069,7 +24999,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_0db9426e62",
@@ -24080,7 +25013,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_dce0f4a15d",
@@ -24091,7 +25027,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_23c673fade",
@@ -24102,7 +25041,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_ee8433324b",
@@ -24113,7 +25055,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_471893ba78",
@@ -24124,7 +25069,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_207dab3eb3",
@@ -24135,7 +25083,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_6c94a98962",
@@ -24146,7 +25097,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_1d764cfed0",
@@ -24157,7 +25111,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_03c61a64a0",
@@ -24168,7 +25125,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_2de8ad6945",
@@ -24179,7 +25139,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_625e1a4568",
@@ -24190,7 +25153,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_01eab59f84",
@@ -24201,7 +25167,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_69b2ff832b",
@@ -24212,7 +25181,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_500e61b6cf",
@@ -24223,7 +25195,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_d28496580a",
@@ -24234,7 +25209,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_70f5159bfd",
@@ -24245,7 +25223,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_ddb72487b4",
@@ -24256,7 +25237,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_dacae6bd68",
@@ -24267,7 +25251,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_f4fbae8a19",
@@ -24278,7 +25265,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_40d79a2a18",
@@ -24289,7 +25279,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_47f648cee4",
@@ -24300,7 +25293,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_5d64e23ad7",
@@ -24311,7 +25307,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_1b2b2198a4",
@@ -24322,7 +25321,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_ee4596f2bc",
@@ -24333,7 +25335,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_48367dcfde",
@@ -24344,7 +25349,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_340e810d46",
@@ -24355,7 +25363,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_c9dc41818d",
@@ -24366,7 +25377,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_ff1cfee8d2",
@@ -24377,7 +25391,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_99296f0c9a",
@@ -24388,7 +25405,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_ba4de33269",
@@ -24399,7 +25419,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_876b7614cc",
@@ -24410,7 +25433,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_9cc1a92596",
@@ -24421,7 +25447,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_b4d751c8f9",
@@ -24432,7 +25461,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_da4faf7f58",
@@ -24443,7 +25475,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_2ee7f31e0b",
@@ -24454,7 +25489,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_c52e76487c",
@@ -24465,7 +25503,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_047a66aeac",
@@ -24476,7 +25517,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_6c011ccf6b",
@@ -24487,7 +25531,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_c2fa18a09b",
@@ -24498,7 +25545,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_e70683a7d9",
@@ -24509,7 +25559,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_d5270f9d2c",
@@ -24520,7 +25573,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_222a16a81b",
@@ -24531,7 +25587,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_3c5baa558d",
@@ -24542,7 +25601,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_6e9eb104b2",
@@ -24553,7 +25615,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_8e96314ae2",
@@ -24564,7 +25629,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_0fb6277418",
@@ -24575,7 +25643,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_953bdd86ec",
@@ -24586,7 +25657,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_5c5b960078",
@@ -24597,7 +25671,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_aae4086383",
@@ -24608,7 +25685,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800,
+            "fishAudio": {
+              "expression": "curious"
+            }
+          }
         },
         {
           "id": "premade_sent_1fe584df0c",
@@ -24619,7 +25702,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_c3a2d562de",
@@ -24630,7 +25716,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800,
+            "fishAudio": {
+              "expression": "curious"
+            }
+          }
         },
         {
           "id": "premade_sent_10a8cbd77b",
@@ -24641,7 +25733,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_2dd0b1134e",
@@ -24652,7 +25747,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800,
+            "fishAudio": {
+              "expression": "curious"
+            }
+          }
         },
         {
           "id": "premade_sent_b9ae1bd2c9",
@@ -24663,7 +25764,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_25117d470c",
@@ -24674,7 +25778,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800,
+            "fishAudio": {
+              "expression": "curious"
+            }
+          }
         },
         {
           "id": "premade_sent_fcc723d3d0",
@@ -24685,7 +25795,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_ee0e0bb2ae",
@@ -24696,7 +25809,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800,
+            "fishAudio": {
+              "expression": "curious"
+            }
+          }
         },
         {
           "id": "premade_sent_d5f4c91267",
@@ -24707,7 +25826,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_47381d8d6f",
@@ -24718,7 +25840,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800,
+            "fishAudio": {
+              "expression": "curious"
+            }
+          }
         },
         {
           "id": "premade_sent_a0db34772d",
@@ -24729,7 +25857,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600,
+            "fishAudio": {
+              "expression": "happy"
+            }
+          }
         },
         {
           "id": "premade_sent_78d7ee4811",
@@ -24740,7 +25874,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_a68db696c9",
@@ -24751,7 +25888,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_d52ed0c5c8",
@@ -24762,7 +25902,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800,
+            "fishAudio": {
+              "expression": "curious"
+            }
+          }
         },
         {
           "id": "premade_sent_0d2d8e6249",
@@ -24773,7 +25919,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600,
+            "fishAudio": {
+              "expression": "happy"
+            }
+          }
         },
         {
           "id": "premade_sent_6a35cf01dc",
@@ -24784,7 +25936,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800,
+            "fishAudio": {
+              "expression": "curious"
+            }
+          }
         },
         {
           "id": "premade_sent_bdd167395e",
@@ -24795,7 +25953,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_1088b597d9",
@@ -24806,7 +25967,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_fba9500060",
@@ -24817,7 +25981,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 400
+          }
         },
         {
           "id": "premade_sent_e512ca62df",
@@ -24828,7 +25995,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_2217762ca5",
@@ -24839,7 +26009,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 400
+          }
         },
         {
           "id": "premade_sent_ac277f5cfc",
@@ -24850,7 +26023,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 400
+          }
         },
         {
           "id": "premade_sent_8073d07d17",
@@ -24861,7 +26037,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 400
+          }
         },
         {
           "id": "premade_sent_aef70c3055",
@@ -24872,7 +26051,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_36d9403bce",
@@ -24883,7 +26065,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600,
+            "fishAudio": {
+              "expression": "worried"
+            }
+          }
         },
         {
           "id": "premade_sent_988dfba750",
@@ -24894,7 +26082,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600,
+            "fishAudio": {
+              "expression": "worried"
+            }
+          }
         },
         {
           "id": "premade_sent_8b1430dc5a",
@@ -24905,7 +26099,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600,
+            "fishAudio": {
+              "expression": "worried"
+            }
+          }
         },
         {
           "id": "premade_sent_9e92a80752",
@@ -24916,7 +26116,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_a9252c31b6",
@@ -24927,7 +26130,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600,
+            "fishAudio": {
+              "expression": "excited"
+            }
+          }
         },
         {
           "id": "premade_sent_6bc4ab058b",
@@ -24938,7 +26147,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_67c91fdf53",
@@ -24949,7 +26161,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600,
+            "fishAudio": {
+              "expression": "happy"
+            }
+          }
         },
         {
           "id": "premade_sent_5c86474d00",
@@ -24960,7 +26178,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_58f97bbc27",
@@ -24971,7 +26192,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600,
+            "fishAudio": {
+              "expression": "angry"
+            }
+          }
         },
         {
           "id": "premade_sent_5b7fc86d6b",
@@ -24982,7 +26209,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_f04d51b272",
@@ -24993,7 +26223,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800,
+            "fishAudio": {
+              "expression": "sad"
+            }
+          }
         },
         {
           "id": "premade_sent_aaa0dcdd89",
@@ -25004,7 +26240,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800,
+            "fishAudio": {
+              "expression": "curious"
+            }
+          }
         },
         {
           "id": "premade_sent_38b4bf1746",
@@ -25015,7 +26257,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600,
+            "fishAudio": {
+              "expression": "nervous"
+            }
+          }
         },
         {
           "id": "premade_sent_15d15d4d17",
@@ -25026,7 +26274,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800,
+            "fishAudio": {
+              "expression": "curious"
+            }
+          }
         },
         {
           "id": "premade_sent_7afc9ac7d5",
@@ -25037,7 +26291,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600,
+            "fishAudio": {
+              "expression": "confident"
+            }
+          }
         },
         {
           "id": "premade_sent_05f13e9597",
@@ -25048,7 +26308,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800,
+            "fishAudio": {
+              "expression": "curious"
+            }
+          }
         },
         {
           "id": "premade_sent_5bbfd83952",
@@ -25059,7 +26325,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600,
+            "fishAudio": {
+              "expression": "hopeful"
+            }
+          }
         },
         {
           "id": "premade_sent_f97a35db62",
@@ -25070,7 +26342,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800,
+            "fishAudio": {
+              "expression": "curious"
+            }
+          }
         },
         {
           "id": "premade_sent_b54d7f2d6e",
@@ -25081,7 +26359,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600,
+            "fishAudio": {
+              "expression": "embarrassed"
+            }
+          }
         },
         {
           "id": "premade_sent_9abdf80957",
@@ -25092,7 +26376,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800,
+            "fishAudio": {
+              "expression": "curious"
+            }
+          }
         },
         {
           "id": "premade_sent_239bd92e09",
@@ -25103,7 +26393,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600,
+            "fishAudio": {
+              "expression": "friendly"
+            }
+          }
         },
         {
           "id": "premade_sent_467dd87c9f",
@@ -25114,7 +26410,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800,
+            "fishAudio": {
+              "expression": "curious"
+            }
+          }
         },
         {
           "id": "premade_sent_b4fe5f7fd3",
@@ -25125,7 +26427,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600,
+            "fishAudio": {
+              "expression": "friendly"
+            }
+          }
         },
         {
           "id": "premade_sent_08648db5eb",
@@ -25136,7 +26444,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800,
+            "fishAudio": {
+              "expression": "curious"
+            }
+          }
         },
         {
           "id": "premade_sent_ec2799aea2",
@@ -25147,7 +26461,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600,
+            "fishAudio": {
+              "expression": "calm"
+            }
+          }
         },
         {
           "id": "premade_sent_d107479af5",
@@ -25158,7 +26478,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800,
+            "fishAudio": {
+              "expression": "curious"
+            }
+          }
         },
         {
           "id": "premade_sent_4e12be8554",
@@ -25169,7 +26495,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600,
+            "fishAudio": {
+              "expression": "calm"
+            }
+          }
         },
         {
           "id": "premade_sent_2492556ac7",
@@ -25180,7 +26512,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800,
+            "fishAudio": {
+              "expression": "curious"
+            }
+          }
         },
         {
           "id": "premade_sent_7f65a4404c",
@@ -25191,7 +26529,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600,
+            "fishAudio": {
+              "expression": "friendly"
+            }
+          }
         },
         {
           "id": "premade_sent_e10783eaa1",
@@ -25202,7 +26546,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_0c276b0c04",
@@ -25213,7 +26560,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_500a0a331c",
@@ -25224,7 +26574,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_6fa804be45",
@@ -25235,7 +26588,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_a018e57517",
@@ -25246,7 +26602,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_cefdd841a7",
@@ -25257,7 +26616,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_b35c8959f2",
@@ -25268,7 +26630,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_1acc566729",
@@ -25279,7 +26644,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_5a7f64b29d",
@@ -25290,7 +26658,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_f0a51a2e11",
@@ -25301,7 +26672,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_61fb192b44",
@@ -25312,7 +26686,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_58d5c7103e",
@@ -25323,7 +26700,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_b456f16f19",
@@ -25334,7 +26714,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_de33f6f304",
@@ -25345,7 +26728,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_f28005cdac",
@@ -25356,7 +26742,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_9a333e378c",
@@ -25367,7 +26756,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_2cec131b3b",
@@ -25378,7 +26770,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_e7a95f0f9a",
@@ -25389,7 +26784,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_9bc4aa217b",
@@ -25400,7 +26798,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_fd706ea6a0",
@@ -25411,7 +26812,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_eb2a9a2cb1",
@@ -25422,7 +26826,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_120d8c6f47",
@@ -25433,7 +26840,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_264427609b",
@@ -25444,7 +26854,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_e466263ae5",
@@ -25455,7 +26868,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_8a16d3e632",
@@ -25466,7 +26882,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_df7c235af4",
@@ -25477,7 +26896,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_d177a65ef0",
@@ -25488,7 +26910,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_f812eec4d7",
@@ -25499,7 +26924,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_1f0a2e5576",
@@ -25510,7 +26938,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_c139466617",
@@ -25521,7 +26952,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_4c6921a826",
@@ -25532,7 +26966,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_0843708dab",
@@ -25543,7 +26980,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_fdb27cf5c8",
@@ -25554,7 +26994,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_312227bf93",
@@ -25565,7 +27008,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_2a74b22a69",
@@ -25576,7 +27022,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_0bd2bd67ec",
@@ -25587,7 +27036,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_ced9ed250c",
@@ -25598,7 +27050,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_5c2e31cc38",
@@ -25609,7 +27064,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_31f11b77db",
@@ -25620,7 +27078,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_0e91809069",
@@ -25631,7 +27092,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_d814e61cf7",
@@ -25642,7 +27106,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_1779256fbe",
@@ -25653,7 +27120,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_e159582cab",
@@ -25664,7 +27134,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_2f6291e993",
@@ -25675,7 +27148,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_626a159c19",
@@ -25686,7 +27162,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_abde75ae72",
@@ -25697,7 +27176,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_b0d778852f",
@@ -25708,7 +27190,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_1d3f61c2e4",
@@ -25719,7 +27204,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_79b8d9de4a",
@@ -25730,7 +27218,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_642e50f77b",
@@ -25741,7 +27232,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_961e7dc5d6",
@@ -25752,7 +27246,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_701cd9fd89",
@@ -25763,7 +27260,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_6d901cc33e",
@@ -25774,7 +27274,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_22d6e4cc29",
@@ -25785,7 +27288,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_701001256a",
@@ -25796,7 +27302,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_250a6ad905",
@@ -25807,7 +27316,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_30d883e8bb",
@@ -25818,7 +27330,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_ef60b582d3",
@@ -25829,7 +27344,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_adaceec5b2",
@@ -25840,7 +27358,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_dae3e4978b",
@@ -25851,7 +27372,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_da8e7cad07",
@@ -25862,7 +27386,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_955692e173",
@@ -25873,7 +27400,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_c391db2331",
@@ -25884,7 +27414,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_7fa2ae04a4",
@@ -25895,7 +27428,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_23f9d00136",
@@ -25906,7 +27442,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_fdb4c9563c",
@@ -25917,7 +27456,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_572e03b63b",
@@ -25928,7 +27470,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_c68c52288f",
@@ -25939,7 +27484,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_22e6631dc1",
@@ -25950,7 +27498,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_f041f7fd82",
@@ -25961,7 +27512,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_4469a429cf",
@@ -25972,7 +27526,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_f25098dd47",
@@ -25983,7 +27540,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_c99baaf538",
@@ -25994,7 +27554,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_c58b8b943e",
@@ -26005,7 +27568,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_d0e754047d",
@@ -26016,7 +27582,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_aef059d425",
@@ -26027,7 +27596,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_f0fb7a9ef7",
@@ -26038,7 +27610,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_ef51340bae",
@@ -26049,7 +27624,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_f36e5ab5b6",
@@ -26060,7 +27638,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_b78d2e2365",
@@ -26071,7 +27652,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_4e4a52ee07",
@@ -26082,7 +27666,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_69232cbc8a",
@@ -26093,7 +27680,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_25634ffa23",
@@ -26104,7 +27694,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_620d3d699b",
@@ -26115,7 +27708,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_ae7029c0f4",
@@ -26126,7 +27722,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_df9b7a9685",
@@ -26137,7 +27736,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_ef87e278e7",
@@ -26148,7 +27750,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800,
+            "fishAudio": {
+              "expression": "hopeful"
+            }
+          }
         },
         {
           "id": "premade_sent_2e10f6bbbe",
@@ -26159,7 +27767,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_147db93dd3",
@@ -26170,7 +27781,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800,
+            "fishAudio": {
+              "expression": "hopeful"
+            }
+          }
         },
         {
           "id": "premade_sent_9c4c2edf0e",
@@ -26181,7 +27798,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_a9510f7b18",
@@ -26192,7 +27812,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_00096020f9",
@@ -26203,7 +27826,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_c4a7bacc4e",
@@ -26214,7 +27840,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_3e3a2e4cbc",
@@ -26225,7 +27854,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_461c7fe9c4",
@@ -26236,7 +27868,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_3ce259901b",
@@ -26247,7 +27882,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_a460ec157d",
@@ -26258,7 +27896,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_4fe1db1f88",
@@ -26269,7 +27910,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_1ac6fa146f",
@@ -26280,7 +27924,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_984ca9c5ba",
@@ -26291,7 +27938,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_b825b37353",
@@ -26302,7 +27952,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_0c3ba862d9",
@@ -26313,7 +27966,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_b2b371b9c3",
@@ -26324,7 +27980,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_3a857da42c",
@@ -26335,7 +27994,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_8fd3b7b10d",
@@ -26346,7 +28008,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_3bae8b0037",
@@ -26357,7 +28022,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_ff6dd1b5c3",
@@ -26368,7 +28036,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_868f367686",
@@ -26379,7 +28050,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_57b5f5f261",
@@ -26390,7 +28064,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_40629f15a9",
@@ -26401,7 +28078,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_1a5c7ea389",
@@ -26412,7 +28092,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 400
+          }
         },
         {
           "id": "premade_sent_fe86fa9b52",
@@ -26423,7 +28106,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_eb476e59de",
@@ -26434,7 +28120,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_8c0e4e712c",
@@ -26445,7 +28134,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_2ab58748cf",
@@ -26456,7 +28148,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_cea110100a",
@@ -26467,7 +28162,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_169544a0bf",
@@ -26478,7 +28176,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_87c194247f",
@@ -26489,7 +28190,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_e340fafdc6",
@@ -26500,7 +28204,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_e77f6590d5",
@@ -26511,7 +28218,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_226264a2d8",
@@ -26522,7 +28232,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_cd885ed7c8",
@@ -26533,7 +28246,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_66438a8b90",
@@ -26544,7 +28260,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_6e06023a1e",
@@ -26555,7 +28274,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_c79c0401ca",
@@ -26566,7 +28288,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_338b8ce33a",
@@ -26577,7 +28302,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_2d5398b135",
@@ -26588,7 +28316,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800,
+            "fishAudio": {
+              "expression": "uncertain"
+            }
+          }
         },
         {
           "id": "premade_sent_a2f74676c4",
@@ -26599,7 +28333,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600,
+            "fishAudio": {
+              "expression": "calm"
+            }
+          }
         },
         {
           "id": "premade_sent_c3d0693bd9",
@@ -26610,7 +28350,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800,
+            "fishAudio": {
+              "expression": "friendly"
+            }
+          }
         },
         {
           "id": "premade_sent_d7c70b39a3",
@@ -26621,7 +28367,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600,
+            "fishAudio": {
+              "expression": "friendly"
+            }
+          }
         },
         {
           "id": "premade_sent_d2f8f81e95",
@@ -26632,7 +28384,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_66f43cac51",
@@ -26643,7 +28398,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_d765a5ba20",
@@ -26654,7 +28412,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_34bafc3157",
@@ -26665,7 +28426,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_c67a7bbaaf",
@@ -26676,7 +28440,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_b0f634257e",
@@ -26687,7 +28454,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_b84e9f3fa2",
@@ -26698,7 +28468,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_a2e78f9af7",
@@ -26709,7 +28482,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_4d0458bd07",
@@ -26720,7 +28496,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_de8bbb4181",
@@ -26731,7 +28510,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_fcf7ee8568",
@@ -26742,7 +28524,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_cae76f8b4e",
@@ -26753,7 +28538,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_5f55fc0b77",
@@ -26764,7 +28552,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_3b0680b63b",
@@ -26775,7 +28566,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_fe4cb6a542",
@@ -26786,7 +28580,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_927f59f578",
@@ -26797,7 +28594,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_8af09572e4",
@@ -26808,7 +28608,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_a2851ad6b4",
@@ -26819,7 +28622,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_232947fba8",
@@ -26830,7 +28636,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_74ecea1116",
@@ -26841,7 +28650,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_53e45f6bfd",
@@ -26852,7 +28664,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_6357d71a02",
@@ -26863,7 +28678,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_9058a3fcd5",
@@ -26874,7 +28692,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_b4fad6f9d8",
@@ -26885,7 +28706,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_30e733517e",
@@ -26896,7 +28720,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_adc5ab2204",
@@ -26907,7 +28734,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_8532e08a74",
@@ -26918,7 +28748,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_b650ee986a",
@@ -26929,7 +28762,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_707546d594",
@@ -26940,7 +28776,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_8a490b0c72",
@@ -26951,7 +28790,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_49ea413892",
@@ -26962,7 +28804,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_39ebb8b016",
@@ -26973,7 +28818,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_72ee9097f4",
@@ -26984,7 +28832,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_4cbe184e3e",
@@ -26995,7 +28846,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_1f296bacd5",
@@ -27006,7 +28860,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_bfaea04afb",
@@ -27017,7 +28874,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 400
+          }
         },
         {
           "id": "premade_sent_cf89dafdb3",
@@ -27028,7 +28888,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_34c24ce987",
@@ -27039,7 +28902,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_4285d6276f",
@@ -27050,7 +28916,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_a06e94e1df",
@@ -27061,7 +28930,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_e797c30fc4",
@@ -27072,7 +28944,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_417a579565",
@@ -27083,7 +28958,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_2e6c1780ef",
@@ -27094,7 +28972,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_479b564e11",
@@ -27105,7 +28986,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_981ba0d795",
@@ -27116,7 +29000,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_3a06343bf4",
@@ -27127,7 +29014,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_ccc03617a0",
@@ -27138,7 +29028,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_d490a141de",
@@ -27149,7 +29042,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_4a3fa628f0",
@@ -27160,7 +29056,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800
+          }
         },
         {
           "id": "premade_sent_8d25988d47",
@@ -27171,7 +29070,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_dc1f58583b",
@@ -27182,7 +29084,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800,
+            "fishAudio": {
+              "expression": "curious"
+            }
+          }
         },
         {
           "id": "premade_sent_e3262d77b1",
@@ -27193,7 +29101,10 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600
+          }
         },
         {
           "id": "premade_sent_e6b6a029e4",
@@ -27204,7 +29115,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800,
+            "fishAudio": {
+              "expression": "friendly"
+            }
+          }
         },
         {
           "id": "premade_sent_ff51990e59",
@@ -27215,7 +29132,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600,
+            "fishAudio": {
+              "expression": "friendly"
+            }
+          }
         },
         {
           "id": "premade_sent_ea2fb5829a",
@@ -27226,7 +29149,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800,
+            "fishAudio": {
+              "expression": "friendly"
+            }
+          }
         },
         {
           "id": "premade_sent_d49889a117",
@@ -27237,7 +29166,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600,
+            "fishAudio": {
+              "expression": "happy"
+            }
+          }
         },
         {
           "id": "premade_sent_9545c52e8a",
@@ -27248,7 +29183,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "A"
+          "speaker": "A",
+          "narrationAudio": {
+            "pauseAfterMs": 800,
+            "fishAudio": {
+              "expression": "friendly"
+            }
+          }
         },
         {
           "id": "premade_sent_00541ee9f9",
@@ -27259,7 +29200,13 @@
           "subtopic": "q_and_a",
           "tags": [],
           "translated": false,
-          "speaker": "B"
+          "speaker": "B",
+          "narrationAudio": {
+            "pauseAfterMs": 600,
+            "fishAudio": {
+              "expression": "excited"
+            }
+          }
         }
       ]
     },
@@ -27279,7 +29226,14 @@
           "category": "learn_the_basics",
           "subtopic": "talking_about_yourself",
           "tags": [],
-          "translated": false
+          "translated": false,
+          "placeholders": [
+            {
+              "tag": "name",
+              "resolveAs": "learner",
+              "readingSubstitute": "なまえ"
+            }
+          ]
         },
         {
           "id": "premade_sent_7660ff0391",
@@ -27289,7 +29243,14 @@
           "category": "learn_the_basics",
           "subtopic": "talking_about_yourself",
           "tags": [],
-          "translated": false
+          "translated": false,
+          "placeholders": [
+            {
+              "tag": "name",
+              "resolveAs": "learner",
+              "readingSubstitute": "なまえ"
+            }
+          ]
         },
         {
           "id": "premade_sent_d8d2db7841",
@@ -27299,7 +29260,14 @@
           "category": "learn_the_basics",
           "subtopic": "talking_about_yourself",
           "tags": [],
-          "translated": false
+          "translated": false,
+          "placeholders": [
+            {
+              "tag": "name",
+              "resolveAs": "learner",
+              "readingSubstitute": "なまえ"
+            }
+          ]
         },
         {
           "id": "premade_sent_8349cb03e7",
@@ -45207,7 +47175,14 @@
           "category": "social_interactions",
           "subtopic": "making_plans",
           "tags": [],
-          "translated": false
+          "translated": false,
+          "placeholders": [
+            {
+              "tag": "name",
+              "resolveAs": "learner",
+              "readingSubstitute": "なまえ"
+            }
+          ]
         },
         {
           "id": "premade_sent_519b291c85",
@@ -85163,7 +87138,14 @@
           "category": "travel_and_abroad",
           "subtopic": "hotels_and_accomodation",
           "tags": [],
-          "translated": false
+          "translated": false,
+          "placeholders": [
+            {
+              "tag": "name",
+              "resolveAs": "learner",
+              "readingSubstitute": "なまえ"
+            }
+          ]
         },
         {
           "id": "premade_sent_358d2cd429",

@@ -4,7 +4,11 @@ import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useApp } from "@/components/providers/app-provider";
-import { clampBatchSize, resumeOrInitializeBatch } from "@/lib/services/batch-service";
+import {
+  clampBatchSize,
+  isFormalStudyEligibleIsland,
+  resumeOrInitializeBatch,
+} from "@/lib/services/batch-service";
 import {
   getSwitchFromLabel,
   getSwitchToLabel,
@@ -41,6 +45,13 @@ export function useFormalStudyStart() {
       baseProgress = progress
     ) => {
       if (!dataset) return false;
+      if (
+        config.sourceType === "island" &&
+        !isFormalStudyEligibleIsland(dataset, config.islandKey)
+      ) {
+        toast.error("Narration islands are for listening, not study sessions.");
+        return false;
+      }
 
       const batchSize = clampBatchSize(baseProgress.settings.batchSize);
       let nextBase = baseProgress;
@@ -90,6 +101,13 @@ export function useFormalStudyStart() {
       unitRef?: StudyUnitRef
     ) => {
       if (!dataset) return false;
+      if (
+        config.sourceType === "island" &&
+        !isFormalStudyEligibleIsland(dataset, config.islandKey)
+      ) {
+        toast.error("Narration islands are for listening, not study sessions.");
+        return false;
+      }
 
       if (needsStudySwitch(progress, config)) {
         return new Promise<boolean>((resolve) => {

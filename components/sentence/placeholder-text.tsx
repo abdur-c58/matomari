@@ -2,9 +2,9 @@
 
 import type { Sentence } from "@/types/sentence";
 import {
-  getPlaceholderSpec,
   parsePlaceholderTags,
   resolvePlaceholderDisplayValue,
+  withDefaultNamePlaceholder,
 } from "@/lib/sentence/placeholders";
 import { useLearnerJapaneseName } from "@/hooks/use-learner-japanese-name";
 import { useLearnerName } from "@/hooks/use-learner-name";
@@ -49,6 +49,7 @@ export function PlaceholderText({
   const learnerName = useLearnerName();
   const learnerJapaneseName = useLearnerJapaneseName();
   const segments = parsePlaceholderTags(text);
+  const placeholders = withDefaultNamePlaceholder(sentence?.placeholders, [text]);
 
   if (segments.length === 1 && segments[0].type === "text") {
     return <Component className={className}>{text}</Component>;
@@ -61,9 +62,14 @@ export function PlaceholderText({
           return <span key={i}>{segment.value}</span>;
         }
 
-        const spec = sentence ? getPlaceholderSpec(sentence, segment.tag) : undefined;
+        const spec = placeholders?.find(
+          (p) => p.tag.toLowerCase() === segment.tag.toLowerCase()
+        );
+        const resolvedAsLearner =
+          (spec?.resolveAs ?? (segment.tag === "name" ? "learner" : undefined)) ===
+          "learner";
         const resolved =
-          spec?.resolveAs === "learner" &&
+          resolvedAsLearner &&
           (script === "japanese"
             ? Boolean(learnerJapaneseName ?? learnerName)
             : Boolean(learnerName));

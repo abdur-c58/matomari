@@ -11,6 +11,7 @@ import {
 } from "@/lib/storage/r2-client";
 import {
   deleteAllAudioMetadata,
+  deleteAudioMetadataBySentenceIds,
   listAudioMetadata,
   upsertAudioMetadata,
 } from "@/lib/supabase/server-data";
@@ -48,6 +49,27 @@ export async function clearAudioCaches(): Promise<{ deletedR2: number }> {
   }
 
   return { deletedR2 };
+}
+
+/** Clear R2 + metadata for specific sentence IDs (e.g. narration after cue bump). */
+export async function clearAudioCachesForSentenceIds(
+  sentenceIds: string[]
+): Promise<{ deletedR2: number; deletedMetadata: number }> {
+  const idSet = new Set(sentenceIds);
+  let deletedR2 = 0;
+
+  const metadata = await listAudioMetadata();
+  const matching = metadata.filter((row) => idSet.has(row.sentence_id));
+
+  if (isR2Configured()) {
+    for (const row of matching) {
+      await deleteR2Object(row.r2_key);
+      deletedR2++;
+    }
+  }
+
+  const deletedMetadata = await deleteAudioMetadataBySentenceIds([...idSet]);
+  return { deletedR2, deletedMetadata };
 }
 
 export async function regenerateAllAudio(

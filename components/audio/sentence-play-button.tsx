@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Loader2, Play } from "lucide-react";
 import { useApp } from "@/components/providers/app-provider";
 import { audioSession, type TtsRequest } from "@/lib/audio/audio-session";
+import type { FishAudioDirectives } from "@/lib/audio/fish-audio-cues";
 import { getTtsTextFromFields } from "@/lib/audio/tts-text";
 import type { NarrationSpeaker, SentencePlaceholder } from "@/types/sentence";
 import type { Dialect } from "@/lib/constants/dialect";
@@ -24,6 +25,7 @@ export type SentenceAudioFields = {
   context_notes?: string;
   english?: string;
   placeholders?: SentencePlaceholder[];
+  fishAudio?: FishAudioDirectives;
   dialect?: Dialect;
   speaker?: NarrationSpeaker;
   disabled?: boolean;
@@ -49,6 +51,7 @@ function buildTtsRequest(
     tags: fields.tags,
     context_notes: fields.context_notes,
     english: fields.english,
+    ...(fields.fishAudio ? { fishAudio: fields.fishAudio } : {}),
     ttsSource: "surface",
   };
 }
@@ -63,6 +66,7 @@ export function SentenceAudioControls({
   context_notes,
   english,
   placeholders,
+  fishAudio,
   dialect: dialectProp,
   speaker,
   disabled = false,
@@ -123,6 +127,7 @@ export function SentenceAudioControls({
         context_notes,
         english,
         placeholders,
+        fishAudio,
         dialect,
         speaker,
       },

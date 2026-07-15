@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { parseFishAudioDirectives } from "@/lib/audio/fish-audio-cues";
 import { generateServerAudio } from "@/lib/audio/generate-audio";
 import { getSpokenScriptFromFields } from "@/lib/audio/tts-text";
 import { TtsQuotaError } from "@/lib/audio/tts-errors";
@@ -25,6 +26,7 @@ export async function POST(request: Request) {
       tags,
       context_notes,
       english,
+      fishAudio: fishAudioRaw,
       force,
       ttsSource,
     } = body as {
@@ -40,9 +42,11 @@ export async function POST(request: Request) {
       tags?: string[];
       context_notes?: string;
       english?: string;
+      fishAudio?: unknown;
       force?: boolean;
       ttsSource?: "surface" | "reading";
     };
+    const fishAudio = parseFishAudioDirectives(fishAudioRaw);
 
     const resolvedSpeaker: NarrationSpeaker =
       speaker === "B" ? "B" : "A";
@@ -64,8 +68,9 @@ export async function POST(request: Request) {
         tags,
         context_notes,
         english,
+        fishAudio,
       },
-      { dialect, learnerName, ttsSource: ttsSource ?? "surface" }
+      { dialect, learnerName, ttsSource: ttsSource ?? "surface", fishAudio }
     );
 
     if (!spokenText) {

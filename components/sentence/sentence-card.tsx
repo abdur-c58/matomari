@@ -138,6 +138,7 @@ export function SentenceCard({
                   context_notes={sentence.context_notes}
                   english={sentence.english}
                   placeholders={compactPlayFields.placeholders ?? sentence.placeholders}
+                  fishAudio={sentence.narrationAudio?.fishAudio}
                   dialect={primaryDialect}
                   speaker={sentence.speaker}
                   disabled={!viewHasTranslation}

@@ -187,6 +187,7 @@ function EnDialectSection({
           context_notes={sentence.context_notes}
           english={sentence.english}
           placeholders={placeholders}
+          fishAudio={sentence.narrationAudio?.fishAudio}
           dialect={dialect}
           speaker={sentence.speaker}
           appearance="minimal"
@@ -460,6 +461,7 @@ export function BrowseSentenceCard({
                         context_notes={sentence.context_notes}
                         english={sentence.english}
                         placeholders={primaryFields.placeholders ?? sentence.placeholders}
+                        fishAudio={sentence.narrationAudio?.fishAudio}
                         dialect={primaryDialect}
                         speaker={sentence.speaker}
                       />

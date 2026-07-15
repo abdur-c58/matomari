@@ -23,7 +23,10 @@
     "clear-all-audio-and-translations": "npx tsx --env-file=.env.local scripts/clear-all-audio-and-translations.ts",
     "apply-name-placeholders": "npx tsx --env-file=.env.local scripts/apply-name-placeholders.ts",
     "audit-shared-translations": "npx tsx --env-file=.env.local scripts/audit-shared-translations.ts",
-    "retranslate-flagged": "npx tsx --env-file=.env.local scripts/retranslate-flagged.ts"
+    "retranslate-flagged": "npx tsx --env-file=.env.local scripts/retranslate-flagged.ts",
+    "annotate-narration-audio": "npx tsx --env-file=.env.local scripts/annotate-narration-audio.ts",
+    "clear-narration-audio": "npx tsx --env-file=.env.local scripts/clear-narration-audio.ts",
+    "verify-narration-audio": "npx tsx scripts/verify-narration-audio.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1084.0",

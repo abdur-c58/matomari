@@ -9,6 +9,13 @@ import type {
 
 export const PLACEHOLDER_PATTERN = /\[([a-z][a-z0-9_]*)\]/gi;
 
+/** Default when English/Japanese contain [name] without explicit placeholder metadata. */
+export const DEFAULT_NAME_PLACEHOLDER: SentencePlaceholder = {
+  tag: "name",
+  resolveAs: "learner",
+  readingSubstitute: "なまえ",
+};
+
 export type PlaceholderSegment =
   | { type: "text"; value: string }
   | { type: "tag"; tag: string; raw: string };
@@ -51,13 +58,43 @@ export function getPlaceholderSpec(
   return sentence.placeholders?.find((p) => p.tag.toLowerCase() === tag.toLowerCase());
 }
 
+/**
+ * Ensure [name] in text resolves as the learner even when premade seeds omit
+ * placeholders metadata (common for catalog English before translation).
+ */
+export function withDefaultNamePlaceholder(
+  placeholders: SentencePlaceholder[] | undefined,
+  texts?: Array<string | undefined | null>
+): SentencePlaceholder[] | undefined {
+  const list = [...(placeholders ?? [])];
+  const hasNameSpec = list.some((p) => p.tag.toLowerCase() === "name");
+  if (hasNameSpec) return list.length ? list : undefined;
+
+  const textHasName = (texts ?? []).some(
+    (t) => typeof t === "string" && /\[name\]/i.test(t)
+  );
+  if (!textHasName) return placeholders;
+
+  list.push({ ...DEFAULT_NAME_PLACEHOLDER });
+  return list;
+}
+
+function resolveAsForTag(
+  tag: string,
+  spec: SentencePlaceholder | undefined
+): PlaceholderResolveAs | undefined {
+  if (spec?.resolveAs) return spec.resolveAs;
+  if (tag.toLowerCase() === "name") return "learner";
+  return undefined;
+}
+
 export function resolvePlaceholderDisplayValue(
   tag: string,
   spec: SentencePlaceholder | undefined,
   learnerName: string | null,
   options?: { script?: "latin" | "japanese"; learnerJapaneseName?: string | null }
 ): string {
-  if (spec?.resolveAs === "learner") {
+  if (resolveAsForTag(tag, spec) === "learner") {
     if (options?.script === "japanese" && options.learnerJapaneseName) {
       return options.learnerJapaneseName;
     }
@@ -88,14 +125,19 @@ function applyReadingSubstitutes(
   placeholders: SentencePlaceholder[] | undefined,
   learnerJapaneseName: string | null
 ): string {
+  const specs = withDefaultNamePlaceholder(
+    placeholders,
+    // If reading still has the default kana substitute, treat as name slot
+    text.includes(DEFAULT_NAME_PLACEHOLDER.readingSubstitute) ? ["[name]"] : []
+  );
   let result = text;
 
-  for (const spec of placeholders ?? []) {
+  for (const spec of specs ?? []) {
     const substitute = spec.readingSubstitute?.trim();
     if (!substitute || !result.includes(substitute)) continue;
 
     const replacement =
-      spec.resolveAs === "learner" && learnerJapaneseName
+      resolveAsForTag(spec.tag, spec) === "learner" && learnerJapaneseName
         ? learnerJapaneseName
         : substitute;
 
@@ -113,7 +155,6 @@ export function resolveKanaReadingForDisplay(
 ): string | null {
   const trimmed = reading?.trim();
   if (!trimmed) return null;
-  if (!placeholders?.length) return trimmed;
   return applyReadingSubstitutes(trimmed, placeholders, learnerJapaneseName);
 }
 
@@ -123,11 +164,17 @@ export function resolveLatinReadingSubstitutes(
   placeholders: SentencePlaceholder[] | undefined,
   learnerName: string | null
 ): string {
-  if (!text || !placeholders?.length || !learnerName) return text;
+  if (!text || !learnerName) return text;
+
+  const specs = withDefaultNamePlaceholder(
+    placeholders,
+    text.toLowerCase().includes("namae") ? ["[name]"] : []
+  );
+  if (!specs?.length) return text;
 
   let result = text;
-  for (const spec of placeholders) {
-    if (spec.resolveAs !== "learner") continue;
+  for (const spec of specs) {
+    if (resolveAsForTag(spec.tag, spec) !== "learner") continue;
     const kanaSub = spec.readingSubstitute?.trim();
     if (!kanaSub) continue;
 

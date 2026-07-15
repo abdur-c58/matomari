@@ -1,11 +1,18 @@
 import type { Register, Sentence, SentencePlaceholder } from "@/types/sentence";
 import type { Dialect } from "@/lib/constants/dialect";
+import {
+  compileFishAudioScript,
+  type FishAudioDirectives,
+} from "@/lib/audio/fish-audio-cues";
 import { enhanceTtsProsody, type TtsProsodyContext } from "@/lib/audio/tts-prosody";
 import {
   canUseJapaneseSurfaceForTts,
   normalizeForTts,
 } from "@/lib/audio/tts-normalize";
-import { resolveReadingForTts } from "@/lib/sentence/placeholders";
+import {
+  resolveReadingForTts,
+  withDefaultNamePlaceholder,
+} from "@/lib/sentence/placeholders";
 
 /** Hiragana, katakana, and common punctuation allowed in a TTS reading line. */
 const KANA_READING_PATTERN =
@@ -41,7 +48,10 @@ function resolveKanaReadingPath(
   reading: string | undefined | null,
   options: TtsFieldOptions
 ): string | null {
-  const placeholders = options.placeholders;
+  const placeholders = withDefaultNamePlaceholder(options.placeholders, [
+    japanese,
+    reading?.includes("なまえ") ? "[name]" : undefined,
+  ]);
   let fromKana: string | null = null;
 
   if (placeholders?.length && isValidKanaReading(reading)) {
@@ -76,7 +86,10 @@ function resolveBaseReading(
   const ttsSource = options?.ttsSource ?? "surface";
 
   if (dialect === "kansai" && isValidKanaReading(options?.phonetic_reading)) {
-    const placeholders = options?.placeholders;
+    const placeholders = withDefaultNamePlaceholder(options?.placeholders, [
+      japanese,
+      options?.phonetic_reading?.includes("なまえ") ? "[name]" : undefined,
+    ]);
     const resolved = placeholders?.length
       ? resolveReadingForTts(
           { reading: options!.phonetic_reading!, placeholders },
@@ -140,23 +153,33 @@ export function assertTtsText(
   return text;
 }
 
-/** Kana reading + delivery cues (pauses, sighs) for TTS — used for synthesis & cache keys. */
+type SpokenScriptFields = {
+  japanese?: string | null;
+  reading?: string | null;
+  phonetic_reading?: string | null;
+  placeholders?: SentencePlaceholder[];
+  register?: Register | string;
+  tags?: string[];
+  context_notes?: string;
+  english?: string;
+  /** Structured Fish cues — compiled after [name] resolution / normalization. */
+  fishAudio?: FishAudioDirectives | null;
+};
+
+type SpokenScriptContext = TtsProsodyContext & {
+  dialect?: Dialect;
+  learnerName?: string | null;
+  ttsSource?: TtsScriptSource;
+  fishAudio?: FishAudioDirectives | null;
+};
+
+/**
+ * Spoken script for Fish TTS + cache keys:
+ * surface/reading → resolve app placeholders → normalize → light prosody → Fish cues.
+ */
 export function getSpokenScript(
-  sentence: {
-    japanese?: string | null;
-    reading?: string | null;
-    phonetic_reading?: string | null;
-    placeholders?: SentencePlaceholder[];
-    register?: Register | string;
-    tags?: string[];
-    context_notes?: string;
-    english?: string;
-  },
-  prosodyCtx?: TtsProsodyContext & {
-    dialect?: Dialect;
-    learnerName?: string | null;
-    ttsSource?: TtsScriptSource;
-  }
+  sentence: SpokenScriptFields,
+  prosodyCtx?: SpokenScriptContext
 ): string | null {
   const dialect = prosodyCtx?.dialect ?? "standard";
   const reading = getTtsTextFromFields(sentence.japanese, sentence.reading, {
@@ -167,31 +190,20 @@ export function getSpokenScript(
     ttsSource: prosodyCtx?.ttsSource,
   });
   if (!reading) return null;
-  return enhanceTtsProsody(reading, {
+  const withProsody = enhanceTtsProsody(reading, {
     register: sentence.register,
     tags: sentence.tags,
     context_notes: sentence.context_notes,
     english: sentence.english,
     ...prosodyCtx,
   });
+  const fishAudio = prosodyCtx?.fishAudio ?? sentence.fishAudio;
+  return compileFishAudioScript(withProsody, fishAudio);
 }
 
 export function getSpokenScriptFromFields(
-  fields: {
-    japanese?: string | null;
-    reading?: string | null;
-    phonetic_reading?: string | null;
-    placeholders?: SentencePlaceholder[];
-    register?: Register | string;
-    tags?: string[];
-    context_notes?: string;
-    english?: string;
-  },
-  prosodyCtx?: TtsProsodyContext & {
-    dialect?: Dialect;
-    learnerName?: string | null;
-    ttsSource?: TtsScriptSource;
-  }
+  fields: SpokenScriptFields,
+  prosodyCtx?: SpokenScriptContext
 ): string | null {
   return getSpokenScript(fields, prosodyCtx);
 }

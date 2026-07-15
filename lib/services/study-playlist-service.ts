@@ -38,6 +38,12 @@ export function sentenceToTtsRequest(
     tags: sentence.tags,
     context_notes: sentence.context_notes,
     english: sentence.english,
+    ...(sentence.narrationAudio?.fishAudio
+      ? { fishAudio: sentence.narrationAudio.fishAudio }
+      : {}),
+    ...(typeof sentence.narrationAudio?.pauseAfterMs === "number"
+      ? { pauseAfterMs: sentence.narrationAudio.pauseAfterMs }
+      : {}),
   };
 }
 

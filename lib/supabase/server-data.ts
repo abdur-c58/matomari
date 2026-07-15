@@ -44,6 +44,32 @@ export async function deleteAllAudioMetadata(): Promise<void> {
   });
 }
 
+export async function deleteAudioMetadataBySentenceIds(
+  sentenceIds: string[]
+): Promise<number> {
+  const cfg = getRestConfig();
+  if (!cfg || sentenceIds.length === 0) return 0;
+
+  let deleted = 0;
+  // PostgREST URL length limits — delete in chunks.
+  const chunkSize = 40;
+  for (let i = 0; i < sentenceIds.length; i += chunkSize) {
+    const chunk = sentenceIds.slice(i, i + chunkSize);
+    const filter = chunk.map((id) => `"${id.replace(/"/g, "")}"`).join(",");
+    const res = await fetch(
+      `${cfg.url}/rest/v1/audio_metadata?sentence_id=in.(${filter})`,
+      {
+        method: "DELETE",
+        headers: restHeaders(cfg.key, { Prefer: "return=representation" }),
+      }
+    );
+    if (!res.ok) continue;
+    const rows = (await res.json()) as AudioMetadataRow[];
+    deleted += Array.isArray(rows) ? rows.length : 0;
+  }
+  return deleted;
+}
+
 export async function upsertAudioMetadata(
   textHash: string,
   sentenceId: string,

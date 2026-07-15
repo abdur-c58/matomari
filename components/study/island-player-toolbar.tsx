@@ -52,37 +52,50 @@ function PlaybackSettingsFields({
   playbackRate,
   onPauseMsChange,
   onPlaybackRateChange,
+  contextualTiming = false,
 }: {
   pauseMs: number;
   playbackRate: number;
   onPauseMsChange: (ms: number) => void;
   onPlaybackRateChange: (rate: number) => void;
+  /** Narration: per-turn authored pauses; hide global pause control. */
+  contextualTiming?: boolean;
 }) {
   return (
     <div className="space-y-5">
-      <div className="space-y-2">
-        <Label htmlFor="playlist-pause" className="text-sm font-medium text-foreground">
-          Pause between sentences
-        </Label>
-        <p className="text-xs leading-relaxed text-muted">
-          How long to wait after each sentence finishes before the next one starts.
-        </p>
-        <Select
-          value={String(pauseMs)}
-          onValueChange={(v) => onPauseMsChange(Number(v))}
-        >
-          <SelectTrigger id="playlist-pause" className="h-10 w-full rounded-xl text-sm">
-            <SelectValue>{formatPauseLabel(pauseMs)}</SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            {PAUSE_OPTIONS.map((o) => (
-              <SelectItem key={o.value} value={o.value}>
-                {o.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      {contextualTiming ? (
+        <div className="space-y-1.5 rounded-xl border border-border/60 bg-muted/20 px-3 py-2.5">
+          <p className="text-sm font-medium text-foreground">Conversation timing</p>
+          <p className="text-xs leading-relaxed text-muted">
+            Pauses between lines follow the dialogue. You can still change playback speed
+            below.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          <Label htmlFor="playlist-pause" className="text-sm font-medium text-foreground">
+            Pause between sentences
+          </Label>
+          <p className="text-xs leading-relaxed text-muted">
+            How long to wait after each sentence finishes before the next one starts.
+          </p>
+          <Select
+            value={String(pauseMs)}
+            onValueChange={(v) => onPauseMsChange(Number(v))}
+          >
+            <SelectTrigger id="playlist-pause" className="h-10 w-full rounded-xl text-sm">
+              <SelectValue>{formatPauseLabel(pauseMs)}</SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {PAUSE_OPTIONS.map((o) => (
+                <SelectItem key={o.value} value={o.value}>
+                  {o.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
       <div className="space-y-2">
         <Label htmlFor="playlist-speed" className="text-sm font-medium text-foreground">
           Playback speed
@@ -128,6 +141,7 @@ export function IslandPlayerToolbar({
   playbackRate,
   onPauseMsChange,
   onPlaybackRateChange,
+  contextualTiming = false,
 }: {
   displayMode: IslandBrowseDisplay;
   onDisplayModeChange: (mode: IslandBrowseDisplay) => void;
@@ -146,6 +160,7 @@ export function IslandPlayerToolbar({
   playbackRate: number;
   onPauseMsChange: (ms: number) => void;
   onPlaybackRateChange: (rate: number) => void;
+  contextualTiming?: boolean;
 }) {
   const [settingsOpen, setSettingsOpen] = useState(false);
 
@@ -262,7 +277,9 @@ export function IslandPlayerToolbar({
           <DialogHeader>
             <DialogTitle>Playlist settings</DialogTitle>
             <DialogDescription>
-              Adjust timing and speed for casual playlist playback on this island.
+              {contextualTiming
+                ? "Adjust playback speed. Timing between lines follows the conversation."
+                : "Adjust timing and speed for casual playlist playback on this island."}
             </DialogDescription>
           </DialogHeader>
           <PlaybackSettingsFields
@@ -270,6 +287,7 @@ export function IslandPlayerToolbar({
             playbackRate={playbackRate}
             onPauseMsChange={onPauseMsChange}
             onPlaybackRateChange={onPlaybackRateChange}
+            contextualTiming={contextualTiming}
           />
         </DialogContent>
       </Dialog>
@@ -351,6 +369,7 @@ export function IslandPlayerToolbar({
             playbackRate={playbackRate}
             onPauseMsChange={onPauseMsChange}
             onPlaybackRateChange={onPlaybackRateChange}
+            contextualTiming={contextualTiming}
           />
         </div>
       </div>

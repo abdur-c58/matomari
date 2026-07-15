@@ -11,6 +11,7 @@ import {
   parsePlaceholderTags,
   resolveKanaReadingForDisplay,
   resolveLatinReadingSubstitutes,
+  withDefaultNamePlaceholder,
 } from "@/lib/sentence/placeholders";
 import { useLearnerJapaneseName } from "@/hooks/use-learner-japanese-name";
 import { useLearnerName } from "@/hooks/use-learner-name";
@@ -22,7 +23,13 @@ type DialectTranslationBlockProps = {
   dialect: Dialect;
   sentenceMeta: Pick<
     Sentence,
-    "register" | "tags" | "context_notes" | "english" | "placeholders" | "speaker"
+    | "register"
+    | "tags"
+    | "context_notes"
+    | "english"
+    | "placeholders"
+    | "speaker"
+    | "narrationAudio"
   >;
   showLabel?: boolean;
   showPlayButton?: boolean;
@@ -62,7 +69,10 @@ export function DialectTranslationBlock({
   const learnerName = useLearnerName();
 
   const placeholderSentence = {
-    placeholders: fields.placeholders ?? sentenceMeta.placeholders,
+    placeholders: withDefaultNamePlaceholder(
+      fields.placeholders ?? sentenceMeta.placeholders,
+      [fields.japanese, fields.romaji, sentenceMeta.english]
+    ),
   };
 
   const showPhonetic = shouldShowKansaiPhonetic(dialect, fields.reading, fields.phonetic_reading);
@@ -169,6 +179,7 @@ export function DialectTranslationBlock({
             context_notes={sentenceMeta.context_notes}
             english={sentenceMeta.english}
             placeholders={placeholderSentence.placeholders}
+            fishAudio={sentenceMeta.narrationAudio?.fishAudio}
             dialect={dialect}
             speaker={sentenceMeta.speaker}
             appearance={playButtonAppearance}

@@ -1,3 +1,7 @@
+import type {
+  FishAudioDirectives,
+  NarrationPauseMs,
+} from "@/lib/audio/fish-audio-cues";
 import type { Dialect } from "@/lib/constants/dialect";
 
 export type Register = "casual" | "polite" | "formal";
@@ -6,6 +10,12 @@ export type Register = "casual" | "polite" | "formal";
 export type NarrationSpeaker = "A" | "B";
 
 export type IslandFormat = "standard" | "narration";
+
+/** Per-turn narration delivery — Fish cues compile at TTS time only (not UI text). */
+export interface NarrationAudio {
+  pauseAfterMs: NarrationPauseMs;
+  fishAudio?: FishAudioDirectives;
+}
 
 export interface SeedSentence {
   id: string;
@@ -19,6 +29,11 @@ export interface SeedSentence {
   translated: boolean;
   /** Speaker turn for narration islands (A/B). */
   speaker?: NarrationSpeaker;
+  /**
+   * Narration islands only: authored pause + Fish Audio expression cues.
+   * Never injected into japanese / reading / romaji display fields.
+   */
+  narrationAudio?: NarrationAudio;
 }
 
 export type PlaceholderResolveAs = "learner" | "literal";

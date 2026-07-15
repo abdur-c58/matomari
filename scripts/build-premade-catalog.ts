@@ -9,6 +9,10 @@
 import crypto from "crypto";
 import fs from "fs";
 import path from "path";
+import {
+  applyNarrationDirectivesToCatalogIslands,
+  parseNarrationDirectivesSidecar,
+} from "../lib/audio/narration-directives";
 import { parsePremadeCatalog } from "../lib/validation/premade-catalog-schema";
 import type { Island, Sentence } from "../types/sentence";
 import type { PremadeCatalog, PremadeFolder } from "../types/premade-catalog";
@@ -21,6 +25,12 @@ const DEFAULT_SOURCE = path.join(
 );
 
 const OUT_PATH = path.join(process.cwd(), "public", "premade-catalog.json");
+const NARRATION_DIRECTIVES_PATH = path.join(
+  process.cwd(),
+  "scripts",
+  "data",
+  "narration-audio-directives.json"
+);
 
 const FOLDER_THEME_KANJI: Record<string, string> = {
   learn_the_basics: "基",
@@ -282,6 +292,17 @@ function buildCatalog(sourceRoot: string): PremadeCatalog {
           subtopic,
           tags: featured ? ["essentials", "featured"] : [],
           translated: false,
+          ...(english.includes("[name]")
+            ? {
+                placeholders: [
+                  {
+                    tag: "name" as const,
+                    resolveAs: "learner" as const,
+                    readingSubstitute: "なまえ",
+                  },
+                ],
+              }
+            : {}),
           ...(narration
             ? { speaker: index % 2 === 0 ? ("A" as const) : ("B" as const) }
             : {}),
@@ -324,6 +345,26 @@ function main() {
   }
 
   const catalog = buildCatalog(sourceRoot);
+
+  const hasNarration = Object.values(catalog.islands).some(
+    (island) => island.format === "narration"
+  );
+  if (hasNarration) {
+    if (!fs.existsSync(NARRATION_DIRECTIVES_PATH)) {
+      throw new Error(
+        `Narration island(s) require ${NARRATION_DIRECTIVES_PATH}. Run: npm run annotate-narration-audio`
+      );
+    }
+    const sidecar = parseNarrationDirectivesSidecar(
+      JSON.parse(fs.readFileSync(NARRATION_DIRECTIVES_PATH, "utf8"))
+    );
+    catalog.islands = applyNarrationDirectivesToCatalogIslands(
+      catalog.islands,
+      sidecar,
+      { requireFullCoverage: true }
+    );
+  }
+
   const validated = parsePremadeCatalog(catalog);
 
   fs.writeFileSync(OUT_PATH, `${JSON.stringify(validated, null, 2)}\n`, "utf8");
@@ -336,10 +377,15 @@ function main() {
   const uniqueIds = new Set(
     Object.values(validated.islands).flatMap((i) => i.sentences.map((s) => s.id))
   );
+  const withNarrationAudio = Object.values(validated.islands).reduce(
+    (n, island) =>
+      n + island.sentences.filter((s) => Boolean(s.narrationAudio)).length,
+    0
+  );
 
   console.log(`Wrote ${OUT_PATH}`);
   console.log(
-    `Folders: ${validated.folders.length}, islands: ${islandCount}, sentences: ${sentenceCount}, unique ids: ${uniqueIds.size}`
+    `Folders: ${validated.folders.length}, islands: ${islandCount}, sentences: ${sentenceCount}, unique ids: ${uniqueIds.size}, narrationAudio: ${withNarrationAudio}`
   );
 }
 

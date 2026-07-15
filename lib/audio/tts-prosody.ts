@@ -1,4 +1,5 @@
 import type { Register } from "@/types/sentence";
+import { stripFishAudioTags } from "@/lib/audio/fish-audio-cues";
 import { getTtsModel } from "@/lib/audio/tts-config";
 
 export interface TtsProsodyContext {
@@ -38,11 +39,9 @@ export function enhanceTtsProsody(reading: string, ctx: TtsProsodyContext = {}):
   return text;
 }
 
-/** Strip inline tags / legacy SSML for Web Speech fallback. */
+/** Strip Fish cues / legacy SSML for Web Speech fallback (never speak bracket tags). */
 export function stripTtsMarkup(spokenScript: string): string {
-  return spokenScript
-    .replace(/\[[^\]]+\]/g, "")
-    .replace(/<break[^>]*\/?>/gi, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+  return stripFishAudioTags(
+    spokenScript.replace(/<break[^>]*\/?>/gi, " ")
+  );
 }

@@ -283,11 +283,13 @@ export function StudyUnitDetailShell({
         </p>
       </DecoratedStudySurface>
 
-      <StudyFlowGuide
-        compact
-        onStartFormalStudy={handleFormalStudy}
-        startLabel="Start study session"
-      />
+      {!isNarration && (
+        <StudyFlowGuide
+          compact
+          onStartFormalStudy={handleFormalStudy}
+          startLabel="Start study session"
+        />
+      )}
 
       {isPathway && pathwayStats.length > 0 && (
         <PathwayBatchPills
@@ -323,6 +325,7 @@ export function StudyUnitDetailShell({
           onPlaybackRateChange={(rate) =>
             void updatePlaybackSettings({ casualPlaylistPlaybackRate: rate })
           }
+          contextualTiming={isNarration}
         />
       </StickyPlayerBar>
 
