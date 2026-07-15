@@ -173,7 +173,7 @@ export function LibrarySentenceRow({
                 {sentence.register}
               </Badge>
               <Badge variant="outline" className="h-5 px-1.5 text-[10px]">
-                Lv{sentence.difficulty}
+                {sentence.difficulty == null ? "Mixed" : `Lv${sentence.difficulty}`}
               </Badge>
               {progress?.meaningConfirmed && (
                 <Badge variant="success" className="h-5 px-1.5 text-[10px]">

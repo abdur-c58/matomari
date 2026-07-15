@@ -38,6 +38,10 @@ export function sentenceToTtsRequest(
     tags: sentence.tags,
     context_notes: sentence.context_notes,
     english: sentence.english,
+    ...(sentence.paralinguisticTags?.length
+      ? { paralinguisticTags: sentence.paralinguisticTags }
+      : {}),
+    ...(sentence.narrationAudio ? { cacheBySpokenScript: true } : {}),
     ...(sentence.narrationAudio?.fishAudio
       ? { fishAudio: sentence.narrationAudio.fishAudio }
       : {}),

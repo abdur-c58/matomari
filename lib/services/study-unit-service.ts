@@ -10,6 +10,8 @@ import {
 import { sanitizeIslandFolders } from "@/lib/services/island-folder-service";
 import { isPremadeIslandKey } from "@/lib/services/shared-premade-service";
 import { PATHWAY_THEME_KANJI } from "@/lib/services/study-unit-kanji-service";
+import { formatCreatedBy } from "@/lib/services/island-identity-service";
+import { combineParalinguisticTags } from "@/lib/audio/fish-audio-cues";
 
 export type StudyUnitRef =
   | { kind: "pathway" }
@@ -35,6 +37,9 @@ export interface StudyUnitSummary {
   isFeatured: boolean;
   /** Multi-speaker dialogue island (e.g. Q&A). */
   isNarration: boolean;
+  /** Live membership / shared read-only island. */
+  isShared: boolean;
+  createdByLabel: string | null;
   themeKanji: string;
 }
 
@@ -98,6 +103,8 @@ export function getStudyUnits(
     isPremade: false,
     isFeatured: false,
     isNarration: false,
+    isShared: false,
+    createdByLabel: null,
     themeKanji: PATHWAY_THEME_KANJI,
   };
 
@@ -122,6 +129,8 @@ export function getStudyUnits(
       isPremade: isPremadeIslandKey(island.key, premadeCatalog),
       isFeatured: Boolean(data?.featured),
       isNarration: data?.format === "narration",
+      isShared: Boolean(data?.readOnly || data?.provenance?.kind === "shared"),
+      createdByLabel: formatCreatedBy(data?.createdBy),
       themeKanji: data?.themeKanji ?? "島",
     } satisfies StudyUnitSummary;
   });
@@ -331,5 +340,17 @@ export function getSentencesForStudyUnit(
     return dataset.main_pathway.batches.flatMap((b) => b.sentences);
   }
 
-  return dataset.islands[ref.key]?.sentences ?? [];
+  const island = dataset.islands[ref.key];
+  if (!island) return [];
+  if (island.format !== "narration" || !island.narrationMode?.toneTags.length) {
+    return island.sentences;
+  }
+
+  return island.sentences.map((sentence) => ({
+    ...sentence,
+    paralinguisticTags: combineParalinguisticTags(
+      island.narrationMode?.toneTags,
+      sentence.paralinguisticTags
+    ),
+  }));
 }

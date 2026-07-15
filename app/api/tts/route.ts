@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { parseFishAudioDirectives } from "@/lib/audio/fish-audio-cues";
+import {
+  parseFishAudioDirectives,
+  sanitizeParalinguisticTags,
+} from "@/lib/audio/fish-audio-cues";
 import { generateServerAudio } from "@/lib/audio/generate-audio";
 import { getSpokenScriptFromFields } from "@/lib/audio/tts-text";
 import { TtsQuotaError } from "@/lib/audio/tts-errors";
@@ -36,6 +39,8 @@ export async function POST(request: Request) {
       context_notes,
       english,
       fishAudio: fishAudioRaw,
+      paralinguisticTags: paralinguisticTagsRaw,
+      cacheBySpokenScript = false,
       force,
       ttsSource,
     } = body as {
@@ -52,10 +57,13 @@ export async function POST(request: Request) {
       context_notes?: string;
       english?: string;
       fishAudio?: unknown;
+      paralinguisticTags?: unknown;
+      cacheBySpokenScript?: boolean;
       force?: boolean;
       ttsSource?: "surface" | "reading";
     };
     const fishAudio = parseFishAudioDirectives(fishAudioRaw);
+    const paralinguisticTags = sanitizeParalinguisticTags(paralinguisticTagsRaw);
 
     const resolvedSpeaker: NarrationSpeaker =
       speaker === "B" ? "B" : "A";
@@ -78,8 +86,15 @@ export async function POST(request: Request) {
         context_notes,
         english,
         fishAudio,
+        paralinguisticTags,
       },
-      { dialect, learnerName, ttsSource: ttsSource ?? "surface", fishAudio }
+      {
+        dialect,
+        learnerName,
+        ttsSource: ttsSource ?? "surface",
+        fishAudio,
+        paralinguisticTags,
+      }
     );
 
     if (!spokenText) {
@@ -99,6 +114,7 @@ export async function POST(request: Request) {
       dialect,
       speaker: resolvedSpeaker,
       force: force === true,
+      cacheMode: cacheBySpokenScript ? "spoken-script" : "sentence",
     });
 
     return new NextResponse(new Uint8Array(buffer), {

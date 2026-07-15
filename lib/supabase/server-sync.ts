@@ -1,8 +1,9 @@
-import type { Dataset } from "@/types/sentence";
+import type { Dataset, UserLibrary } from "@/types/sentence";
 import type { UserProgress } from "@/types/progress";
 import type { AppStats } from "@/types/stats";
 import type { SyncTable } from "@/lib/repositories/types";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { reconcileOwnerShares } from "@/lib/services/island-sharing-service";
 
 export async function pushRemoteDataAdmin(
   userId: string,
@@ -53,6 +54,19 @@ export async function pushRemoteDataAdmin(
     console.warn(`Supabase push failed (${table}):`, error.message);
     return { ok: false, error: error.message };
   }
+
+  // When the owner deletes an island, cascade-delete orphan share rows (and memberships).
+  if (table === "user_datasets" && payload && typeof payload === "object") {
+    const islands = (payload as UserLibrary).islands;
+    if (islands && typeof islands === "object") {
+      try {
+        await reconcileOwnerShares(userId, islands);
+      } catch (reconcileError) {
+        console.warn("Island share reconciliation failed:", reconcileError);
+      }
+    }
+  }
+
   return { ok: true, revision: nextRevision };
 }
 
@@ -90,6 +104,27 @@ export async function fetchRemoteDatasetAdmin(
   if (error || !data) return null;
   return {
     data: data.data as Dataset,
+    updatedAt: data.updated_at,
+    revision: Number(data.revision ?? 1),
+  };
+}
+
+/** Prefer this for sharing — cloud payload is UserLibrary-shaped. */
+export async function fetchRemoteLibraryAdmin(
+  userId: string
+): Promise<{ data: UserLibrary; updatedAt: string; revision: number } | null> {
+  const supabase = createAdminClient();
+  if (!supabase) return null;
+
+  const { data, error } = await supabase
+    .from("user_datasets")
+    .select("data, updated_at, revision")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (error || !data) return null;
+  return {
+    data: data.data as UserLibrary,
     updatedAt: data.updated_at,
     revision: Number(data.revision ?? 1),
   };

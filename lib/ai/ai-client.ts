@@ -4,9 +4,18 @@ import { buildDatasetSummary } from "./context-builder";
 import { buildFullSentenceCatalog } from "@/lib/services/dataset-mutation-service";
 import type { ChatMessage, IslandGenerationPreview, IslandSuggestion, SentenceReviewResult, TranscriptSegmentResult, TutorContext } from "./types";
 import type {
+  IslandDifficultyMode,
+  IslandDurationTier,
   IslandFluencyLevel,
+  IslandGenerationFormat,
   IslandJlptLevel,
   IslandLevelMode,
+} from "@/lib/constants/island-generation";
+import {
+  DEFAULT_ISLAND_DIFFICULTY_MODE,
+  DEFAULT_ISLAND_DURATION_TIER,
+  DEFAULT_ISLAND_GENERATION_FORMAT,
+  resolveIslandSentenceTarget,
 } from "@/lib/constants/island-generation";
 
 export class AIClientError extends Error {
@@ -57,6 +66,9 @@ export async function generateIsland(
   dataset: Dataset,
   options?: {
     sentenceCount?: number;
+    durationTier?: IslandDurationTier;
+    difficultyMode?: IslandDifficultyMode;
+    format?: IslandGenerationFormat;
     difficultyRange?: [number, number];
     levelMode?: IslandLevelMode;
     fluencyLevel?: IslandFluencyLevel;
@@ -64,12 +76,17 @@ export async function generateIsland(
     extraInstructions?: string;
   }
 ): Promise<IslandGenerationPreview> {
+  const durationTier = options?.durationTier ?? DEFAULT_ISLAND_DURATION_TIER;
   const res = await fetch("/api/ai/island", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       theme,
-      sentenceCount: options?.sentenceCount ?? 20,
+      sentenceCount:
+        options?.sentenceCount ?? resolveIslandSentenceTarget(durationTier),
+      durationTier,
+      difficultyMode: options?.difficultyMode ?? DEFAULT_ISLAND_DIFFICULTY_MODE,
+      format: options?.format ?? DEFAULT_ISLAND_GENERATION_FORMAT,
       difficultyRange: options?.difficultyRange,
       levelMode: options?.levelMode,
       fluencyLevel: options?.fluencyLevel,

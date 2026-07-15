@@ -28,6 +28,8 @@ export interface FishAudioSettings {
   volume: number;
 }
 
+export type TtsCacheMode = "sentence" | "spoken-script";
+
 function parseFloatEnv(key: string, fallback: number, min: number, max: number): number {
   const raw = process.env[key];
   if (raw === undefined || raw === "") return fallback;
@@ -75,7 +77,9 @@ export function buildTtsCacheKey(
   sentenceId: string,
   ttsText: string,
   dialect: Dialect = "standard",
-  speaker: NarrationSpeaker = "A"
+  speaker: NarrationSpeaker = "A",
+  cacheMode: TtsCacheMode = "sentence"
 ): string {
-  return `${getTtsSettingsFingerprint(dialect, speaker)}:${sentenceId}:${ttsText}`;
+  const identity = cacheMode === "spoken-script" ? "shared-narration" : sentenceId;
+  return `${getTtsSettingsFingerprint(dialect, speaker)}:${identity}:${ttsText}`;
 }

@@ -1,7 +1,10 @@
 import { z } from "zod";
 import { islandSchema, seedSentenceSchema, sentenceSchema } from "@/lib/validation/dataset-schema";
 import {
+  DEFAULT_ISLAND_DIFFICULTY_MODE,
+  DEFAULT_ISLAND_DURATION_TIER,
   DEFAULT_ISLAND_FLUENCY_LEVEL,
+  DEFAULT_ISLAND_GENERATION_FORMAT,
   DEFAULT_ISLAND_JLPT_LEVEL,
   DEFAULT_ISLAND_LEVEL_MODE,
 } from "@/lib/constants/island-generation";
@@ -30,7 +33,7 @@ const chatMessageSchema = z.object({
 const sentenceCatalogEntrySchema = z.object({
   id: z.string(),
   english: z.string(),
-  difficulty: z.number(),
+  difficulty: z.number().nullable(),
   category: z.string(),
   register: z.string(),
   subtopic: z.string(),
@@ -50,7 +53,7 @@ const datasetSummarySchema = z.object({
     .object({
       id: z.string(),
       english: z.string(),
-      difficulty: z.number(),
+              difficulty: z.number().nullable(),
       category: z.string(),
       register: z.string(),
       subtopic: z.string(),
@@ -83,7 +86,19 @@ export const chatRequestSchema = z.object({
 
 export const islandRequestSchema = z.object({
   theme: z.string().min(2).max(200),
-  sentenceCount: z.number().int().min(5).max(75).optional(),
+  sentenceCount: z.number().int().min(5).max(60).optional(),
+  durationTier: z
+    .enum(["quick", "standard", "deep"])
+    .optional()
+    .default(DEFAULT_ISLAND_DURATION_TIER),
+  difficultyMode: z
+    .enum(["matched", "natural"])
+    .optional()
+    .default(DEFAULT_ISLAND_DIFFICULTY_MODE),
+  format: z
+    .enum(["standard", "narration"])
+    .optional()
+    .default(DEFAULT_ISLAND_GENERATION_FORMAT),
   difficultyRange: z.tuple([z.number(), z.number()]).optional(),
   levelMode: islandLevelModeSchema.optional().default(DEFAULT_ISLAND_LEVEL_MODE),
   fluencyLevel: islandFluencyLevelSchema.optional().default(DEFAULT_ISLAND_FLUENCY_LEVEL),
@@ -97,18 +112,41 @@ export const generatedIslandSentenceSchema = z.object({
   id: z.string().min(1),
   english: z.string().min(1).optional(),
   register: z.enum(["casual", "polite", "formal"]).optional(),
-  difficulty: z.number().optional(),
+  difficulty: z.number().nullable().optional(),
   category: z.string().optional(),
   subtopic: z.string().optional(),
   tags: z.array(z.string()).optional(),
+  paralinguisticTags: z.array(z.string()).optional(),
   context_notes: z.string().optional(),
   translated: z.boolean().optional(),
+  speaker: z.enum(["A", "B"]).optional(),
+  narrationAudio: z
+    .object({
+      pauseAfterMs: z.number().optional(),
+      fishAudio: z
+        .object({
+          expression: z.string().optional(),
+          effect: z.string().optional(),
+          breakCue: z.string().optional(),
+        })
+        .optional(),
+      paralinguisticTags: z.array(z.string()).optional(),
+    })
+    .optional(),
 });
 
 export const islandGenerationResponseSchema = z.object({
   islandKey: z.string().min(1),
   description: z.string(),
   subtopics: z.array(z.string()),
+  format: z.enum(["standard", "narration"]).optional(),
+  speakers: z.array(z.enum(["A", "B"])).optional(),
+  narrationMode: z
+    .object({
+      context: z.string().min(1).max(500),
+      toneTags: z.array(z.string()).min(1).max(4),
+    })
+    .optional(),
   reusedIds: z.array(z.string()),
   sentences: z.array(generatedIslandSentenceSchema),
 });

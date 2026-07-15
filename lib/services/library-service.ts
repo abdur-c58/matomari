@@ -83,6 +83,7 @@ export interface LibraryMeta {
   pathwayBatches: { number: number; title: string }[];
   registers: string[];
   difficulties: number[];
+  hasMixedDifficulty?: boolean;
 }
 
 export interface LibraryGroup {
@@ -105,12 +106,17 @@ export function buildLibraryMeta(dataset: Dataset): LibraryMeta {
   const tags = new Set<string>();
   const registers = new Set<string>();
   const difficulties = new Set<number>();
+  let hasMixedDifficulty = false;
 
   for (const s of sentences) {
     categories.add(s.category);
     subtopics.add(s.subtopic);
     registers.add(s.register);
-    difficulties.add(s.difficulty);
+    if (s.difficulty == null) {
+      hasMixedDifficulty = true;
+    } else {
+      difficulties.add(s.difficulty);
+    }
     s.tags.forEach((t) => tags.add(t));
   }
 
@@ -122,6 +128,7 @@ export function buildLibraryMeta(dataset: Dataset): LibraryMeta {
     pathwayBatches: [],
     registers: [...registers].sort(),
     difficulties: [...difficulties].sort((a, a2) => a - a2),
+    hasMixedDifficulty,
   };
 }
 
@@ -183,8 +190,12 @@ export function filterLibrarySentences(
 
     if (filters.category && s.category !== filters.category) return false;
     if (filters.subtopic && s.subtopic !== filters.subtopic) return false;
-    if (filters.difficultyMin !== null && s.difficulty < filters.difficultyMin) return false;
-    if (filters.difficultyMax !== null && s.difficulty > filters.difficultyMax) return false;
+    if (filters.difficultyMin !== null || filters.difficultyMax !== null) {
+      // Mixed/null difficulty is excluded from numeric difficulty filters.
+      if (s.difficulty == null) return false;
+      if (filters.difficultyMin !== null && s.difficulty < filters.difficultyMin) return false;
+      if (filters.difficultyMax !== null && s.difficulty > filters.difficultyMax) return false;
+    }
     if (filters.register && s.register !== filters.register) return false;
     if (filters.tag && !s.tags.includes(filters.tag)) return false;
 
@@ -224,7 +235,8 @@ export function sortLibrarySentences(
       case "japanese":
         return (a.japanese ?? a.english).localeCompare(b.japanese ?? b.english);
       case "difficulty":
-        return a.difficulty - b.difficulty;
+        // Mixed (null) sorts after numeric difficulties
+        return (a.difficulty ?? 999) - (b.difficulty ?? 999);
       case "rating":
         return (spA?.rating ?? -1) - (spB?.rating ?? -1);
       default:
@@ -300,7 +312,7 @@ export function groupLibrarySentences(
         add(s.register, s);
         break;
       case "difficulty":
-        add(String(s.difficulty), s);
+        add(s.difficulty == null ? "mixed" : String(s.difficulty), s);
         break;
       case "rating": {
         const rating = sp?.rating;
@@ -333,7 +345,7 @@ export function groupLibrarySentences(
       case "register":
         return key.charAt(0).toUpperCase() + key.slice(1);
       case "difficulty":
-        return `Level ${key}`;
+        return key === "mixed" || key === "null" ? "Mixed difficulty" : `Level ${key}`;
       case "rating":
         return key === "unrated" ? "Unrated" : `${key} star${key === "1" ? "" : "s"}`;
       default:

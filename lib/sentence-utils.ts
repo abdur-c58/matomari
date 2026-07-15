@@ -1,4 +1,8 @@
-import { parseNarrationAudioDirectives } from "@/lib/audio/fish-audio-cues";
+import {
+  legacyFishDirectivesToTags,
+  parseNarrationAudioDirectives,
+  sanitizeParalinguisticTags,
+} from "@/lib/audio/fish-audio-cues";
 import { normalizeLegacyUnderscores } from "@/lib/sentence/placeholders";
 import type { Register, SeedSentence, Sentence, SentencePlaceholder, TranslatedFields } from "@/types/sentence";
 
@@ -23,8 +27,19 @@ export function toSeedPayload(s: Sentence): SeedSentence {
     context_notes: s.context_notes,
     translated: s.translated,
     ...(s.speaker ? { speaker: s.speaker } : {}),
+    ...(s.paralinguisticTags?.length
+      ? { paralinguisticTags: s.paralinguisticTags }
+      : {}),
     ...(s.narrationAudio ? { narrationAudio: s.narrationAudio } : {}),
   };
+}
+
+function parseDifficulty(raw: unknown): number | null {
+  if (raw === null || raw === undefined) return null;
+  if (typeof raw === "string" && raw.trim().toLowerCase() === "mixed") return null;
+  const n = Number(raw);
+  if (!Number.isFinite(n)) return null;
+  return n;
 }
 
 export function normalizeLegacySentence(raw: unknown): Sentence {
@@ -39,11 +54,19 @@ export function normalizeLegacySentence(raw: unknown): Sentence {
         ? s.notes
         : undefined;
 
+  const difficultyRaw = parseDifficulty(s.difficulty);
+  // Legacy rows without difficulty default to 1; explicit null/"mixed" stays null.
+  const difficulty =
+    s.difficulty === null ||
+    (typeof s.difficulty === "string" && s.difficulty.trim().toLowerCase() === "mixed")
+      ? null
+      : difficultyRaw ?? 1;
+
   const sentence: Sentence = {
     id: String(s.id ?? ""),
     english: String(s.english ?? ""),
     register: (s.register as Register) ?? "polite",
-    difficulty: Number(s.difficulty ?? 1),
+    difficulty,
     category: String(s.category ?? ""),
     subtopic: String(s.subtopic ?? ""),
     tags: Array.isArray(s.tags) ? s.tags.map(String) : [],
@@ -57,7 +80,19 @@ export function normalizeLegacySentence(raw: unknown): Sentence {
 
   const narrationAudio = parseNarrationAudioDirectives(s.narrationAudio);
   if (narrationAudio) {
-    sentence.narrationAudio = narrationAudio;
+    sentence.narrationAudio = {
+      pauseAfterMs: narrationAudio.pauseAfterMs,
+      ...(narrationAudio.fishAudio ? { fishAudio: narrationAudio.fishAudio } : {}),
+    };
+  }
+
+  const directTags = sanitizeParalinguisticTags(s.paralinguisticTags);
+  const legacyTags =
+    narrationAudio?.paralinguisticTags ??
+    legacyFishDirectivesToTags(narrationAudio?.fishAudio);
+  const paralinguisticTags = directTags ?? legacyTags;
+  if (paralinguisticTags) {
+    sentence.paralinguisticTags = paralinguisticTags;
   }
 
   // Seed/catalog may attach placeholders before japanese exists (e.g. [name] English).
@@ -107,4 +142,14 @@ export function fieldsFromComposedSentence(sentence: Sentence): TranslatedFields
 
 export function normalizeEnglish(text: string): string {
   return text.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+/** Effective numeric difficulty for consumers that cannot handle null (default 3). */
+export function effectiveDifficulty(difficulty: number | null | undefined): number {
+  if (difficulty == null || !Number.isFinite(difficulty)) return 3;
+  return difficulty;
+}
+
+export function isMixedDifficulty(difficulty: number | null | undefined): boolean {
+  return difficulty == null;
 }

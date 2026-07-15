@@ -11,6 +11,7 @@ import {
   formatBytes,
   getOfflineInventory,
   isIslandDownloaded,
+  isIslandDownloadStale,
   onDownloadProgress,
   removeAllPackages,
   removeIslandPackage,
@@ -30,12 +31,19 @@ export function IslandOfflineControls({
   dialect: Dialect;
 }) {
   const [downloaded, setDownloaded] = useState(false);
+  const [stale, setStale] = useState(false);
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState<DownloadProgress | null>(null);
 
   const refresh = useCallback(async () => {
-    setDownloaded(await isIslandDownloaded(islandKey));
-  }, [islandKey]);
+    const hasDownload = await isIslandDownloaded(islandKey);
+    setDownloaded(hasDownload);
+    if (hasDownload) {
+      setStale(await isIslandDownloadStale(islandKey, sentenceIds, dialect));
+    } else {
+      setStale(false);
+    }
+  }, [islandKey, sentenceIds, dialect]);
 
   useEffect(() => {
     void refresh();
@@ -89,7 +97,21 @@ export function IslandOfflineControls({
   return (
     <div className="flex flex-wrap items-center gap-2">
       {downloaded ? (
-        <Button
+        <>
+          {stale && (
+            <Button
+              type="button"
+              size="sm"
+              variant="secondary"
+              className="rounded-full"
+              disabled={busy}
+              onClick={handleDownload}
+            >
+              <Download className="mr-1 h-3.5 w-3.5" />
+              Update download
+            </Button>
+          )}
+          <Button
           type="button"
           size="sm"
           variant="outline"
@@ -100,6 +122,7 @@ export function IslandOfflineControls({
           <Trash2 className="mr-1 h-3.5 w-3.5" />
           Remove download
         </Button>
+        </>
       ) : (
         <Button
           type="button"

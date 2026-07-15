@@ -1,12 +1,20 @@
-import type { Dataset, Sentence } from "@/types/sentence";
+import type { Dataset, Island, Sentence } from "@/types/sentence";
 import type { z } from "zod";
 import type { generatedIslandSentenceSchema } from "@/lib/ai/schemas";
-import { getAllSentences, validateIslandUniqueness } from "@/lib/validation/dataset-schema";
+import {
+  getAllSentences,
+  validateIslandUniqueness,
+  validateNarrationIsland,
+} from "@/lib/validation/dataset-schema";
 import { isTranslated, normalizeEnglish } from "@/lib/sentence-utils";
+import {
+  clampNarrationPauseMs,
+  sanitizeParalinguisticTags,
+} from "@/lib/audio/fish-audio-cues";
 
 type GeneratedIslandSentence = z.infer<typeof generatedIslandSentenceSchema>;
 
-export { validateIslandUniqueness };
+export { validateIslandUniqueness, validateNarrationIsland };
 
 export function slugifyIslandKey(theme: string, existingKeys: string[] = []): string {
   const base = theme
@@ -23,12 +31,25 @@ export function slugifyIslandKey(theme: string, existingKeys: string[] = []): st
   return `${base}_${i}`;
 }
 
+function stripNarrationFields(sentence: Sentence): Sentence {
+  const next = { ...sentence };
+  delete next.speaker;
+  delete next.narrationAudio;
+  return next;
+}
+
 export function resolveIslandSentences(
   generated: GeneratedIslandSentence[],
   catalog: Map<string, Sentence>,
   islandKey: string,
-  globalIds: Set<string>
+  globalIds: Set<string>,
+  options?: {
+    format?: "standard" | "narration";
+    difficultyMode?: "matched" | "natural";
+  }
 ): { sentences: Sentence[]; reusedIds: string[]; newCount: number; skippedCount: number } {
+  const format = options?.format ?? "standard";
+  const natural = options?.difficultyMode === "natural";
   const reusedIds: string[] = [];
   const resolved: Sentence[] = [];
   const seenJapanese = new Set<string>();
@@ -67,18 +88,55 @@ export function resolveIslandSentences(
 
     if (item.id && catalog.has(item.id)) {
       sentence = { ...catalog.get(item.id)! };
+      if (format === "standard") {
+        sentence = stripNarrationFields(sentence);
+      } else {
+        if (item.speaker === "A" || item.speaker === "B") {
+          sentence = { ...sentence, speaker: item.speaker };
+        }
+        if (item.narrationAudio?.pauseAfterMs != null) {
+          sentence = {
+            ...sentence,
+            narrationAudio: {
+              pauseAfterMs: clampNarrationPauseMs(item.narrationAudio.pauseAfterMs),
+            },
+          };
+        }
+        const tags =
+          sanitizeParalinguisticTags(item.paralinguisticTags) ??
+          sanitizeParalinguisticTags(item.narrationAudio?.paralinguisticTags);
+        if (tags) sentence = { ...sentence, paralinguisticTags: tags };
+      }
       if (item.subtopic) sentence = { ...sentence, subtopic: item.subtopic };
       if (item.category) sentence = { ...sentence, category: item.category };
       reusedIds.push(item.id);
     } else if (item.english?.trim()) {
+      const difficulty =
+        natural || item.difficulty === null
+          ? null
+          : item.difficulty === undefined
+            ? undefined
+            : item.difficulty;
+
       if (
         item.register === undefined ||
-        item.difficulty === undefined ||
+        difficulty === undefined ||
         !item.category?.trim() ||
         !item.subtopic?.trim()
       ) {
         skippedCount++;
         continue;
+      }
+
+      if (format === "narration") {
+        if (item.speaker !== "A" && item.speaker !== "B") {
+          skippedCount++;
+          continue;
+        }
+        if (item.narrationAudio?.pauseAfterMs == null) {
+          skippedCount++;
+          continue;
+        }
       }
 
       let id = item.id;
@@ -88,17 +146,31 @@ export function resolveIslandSentences(
           newIndex++;
         } while (globalIds.has(id) || seenIds.has(id));
       }
+
+      const paralinguisticTags =
+        sanitizeParalinguisticTags(item.paralinguisticTags) ??
+        sanitizeParalinguisticTags(item.narrationAudio?.paralinguisticTags);
+
       sentence = {
         id,
         english: item.english.trim(),
         register: item.register,
-        difficulty: item.difficulty,
+        difficulty: natural ? null : difficulty,
         category: item.category,
         subtopic: item.subtopic,
         tags: item.tags ?? [],
         context_notes: item.context_notes,
         translated: false,
+        ...(paralinguisticTags ? { paralinguisticTags } : {}),
       };
+
+      if (format === "narration") {
+        sentence.speaker = item.speaker;
+        sentence.narrationAudio = {
+          pauseAfterMs: clampNarrationPauseMs(item.narrationAudio!.pauseAfterMs),
+        };
+      }
+
       newCount++;
     } else if (item.id) {
       skippedCount++;
@@ -123,14 +195,12 @@ export function resolveIslandSentences(
 export function addIsland(
   dataset: Dataset,
   islandKey: string,
-  island: {
-    description: string;
-    subtopics: string[];
-    sentences: Sentence[];
-    themeKanji?: string;
-  }
+  island: Island
 ): Dataset {
   validateIslandUniqueness(island);
+  if (island.format === "narration") {
+    validateNarrationIsland(island);
+  }
 
   if (dataset.islands[islandKey]) {
     throw new Error(`Island "${islandKey}" already exists`);
@@ -154,6 +224,9 @@ export function appendSentenceToIsland(
   if (!island) {
     throw new Error(`Island "${islandKey}" not found`);
   }
+  if (island.readOnly) {
+    throw new Error("Shared islands are read-only — clone to edit");
+  }
 
   const nextIsland = {
     ...island,
@@ -164,6 +237,9 @@ export function appendSentenceToIsland(
   };
 
   validateIslandUniqueness(nextIsland);
+  if (nextIsland.format === "narration") {
+    validateNarrationIsland(nextIsland);
+  }
 
   return {
     ...dataset,

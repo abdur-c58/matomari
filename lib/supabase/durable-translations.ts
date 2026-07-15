@@ -1,6 +1,7 @@
 import { createHash } from "crypto";
 import type { Dialect } from "@/lib/constants/dialect";
 import { contentFingerprint } from "@/lib/cloud/content-fingerprint";
+import { markCanonicalTranslationsStale } from "@/lib/cloud/sentence-invalidation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { upsertSharedTranslationBatch } from "@/lib/supabase/shared-translations-data";
 import { enqueueTtsJob } from "@/lib/supabase/tts-jobs";
@@ -58,7 +59,7 @@ async function ensureCanonicalSentence(input: {
   const fingerprint = contentFingerprint(input.english);
   const { data: existing } = await supabase
     .from("canonical_sentences")
-    .select("id, content_fingerprint")
+    .select("id, content_fingerprint, content_version")
     .eq("legacy_id", input.legacySentenceId)
     .maybeSingle();
 
@@ -67,10 +68,24 @@ async function ensureCanonicalSentence(input: {
       existing.content_fingerprint &&
       existing.content_fingerprint !== fingerprint
     ) {
-      // Collision on legacy id with different English — keep existing row but flag metadata.
-      console.warn(
-        `canonical_sentences fingerprint mismatch for ${input.legacySentenceId}`
-      );
+      const nextVersion = Number(existing.content_version ?? 1) + 1;
+      const now = new Date().toISOString();
+      await supabase
+        .from("canonical_sentences")
+        .update({
+          english: input.english,
+          content_fingerprint: fingerprint,
+          metadata: input.metadata ?? {},
+          content_version: nextVersion,
+          updated_at: now,
+        })
+        .eq("id", existing.id);
+      await markCanonicalTranslationsStale({
+        sentenceId: existing.id as string,
+        legacyId: input.legacySentenceId,
+        reason: "english_changed",
+        fingerprint,
+      });
     }
     return { id: existing.id as string };
   }
@@ -307,6 +322,7 @@ export async function persistDurableTranslation(
     }
 
     const revision = existing ? Number(existing.revision) + 1 : 1;
+    const sourceFingerprint = contentFingerprint(input.english);
     const { error } = await supabase.from("canonical_sentence_translations").upsert(
       {
         sentence_id: sentence.id,
@@ -314,6 +330,10 @@ export async function persistDurableTranslation(
         fields,
         revision,
         provenance,
+        source_fingerprint: sourceFingerprint,
+        status: "ready",
+        stale_at: null,
+        stale_reason: null,
         updated_at: now,
       },
       { onConflict: "sentence_id,dialect" }

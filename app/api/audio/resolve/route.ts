@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/auth";
-import { getTextHash } from "@/lib/audio/generate-audio";
+import { getTextHash, generateServerAudio } from "@/lib/audio/generate-audio";
 import { getSpokenScriptFromFields } from "@/lib/audio/tts-text";
 import { ONLINE_FIRST_ENABLED } from "@/lib/constants/online-first";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -24,6 +24,8 @@ const bodySchema = z.object({
   context_notes: z.string().optional(),
   english: z.string().optional(),
   fishAudio: z.any().optional(),
+  paralinguisticTags: z.array(z.string()).optional(),
+  cacheBySpokenScript: z.boolean().optional().default(false),
   learnerName: z.string().nullable().optional(),
 });
 
@@ -52,11 +54,13 @@ export async function POST(request: Request) {
         context_notes: input.context_notes,
         english: input.english,
         fishAudio: input.fishAudio,
+        paralinguisticTags: input.paralinguisticTags,
       },
       {
         dialect: input.dialect,
         learnerName: input.learnerName,
         fishAudio: input.fishAudio,
+        paralinguisticTags: input.paralinguisticTags,
       }
     );
 
@@ -71,7 +75,8 @@ export async function POST(request: Request) {
       input.sentenceId,
       spoken,
       input.dialect,
-      input.speaker
+      input.speaker,
+      input.cacheBySpokenScript ? "spoken-script" : "sentence"
     );
 
     const meta = await getAudioMetadataByTextHash(textHash);
@@ -108,19 +113,54 @@ export async function POST(request: Request) {
       }
     }
 
-    // Queue generation
+    // Generate on play when missing (no cron required for cache misses).
+    try {
+      const supabase = createAdminClient();
+      let canonicalSentenceId: string | null = null;
+      if (supabase) {
+        const { data } = await supabase
+          .from("canonical_sentences")
+          .select("id")
+          .eq("legacy_id", input.sentenceId)
+          .maybeSingle();
+        canonicalSentenceId = (data?.id as string | undefined) ?? null;
+      }
+
+      const generated = await generateServerAudio(spoken, input.sentenceId, {
+        dialect: input.dialect,
+        speaker: input.speaker,
+        scope: "canonical",
+        canonicalSentenceId,
+        cacheMode: input.cacheBySpokenScript ? "spoken-script" : "sentence",
+      });
+      const url = await getSignedAudioUrl(generated.r2Key);
+      if (url) {
+        return NextResponse.json({
+          status: "ready",
+          textHash: generated.hash,
+          r2Key: generated.r2Key,
+          url,
+          byteSize: generated.buffer.byteLength,
+          streamPath: `/api/audio/${encodeURIComponent(generated.hash)}`,
+          generated: !generated.cached,
+        });
+      }
+    } catch {
+      // Fall through to background queue when inline generation fails.
+    }
+
     await enqueueTtsJob({
       legacySentenceId: input.sentenceId,
       dialect: input.dialect,
       speaker: input.speaker,
       scope: "canonical",
       spokenScript: spoken,
+      cacheMode: input.cacheBySpokenScript ? "spoken-script" : "sentence",
     });
 
     // Also ensure translation row exists for worker field load when possible
     const supabase = createAdminClient();
     if (supabase && input.english) {
-      // worker can still use shared_sentence_translations fallback
       void supabase;
     }
 

@@ -8,17 +8,19 @@ import type { IslandGenerationPreview, IslandSuggestion } from "@/lib/ai/types";
 import { needsTranslation } from "@/lib/sentence-utils";
 import { TranslationError } from "@/lib/services/translation-service";
 import {
-  DEFAULT_ISLAND_SENTENCE_COUNT,
-  MAX_ISLAND_SENTENCE_COUNT,
-  MIN_ISLAND_SENTENCE_COUNT,
-} from "@/lib/constants/study";
-import {
+  DEFAULT_ISLAND_DIFFICULTY_MODE,
+  DEFAULT_ISLAND_DURATION_TIER,
   DEFAULT_ISLAND_FLUENCY_LEVEL,
+  DEFAULT_ISLAND_GENERATION_FORMAT,
   DEFAULT_ISLAND_JLPT_LEVEL,
   DEFAULT_ISLAND_LEVEL_MODE,
+  ISLAND_DURATION_TIERS,
   ISLAND_FLUENCY_OPTIONS,
   ISLAND_JLPT_OPTIONS,
+  type IslandDifficultyMode,
+  type IslandDurationTier,
   type IslandFluencyLevel,
+  type IslandGenerationFormat,
   type IslandJlptLevel,
   type IslandLevelMode,
 } from "@/lib/constants/island-generation";
@@ -27,7 +29,6 @@ import { MotionCollapse } from "@/components/motion/motion-collapse";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
@@ -50,6 +51,7 @@ import {
 import { toast } from "sonner";
 import { fetchIslandThemeKanji } from "@/lib/services/study-unit-kanji-service";
 import { cn } from "@/lib/utils";
+
 type Phase = "form" | "preview" | "translating";
 
 const FALLBACK_SUGGESTIONS: IslandSuggestion[] = [
@@ -72,7 +74,15 @@ export function CreateIslandDialog({
   const [open, setOpen] = useState(false);
   const [phase, setPhase] = useState<Phase>("form");
   const [theme, setTheme] = useState("");
-  const [sentenceCount, setSentenceCount] = useState(DEFAULT_ISLAND_SENTENCE_COUNT);
+  const [durationTier, setDurationTier] = useState<IslandDurationTier>(
+    DEFAULT_ISLAND_DURATION_TIER
+  );
+  const [difficultyMode, setDifficultyMode] = useState<IslandDifficultyMode>(
+    DEFAULT_ISLAND_DIFFICULTY_MODE
+  );
+  const [format, setFormat] = useState<IslandGenerationFormat>(
+    DEFAULT_ISLAND_GENERATION_FORMAT
+  );
   const [levelMode, setLevelMode] = useState<IslandLevelMode>(DEFAULT_ISLAND_LEVEL_MODE);
   const [fluencyLevel, setFluencyLevel] = useState<IslandFluencyLevel>(
     DEFAULT_ISLAND_FLUENCY_LEVEL
@@ -92,7 +102,9 @@ export function CreateIslandDialog({
   const reset = () => {
     setPhase("form");
     setTheme("");
-    setSentenceCount(DEFAULT_ISLAND_SENTENCE_COUNT);
+    setDurationTier(DEFAULT_ISLAND_DURATION_TIER);
+    setDifficultyMode(DEFAULT_ISLAND_DIFFICULTY_MODE);
+    setFormat(DEFAULT_ISLAND_GENERATION_FORMAT);
     setLevelMode(DEFAULT_ISLAND_LEVEL_MODE);
     setFluencyLevel(DEFAULT_ISLAND_FLUENCY_LEVEL);
     setJlptLevel(DEFAULT_ISLAND_JLPT_LEVEL);
@@ -113,12 +125,8 @@ export function CreateIslandDialog({
     try {
       const result = await fetchIslandSuggestions(dataset, { refresh });
       setSuggestions(result);
-    } catch (e) {
-      if (e instanceof AIClientError && e.code === "NOT_CONFIGURED") {
-        setSuggestions(FALLBACK_SUGGESTIONS);
-      } else {
-        setSuggestions(FALLBACK_SUGGESTIONS);
-      }
+    } catch {
+      setSuggestions(FALLBACK_SUGGESTIONS);
     } finally {
       setSuggestionsLoading(false);
     }
@@ -139,7 +147,9 @@ export function CreateIslandDialog({
 
     try {
       const result = await generateIsland(theme.trim(), dataset, {
-        sentenceCount,
+        durationTier,
+        difficultyMode,
+        format,
         levelMode,
         fluencyLevel,
         jlptLevel,
@@ -197,10 +207,19 @@ export function CreateIslandDialog({
         subtopics: preview.subtopics,
       });
 
+      const islandFormat = preview.format ?? format;
       await addIsland(preview.islandKey, {
         description: preview.description,
         subtopics: preview.subtopics,
         sentences: preview.sentences,
+        format: islandFormat,
+        ...(islandFormat === "narration" ? { speakers: ["A", "B"] as const } : {}),
+        ...(islandFormat === "narration" && preview.narrationMode
+          ? { narrationMode: preview.narrationMode }
+          : {}),
+        difficultyMode: preview.difficultyMode ?? difficultyMode,
+        durationTier: preview.durationTier ?? durationTier,
+        provenance: { kind: "ai" },
         ...(themeKanji ? { themeKanji } : {}),
       });
 
@@ -226,6 +245,8 @@ export function CreateIslandDialog({
     if (!preview || pendingTranslateIds.length === 0) return;
     void runTranslation(pendingTranslateIds, preview.islandKey);
   };
+
+  const selectedTier = ISLAND_DURATION_TIERS.find((t) => t.value === durationTier);
 
   return (
     <Dialog
@@ -254,7 +275,8 @@ export function CreateIslandDialog({
           <DialogHeader className="shrink-0 pr-10 text-left">
             <DialogTitle>Create island with AI</DialogTitle>
             <DialogDescription>
-              Describe a theme and AI will generate sentences, reusing existing ones when appropriate.
+              Choose format, length, and difficulty — AI will stop where the scene naturally
+              concludes.
             </DialogDescription>
           </DialogHeader>
 
@@ -353,60 +375,109 @@ export function CreateIslandDialog({
             </div>
 
             <div>
-              <Label>Difficulty / level</Label>
+              <Label>Format</Label>
               <Tabs
-                value={levelMode}
-                onValueChange={(value) => setLevelMode(value as IslandLevelMode)}
+                value={format}
+                onValueChange={(value) => setFormat(value as IslandGenerationFormat)}
                 className="mt-2"
               >
                 <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="fluency">Fluency</TabsTrigger>
-                  <TabsTrigger value="jlpt">JLPT</TabsTrigger>
+                  <TabsTrigger value="standard">Standard</TabsTrigger>
+                  <TabsTrigger value="narration">Narration</TabsTrigger>
                 </TabsList>
-                <TabsContent value="fluency">
-                  <Select
-                    value={fluencyLevel}
-                    onValueChange={(value) => setFluencyLevel(value as IslandFluencyLevel)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Choose fluency level" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {ISLAND_FLUENCY_OPTIONS.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <p className="mt-1.5 text-xs text-muted">
-                    {
-                      ISLAND_FLUENCY_OPTIONS.find((o) => o.value === fluencyLevel)
-                        ?.description
-                    }
-                  </p>
-                </TabsContent>
-                <TabsContent value="jlpt">
-                  <Select
-                    value={jlptLevel}
-                    onValueChange={(value) => setJlptLevel(value as IslandJlptLevel)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Choose JLPT level" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {ISLAND_JLPT_OPTIONS.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <p className="mt-1.5 text-xs text-muted">
-                    {ISLAND_JLPT_OPTIONS.find((o) => o.value === jlptLevel)?.description}
-                  </p>
-                </TabsContent>
               </Tabs>
+              <p className="mt-1.5 text-xs text-muted">
+                {format === "narration"
+                  ? "Multi-speaker A/B dialogue with timing and speech tags."
+                  : "Single-speaker sentence batch for study cards."}
+              </p>
+            </div>
+
+            <div>
+              <Label>Length</Label>
+              <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
+                {ISLAND_DURATION_TIERS.map((tier) => (
+                  <button
+                    key={tier.value}
+                    type="button"
+                    onClick={() => setDurationTier(tier.value)}
+                    className={cn(
+                      "rounded-xl border p-3 text-left transition-colors",
+                      durationTier === tier.value
+                        ? "border-foreground bg-foreground/5"
+                        : "border-border hover:border-foreground/30"
+                    )}
+                  >
+                    <p className="text-sm font-medium">{tier.label}</p>
+                    <p className="mt-0.5 text-xs text-muted">{tier.durationLabel}</p>
+                    <p className="text-xs text-muted">{tier.sentenceRangeLabel} lines</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <Label>Difficulty</Label>
+              <Tabs
+                value={difficultyMode}
+                onValueChange={(value) => setDifficultyMode(value as IslandDifficultyMode)}
+                className="mt-2"
+              >
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="matched">Match my level</TabsTrigger>
+                  <TabsTrigger value="natural">Natural — mixed</TabsTrigger>
+                </TabsList>
+              </Tabs>
+              {difficultyMode === "matched" ? (
+                <Tabs
+                  value={levelMode}
+                  onValueChange={(value) => setLevelMode(value as IslandLevelMode)}
+                  className="mt-3"
+                >
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="fluency">Fluency</TabsTrigger>
+                    <TabsTrigger value="jlpt">JLPT</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="fluency">
+                    <Select
+                      value={fluencyLevel}
+                      onValueChange={(value) => setFluencyLevel(value as IslandFluencyLevel)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Choose fluency level" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {ISLAND_FLUENCY_OPTIONS.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </TabsContent>
+                  <TabsContent value="jlpt">
+                    <Select
+                      value={jlptLevel}
+                      onValueChange={(value) => setJlptLevel(value as IslandJlptLevel)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Choose JLPT level" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {ISLAND_JLPT_OPTIONS.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </TabsContent>
+                </Tabs>
+              ) : (
+                <p className="mt-2 text-xs text-muted">
+                  Any difficulty that fits — optimize for contextual coherence and authenticity.
+                </p>
+              )}
             </div>
 
             <div>
@@ -414,7 +485,7 @@ export function CreateIslandDialog({
               <Textarea
                 id="island-extra"
                 className="mt-2 min-h-[88px] resize-y"
-                placeholder="Optional — e.g. focus on casual speech, include keigo for customers, avoid anime slang…"
+                placeholder="Optional — e.g. focus on casual speech, include keigo for customers…"
                 value={extraInstructions}
                 onChange={(e) => setExtraInstructions(e.target.value)}
                 maxLength={500}
@@ -424,18 +495,6 @@ export function CreateIslandDialog({
               </p>
             </div>
 
-            <div>
-              <Label>Sentence count: {sentenceCount}</Label>
-              <Slider
-                className="mt-3"
-                min={MIN_ISLAND_SENTENCE_COUNT}
-                max={MAX_ISLAND_SENTENCE_COUNT}
-                step={1}
-                value={[sentenceCount]}
-                onValueChange={([v]) => setSentenceCount(v)}
-              />
-              <p className="mt-1 text-xs text-muted">Islands can have up to {MAX_ISLAND_SENTENCE_COUNT} sentences.</p>
-            </div>
             {error && <p className="text-sm text-destructive">{error}</p>}
             <Button
               className="w-full"
@@ -454,10 +513,18 @@ export function CreateIslandDialog({
               <div className="mt-2 flex flex-wrap gap-2">
                 <Badge variant="secondary">{preview.sentences.length} sentences</Badge>
                 <Badge variant="secondary">
-                  {levelMode === "jlpt"
-                    ? ISLAND_JLPT_OPTIONS.find((o) => o.value === jlptLevel)?.label
-                    : ISLAND_FLUENCY_OPTIONS.find((o) => o.value === fluencyLevel)?.label}
+                  {(preview.format ?? format) === "narration" ? "Narration" : "Standard"}
                 </Badge>
+                <Badge variant="secondary">
+                  {(preview.difficultyMode ?? difficultyMode) === "natural"
+                    ? "Natural / mixed"
+                    : levelMode === "jlpt"
+                      ? ISLAND_JLPT_OPTIONS.find((o) => o.value === jlptLevel)?.label
+                      : ISLAND_FLUENCY_OPTIONS.find((o) => o.value === fluencyLevel)?.label}
+                </Badge>
+                {selectedTier && (
+                  <Badge variant="outline">{selectedTier.label}</Badge>
+                )}
                 <Badge variant="success">{preview.reusedIds.length} reused</Badge>
                 <Badge variant="warning">{preview.newCount} new</Badge>
               </div>
@@ -465,6 +532,11 @@ export function CreateIslandDialog({
             <div className="max-h-48 space-y-2 overflow-y-auto rounded-xl border border-border p-3">
               {preview.sentences.map((s) => (
                 <div key={s.id} className="text-sm">
+                  {s.speaker && (
+                    <Badge variant="outline" className="mr-2 text-xs">
+                      {s.speaker}
+                    </Badge>
+                  )}
                   <span>{s.english}</span>
                   {preview.reusedIds.includes(s.id) ? (
                     <Badge variant="outline" className="ml-2 text-xs">

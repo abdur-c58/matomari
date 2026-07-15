@@ -184,6 +184,21 @@ export async function upsertAudioMetadataFull(
   if (error) {
     throw new Error(`audio_metadata upsert failed: ${error.message}`);
   }
+
+  const { error: bindingError } = await supabase
+    .from("audio_sentence_bindings")
+    .upsert(
+      {
+        text_hash: input.textHash,
+        sentence_id: input.sentenceId,
+        dialect: input.dialect ?? "standard",
+        speaker: input.speaker === "B" ? "B" : "A",
+      },
+      { onConflict: "text_hash,sentence_id,dialect,speaker" }
+    );
+  if (bindingError) {
+    throw new Error(`audio sentence binding upsert failed: ${bindingError.message}`);
+  }
 }
 
 export async function getAudioMetadataByTextHash(
@@ -209,12 +224,48 @@ export async function listAudioMetadataForSentenceIds(
   const chunkSize = 80;
   for (let i = 0; i < sentenceIds.length; i += chunkSize) {
     const chunk = sentenceIds.slice(i, i + chunkSize);
-    const { data } = await supabase
+    const { data: bindings } = await supabase
+      .from("audio_sentence_bindings")
+      .select("text_hash, sentence_id, dialect, speaker")
+      .in("sentence_id", chunk);
+
+    if (bindings?.length) {
+      const hashes = [...new Set(bindings.map((binding) => binding.text_hash))];
+      const { data: metadata } = await supabase
+        .from("audio_metadata")
+        .select("*")
+        .in("text_hash", hashes)
+        .eq("generation_status", "ready");
+      const byHash = new Map(
+        (metadata ?? []).map((row) => [row.text_hash as string, row as AudioMetadataRow])
+      );
+      for (const binding of bindings) {
+        const meta = byHash.get(binding.text_hash);
+        if (!meta) continue;
+        out.push({
+          ...meta,
+          sentence_id: binding.sentence_id,
+          dialect: binding.dialect,
+          speaker: binding.speaker,
+        });
+      }
+    }
+
+    // Backward compatibility for assets created before audio_sentence_bindings.
+    const { data: legacy } = await supabase
       .from("audio_metadata")
       .select("*")
       .in("sentence_id", chunk)
       .eq("generation_status", "ready");
-    if (data?.length) out.push(...(data as AudioMetadataRow[]));
+    if (legacy?.length) {
+      const existing = new Set(
+        out.map((row) => `${row.text_hash}:${row.sentence_id}:${row.dialect}:${row.speaker}`)
+      );
+      for (const row of legacy as AudioMetadataRow[]) {
+        const key = `${row.text_hash}:${row.sentence_id}:${row.dialect}:${row.speaker}`;
+        if (!existing.has(key)) out.push(row);
+      }
+    }
   }
   return out;
 }

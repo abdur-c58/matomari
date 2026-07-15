@@ -11,6 +11,7 @@ import {
   saveOfflinePackage,
 } from "@/lib/db/offline-audio-repository";
 import type { DownloadProgress, OfflinePackageRecord } from "@/types/offline-audio";
+import { fingerprintManifestItems } from "@/lib/offline/package-staleness";
 
 const ALL_PACKAGE_ID = "__all__";
 
@@ -135,6 +136,7 @@ async function persistPackageDownloads(input: {
     label: input.label,
     dialect: input.dialect,
     textHashes,
+    manifestFingerprint: fingerprintManifestItems(items),
     totalBytes,
     status: items.length === 0 ? "error" : "ready",
     updatedAt: new Date().toISOString(),
@@ -270,7 +272,25 @@ export async function getOfflineInventory() {
 
 export async function isIslandDownloaded(islandKey: string): Promise<boolean> {
   const pkg = await getOfflinePackage(islandKey);
-  return pkg?.status === "ready" && pkg.textHashes.length > 0;
+  return (
+    !!pkg &&
+    (pkg.status === "ready" || pkg.status === "stale") &&
+    pkg.textHashes.length > 0
+  );
+}
+
+export async function isIslandDownloadStale(
+  islandKey: string,
+  sentenceIds: string[],
+  dialect: Dialect
+): Promise<boolean> {
+  const pkg = await getOfflinePackage(islandKey);
+  if (!pkg?.manifestFingerprint || sentenceIds.length === 0) return false;
+  const { fetchManifestFingerprint } = await import(
+    "@/lib/offline/package-staleness"
+  );
+  const current = await fetchManifestFingerprint(sentenceIds, dialect);
+  return !!current && current !== pkg.manifestFingerprint;
 }
 
 export function formatBytes(bytes: number): string {

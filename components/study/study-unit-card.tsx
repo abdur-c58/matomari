@@ -80,6 +80,11 @@ export function StudyUnitCard({
                   Narration
                 </Badge>
               )}
+              {unit.isShared && (
+                <Badge variant="secondary" className="text-[10px]">
+                  Shared
+                </Badge>
+              )}
               {unit.complete && <Badge variant="success">Complete</Badge>}
               {unit.status === "in_progress" && !unit.complete && (
                 <Badge variant="secondary">In progress</Badge>
@@ -95,6 +100,11 @@ export function StudyUnitCard({
             >
               {unit.description}
             </p>
+            {unit.createdByLabel && (
+              <p className={cn("text-muted", featured ? "mt-1 text-xs" : "truncate text-[11px]")}>
+                {unit.createdByLabel}
+              </p>
+            )}
             <div className={cn("flex items-center gap-2", featured ? "mt-4" : "mt-1.5")}>
               <div
                 className={cn(

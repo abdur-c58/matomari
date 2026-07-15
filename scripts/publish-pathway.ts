@@ -10,6 +10,7 @@ import fs from "fs";
 import type { Dataset } from "../types/sentence";
 import { parseDataset } from "../lib/validation/dataset-schema";
 import { publishSharedPathwayToDb } from "../lib/supabase/shared-pathway-data";
+import { reconcileCanonicalContent } from "../lib/cloud/sentence-invalidation";
 
 async function loadDatasetFromSupabase(): Promise<Dataset | null> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -75,6 +76,9 @@ async function main() {
   }
 
   console.log("Done. Shared pathway live in Supabase and public/main-pathway.json");
+
+  const reconcile = await reconcileCanonicalContent();
+  console.log("Reconciled canonical content:", reconcile);
 }
 
 main().catch((e) => {

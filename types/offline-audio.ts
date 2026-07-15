@@ -18,8 +18,10 @@ export interface OfflinePackageRecord {
   label: string;
   dialect: string;
   textHashes: string[];
+  /** Fingerprint of the manifest text hashes at download time. */
+  manifestFingerprint?: string;
   totalBytes: number;
-  status: "ready" | "partial" | "downloading" | "error";
+  status: "ready" | "partial" | "downloading" | "error" | "stale";
   updatedAt: string;
   lastError?: string;
 }

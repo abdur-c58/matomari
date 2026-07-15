@@ -11,7 +11,7 @@ import {
   type ReactNode,
 } from "react";
 import { useSession } from "next-auth/react";
-import type { Dataset, Island, Sentence, TranslatedFields, UserLibrary } from "@/types/sentence";
+import type { Dataset, Island, Sentence, SentenceDialectTranslations, TranslatedFields, UserLibrary } from "@/types/sentence";
 import type { Dialect } from "@/lib/constants/dialect";
 import type { SentenceProgress, UserProgress } from "@/types/progress";
 import type { AppStats } from "@/types/stats";
@@ -74,6 +74,16 @@ import {
 import type { PremadeCatalog } from "@/types/premade-catalog";
 import { isPremadeIslandKey } from "@/lib/services/shared-premade-service";
 import { pullSharedTranslationsIntoLibrary } from "@/lib/services/shared-translations-service";
+import {
+  fetchResolvedSharedIslands,
+  mergeSharedIslandsIntoDataset,
+} from "@/lib/services/shared-membership-client";
+import { mergeSentenceTranslations } from "@/lib/services/dialect-translation-service";
+import {
+  ensureIslandId,
+  newIslandId,
+} from "@/lib/services/island-identity-service";
+import { getUserLibrary, saveUserLibrary } from "@/lib/db/dataset-repository";
 
 async function maybeRecordTodayStudyComplete(
   dataset: Dataset | null,
@@ -102,6 +112,10 @@ interface AppContextValue {
   importDataset: (json: unknown, merge?: boolean) => Promise<void>;
   importDatasets: (payloads: { json: unknown; fileName?: string }[]) => Promise<void>;
   addIsland: (islandKey: string, island: Island) => Promise<void>;
+  updateIsland: (islandKey: string, island: Island) => Promise<void>;
+  mergeDialectTranslations: (
+    translations: Record<string, SentenceDialectTranslations>
+  ) => Promise<void>;
   setIslandThemeKanji: (islandKey: string, themeKanji: string) => Promise<void>;
   appendSentenceToIsland: (islandKey: string, sentence: Sentence) => Promise<void>;
   ensureTranslated: (sentenceIds: string[]) => Promise<void>;
@@ -168,16 +182,33 @@ export function AppProvider({ children }: { children: ReactNode }) {
         },
       });
 
-      setDataset(snapshot.dataset);
-      setUserLibrary(snapshot.library);
+      let dataset = snapshot.dataset;
+      let library = snapshot.library;
+
+      if (sessionStatus === "authenticated" && isBrowserOnline()) {
+        const shared = await fetchResolvedSharedIslands();
+        dataset = mergeSharedIslandsIntoDataset(dataset, shared.islands) as Dataset | null;
+        if (library && Object.keys(shared.translations).length > 0) {
+          library = {
+            ...library,
+            sentenceTranslations: mergeSentenceTranslations(
+              library.sentenceTranslations,
+              shared.translations
+            ),
+          };
+        }
+      }
+
+      setDataset(dataset);
+      setUserLibrary(library);
       setPremadeCatalog(snapshot.premadeCatalog);
       progressRef.current = mergedProgress;
       setProgressState(mergedProgress);
       setStatsState(snapshot.stats);
       setLastSyncedAt(snapshot.lastSyncedAt);
-      return { ...snapshot, progress: mergedProgress };
+      return { ...snapshot, dataset, library, progress: mergedProgress };
     },
-    []
+    [sessionStatus]
   );
 
   const syncFromCloud = useCallback(async () => {
@@ -374,11 +405,67 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const addIsland = useCallback(
     async (islandKey: string, island: Island) => {
       if (!dataset) throw new Error("No dataset loaded");
-      const next = mergeIsland(dataset, islandKey, island);
+      const supabaseUserId = session?.user?.supabaseUserId;
+      const displayName = session?.user?.name?.trim() || "Learner";
+      const attributed = ensureIslandId({
+        ...island,
+        id: island.id ?? newIslandId(),
+        createdBy:
+          island.createdBy ??
+          (supabaseUserId
+            ? { userId: supabaseUserId, displayName }
+            : undefined),
+        provenance: island.provenance ?? {
+          kind: island.difficultyMode || island.durationTier ? "ai" : "owned",
+        },
+        readOnly: false,
+      });
+      const next = mergeIsland(dataset, islandKey, attributed);
+      await saveDatasetSynced(next);
+      setDataset(next);
+    },
+    [dataset, session?.user?.name, session?.user?.supabaseUserId]
+  );
+
+  const updateIsland = useCallback(
+    async (islandKey: string, island: Island) => {
+      if (!dataset) throw new Error("No dataset loaded");
+      const existing = dataset.islands[islandKey];
+      if (!existing) throw new Error(`Island "${islandKey}" not found`);
+      if (existing.readOnly || island.readOnly) {
+        throw new Error("Shared islands are read-only — clone to edit");
+      }
+      const next = {
+        ...dataset,
+        islands: {
+          ...dataset.islands,
+          [islandKey]: { ...existing, ...island, readOnly: false },
+        },
+      };
       await saveDatasetSynced(next);
       setDataset(next);
     },
     [dataset]
+  );
+
+  const mergeDialectTranslations = useCallback(
+    async (translations: Record<string, SentenceDialectTranslations>) => {
+      if (Object.keys(translations).length === 0) return;
+      const library = (await getUserLibrary()) ?? { islands: {} };
+      const next: UserLibrary = {
+        ...library,
+        sentenceTranslations: mergeSentenceTranslations(
+          library.sentenceTranslations,
+          translations
+        ),
+      };
+      await saveUserLibrary(next);
+      setUserLibrary(next);
+      await queueLibrarySync(next);
+      const composed = await getDatasetSynced();
+      if (composed) setDataset(composed);
+    },
+    []
   );
 
   const setIslandThemeKanji = useCallback(
@@ -395,6 +482,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const appendSentenceToIsland = useCallback(
     async (islandKey: string, sentence: Sentence) => {
       if (!dataset) throw new Error("No dataset loaded");
+      const island = dataset.islands[islandKey];
+      if (island?.readOnly) {
+        throw new Error("Shared islands are read-only — clone to edit");
+      }
       const next = mergeSentenceToIsland(dataset, islandKey, sentence);
       await saveDatasetSynced(next);
       setDataset(next);
@@ -676,6 +767,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       importDataset,
       importDatasets,
       addIsland,
+      updateIsland,
+      mergeDialectTranslations,
       setIslandThemeKanji,
       appendSentenceToIsland,
       ensureTranslated,
@@ -710,6 +803,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       importDataset,
       importDatasets,
       addIsland,
+      updateIsland,
+      mergeDialectTranslations,
       setIslandThemeKanji,
       appendSentenceToIsland,
       ensureTranslated,

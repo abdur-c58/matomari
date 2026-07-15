@@ -19,6 +19,7 @@ import {
   buildTtsCacheKey,
   getTtsModel,
   getFishAudioSettings,
+  type TtsCacheMode,
 } from "@/lib/audio/tts-config";
 import { TtsQuotaError, TtsGenerationError } from "@/lib/audio/tts-errors";
 
@@ -29,10 +30,11 @@ export function getTextHash(
   sentenceId: string,
   ttsText: string,
   dialect: Dialect = "standard",
-  speaker: NarrationSpeaker = "A"
+  speaker: NarrationSpeaker = "A",
+  cacheMode: TtsCacheMode = "sentence"
 ): string {
   return createHash("sha256")
-    .update(buildTtsCacheKey(sentenceId, ttsText, dialect, speaker))
+    .update(buildTtsCacheKey(sentenceId, ttsText, dialect, speaker, cacheMode))
     .digest("hex");
 }
 
@@ -116,11 +118,18 @@ export async function generateServerAudio(
     ownerUserId?: string | null;
     canonicalSentenceId?: string | null;
     userSentenceId?: string | null;
+    cacheMode?: TtsCacheMode;
   }
 ): Promise<{ buffer: Buffer; hash: string; cached: boolean; r2Key: string }> {
   const dialect = options?.dialect ?? "standard";
   const speaker = options?.speaker ?? "A";
-  const hash = getTextHash(sentenceId, ttsText, dialect, speaker);
+  const hash = getTextHash(
+    sentenceId,
+    ttsText,
+    dialect,
+    speaker,
+    options?.cacheMode
+  );
   const r2Key = getAudioR2Key(hash);
   const force = options?.force === true;
 

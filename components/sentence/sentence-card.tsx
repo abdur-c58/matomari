@@ -139,6 +139,8 @@ export function SentenceCard({
                   english={sentence.english}
                   placeholders={compactPlayFields.placeholders ?? sentence.placeholders}
                   fishAudio={sentence.narrationAudio?.fishAudio}
+                  paralinguisticTags={sentence.paralinguisticTags}
+                  cacheBySpokenScript={Boolean(sentence.narrationAudio)}
                   dialect={primaryDialect}
                   speaker={sentence.speaker}
                   disabled={!viewHasTranslation}
@@ -227,7 +229,9 @@ export function SentenceCard({
         {variant !== "study" && variant !== "compact" && (
           <div className="flex flex-wrap gap-1.5">
             <Badge variant="secondary">{sentence.register}</Badge>
-            <Badge variant="outline">Lv {sentence.difficulty}</Badge>
+            <Badge variant="outline">
+              {sentence.difficulty == null ? "Mixed" : `Lv ${sentence.difficulty}`}
+            </Badge>
             {sentence.subtopic && <Badge variant="outline">{sentence.subtopic}</Badge>}
           </div>
         )}

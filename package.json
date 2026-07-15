@@ -28,6 +28,8 @@
     "clear-narration-audio": "npx tsx --env-file=.env.local scripts/clear-narration-audio.ts",
     "verify-narration-audio": "npx tsx scripts/verify-narration-audio.ts",
     "backfill-online-first": "npx tsx --env-file=.env.local scripts/backfill-online-first.ts",
+    "reconcile-content": "npx tsx --env-file=.env.local scripts/reconcile-content.ts",
+    "verify-island-sharing": "npx tsx scripts/verify-island-sharing-generation.ts",
     "tts-worker": "npx tsx --env-file=.env.local -e \"fetch('http://localhost:3000/api/cron/tts-worker').then(r=>r.json()).then(console.log)\""
   },
   "dependencies": {

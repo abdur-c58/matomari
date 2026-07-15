@@ -30,6 +30,10 @@ import { PATHWAY_THEME_KANJI } from "@/lib/services/study-unit-kanji-service";
 import type { Dialect } from "@/lib/constants/dialect";
 import { getPrimaryTranslation } from "@/lib/preferences/translation-preferences";
 import { cn } from "@/lib/utils";
+import { CreatedByLabel } from "@/components/islands/created-by-label";
+import { IslandShareControls } from "@/components/islands/island-share-controls";
+import { IslandCloneButton } from "@/components/islands/island-clone-button";
+import { Badge } from "@/components/ui/badge";
 
 export function StudyUnitDetailShell({
   title,
@@ -52,7 +56,7 @@ export function StudyUnitDetailShell({
   backHref?: string;
   backLabel?: string;
 }) {
-  const { dataset, progress, setProgress } = useApp();
+  const { dataset, progress, setProgress, updateIsland, isPremadeIslandKey } = useApp();
   const { startFormalStudy, switchPrompt, confirmSwitch, cancelSwitch } =
     useFormalStudyStart();
   const {
@@ -244,6 +248,9 @@ export function StudyUnitDetailShell({
   const island = !isPathway && islandKey ? dataset?.islands[islandKey] : undefined;
   const isNarration = island?.format === "narration";
   const narratorLabels = (island?.speakers ?? ["A", "B"]).join(" / ");
+  const isShared = Boolean(island?.readOnly || island?.provenance?.kind === "shared");
+  const canEdit = Boolean(islandKey && island && !isShared && !isPremadeIslandKey(islandKey));
+  const shareIdForClone = island?.provenance?.shareId;
 
   if (!dataset) return null;
 
@@ -274,14 +281,35 @@ export function StudyUnitDetailShell({
               Narration
             </span>
           )}
+          {isShared && <Badge variant="secondary">Shared · read-only</Badge>}
         </div>
         {!isPathway && description && (
           <p className="mt-1 text-sm text-muted">{description}</p>
+        )}
+        <CreatedByLabel createdBy={island?.createdBy} className="mt-1 text-xs text-muted" />
+        {isNarration && island?.narrationMode && (
+          <p className="mt-1 text-xs text-muted">
+            Narration tone: {island.narrationMode.context}
+          </p>
         )}
         <p className="mt-2 text-xs text-muted">
           {sentences.length} sentences
           {isNarration ? ` · 2 speakers · ${narratorLabels}` : ""}
         </p>
+        {islandKey && island && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {canEdit && (
+              <IslandShareControls
+                islandKey={islandKey}
+                island={island}
+                onIslandUpdated={(next) => {
+                  void updateIsland(islandKey, next);
+                }}
+              />
+            )}
+            {isShared && shareIdForClone && <IslandCloneButton shareId={shareIdForClone} />}
+          </div>
+        )}
         {islandKey && (
           <div className="mt-3">
             <IslandOfflineControls
@@ -314,7 +342,7 @@ export function StudyUnitDetailShell({
         <IslandPlayerToolbar
           displayMode={displayMode}
           onDisplayModeChange={setDisplayMode}
-          showCustomSentence={showCustomSentence && Boolean(islandKey)}
+          showCustomSentence={showCustomSentence && canEdit}
           onAddSentence={() => setAddSentenceOpen(true)}
           selectionMode={selectionMode}
           selectionCount={selectionCount}
@@ -354,7 +382,7 @@ export function StudyUnitDetailShell({
         narration={isNarration}
       />
 
-      {showCustomSentence && islandKey && (
+      {showCustomSentence && canEdit && islandKey && (
         <AddSentenceDialog
           islandKey={islandKey}
           islandTitle={title}

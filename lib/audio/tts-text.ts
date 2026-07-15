@@ -164,6 +164,8 @@ type SpokenScriptFields = {
   english?: string;
   /** Structured Fish cues — compiled after [name] resolution / normalization. */
   fishAudio?: FishAudioDirectives | null;
+  /** Free-form Fish instruction tags (preferred over legacy fishAudio). */
+  paralinguisticTags?: string[] | null;
 };
 
 type SpokenScriptContext = TtsProsodyContext & {
@@ -171,6 +173,7 @@ type SpokenScriptContext = TtsProsodyContext & {
   learnerName?: string | null;
   ttsSource?: TtsScriptSource;
   fishAudio?: FishAudioDirectives | null;
+  paralinguisticTags?: string[] | null;
 };
 
 /**
@@ -198,7 +201,9 @@ export function getSpokenScript(
     ...prosodyCtx,
   });
   const fishAudio = prosodyCtx?.fishAudio ?? sentence.fishAudio;
-  return compileFishAudioScript(withProsody, fishAudio);
+  const paralinguisticTags =
+    prosodyCtx?.paralinguisticTags ?? sentence.paralinguisticTags;
+  return compileFishAudioScript(withProsody, fishAudio, paralinguisticTags);
 }
 
 export function getSpokenScriptFromFields(

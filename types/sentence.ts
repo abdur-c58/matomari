@@ -3,6 +3,10 @@ import type {
   NarrationPauseMs,
 } from "@/lib/audio/fish-audio-cues";
 import type { Dialect } from "@/lib/constants/dialect";
+import type {
+  IslandDifficultyMode,
+  IslandDurationTier,
+} from "@/lib/constants/island-generation";
 
 export type Register = "casual" | "polite" | "formal";
 
@@ -14,23 +18,46 @@ export type IslandFormat = "standard" | "narration";
 /** Per-turn narration delivery — Fish cues compile at TTS time only (not UI text). */
 export interface NarrationAudio {
   pauseAfterMs: NarrationPauseMs;
+  /**
+   * Legacy structured Fish cues from premade catalogs.
+   * Prefer sentence.paralinguisticTags for new content.
+   */
   fishAudio?: FishAudioDirectives;
+}
+
+/**
+ * Island-level delivery direction applied to every narration turn.
+ * `toneTags` are free-form Fish instructions and combine with per-line tags.
+ */
+export interface IslandNarrationMode {
+  context: string;
+  toneTags: string[];
 }
 
 export interface SeedSentence {
   id: string;
   english: string;
   register: Register;
-  difficulty: number;
+  /**
+   * Numeric difficulty 1–5, or null when generated in natural/mixed mode.
+   * Null must be bucketed separately from numeric library filters/sorts.
+   */
+  difficulty: number | null;
   category: string;
   subtopic: string;
+  /** Semantic study tags (topics), not Fish speech instructions. */
   tags: string[];
   context_notes?: string;
   translated: boolean;
   /** Speaker turn for narration islands (A/B). */
   speaker?: NarrationSpeaker;
   /**
-   * Narration islands only: authored pause + Fish Audio expression cues.
+   * Free-form Fish Audio natural-language bracket tags compiled at TTS time.
+   * e.g. ["laughing"], ["whispers sweetly"], ["coughing, embarrassed"]
+   */
+  paralinguisticTags?: string[];
+  /**
+   * Narration islands only: authored pause + optional legacy Fish cues.
    * Never injected into japanese / reading / romaji display fields.
    */
   narrationAudio?: NarrationAudio;
@@ -64,6 +91,29 @@ export interface PathwayBatch {
   sentences: Sentence[];
 }
 
+export interface IslandCreatedBy {
+  userId: string;
+  displayName: string;
+}
+
+export type IslandProvenanceKind =
+  | "owned"
+  | "shared"
+  | "cloned"
+  | "premade"
+  | "ai";
+
+export interface IslandProvenance {
+  kind: IslandProvenanceKind;
+  /** Live share row id when provenance is shared/cloned. */
+  shareId?: string;
+  /** Stable island id on the owner's dataset. */
+  sourceIslandId?: string;
+  /** Owner of the live shared source (membership islands). */
+  ownerUserId?: string;
+  clonedFromShareId?: string;
+}
+
 export interface Island {
   description: string;
   subtopics: string[];
@@ -78,6 +128,23 @@ export interface Island {
   format?: IslandFormat;
   /** Speakers used when format is narration (default A, B). */
   speakers?: NarrationSpeaker[];
+  /** Shared contextual delivery direction for every turn in this narration island. */
+  narrationMode?: IslandNarrationMode;
+  /** Stable UUID for sharing / reconciliation (assigned on create/share). */
+  id?: string;
+  /** Creator attribution shown as "Created by {displayName}". */
+  createdBy?: IslandCreatedBy;
+  /** matched = level-constrained; natural = mixed/null sentence difficulty. */
+  difficultyMode?: IslandDifficultyMode;
+  /** Approximate generation size tier. */
+  durationTier?: IslandDurationTier;
+  /** How this island entered the library. */
+  provenance?: IslandProvenance;
+  /**
+   * Composed membership islands are read-only (not persisted in user_datasets).
+   * Owner edits flow through live share resolution.
+   */
+  readOnly?: boolean;
 }
 
 export interface Dataset {

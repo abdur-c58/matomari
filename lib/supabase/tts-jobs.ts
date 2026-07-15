@@ -1,6 +1,8 @@
+import { createHash } from "crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Dialect } from "@/lib/constants/dialect";
 import type { NarrationSpeaker } from "@/types/sentence";
+import type { TtsCacheMode } from "@/lib/audio/tts-config";
 
 export type TtsJobScope = "canonical" | "user";
 
@@ -15,6 +17,7 @@ export type TtsJobRow = {
   canonical_sentence_id: string | null;
   user_sentence_id: string | null;
   spoken_script: string | null;
+  cache_mode: TtsCacheMode;
   status: string;
   attempts: number;
   max_attempts: number;
@@ -28,9 +31,15 @@ export function buildTtsJobIdempotencyKey(input: {
   dialect: Dialect;
   speaker: NarrationSpeaker;
   ownerUserId?: string | null;
+  spokenScript?: string | null;
+  cacheMode?: TtsCacheMode;
 }): string {
   const owner = input.scope === "user" ? input.ownerUserId ?? "anon" : "canonical";
-  return `${input.scope}:${owner}:${input.legacySentenceId}:${input.dialect}:${input.speaker}`;
+  const identity =
+    input.cacheMode === "spoken-script" && input.spokenScript
+      ? createHash("sha256").update(input.spokenScript).digest("hex")
+      : input.legacySentenceId;
+  return `${input.scope}:${owner}:${identity}:${input.dialect}:${input.speaker}:${input.cacheMode ?? "sentence"}`;
 }
 
 export async function enqueueTtsJob(input: {
@@ -42,6 +51,7 @@ export async function enqueueTtsJob(input: {
   canonicalSentenceId?: string | null;
   userSentenceId?: string | null;
   spokenScript?: string | null;
+  cacheMode?: TtsCacheMode;
 }): Promise<{ ok: boolean; error?: string }> {
   const supabase = createAdminClient();
   if (!supabase) return { ok: false, error: "Supabase not configured" };
@@ -53,6 +63,8 @@ export async function enqueueTtsJob(input: {
     dialect: input.dialect,
     speaker,
     ownerUserId: input.ownerUserId,
+    spokenScript: input.spokenScript,
+    cacheMode: input.cacheMode,
   });
 
   const now = new Date().toISOString();
@@ -67,6 +79,7 @@ export async function enqueueTtsJob(input: {
       canonical_sentence_id: input.canonicalSentenceId ?? null,
       user_sentence_id: input.userSentenceId ?? null,
       spoken_script: input.spokenScript ?? null,
+      cache_mode: input.cacheMode ?? "sentence",
       status: "pending",
       available_at: now,
       updated_at: now,

@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
 import { getOrCreateSupabaseUser } from "@/lib/auth/provision-supabase-user";
+import { upsertProfileAdmin } from "@/lib/supabase/profiles-data";
 
 const googleClientId = process.env.AUTH_GOOGLE_ID ?? process.env.CLIENT_ID;
 const googleClientSecret = process.env.AUTH_GOOGLE_SECRET ?? process.env.CLIENT_SECRET;
@@ -27,10 +28,25 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     async jwt({ token, account, profile }) {
       if (account?.provider === "google" && profile?.email) {
-        token.supabaseUserId = await getOrCreateSupabaseUser({
+        const supabaseUserId = await getOrCreateSupabaseUser({
           email: profile.email,
           name: typeof profile.name === "string" ? profile.name : null,
           googleSub: account.providerAccountId,
+        });
+        token.supabaseUserId = supabaseUserId;
+
+        const displayName =
+          (typeof profile.name === "string" && profile.name.trim()) ||
+          profile.email.split("@")[0] ||
+          "Learner";
+        const avatarUrl =
+          typeof profile.picture === "string" ? profile.picture : null;
+        void upsertProfileAdmin({
+          userId: supabaseUserId,
+          displayName,
+          avatarUrl,
+        }).catch((err) => {
+          console.warn("Profile sync failed:", err);
         });
       }
       return token;

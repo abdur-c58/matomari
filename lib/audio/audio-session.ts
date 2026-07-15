@@ -4,7 +4,12 @@ import type { AudioSessionState } from "@/types/audio";
 import type { Dialect } from "@/lib/constants/dialect";
 import type { FishAudioDirectives } from "@/lib/audio/fish-audio-cues";
 import type { NarrationSpeaker, SentencePlaceholder } from "@/types/sentence";
-import { getCachedAudio, saveCachedAudio, deleteCachedAudio } from "@/lib/db/audio-cache-repository";
+import {
+  deleteCachedAudio,
+  getCachedAudio,
+  getCachedAudioByTextHash,
+  saveCachedAudio,
+} from "@/lib/db/audio-cache-repository";
 import {
   getOfflineAsset,
   getOfflineAssetBySentenceId,
@@ -37,6 +42,10 @@ export interface TtsRequest {
   english?: string;
   /** Authored Fish cues — compiled into spoken script only. */
   fishAudio?: FishAudioDirectives;
+  /** Free-form Fish instruction tags (preferred). */
+  paralinguisticTags?: string[];
+  /** Narration audio reuses identical final scripts across sentence/island IDs. */
+  cacheBySpokenScript?: boolean;
   /** Per-turn playlist wait after this item (narration). */
   pauseAfterMs?: number;
   /** Default surface (kanji sentence). Use "reading" for kana-only fallback. */
@@ -398,6 +407,7 @@ export class AudioSessionManager {
       learnerName: request.learnerName,
       ttsSource: request.ttsSource ?? "surface",
       fishAudio: request.fishAudio,
+      paralinguisticTags: request.paralinguisticTags,
     });
   }
 
@@ -430,21 +440,37 @@ export class AudioSessionManager {
       request.sentenceId,
       spokenText,
       dialect,
-      speaker
+      speaker,
+      request.cacheBySpokenScript ? "spoken-script" : "sentence"
     );
     const force = request.forceRegenerate === true;
 
     if (!force) {
-      const offline =
-        (await getOfflineAsset(textHash)) ??
-        (await getOfflineAssetBySentenceId(request.sentenceId));
-      if (offline?.blob) {
-        return { kind: "blob", blob: offline.blob };
+      const offlineExact = await getOfflineAsset(textHash);
+      if (offlineExact?.blob) {
+        return { kind: "blob", blob: offlineExact.blob };
+      }
+
+      const isOffline =
+        typeof navigator !== "undefined" && !navigator.onLine;
+      if (isOffline) {
+        const offlineLegacy = await getOfflineAssetBySentenceId(
+          request.sentenceId
+        );
+        if (offlineLegacy?.blob) {
+          return { kind: "blob", blob: offlineLegacy.blob };
+        }
       }
 
       const cached = await getCachedAudio(request.sentenceId);
       if (cached && cached.textHash === textHash) {
         return { kind: "blob", blob: cached.blob };
+      }
+      if (request.cacheBySpokenScript) {
+        const sharedCached = await getCachedAudioByTextHash(textHash);
+        if (sharedCached?.blob) {
+          return { kind: "blob", blob: sharedCached.blob };
+        }
       }
     } else {
       await deleteCachedAudio(request.sentenceId);
@@ -477,6 +503,8 @@ export class AudioSessionManager {
         context_notes: request.context_notes,
         english: request.english,
         fishAudio: request.fishAudio,
+        paralinguisticTags: request.paralinguisticTags,
+        cacheBySpokenScript: request.cacheBySpokenScript,
         ttsSource: request.ttsSource ?? "surface",
         force: force,
       }),
@@ -536,6 +564,8 @@ export class AudioSessionManager {
           context_notes: request.context_notes,
           english: request.english,
           fishAudio: request.fishAudio,
+          paralinguisticTags: request.paralinguisticTags,
+          cacheBySpokenScript: request.cacheBySpokenScript,
         }),
       });
 

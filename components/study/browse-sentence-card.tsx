@@ -188,6 +188,8 @@ function EnDialectSection({
           english={sentence.english}
           placeholders={placeholders}
           fishAudio={sentence.narrationAudio?.fishAudio}
+          paralinguisticTags={sentence.paralinguisticTags}
+          cacheBySpokenScript={Boolean(sentence.narrationAudio)}
           dialect={dialect}
           speaker={sentence.speaker}
           appearance="minimal"
@@ -462,6 +464,8 @@ export function BrowseSentenceCard({
                         english={sentence.english}
                         placeholders={primaryFields.placeholders ?? sentence.placeholders}
                         fishAudio={sentence.narrationAudio?.fishAudio}
+                        paralinguisticTags={sentence.paralinguisticTags}
+                        cacheBySpokenScript={Boolean(sentence.narrationAudio)}
                         dialect={primaryDialect}
                         speaker={sentence.speaker}
                       />

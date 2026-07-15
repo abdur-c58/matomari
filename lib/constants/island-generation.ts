@@ -9,9 +9,69 @@ export type IslandFluencyLevel =
 
 export type IslandJlptLevel = "N5" | "N4" | "N3" | "N2" | "N1";
 
+/** matched = constrain to learner level; natural = any difficulty that fits. */
+export type IslandDifficultyMode = "matched" | "natural";
+
+export type IslandDurationTier = "quick" | "standard" | "deep";
+
+export type IslandGenerationFormat = "standard" | "narration";
+
 export const DEFAULT_ISLAND_LEVEL_MODE: IslandLevelMode = "fluency";
 export const DEFAULT_ISLAND_FLUENCY_LEVEL: IslandFluencyLevel = "intermediate";
 export const DEFAULT_ISLAND_JLPT_LEVEL: IslandJlptLevel = "N4";
+export const DEFAULT_ISLAND_DIFFICULTY_MODE: IslandDifficultyMode = "matched";
+export const DEFAULT_ISLAND_DURATION_TIER: IslandDurationTier = "standard";
+export const DEFAULT_ISLAND_GENERATION_FORMAT: IslandGenerationFormat = "standard";
+
+/** Approximate duration tiers → flexible target sentence counts for AI generation. */
+export const ISLAND_DURATION_TIERS: {
+  value: IslandDurationTier;
+  label: string;
+  durationLabel: string;
+  sentenceRangeLabel: string;
+  targetCount: number;
+  softMin: number;
+  softMax: number;
+}[] = [
+  {
+    value: "quick",
+    label: "Quick",
+    durationLabel: "~2–3 min",
+    sentenceRangeLabel: "~8–12",
+    targetCount: 10,
+    softMin: 6,
+    softMax: 14,
+  },
+  {
+    value: "standard",
+    label: "Standard",
+    durationLabel: "~5–7 min",
+    sentenceRangeLabel: "~20–25",
+    targetCount: 22,
+    softMin: 16,
+    softMax: 30,
+  },
+  {
+    value: "deep",
+    label: "Deep dive",
+    durationLabel: "~10–15 min",
+    sentenceRangeLabel: "~40–50",
+    targetCount: 45,
+    softMin: 35,
+    softMax: 55,
+  },
+];
+
+export function getIslandDurationTier(tier: IslandDurationTier) {
+  return (
+    ISLAND_DURATION_TIERS.find((t) => t.value === tier) ??
+    ISLAND_DURATION_TIERS.find((t) => t.value === DEFAULT_ISLAND_DURATION_TIER)!
+  );
+}
+
+export function resolveIslandSentenceTarget(tier: IslandDurationTier): number {
+  return getIslandDurationTier(tier).targetCount;
+}
 
 export const ISLAND_FLUENCY_OPTIONS: {
   value: IslandFluencyLevel;

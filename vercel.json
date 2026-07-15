@@ -1,8 +1,8 @@
 {
   "crons": [
     {
-      "path": "/api/cron/tts-worker",
-      "schedule": "*/5 * * * *"
+      "path": "/api/cron/content-invalidation",
+      "schedule": "0 3 * * *"
     }
   ]
 }

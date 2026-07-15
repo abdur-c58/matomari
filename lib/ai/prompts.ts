@@ -43,7 +43,7 @@ export function buildTutorSystemPrompt(
       `The user is asking about this specific sentence:`,
       `- ID: ${s.id}`,
       `- English: ${s.english}`,
-      `- Register: ${s.register}, Difficulty: ${s.difficulty}`,
+      `- Register: ${s.register}, Difficulty: ${s.difficulty ?? "mixed"}`,
       `- Category: ${s.category}, Subtopic: ${s.subtopic}`,
       `- Tags: ${s.tags.join(", ")}`,
       s.context_notes ? `- Context notes: ${s.context_notes}` : "",
@@ -83,19 +83,31 @@ export function buildTutorSystemPrompt(
   return parts.filter(Boolean).join("\n");
 }
 
+export const PARALINGUISTIC_TAG_RULES = `PARALINGUISTIC TAGS (Fish Audio free-form [bracket] instructions):
+- Insert paralinguistic tags only where they genuinely fit the theme, tone, and instructions provided.
+- Infer appropriate reactions from context — e.g. a sickness theme may warrant [coughing]/[sniffling, congested] with a matching well-wish follow-up line; a joke exchange may warrant [laughing]; a tense scene may warrant [sigh] or [hesitating].
+- Match tag intensity to the emotional weight of the line — don't use [sobbing] for minor disappointment or [screaming] for mild annoyance.
+- Prefer short, simple tags, and only use fuller descriptive phrases (e.g. [speaking slowly, choosing each word carefully]) when a simple tag doesn't capture the needed nuance.
+- Avoid over-tagging — one well-placed tag per moment is usually enough.
+- Store tags WITHOUT brackets in the paralinguisticTags string array (e.g. ["laughing"], ["coughing, embarrassed"]).
+- Do NOT put Fish tags inside english text. Keep semantic topic tags in the separate tags array.`;
+
 export function buildIslandGenerationPrompt(
   theme: string,
   sentenceCount: number,
-  difficultyRange: [number, number],
   catalog: Array<{
     id: string;
     english: string;
-    difficulty: number;
+    difficulty: number | null;
     category: string;
     japanese?: string;
   }>,
-  options?: {
-    levelDescription: string;
+  options: {
+    difficultyMode: "matched" | "natural";
+    format: "standard" | "narration";
+    durationLabel: string;
+    levelDescription?: string;
+    difficultyRange?: [number, number];
     extraInstructions?: string;
   }
 ): string {
@@ -110,18 +122,79 @@ export function buildIslandGenerationPrompt(
     }))
   );
 
-  const extraBlock = options?.extraInstructions?.trim()
+  const extraBlock = options.extraInstructions?.trim()
     ? `\nUSER PREFERENCES (follow closely):\n${options.extraInstructions.trim()}\n`
     : "";
+
+  const naturalMode = options.difficultyMode === "natural";
+  const narration = options.format === "narration";
+
+  const levelBlock = naturalMode
+    ? `Difficulty mode: NATURAL / MIXED
+- Drop level and difficulty-band constraints entirely.
+- Optimize purely for contextual coherence and authenticity for the theme.
+- Set difficulty to null on every NEW sentence (JSON null, not a number, not the string "mixed").`
+    : `Difficulty mode: MATCH MY LEVEL
+Target level: ${options.levelDescription ?? "Intermediate fluency"}
+Difficulty range: ${options.difficultyRange?.[0] ?? 3} to ${options.difficultyRange?.[1] ?? 4} (1=easiest, 5=hardest)
+- Match grammar complexity, sentence length, and vocabulary to the target level — do not exceed it.
+- Set difficulty to a number within the target range on every NEW sentence.`;
+
+  const formatBlock = narration
+    ? `FORMAT: NARRATION (multi-speaker dialogue)
+- Produce a back-and-forth dialogue between Speaker A and Speaker B that fits the theme.
+- Set island fields: "format": "narration", "speakers": ["A", "B"].
+- Define "narrationMode": { "context": "concise description of the scene and relationship", "toneTags": ["1–3 free-form Fish delivery instructions"] }.
+- narrationMode.toneTags apply to EVERY line and should establish this island's shared vocal world (setting, emotional baseline, conversational energy, and relationship). Make them specific enough to this context, but reusable when another island genuinely has the exact same delivery.
+- Per-line paralinguisticTags are reactions layered on top of narrationMode.toneTags. Do not repeat an island-level tone tag on each line.
+- Every sentence MUST include "speaker": "A" or "B".
+- Prefer natural turn-taking; consecutive same-speaker lines are OK at topic boundaries.
+- Every sentence MUST include narrationAudio: { "pauseAfterMs": one of 250|400|600|800|1000|1200|1500|2000|2500|3000 }.
+- Choose pauses by conversational beat (quick exchanges shorter; thoughtful replies longer).
+- Dialogue is exactly where reactive tags like [laughing], [sighing], [coughing] in response to the other speaker's line make the most sense — lean into that.
+- Do NOT reuse catalog sentences that lack a compatible speaker for narration unless you also set speaker explicitly on the reused entry as {"id":"...","speaker":"A"|"B","narrationAudio":{...}} — prefer NEW dialogue lines for narration islands.`
+    : `FORMAT: STANDARD (single-speaker sentence batch)
+- Do NOT include format/speakers/speaker/narrationAudio fields.
+- When reusing catalog sentences, strip any inherited speaker/narrationAudio — reused entries should be {"id":"existing-id"} only.`;
+
+  const sentenceShape = narration
+    ? `{
+      "id": "string",
+      "english": "string",
+      "register": "casual" | "polite" | "formal",
+      "difficulty": ${naturalMode ? "null" : "number"},
+      "category": "string",
+      "subtopic": "string",
+      "tags": ["semantic topic tags"],
+      "paralinguisticTags": ["optional free-form speech tags without brackets"],
+      "context_notes": "optional string",
+      "translated": false,
+      "speaker": "A" | "B",
+      "narrationAudio": { "pauseAfterMs": 800 }
+    }`
+    : `{
+      "id": "string",
+      "english": "string",
+      "register": "casual" | "polite" | "formal",
+      "difficulty": ${naturalMode ? "null" : "number"},
+      "category": "string",
+      "subtopic": "string",
+      "tags": ["semantic topic tags"],
+      "paralinguisticTags": ["optional free-form speech tags without brackets"],
+      "context_notes": "optional string",
+      "translated": false
+    }`;
 
   return `Generate a language island for the ${APP_NAME} Japanese learning app.
 
 Theme: "${theme}"
-Target sentence count: ${sentenceCount}
-Target level: ${options?.levelDescription ?? "Intermediate fluency"}
-Difficulty range: ${difficultyRange[0]} to ${difficultyRange[1]} (1=easiest, 5=hardest)
+Approximate duration: ${options.durationLabel}
+Target sentence count: roughly ${sentenceCount}
+Aim for roughly ${sentenceCount} sentences, but prioritize a natural, complete contextual arc over hitting the exact number — end where the scene/topic naturally concludes, even if that's a bit above or below target.
+${levelBlock}
+${formatBlock}
 ${extraBlock}
-EXISTING SENTENCE CATALOG (reuse by exact id when thematically appropriate):
+EXISTING SENTENCE CATALOG (reuse by exact id when thematically appropriate${!narration && !naturalMode ? " AND they match the target level" : ""}):
 ${catalogJson || "[]"}
 
 RULES:
@@ -130,31 +203,28 @@ RULES:
   "islandKey": "snake_case_slug",
   "description": "string",
   "subtopics": ["string"],
-  "reusedIds": ["existing-id"],
+  ${narration ? `"format": "narration",
+  "speakers": ["A", "B"],
+  "narrationMode": {
+    "context": "specific scene, relationship, and emotional baseline",
+    "toneTags": ["context-aware shared delivery instruction"]
+  },
+  ` : ""}"reusedIds": ["existing-id"],
   "sentences": [
-    {
-      "id": "string",
-      "english": "string",
-      "register": "casual" | "polite" | "formal",
-      "difficulty": number,
-      "category": "string",
-      "subtopic": "string",
-      "tags": ["string"],
-      "context_notes": "optional string",
-      "translated": false
-    }
+    ${sentenceShape}
   ]
 }
-2. For reusedIds: list catalog ids in reusedIds AND in sentences use ONLY {"id": "existing-id"} — no other fields.
-3. For NEW sentences: include ALL fields (english, register, difficulty, category, subtopic, tags). English only — no japanese/reading/romaji. Use id pattern "{islandKey}-001", etc.
+2. For reusedIds: list catalog ids in reusedIds AND in sentences use ONLY {"id": "existing-id"} (plus optional narration speaker/timing overrides for narration format).
+3. For NEW sentences: include ALL required fields. English only — no japanese/reading/romaji. Use id pattern "{islandKey}-001", etc.
 4. Set translated: false on all new sentences.
 5. NO duplicate english text within the island.
 6. NO duplicate ids within the island.
 7. When reusing catalog sentences, do NOT reuse two entries with the same japanese translation.
-8. Prefer reusing 20-40% of catalog entries when they fit the theme AND match the target level.
-9. New English sentences must be practical, natural phrases for the theme at the target level.
+8. Prefer reusing 20-40% of catalog entries when they fit${!naturalMode ? " and match the target level" : " thematically"} — except narration islands, which should mostly be NEW dialogue.
+9. New English sentences must be practical, natural phrases for the theme.
 10. subtopics array should list all subtopics used in sentences.
-11. Match grammar complexity, sentence length, and vocabulary to the target level — do not exceed it.
+
+${PARALINGUISTIC_TAG_RULES}
 
 ${STUDY_SENTENCE_SHAPE_RULES}`;
 }
@@ -197,7 +267,7 @@ export function buildTranslationPrompt(
     id: string;
     english: string;
     register: string;
-    difficulty: number;
+    difficulty: number | null;
     category: string;
     subtopic: string;
     tags: string[];

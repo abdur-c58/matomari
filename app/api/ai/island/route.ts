@@ -6,8 +6,11 @@ import { islandRequestSchema, islandGenerationResponseSchema } from "@/lib/ai/sc
 import { resolveIslandSentences, slugifyIslandKey } from "@/lib/services/dataset-mutation-service";
 import {
   formatIslandLevelPrompt,
+  getIslandDurationTier,
   resolveIslandDifficultyRange,
+  resolveIslandSentenceTarget,
 } from "@/lib/constants/island-generation";
+import { sanitizeParalinguisticTags } from "@/lib/audio/fish-audio-cues";
 import type { Sentence } from "@/types/sentence";
 
 export async function POST(request: Request) {
@@ -20,7 +23,10 @@ export async function POST(request: Request) {
     const parsed = islandRequestSchema.parse(body);
     const {
       theme,
-      sentenceCount = 20,
+      sentenceCount,
+      durationTier,
+      difficultyMode,
+      format,
       difficultyRange,
       levelMode,
       fluencyLevel,
@@ -30,18 +36,28 @@ export async function POST(request: Request) {
       existingIslandKeys = [],
     } = parsed;
 
+    const tier = getIslandDurationTier(durationTier);
+    const targetCount = sentenceCount ?? resolveIslandSentenceTarget(durationTier);
+    const natural = difficultyMode === "natural";
     const resolvedDifficulty =
-      difficultyRange ??
-      resolveIslandDifficultyRange({ levelMode, fluencyLevel, jlptLevel });
+      natural
+        ? undefined
+        : difficultyRange ??
+          resolveIslandDifficultyRange({ levelMode, fluencyLevel, jlptLevel });
 
     const openai = getOpenAIClient();
     const prompt = buildIslandGenerationPrompt(
       theme,
-      sentenceCount,
-      resolvedDifficulty,
+      targetCount,
       sentenceCatalog,
       {
-        levelDescription: formatIslandLevelPrompt({ levelMode, fluencyLevel, jlptLevel }),
+        difficultyMode,
+        format,
+        durationLabel: `${tier.label} (${tier.durationLabel}, ${tier.sentenceRangeLabel} sentences)`,
+        levelDescription: natural
+          ? undefined
+          : formatIslandLevelPrompt({ levelMode, fluencyLevel, jlptLevel }),
+        difficultyRange: resolvedDifficulty,
         extraInstructions,
       }
     );
@@ -78,17 +94,37 @@ export async function POST(request: Request) {
       generated.sentences,
       catalogMap,
       islandKey,
-      new Set(sentenceCatalog.map((s) => s.id))
+      new Set(sentenceCatalog.map((s) => s.id)),
+      { format, difficultyMode }
     );
+
+    const islandFormat = format === "narration" ? "narration" : "standard";
+    const narrationMode =
+      islandFormat === "narration"
+        ? {
+            context:
+              generated.narrationMode?.context.trim() ||
+              `${theme} — ${generated.description}`,
+            toneTags:
+              sanitizeParalinguisticTags(generated.narrationMode?.toneTags) ?? [
+                `speaking naturally within a ${theme} conversation`,
+              ],
+          }
+        : undefined;
 
     return NextResponse.json({
       islandKey,
       description: generated.description,
       subtopics: generated.subtopics,
+      format: islandFormat,
+      speakers: islandFormat === "narration" ? (["A", "B"] as const) : undefined,
+      narrationMode,
       sentences,
       reusedIds,
       newCount,
       skippedCount,
+      difficultyMode,
+      durationTier,
     });
   } catch (e) {
     return openAIErrorResponse(e);

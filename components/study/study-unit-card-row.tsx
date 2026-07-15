@@ -14,7 +14,7 @@ export function StudyUnitCardRow({
   href: string;
   folders?: IslandFolder[];
 }) {
-  if (unit.isPathway || unit.ref.kind !== "island" || unit.isPremade) {
+  if (unit.isPathway || unit.ref.kind !== "island" || unit.isPremade || unit.isShared) {
     return <StudyUnitCard unit={unit} href={href} />;
   }
 

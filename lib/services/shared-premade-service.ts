@@ -5,6 +5,10 @@ import {
   EMPTY_PREMADE_CATALOG,
   type PremadeCatalog,
 } from "@/types/premade-catalog";
+import {
+  isSharedIslandLibraryKey,
+  systemCreatedBy,
+} from "@/lib/services/island-identity-service";
 
 const CACHE_KEY = "sharedPremadeCatalogCache";
 const CACHE_UPDATED_KEY = "sharedPremadeCatalogUpdatedAt";
@@ -35,12 +39,32 @@ export function filterUserIslands(
   islands: Record<string, Island>,
   premadeKeys: Set<string>
 ): Record<string, Island> {
-  if (premadeKeys.size === 0) return islands;
   const result = { ...islands };
   for (const key of premadeKeys) {
     delete result[key];
   }
+  for (const key of Object.keys(result)) {
+    // Live membership islands are composed at runtime — never persist them.
+    if (isSharedIslandLibraryKey(key) || result[key]?.readOnly) {
+      delete result[key];
+    }
+  }
   return result;
+}
+
+function withPremadeAttribution(catalog: PremadeCatalog): PremadeCatalog {
+  const createdBy = systemCreatedBy();
+  const islands = Object.fromEntries(
+    Object.entries(catalog.islands).map(([key, island]) => [
+      key,
+      {
+        ...island,
+        createdBy: island.createdBy ?? createdBy,
+        provenance: island.provenance ?? { kind: "premade" as const },
+      },
+    ])
+  );
+  return { ...catalog, islands };
 }
 
 async function readPremadeCache(): Promise<SharedPremadeResult | null> {
@@ -78,22 +102,22 @@ export async function fetchSharedPremadeCatalog(options?: {
     const res = await fetch(url, { cache: "no-store" });
 
     if (res.status === 304 && cached) {
-      return cached;
+      return withPremadeAttribution(cached);
     }
 
     if (!res.ok) {
-      return cached ?? EMPTY_PREMADE_CATALOG;
+      return withPremadeAttribution(cached ?? EMPTY_PREMADE_CATALOG);
     }
 
     const body = (await res.json()) as PremadeCatalog;
     if (!body?.updatedAt) {
-      return cached ?? EMPTY_PREMADE_CATALOG;
+      return withPremadeAttribution(cached ?? EMPTY_PREMADE_CATALOG);
     }
 
     const catalog = parsePremadeCatalog(body);
     await writePremadeCache(catalog);
-    return catalog;
+    return withPremadeAttribution(catalog);
   } catch {
-    return cached ?? EMPTY_PREMADE_CATALOG;
+    return withPremadeAttribution(cached ?? EMPTY_PREMADE_CATALOG);
   }
 }

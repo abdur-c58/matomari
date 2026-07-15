@@ -54,7 +54,9 @@ export function SentenceContextPanel({
         )}
         <div className="mt-4 flex flex-wrap gap-1.5">
           <Badge variant="outline">{sentence.register}</Badge>
-          <Badge variant="outline">Lv{sentence.difficulty}</Badge>
+          <Badge variant="outline">
+            {sentence.difficulty == null ? "Mixed" : `Lv${sentence.difficulty}`}
+          </Badge>
           <Badge variant="secondary">{sentence.subtopic.replace(/_/g, " ")}</Badge>
           {sentence.tags.slice(0, 4).map((t) => (
             <Badge key={t} variant="outline" className="text-xs">

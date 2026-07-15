@@ -1,4 +1,4 @@
-import type { Sentence } from "@/types/sentence";
+import type { IslandNarrationMode, Sentence } from "@/types/sentence";
 
 export type TutorContext =
   | { type: "general" }
@@ -13,7 +13,7 @@ export interface ChatMessage {
 export interface SentenceCatalogEntry {
   id: string;
   english: string;
-  difficulty: number;
+  difficulty: number | null;
   category: string;
   register: string;
   subtopic: string;
@@ -50,6 +50,12 @@ export interface IslandGenerationPreview {
   sentences: Sentence[];
   reusedIds: string[];
   newCount: number;
+  format?: "standard" | "narration";
+  speakers?: Array<"A" | "B">;
+  narrationMode?: IslandNarrationMode;
+  difficultyMode?: "matched" | "natural";
+  durationTier?: "quick" | "standard" | "deep";
+  skippedCount?: number;
 }
 
 export interface IslandSuggestion {

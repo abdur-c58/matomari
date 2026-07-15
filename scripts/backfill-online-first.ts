@@ -4,12 +4,14 @@
  * Usage:
  *   npx tsx --env-file=.env.local scripts/backfill-online-first.ts
  *   npx tsx --env-file=.env.local scripts/backfill-online-first.ts --dry-run
+ *   npx tsx --env-file=.env.local scripts/backfill-online-first.ts --translations-only
  *   npx tsx --env-file=.env.local scripts/backfill-online-first.ts --enqueue-tts
  */
 
 import fs from "fs";
 import path from "path";
 import { contentFingerprint } from "../lib/cloud/content-fingerprint";
+import { loadContentSeedsFromFiles, seedToMetadata } from "../lib/cloud/content-seeds";
 import { createAdminClient } from "../lib/supabase/admin";
 import { fetchSharedTranslationsFromDb } from "../lib/supabase/shared-translations-data";
 import { enqueueTtsJob } from "../lib/supabase/tts-jobs";
@@ -18,7 +20,6 @@ import type { TranslatedFields } from "../types/sentence";
 
 const ROOT = process.cwd();
 const CATALOG_PATH = path.join(ROOT, "public", "premade-catalog.json");
-const PATHWAY_PATH = path.join(ROOT, "public", "main-pathway.json");
 
 function loadEnvLocal() {
   const envPath = path.join(ROOT, ".env.local");
@@ -37,10 +38,34 @@ function loadEnvLocal() {
   }
 }
 
+async function loadExistingSentenceMap(
+  supabase: NonNullable<ReturnType<typeof createAdminClient>>
+): Promise<Map<string, string>> {
+  const map = new Map<string, string>();
+  const pageSize = 1000;
+  let offset = 0;
+  while (true) {
+    const { data, error } = await supabase
+      .from("canonical_sentences")
+      .select("id, legacy_id")
+      .order("legacy_id", { ascending: true })
+      .range(offset, offset + pageSize - 1);
+    if (error) throw new Error(error.message);
+    const rows = data ?? [];
+    for (const row of rows) {
+      map.set(row.legacy_id as string, row.id as string);
+    }
+    if (rows.length < pageSize) break;
+    offset += pageSize;
+  }
+  return map;
+}
+
 async function main() {
   loadEnvLocal();
   const dryRun = process.argv.includes("--dry-run");
   const enqueueTts = process.argv.includes("--enqueue-tts");
+  const translationsOnly = process.argv.includes("--translations-only");
 
   const supabase = createAdminClient();
   if (!supabase) throw new Error("Supabase admin not configured");
@@ -49,103 +74,91 @@ async function main() {
     JSON.parse(fs.readFileSync(CATALOG_PATH, "utf8"))
   );
 
-  let pathwaySentences: Array<{
-    id: string;
-    english: string;
-    speaker?: "A" | "B";
-  }> = [];
-  if (fs.existsSync(PATHWAY_PATH)) {
-    const pathway = JSON.parse(fs.readFileSync(PATHWAY_PATH, "utf8")) as {
-      batches?: Array<{ sentences?: Array<{ id: string; english: string }> }>;
-    };
-    for (const batch of pathway.batches ?? []) {
-      for (const s of batch.sentences ?? []) {
-        pathwaySentences.push({ id: s.id, english: s.english });
-      }
-    }
-  }
+  const allSeeds = loadContentSeedsFromFiles().map((seed) => ({
+    id: seed.legacyId,
+    english: seed.english,
+    speaker: seed.speaker,
+    source: seed.source === "pathway" ? ("pathway" as const) : ("premade" as const),
+    metadata: seedToMetadata(seed),
+  }));
 
-  const catalogSentences = Object.values(catalog.islands).flatMap((island) =>
-    island.sentences.map((s) => ({
-      id: s.id,
-      english: s.english,
-      speaker: s.speaker,
-      source: "premade" as const,
-    }))
-  );
-
-  const allSeeds = [
-    ...catalogSentences,
-    ...pathwaySentences.map((s) => ({
-      ...s,
-      source: "pathway" as const,
-      speaker: undefined as "A" | "B" | undefined,
-    })),
-  ];
-
-  // Deduplicate by legacy id
-  const byId = new Map<string, (typeof allSeeds)[number]>();
-  for (const s of allSeeds) byId.set(s.id, s);
+  const byId = new Map(allSeeds.map((s) => [s.id, s]));
 
   console.log(`Seeds: ${byId.size}`);
   console.log(`Dry run: ${dryRun}`);
+  console.log(`Translations only: ${translationsOnly}`);
 
-  // Upsert premade catalog row
-  if (!dryRun) {
-    const { error } = await supabase.from("shared_premade_catalog").upsert({
-      id: "main",
-      data: catalog,
-      release_version: 1,
-      updated_at: new Date().toISOString(),
-    });
-    if (error) console.warn("premade catalog upsert:", error.message);
-    else console.log("Upserted shared_premade_catalog");
-  } else {
-    console.log("[dry-run] would upsert shared_premade_catalog");
-  }
-
-  let sentenceUpserts = 0;
   const legacyToUuid = new Map<string, string>();
 
-  for (const seed of byId.values()) {
-    if (dryRun) {
+  if (translationsOnly) {
+    const existing = await loadExistingSentenceMap(supabase);
+    for (const [legacyId, uuid] of existing) {
+      legacyToUuid.set(legacyId, uuid);
+    }
+    console.log(`Loaded existing canonical sentences: ${legacyToUuid.size}`);
+  } else {
+    // Upsert premade catalog row
+    if (!dryRun) {
+      const { error } = await supabase.from("shared_premade_catalog").upsert({
+        id: "main",
+        data: catalog,
+        release_version: 1,
+        updated_at: new Date().toISOString(),
+      });
+      if (error) console.warn("premade catalog upsert:", error.message);
+      else console.log("Upserted shared_premade_catalog");
+    } else {
+      console.log("[dry-run] would upsert shared_premade_catalog");
+    }
+
+    let sentenceUpserts = 0;
+    for (const seed of byId.values()) {
+      if (dryRun) {
+        sentenceUpserts++;
+        continue;
+      }
+      const now = new Date().toISOString();
+      const { data, error } = await supabase
+        .from("canonical_sentences")
+        .upsert(
+          {
+            legacy_id: seed.id,
+            english: seed.english,
+            content_fingerprint: contentFingerprint(seed.english),
+            source: seed.source,
+            speaker: seed.speaker === "B" ? "B" : seed.speaker === "A" ? "A" : null,
+            metadata: seed.metadata,
+            updated_at: now,
+          },
+          { onConflict: "legacy_id" }
+        )
+        .select("id")
+        .single();
+      if (error) {
+        console.warn(`sentence ${seed.id}: ${error.message}`);
+        continue;
+      }
+      legacyToUuid.set(seed.id, data.id as string);
       sentenceUpserts++;
-      continue;
+      if (sentenceUpserts % 500 === 0) {
+        console.log(`… sentences ${sentenceUpserts}/${byId.size}`);
+      }
     }
-    const now = new Date().toISOString();
-    const { data, error } = await supabase
-      .from("canonical_sentences")
-      .upsert(
-        {
-          legacy_id: seed.id,
-          english: seed.english,
-          content_fingerprint: contentFingerprint(seed.english),
-          source: seed.source,
-          speaker: seed.speaker === "B" ? "B" : seed.speaker === "A" ? "A" : null,
-          updated_at: now,
-        },
-        { onConflict: "legacy_id" }
-      )
-      .select("id")
-      .single();
-    if (error) {
-      console.warn(`sentence ${seed.id}: ${error.message}`);
-      continue;
-    }
-    legacyToUuid.set(seed.id, data.id as string);
-    sentenceUpserts++;
+    console.log(`Canonical sentences upserted: ${sentenceUpserts}`);
   }
-  console.log(`Canonical sentences upserted: ${sentenceUpserts}`);
 
   const shared = await fetchSharedTranslationsFromDb();
   const translations = shared?.translations ?? {};
+  console.log(`Shared translation rows fetched: ${Object.keys(translations).length}`);
+
   let translationUpserts = 0;
+  let skippedOrphan = 0;
   let jobsEnqueued = 0;
 
   for (const [legacyId, dialects] of Object.entries(translations)) {
     const uuid = legacyToUuid.get(legacyId);
     if (!uuid && !dryRun) {
-      // Create shell sentence if translation exists without catalog seed
+      skippedOrphan++;
       continue;
     }
     for (const dialect of ["standard", "kansai"] as const) {
@@ -166,6 +179,7 @@ async function main() {
             fields,
             revision: 1,
             provenance: "backfill",
+            status: "ready",
             updated_at: new Date().toISOString(),
           },
           { onConflict: "sentence_id,dialect" }
@@ -187,10 +201,17 @@ async function main() {
         });
         if (job.ok) jobsEnqueued++;
       }
+
+      if (translationUpserts % 500 === 0) {
+        console.log(`… translations ${translationUpserts}`);
+      }
     }
   }
 
   console.log(`Translations upserted: ${translationUpserts}`);
+  if (skippedOrphan > 0) {
+    console.log(`Skipped orphan shared rows (no matching sentence): ${skippedOrphan}`);
+  }
   if (enqueueTts) console.log(`TTS jobs enqueued: ${jobsEnqueued}`);
   console.log("Done.");
 }

@@ -91,6 +91,7 @@ async function processJob(job: TtsJobRow): Promise<"ok" | "quota" | "fail"> {
       ownerUserId: job.owner_user_id,
       canonicalSentenceId: job.canonical_sentence_id,
       userSentenceId: job.user_sentence_id,
+      cacheMode: job.cache_mode ?? "sentence",
     });
 
     await completeTtsJob(job.id, hash);

@@ -26,6 +26,8 @@ export type SentenceAudioFields = {
   english?: string;
   placeholders?: SentencePlaceholder[];
   fishAudio?: FishAudioDirectives;
+  paralinguisticTags?: string[];
+  cacheBySpokenScript?: boolean;
   dialect?: Dialect;
   speaker?: NarrationSpeaker;
   disabled?: boolean;
@@ -52,6 +54,10 @@ function buildTtsRequest(
     context_notes: fields.context_notes,
     english: fields.english,
     ...(fields.fishAudio ? { fishAudio: fields.fishAudio } : {}),
+    ...(fields.paralinguisticTags?.length
+      ? { paralinguisticTags: fields.paralinguisticTags }
+      : {}),
+    ...(fields.cacheBySpokenScript ? { cacheBySpokenScript: true } : {}),
     ttsSource: "surface",
   };
 }
@@ -67,6 +73,8 @@ export function SentenceAudioControls({
   english,
   placeholders,
   fishAudio,
+  paralinguisticTags,
+  cacheBySpokenScript,
   dialect: dialectProp,
   speaker,
   disabled = false,
@@ -128,6 +136,8 @@ export function SentenceAudioControls({
         english,
         placeholders,
         fishAudio,
+        paralinguisticTags,
+        cacheBySpokenScript,
         dialect,
         speaker,
       },

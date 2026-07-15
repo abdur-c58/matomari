@@ -30,6 +30,7 @@ type DialectTranslationBlockProps = {
     | "placeholders"
     | "speaker"
     | "narrationAudio"
+    | "paralinguisticTags"
   >;
   showLabel?: boolean;
   showPlayButton?: boolean;
@@ -180,6 +181,8 @@ export function DialectTranslationBlock({
             english={sentenceMeta.english}
             placeholders={placeholderSentence.placeholders}
             fishAudio={sentenceMeta.narrationAudio?.fishAudio}
+            paralinguisticTags={sentenceMeta.paralinguisticTags}
+            cacheBySpokenScript={Boolean(sentenceMeta.narrationAudio)}
             dialect={dialect}
             speaker={sentenceMeta.speaker}
             appearance={playButtonAppearance}

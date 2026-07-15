@@ -44,36 +44,57 @@ function rowsToPayload(rows: SharedTranslationRow[]): SharedTranslationsPayload 
   return { translations, updatedAt };
 }
 
+const SHARED_TRANSLATIONS_PAGE_SIZE = 1000;
+
 export async function fetchSharedTranslationsFromDb(
   since?: string | null
 ): Promise<SharedTranslationsPayload | null> {
   const cfg = getRestConfig();
   if (!cfg) return null;
 
-  const query = since
-    ? `${cfg.url}/rest/v1/shared_sentence_translations?select=sentence_id,translations,updated_at&updated_at=gt.${encodeURIComponent(since)}`
-    : `${cfg.url}/rest/v1/shared_sentence_translations?select=sentence_id,translations,updated_at`;
+  const allRows: SharedTranslationRow[] = [];
+  let offset = 0;
 
-  const res = await fetch(query, {
-    headers: restHeaders(cfg.key),
-    cache: "no-store",
-  });
+  while (true) {
+    const filters = since
+      ? `&updated_at=gt.${encodeURIComponent(since)}`
+      : "";
+    const query =
+      `${cfg.url}/rest/v1/shared_sentence_translations` +
+      `?select=sentence_id,translations,updated_at${filters}` +
+      `&order=sentence_id.asc` +
+      `&limit=${SHARED_TRANSLATIONS_PAGE_SIZE}` +
+      `&offset=${offset}`;
 
-  if (!res.ok) {
-    // Table missing / schema cache miss — treat as empty so clients get 200/304, not 503.
-    if (res.status === 404 || res.status === 406) {
-      return { translations: {}, updatedAt: since ?? new Date(0).toISOString() };
+    const res = await fetch(query, {
+      headers: restHeaders(cfg.key),
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      // Table missing / schema cache miss — treat as empty so clients get 200/304, not 503.
+      if (res.status === 404 || res.status === 406) {
+        return {
+          translations: {},
+          updatedAt: since ?? new Date(0).toISOString(),
+        };
+      }
+      return null;
     }
-    return null;
+
+    const rows = (await res.json()) as SharedTranslationRow[];
+    allRows.push(...rows);
+
+    if (rows.length < SHARED_TRANSLATIONS_PAGE_SIZE) break;
+    offset += SHARED_TRANSLATIONS_PAGE_SIZE;
   }
 
-  const rows = (await res.json()) as SharedTranslationRow[];
-  if (rows.length === 0) {
+  if (allRows.length === 0) {
     // Incremental poll with no newer rows (or empty table) — empty payload.
     return { translations: {}, updatedAt: since ?? new Date(0).toISOString() };
   }
 
-  return rowsToPayload(rows);
+  return rowsToPayload(allRows);
 }
 
 export async function upsertSharedSentenceTranslations(
