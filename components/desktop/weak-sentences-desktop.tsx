@@ -65,8 +65,8 @@ export function WeakSentencesViewDesktop() {
             <EmptyState
               title="No weak sentences"
               description="Great work — nothing rated 1–2 stars."
-              actionHref="/"
-              actionLabel="Back to Today"
+              actionHref="/today"
+          actionLabel="Back to Dashboard"
             />
           )}
         </div>

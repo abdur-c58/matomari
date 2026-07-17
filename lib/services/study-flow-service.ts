@@ -248,11 +248,11 @@ export function getNextStepAfterShadow(
 ): { href: string; label: string } {
   const effective = withResolvedDailyBatch(dataset, progress);
   if (!dataset || !effective?.batchConfig) {
-    return { href: "/", label: "Back to Today" };
+    return { href: "/today", label: "Back to Dashboard" };
   }
 
   const state = getStudyFlowState(dataset, progress);
-  if (!state) return { href: "/", label: "Back to Today" };
+  if (!state) return { href: "/today", label: "Back to Dashboard" };
 
   const recall = state.steps.find((s) => s.step === "active_recall");
   if (recall && recall.total > 0 && !recall.isComplete) {
@@ -264,5 +264,5 @@ export function getNextStepAfterShadow(
     return { href: review.href, label: STEP_META.review.label };
   }
 
-  return { href: "/", label: "Back to Today" };
+  return { href: "/today", label: "Back to Dashboard" };
 }

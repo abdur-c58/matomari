@@ -207,7 +207,7 @@ export function ActiveRecallModeDesktop() {
         <DesktopPageShell>
           <StudyStepLocked
             lockedReason={recallAccess.lockedReason ?? "Finish the previous steps first."}
-            continueHref={recallAccess.continueHref ?? "/"}
+            continueHref={recallAccess.continueHref ?? "/today"}
           />
         </DesktopPageShell>
       </AppGate>
@@ -240,8 +240,8 @@ export function ActiveRecallModeDesktop() {
           <EmptyState
             title="All caught up"
             description="No sentences due for recall right now."
-            actionHref="/"
-            actionLabel="Back to Today"
+            actionHref="/today"
+            actionLabel="Back to Dashboard"
           />
         </DesktopPageShell>
       </AppGate>

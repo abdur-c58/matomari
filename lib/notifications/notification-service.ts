@@ -121,7 +121,7 @@ export function collectPendingNotifications(
       tag: "kotoshima-daily",
       title: `${APP_NAME} — daily study`,
       body: "Your daily Japanese session is ready. Open Kotoshima to keep your streak going.",
-      url: "/",
+      url: "/today",
       lastSentPatch: { daily: today },
     });
   }

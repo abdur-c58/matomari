@@ -61,7 +61,7 @@ export function MeaningCheck({
       <ResponsivePageHeader
         title="Confirm meaning"
         subtitle={`Step 1 · ${index + 1} of ${sentences.length}`}
-        backHref="/"
+        backHref="/today"
         action={
           <AskButton
             context={{ type: "sentence", sentenceId: current.id }}

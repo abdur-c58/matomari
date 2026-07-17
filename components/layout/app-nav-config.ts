@@ -20,7 +20,7 @@ export type AppNavItem = {
 };
 
 export const primaryNav: AppNavItem[] = [
-  { href: "/", label: "Today", icon: Calendar },
+  { href: "/today", label: "Dashboard", icon: Calendar },
   { href: "/batch", label: "Islands", icon: MapPinned },
   { href: "/recall", label: "Active Recall", icon: Brain },
   { href: "/listen?step=shadow", label: "Shadowing", icon: Headphones },
@@ -42,5 +42,5 @@ export const footerNav: AppNavItem[] = [
 export function isNavActive(pathname: string, href: string): boolean {
   const path = href.split("?")[0];
   if (path === "/listen") return pathname.startsWith("/listen");
-  return pathname === path || (path !== "/" && pathname.startsWith(path));
+  return pathname === path || (path !== "/today" && pathname.startsWith(path));
 }

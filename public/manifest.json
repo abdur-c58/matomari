@@ -4,8 +4,8 @@
   "description": "Personalized Japanese learning through language islands",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#ffffff",
+  "background_color": "#d2c5a4",
+  "theme_color": "#d2c5a4",
   "orientation": "any",
   "icons": [
     {

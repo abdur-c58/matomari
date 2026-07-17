@@ -52,9 +52,9 @@ export const onboardingSteps: OnboardingStep[] = [
   },
   {
     id: "today",
-    title: "Today — your daily plan",
+    title: "Dashboard — your daily plan",
     body: [
-      "The Today page is your home base. It shows what to do next and tracks daily progress.",
+      "The Dashboard page is your home base. It shows what to do next and tracks daily progress.",
       "Cards are ordered by priority: confirm meanings first, then shadow, recall, and review.",
     ],
     bullets: [
@@ -128,7 +128,7 @@ export const onboardingSteps: OnboardingStep[] = [
       "Review checks whether you still know them — if not, they re-enter active study.",
     ],
     bullets: [
-      "Due reviews appear on Today automatically",
+      "Due reviews appear on Dashboard automatically",
       "Keeps long-term memory sharp without over-drilling",
     ],
     icon: BookOpen,

@@ -15,7 +15,7 @@ export function isDialectConfigured(settings: {
 
 export function parseReturnTo(searchParams: URLSearchParams): string {
   const raw = searchParams.get("returnTo");
-  if (!raw || !raw.startsWith("/") || raw.startsWith("//")) return "/";
+  if (!raw || !raw.startsWith("/") || raw.startsWith("//")) return "/today";
   return raw;
 }
 

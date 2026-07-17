@@ -75,7 +75,7 @@ export function PreferencesScreenDesktop() {
       >
         <DesktopPageHeader
           title="Preferences"
-          subtitle="Font, voice accent, and notifications"
+          subtitle="Font and notifications"
         />
 
         <FontPreferencesSection uiFont={uiFont} onChange={setUiFont} />

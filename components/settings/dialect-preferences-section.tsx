@@ -48,7 +48,7 @@ export function DialectPreferencesSection({
           <div className="min-w-0 flex-1">
             <p className="font-medium text-foreground">Set Kansai as primary</p>
             <p className="mt-1 text-sm text-muted">
-              Use Kansai for Today, Listen, Recall, and library rows by default. You can still
+              Use Kansai for Dashboard, Listen, Recall, and library rows by default. You can still
               switch to Standard per sentence when expanded.
             </p>
           </div>

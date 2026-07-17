@@ -139,7 +139,7 @@ export function ListenPageDesktop() {
         <AppGate>
           <StudyStepLocked
             lockedReason={meaningAccess.lockedReason ?? "Finish the previous steps first."}
-            continueHref={meaningAccess.continueHref ?? "/"}
+            continueHref={meaningAccess.continueHref ?? "/today"}
           />
         </AppGate>
       );

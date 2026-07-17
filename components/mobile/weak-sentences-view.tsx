@@ -29,7 +29,7 @@ export function WeakSentencesViewMobile() {
         <PageHeader
           title="Weak Sentences"
           subtitle={`${weakSentences.length} rated 1–2 stars`}
-          backHref="/"
+          backHref="/today"
         />
 
         {weakSentences.length > 0 && (
@@ -66,8 +66,8 @@ export function WeakSentencesViewMobile() {
             <EmptyState
               title="No weak sentences"
               description="Great work — nothing rated 1–2 stars."
-              actionHref="/"
-              actionLabel="Back to Today"
+              actionHref="/today"
+        actionLabel="Back to Dashboard"
             />
           )}
         </div>

@@ -84,12 +84,17 @@ export function buildTutorSystemPrompt(
 }
 
 export const PARALINGUISTIC_TAG_RULES = `PARALINGUISTIC TAGS (Fish Audio free-form [bracket] instructions):
-- Insert paralinguistic tags only where they genuinely fit the theme, tone, and instructions provided.
-- Infer appropriate reactions from context — e.g. a sickness theme may warrant [coughing]/[sniffling, congested] with a matching well-wish follow-up line; a joke exchange may warrant [laughing]; a tense scene may warrant [sigh] or [hesitating].
+- Fish accepts FREE-FORM natural-language audio directions. You may use ANY concise tag that fits the moment; do not limit yourself to a fixed list.
+- Make narration audibly expressive by default. Actively look for natural opportunities for vocal reactions, emotion, pace, volume, breath, and delivery—not just generic labels like "friendly".
+- Keep every tag SIMPLE, DIRECT, and SHORT—usually one to three words. Prefer [laughing], [concerned], [weak voice], [thinking], or [whispering].
+- Never pack multiple ideas into a comma-separated tag. If a second direction is essential, store it as a separate short tag.
+- Do NOT use coughing tags (coughing, cough, or cough-like clear throat). They synthesize poorly—express illness with delivery like [weak voice], [tired], or [sniffling] instead, and let the dialogue wording carry the illness beat.
+- Infer reactions from the whole exchange and write connected cause-and-response beats. Examples: one speaker sounds unwell with [weak voice] and the other becomes [concerned]; a joke earns [laughing]; uncertainty can use [thinking]; relief can use [relieved sigh]; awkwardness can use [nervous chuckle]; secrecy can use [whispering].
+- Other valid context-dependent directions include sighing, gasping, sniffling, stammering, yawning, crying, groaning, whispering, breathless, sarcastic, caring, gentle scolding, or any similarly short instruction.
 - Match tag intensity to the emotional weight of the line — don't use [sobbing] for minor disappointment or [screaming] for mild annoyance.
-- Prefer short, simple tags, and only use fuller descriptive phrases (e.g. [speaking slowly, choosing each word carefully]) when a simple tag doesn't capture the needed nuance.
-- Avoid over-tagging — one well-placed tag per moment is usually enough.
-- Store tags WITHOUT brackets in the paralinguisticTags string array (e.g. ["laughing"], ["coughing, embarrassed"]).
+- Prefer one precise tag; use two only when both are necessary and clearly distinct.
+- Avoid random decoration: each tag must alter how the line should actually sound and remain coherent with the surrounding turns.
+- Store tags WITHOUT brackets in the paralinguisticTags string array (e.g. ["laughing"], ["weak voice"]).
 - Do NOT put Fish tags inside english text. Keep semantic topic tags in the separate tags array.`;
 
 export function buildIslandGenerationPrompt(
@@ -133,12 +138,15 @@ export function buildIslandGenerationPrompt(
     ? `Difficulty mode: NATURAL / MIXED
 - Drop level and difficulty-band constraints entirely.
 - Optimize purely for contextual coherence and authenticity for the theme.
-- Set difficulty to null on every NEW sentence (JSON null, not a number, not the string "mixed").`
+- Set difficulty to null on every NEW sentence (JSON null, not a number, not the string "mixed").
+- You MAY include short, real Japanese conversational expressions as their own study lines when they feel authentic in the scene — for example a drawn-out, slightly reluctant "Okayy." (はーい), soft acknowledgment ("Mm." / うん), mild surprise ("Wait—" / え？), or thoughtful hums ("Hmm…" / うーん).
+- Keep these purposeful reaction beats, not filler spam: only when a native speaker would actually say that short expression there, and prefer them as separate sentences when they carry the conversational beat.`
     : `Difficulty mode: MATCH MY LEVEL
 Target level: ${options.levelDescription ?? "Intermediate fluency"}
 Difficulty range: ${options.difficultyRange?.[0] ?? 3} to ${options.difficultyRange?.[1] ?? 4} (1=easiest, 5=hardest)
 - Match grammar complexity, sentence length, and vocabulary to the target level — do not exceed it.
-- Set difficulty to a number within the target range on every NEW sentence.`;
+- Set difficulty to a number within the target range on every NEW sentence.
+- Prefer complete studyable phrases over bare fillers unless the target level explicitly includes basic reactions.`;
 
   const formatBlock = narration
     ? `FORMAT: NARRATION (multi-speaker dialogue)
@@ -147,11 +155,15 @@ Difficulty range: ${options.difficultyRange?.[0] ?? 3} to ${options.difficultyRa
 - Define "narrationMode": { "context": "concise description of the scene and relationship", "toneTags": ["1–3 free-form Fish delivery instructions"] }.
 - narrationMode.toneTags apply to EVERY line and should establish this island's shared vocal world (setting, emotional baseline, conversational energy, and relationship). Make them specific enough to this context, but reusable when another island genuinely has the exact same delivery.
 - Per-line paralinguisticTags are reactions layered on top of narrationMode.toneTags. Do not repeat an island-level tone tag on each line.
+- Design the dialogue as a performed scene, not a sterile textbook exchange. Include expressive beats wherever the context gives you a reason: audible thinking ("hmm"), laughter, sighs, hesitation, breath changes, whispers, interruptions, or emotionally specific delivery.
+- Prefer short, concrete performance directions. Fish can follow ANY concise natural-language audio tag; the examples are inspiration, not an allowlist. Never invent coughing tags.
+- Make reactions propagate naturally between speakers. If A sounds tired, upset, laughs, whispers, or hesitates, B's next wording and delivery should acknowledge it when a real person would.
+- Most narration scenes should contain several meaningfully tagged lines. A quiet untagged line is still valid when contrast makes the scene sound more natural.
 - Every sentence MUST include "speaker": "A" or "B".
 - Prefer natural turn-taking; consecutive same-speaker lines are OK at topic boundaries.
 - Every sentence MUST include narrationAudio: { "pauseAfterMs": one of 250|400|600|800|1000|1200|1500|2000|2500|3000 }.
 - Choose pauses by conversational beat (quick exchanges shorter; thoughtful replies longer).
-- Dialogue is exactly where reactive tags like [laughing], [sighing], [coughing] in response to the other speaker's line make the most sense — lean into that.
+- Use up to two short per-line tags when layered performance is necessary (for example ["weak voice"] or ["thinking", "soft chuckle"]).
 - Do NOT reuse catalog sentences that lack a compatible speaker for narration unless you also set speaker explicitly on the reused entry as {"id":"...","speaker":"A"|"B","narrationAudio":{...}} — prefer NEW dialogue lines for narration islands.`
     : `FORMAT: STANDARD (single-speaker sentence batch)
 - Do NOT include format/speakers/speaker/narrationAudio fields.
@@ -221,7 +233,7 @@ RULES:
 6. NO duplicate ids within the island.
 7. When reusing catalog sentences, do NOT reuse two entries with the same japanese translation.
 8. Prefer reusing 20-40% of catalog entries when they fit${!naturalMode ? " and match the target level" : " thematically"} — except narration islands, which should mostly be NEW dialogue.
-9. New English sentences must be practical, natural phrases for the theme.
+9. New English sentences must be practical, natural phrases for the theme${!naturalMode ? "" : " — including short authentic reaction expressions when they carry a real conversational beat"}.
 10. subtopics array should list all subtopics used in sentences.
 
 ${PARALINGUISTIC_TAG_RULES}

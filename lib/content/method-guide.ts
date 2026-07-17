@@ -90,7 +90,7 @@ export const brainLearning = {
     },
     {
       title: "Consistency over marathons",
-      body: `30–45 minutes of deliberate daily practice outpaces occasional long sessions. ${APP_NAME}'s Today plan is sized for that rhythm — meaning, shadow, recall, review.`,
+      body: `30–45 minutes of deliberate daily practice outpaces occasional long sessions. ${APP_NAME}'s Dashboard plan is sized for that rhythm — meaning, shadow, recall, review.`,
     },
   ] satisfies GuideBrainPoint[],
 };
@@ -235,7 +235,7 @@ export const howToSections: GuideStepSection[] = [
     bullets: [
       "Read the English, then the Japanese. Tap \"Got it\" only when you can explain the meaning without peeking.",
       "If unsure, study the sentence longer — don't rush into shadowing.",
-      "All batch meanings must be confirmed before Listen & shadow unlocks on Today.",
+      "All batch meanings must be confirmed before Listen & shadow unlocks on Dashboard.",
     ],
   },
   {
@@ -270,7 +270,7 @@ export const howToSections: GuideStepSection[] = [
     bullets: [
       "At 4+ stars, a sentence retires from your active batch.",
       "Your first review is scheduled based on your star rating and recall history — not immediately.",
-      "Retired sentences reappear on Today when SRS says they're due.",
+      "Retired sentences reappear on Dashboard when SRS says they're due.",
       "5 stars with strong recall history marks a sentence as mastered.",
     ],
   },

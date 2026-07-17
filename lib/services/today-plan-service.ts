@@ -289,7 +289,7 @@ export function getTodayPlanStepAccess(
   return {
     allowed: false,
     lockedReason: item.lockedReason ?? "Finish the previous steps first.",
-    continueHref: activeStep?.href ?? "/",
+    continueHref: activeStep?.href ?? "/today",
   };
 }
 

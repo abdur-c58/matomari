@@ -57,7 +57,7 @@ export function ImportScreenMobile() {
       } else {
         toast.success(`Imported ${meta.islandCount} island${meta.islandCount === 1 ? "" : "s"}${filePart}`);
       }
-      router.push("/");
+      router.push("/today");
     },
     [router]
   );

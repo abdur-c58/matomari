@@ -2,7 +2,7 @@ export function isPageGradientEnabled(
   pathname: string,
   searchParams: Pick<URLSearchParams, "get">
 ): boolean {
-  if (pathname === "/") return false;
+  if (pathname === "/today") return false;
 
   if (pathname.startsWith("/recall")) return false;
 

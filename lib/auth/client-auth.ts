@@ -6,7 +6,7 @@ import { signIn, signOut } from "next-auth/react";
 const GOOGLE_AUTH_PARAMS = { prompt: "select_account" };
 
 export function signInWithGoogle() {
-  return signIn("google", { redirectTo: "/" }, GOOGLE_AUTH_PARAMS);
+  return signIn("google", { redirectTo: "/today" }, GOOGLE_AUTH_PARAMS);
 }
 
 export function signOutCompletely() {

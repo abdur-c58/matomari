@@ -53,7 +53,7 @@ export interface SeedSentence {
   speaker?: NarrationSpeaker;
   /**
    * Free-form Fish Audio natural-language bracket tags compiled at TTS time.
-   * e.g. ["laughing"], ["whispers sweetly"], ["coughing, embarrassed"]
+   * e.g. ["laughing"], ["whispering"], ["weak voice"]
    */
   paralinguisticTags?: string[];
   /**

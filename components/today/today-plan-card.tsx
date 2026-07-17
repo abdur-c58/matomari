@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ArrowUpRight, Check } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { modeKanji } from "@/components/ui/mode-icon";
 import type { TodayPlanItem } from "@/types/today";
 import { cn } from "@/lib/utils";
@@ -75,9 +75,14 @@ export function TodayPlanCard({ item, className, onActivate }: TodayPlanCardProp
         </div>
 
         {isActive && item.count > 0 && (
-          <Button className="today-plan-card-cta mt-5 w-full sm:w-auto" size="sm">
+          <span
+            className={cn(
+              buttonVariants({ size: "sm" }),
+              "today-plan-card-cta mt-5 w-full sm:w-auto pointer-events-none"
+            )}
+          >
             Start now
-          </Button>
+          </span>
         )}
       </div>
     </Card>

@@ -25,7 +25,7 @@ export function TodayDailyStatus({
     <div
       className={cn(
         isHero
-          ? "mt-4 rounded-2xl border border-white/15 bg-black/20 p-3 backdrop-blur-sm"
+          ? "today-daily-status--hero mt-4 rounded-2xl border border-white/15 bg-black/20 p-3 backdrop-blur-sm"
           : "rounded-2xl border border-border bg-surface p-4",
         className
       )}
@@ -34,7 +34,7 @@ export function TodayDailyStatus({
         <div>
           <p
             className={cn(
-              "text-xs font-semibold uppercase tracking-wider",
+              "today-daily-status-label text-xs font-semibold uppercase tracking-wider",
               isHero ? "text-white/70" : "text-muted"
             )}
           >
@@ -42,7 +42,7 @@ export function TodayDailyStatus({
           </p>
           <p
             className={cn(
-              "mt-0.5 font-display text-sm font-semibold",
+              "today-daily-status-title mt-0.5 font-display text-sm font-semibold",
               isHero ? "text-white" : "text-foreground"
             )}
           >
@@ -54,7 +54,7 @@ export function TodayDailyStatus({
         {status.streak > 0 && (
           <span
             className={cn(
-              "shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold tabular-nums",
+              "today-daily-status-chip shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold tabular-nums",
               isHero ? "bg-white/15 text-white" : "bg-foreground/10 text-foreground"
             )}
           >
@@ -77,19 +77,24 @@ export function TodayDailyStatus({
             ) : (
               <Circle
                 className={cn(
-                  "h-4 w-4 shrink-0",
+                  "today-daily-status-muted h-4 w-4 shrink-0",
                   isHero ? "text-white/35" : "text-muted"
                 )}
                 strokeWidth={2}
               />
             )}
-            <span className={cn(isHero ? "text-white/90" : "text-foreground")}>
+            <span
+              className={cn(
+                "today-daily-status-task",
+                isHero ? "text-white/90" : "text-foreground"
+              )}
+            >
               {task.label}
             </span>
             {!task.done && task.remaining > 0 && (
               <span
                 className={cn(
-                  "ml-auto tabular-nums text-xs",
+                  "today-daily-status-muted ml-auto tabular-nums text-xs",
                   isHero ? "text-white/55" : "text-muted"
                 )}
               >
@@ -103,7 +108,7 @@ export function TodayDailyStatus({
       {(status.studiedToday || status.minutesToday > 0) && (
         <p
           className={cn(
-            "mt-3 text-xs",
+            "today-daily-status-muted mt-3 text-xs",
             isHero ? "text-white/55" : "text-muted"
           )}
         >

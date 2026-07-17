@@ -41,7 +41,7 @@ export function PreInputHelperMobile() {
         <PageHeader
           title="Transcript analyzer"
           subtitle="Pre-study · analyze text before you watch or listen"
-          backHref="/"
+          backHref="/today"
         />
 
         <PreStudyIntro />

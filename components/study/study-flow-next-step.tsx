@@ -33,14 +33,14 @@ export function StudyFlowNextStep({
             <Link href={flow.nextHref}>{flow.nextLabel}</Link>
           </Button>
           <Button variant="secondary" asChild>
-            <Link href="/">Back to Today</Link>
+            <Link href="/today">Back to Dashboard</Link>
           </Button>
         </div>
       )}
 
       {!flow && (
         <Button className="mt-6" variant="secondary" asChild>
-          <Link href="/">Back to Today</Link>
+          <Link href="/today">Back to Dashboard</Link>
         </Button>
       )}
     </Card>

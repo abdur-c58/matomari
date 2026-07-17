@@ -16,7 +16,7 @@ export function OnboardingReplaySection() {
         <div className="min-w-0 flex-1">
           <p className="font-medium text-foreground">App tour</p>
           <p className="mt-1 text-sm text-muted leading-relaxed">
-            Replay the intro walkthrough to see what each part of {APP_NAME} does — from Today
+            Replay the intro walkthrough to see what each part of {APP_NAME} does — from Dashboard
             through study modes, settings, and adding the app to your home screen.
           </p>
         </div>

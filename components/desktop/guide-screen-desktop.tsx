@@ -139,7 +139,7 @@ export function MethodGuideDesktop() {
         <motion.div variants={fadeUp}>
           <GuideSection
             title="Daily checklist"
-            description="Mirror your Today plan — work top to bottom."
+            description="Mirror your Dashboard plan — work top to bottom."
             accent="meaning_check"
           >
             <div className="space-y-3">
@@ -277,8 +277,8 @@ export function MethodGuideDesktop() {
               Natural Language Learning
             </a>
             . Ready to start?{" "}
-            <Link href="/" className="font-medium text-foreground underline underline-offset-2">
-              Go to Today
+            <Link href="/today" className="font-medium text-foreground underline underline-offset-2">
+              Go to Dashboard
             </Link>
           </p>
         </motion.div>

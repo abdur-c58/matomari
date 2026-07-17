@@ -38,7 +38,7 @@ export function TodayHero({ dailyStatus, syncStatus, variant }: TodayHeroProps) 
           <div className={cn(!isMobile && "min-w-0 flex-1")}>
             <div className="mb-2 flex items-center gap-2">
               <p className="today-hero-eyebrow text-xs font-semibold uppercase tracking-[0.22em] text-muted">
-                Today
+                Dashboard
               </p>
               {isMobile && (
                 <SyncIndicator status={syncStatus} className="today-hero-sync" />
@@ -51,7 +51,7 @@ export function TodayHero({ dailyStatus, syncStatus, variant }: TodayHeroProps) 
                 isMobile ? "today-hero-headline--mobile" : "today-hero-headline--desktop"
               )}
             >
-              <h1 className="today-hero-kanji font-brush" aria-label="Today">
+              <h1 className="today-hero-kanji font-brush" aria-label="Dashboard">
                 今日
               </h1>
               <p className={cn("today-hero-subtitle", !isMobile && "max-w-xl")}>

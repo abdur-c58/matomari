@@ -88,6 +88,7 @@ export function getDB() {
 import type { Dialect } from "@/lib/constants/dialect";
 import { DEFAULT_DIALECT } from "@/lib/constants/dialect";
 import { DEFAULT_NOTIFICATION_PREFERENCES } from "@/lib/constants/notifications";
+import { DEFAULT_THEME_MODE } from "@/lib/constants/theme";
 import { DEFAULT_UI_FONT } from "@/lib/constants/ui-font";
 
 export const DEFAULT_PROGRESS: UserProgress = {
@@ -102,6 +103,7 @@ export const DEFAULT_PROGRESS: UserProgress = {
     onboardingCompleted: false,
     placementCompleted: false,
     uiFont: DEFAULT_UI_FONT,
+    themeMode: DEFAULT_THEME_MODE,
     notifications: { ...DEFAULT_NOTIFICATION_PREFERENCES, lastSent: {} },
   },
   completedPathwayBatches: [],

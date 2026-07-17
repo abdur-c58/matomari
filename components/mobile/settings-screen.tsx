@@ -136,7 +136,7 @@ export function SettingsScreenMobile() {
 
   return (
     <PageShell>
-      <PageHeader title="Settings" backHref="/" />
+      <PageHeader title="Settings" backHref="/today" />
 
       <AccountCard />
 

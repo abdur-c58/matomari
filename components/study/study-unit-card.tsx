@@ -51,7 +51,9 @@ export function StudyUnitCard({
             <div
               className={cn(
                 "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-foreground",
-                narration ? "bg-violet-500/15 text-violet-200" : "bg-surface-raised"
+                narration
+                  ? "narration-island-icon bg-[#9b87c7]/20 text-[#7a68ad]"
+                  : "bg-surface-raised"
               )}
             >
               <Map className="h-4 w-4" />
@@ -71,12 +73,12 @@ export function StudyUnitCard({
                 {unit.title}
               </p>
               {featured && (
-                <Badge className="border-transparent bg-red-950/35 text-[11px] text-red-100">
+                <Badge className="essentials-island-badge border-transparent text-[11px]">
                   Essentials
                 </Badge>
               )}
               {narration && (
-                <Badge className="border-transparent bg-violet-950/30 text-[10px] text-violet-100">
+                <Badge className="narration-island-badge border-transparent text-[10px]">
                   Narration
                 </Badge>
               )}

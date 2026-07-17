@@ -1,0 +1,1144 @@
+/* Marketing-only styles — brand tokens, intentional 3D scene shells */
+
+.marketing-page {
+  overflow-x: clip;
+}
+
+/* Homepage-only custom cursor */
+@media (hover: hover) and (pointer: fine) {
+  html.marketing-custom-cursor,
+  html.marketing-custom-cursor body,
+  html.marketing-custom-cursor .marketing-page,
+  html.marketing-custom-cursor .marketing-page * {
+    cursor: none !important;
+  }
+}
+
+.marketing-cursor {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 220ms ease-out;
+}
+
+.marketing-cursor[data-visible="true"] {
+  opacity: 1;
+}
+
+.marketing-cursor-core-anchor,
+.marketing-cursor-halo,
+.marketing-cursor-wisp {
+  position: fixed;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.marketing-cursor-core-anchor {
+  display: grid;
+  place-items: center;
+}
+
+.marketing-cursor-core {
+  position: relative;
+  width: 10px;
+  height: 10px;
+  display: grid;
+  place-items: center;
+  border-radius: 46% 54% 51% 49% / 43% 48% 52% 57%;
+  background:
+    radial-gradient(
+      circle at 34% 28%,
+      color-mix(in srgb, var(--mode-listen) 24%, var(--foreground)),
+      var(--foreground) 68%
+    );
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--background) 70%, transparent),
+    0 0 16px color-mix(in srgb, var(--mode-listen) 55%, transparent);
+  animation: marketing-cursor-ink-breathe 3.8s ease-in-out infinite alternate;
+  will-change: transform;
+  transition:
+    width 360ms cubic-bezier(0.16, 1, 0.3, 1),
+    height 360ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 360ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-radius 360ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.marketing-cursor-core-mark {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--background);
+  opacity: 0;
+  transform: scale(0);
+  transition:
+    opacity 260ms ease-out,
+    transform 360ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.marketing-cursor-halo {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--foreground) 18%, transparent);
+  background:
+    radial-gradient(
+      circle,
+      transparent 34%,
+      color-mix(in srgb, var(--foreground) 9%, transparent) 58%,
+      color-mix(in srgb, var(--mode-listen) 14%, transparent) 72%,
+      transparent 100%
+    );
+  box-shadow:
+    inset 0 0 8px color-mix(in srgb, var(--foreground) 8%, transparent),
+    0 0 12px color-mix(in srgb, var(--mode-listen) 10%, transparent);
+  filter: blur(0.45px);
+  transition:
+    width 420ms cubic-bezier(0.16, 1, 0.3, 1),
+    height 420ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-radius 420ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 320ms ease-out,
+    background-color 320ms ease-out;
+}
+
+.marketing-cursor-wisp {
+  width: 7px;
+  height: 4px;
+  border-radius: 64% 36% 58% 42% / 55% 62% 38% 45%;
+  background: color-mix(in srgb, var(--foreground) 78%, var(--mode-listen));
+  filter: blur(0.35px);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.marketing-cursor-wisp-secondary {
+  width: 4px;
+  height: 3px;
+  background: color-mix(in srgb, var(--foreground) 62%, var(--mode-listen));
+  filter: blur(0.6px);
+}
+
+.marketing-cursor-orbit {
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  background:
+    conic-gradient(
+      from 0deg,
+      var(--mode-meaning),
+      var(--mode-listen),
+      var(--mode-recall),
+      var(--mode-review),
+      var(--mode-meaning)
+    );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  padding: 1px;
+  opacity: 0;
+  transform: rotate(0deg);
+  transition: opacity 300ms ease-out;
+}
+
+.marketing-cursor[data-interactive="true"] .marketing-cursor-halo {
+  width: 54px;
+  height: 54px;
+  border-radius: 42% 58% 48% 52%;
+  border-color: transparent;
+  background:
+    radial-gradient(
+      circle,
+      color-mix(in srgb, var(--mode-listen) 5%, transparent) 20%,
+      color-mix(in srgb, var(--mode-listen) 16%, transparent) 58%,
+      transparent 78%
+    );
+}
+
+.marketing-cursor[data-interactive="true"] .marketing-cursor-orbit {
+  opacity: 0.9;
+  animation: marketing-cursor-orbit 2.8s linear infinite;
+}
+
+.marketing-cursor[data-interactive="true"] .marketing-cursor-core {
+  width: 16px;
+  height: 16px;
+  border-radius: 38% 62% 58% 42%;
+  background: var(--mode-listen);
+}
+
+.marketing-cursor[data-interactive="true"] .marketing-cursor-core-mark {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.marketing-cursor[data-pressed="true"] .marketing-cursor-halo {
+  width: 42px;
+  height: 42px;
+}
+
+.marketing-cursor[data-pressed="true"] .marketing-cursor-core {
+  width: 8px;
+  height: 8px;
+}
+
+@keyframes marketing-cursor-orbit {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes marketing-cursor-ink-breathe {
+  0% {
+    border-radius: 46% 54% 51% 49% / 43% 48% 52% 57%;
+  }
+  55% {
+    border-radius: 53% 47% 45% 55% / 50% 42% 58% 50%;
+  }
+  100% {
+    border-radius: 48% 52% 57% 43% / 56% 51% 49% 44%;
+  }
+}
+
+/* Sharp, brand-tied fields — not soft pastel blobs */
+.marketing-hero-field {
+  background:
+    linear-gradient(
+      165deg,
+      color-mix(in srgb, var(--mode-listen) 18%, var(--background)) 0%,
+      var(--background) 42%,
+      color-mix(in srgb, var(--mode-recall) 12%, var(--background)) 100%
+    );
+}
+
+.marketing-hero-grain {
+  opacity: var(--hero-grain-opacity);
+  mix-blend-mode: var(--hero-grain-blend);
+  background-image: var(--washi-grain-image);
+  background-size: var(--washi-grain-size);
+  pointer-events: none;
+}
+
+.marketing-hero-model {
+  perspective: 900px;
+  perspective-origin: 50% 42%;
+}
+
+.marketing-hero-model-glow {
+  background:
+    radial-gradient(
+      ellipse at 35% 38%,
+      color-mix(in srgb, var(--mode-listen) 34%, transparent),
+      transparent 62%
+    ),
+    radial-gradient(
+      ellipse at 72% 72%,
+      color-mix(in srgb, var(--mode-recall) 30%, transparent),
+      transparent 65%
+    );
+  opacity: 0.95;
+}
+
+.marketing-hero-model [data-z="far"] {
+  border-color: color-mix(in srgb, var(--mode-listen) 48%, var(--border));
+  box-shadow:
+    0 24px 55px color-mix(in srgb, var(--mode-listen) 18%, transparent),
+    0 10px 24px rgb(0 0 0 / 0.14);
+}
+
+.marketing-hero-model [data-z="mid"] {
+  border-color: color-mix(in srgb, var(--mode-recall) 52%, var(--border));
+  box-shadow:
+    0 30px 70px color-mix(in srgb, var(--mode-recall) 20%, transparent),
+    0 14px 32px rgb(0 0 0 / 0.18);
+}
+
+.marketing-hero-model [data-z="near"] {
+  box-shadow:
+    0 38px 85px rgb(0 0 0 / 0.38),
+    0 0 48px color-mix(in srgb, var(--mode-meaning) 20%, transparent);
+}
+
+.marketing-hard-stripe {
+  background: linear-gradient(
+    90deg,
+    var(--mode-meaning) 0 25%,
+    var(--mode-listen) 25% 50%,
+    var(--mode-recall) 50% 75%,
+    var(--mode-review) 75% 100%
+  );
+}
+
+.marketing-ink-panel {
+  background: #000;
+  color: #fff;
+}
+
+.marketing-ink-panel .text-muted,
+.marketing-ink-panel [data-muted] {
+  color: #a3a3a3;
+}
+
+.marketing-cta-field {
+  background:
+    linear-gradient(
+      180deg,
+      transparent 0%,
+      color-mix(in srgb, var(--mode-listen) 10%, transparent) 50%,
+      transparent 100%
+    );
+  pointer-events: none;
+}
+
+/* Perspective scenes — clipping lives on inner shells only */
+.marketing-scene {
+  perspective: 1200px;
+  perspective-origin: 50% 45%;
+}
+
+.marketing-scroll-rig,
+.marketing-pointer-rig,
+.marketing-depth {
+  transform-style: preserve-3d;
+}
+
+.marketing-depth-shell {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+.marketing-clip-shell {
+  overflow: hidden;
+  border-radius: 1rem;
+  /* Isolate clipping so preserve-3d ancestors are not flattened */
+  isolation: isolate;
+}
+
+.marketing-giant-type {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.06em;
+  line-height: 0.85;
+}
+
+.marketing-hand-highlight {
+  isolation: isolate;
+}
+
+.marketing-hand-highlight-reveal {
+  position: absolute;
+  inset: -0.05em -0.18em -0.02em -0.14em;
+  z-index: 0;
+  pointer-events: none;
+  clip-path: inset(0 100% 0 0);
+  will-change: clip-path;
+}
+
+.marketing-hand-highlight-stroke,
+.marketing-hand-highlight-bristle {
+  position: absolute;
+  pointer-events: none;
+}
+
+.marketing-hand-highlight-stroke {
+  inset: 0.08em 0 0.1em;
+  /* Warm sepia wash on washi — not a cool accent */
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--surface-raised) 55%, #b89a5c) 0%,
+      color-mix(in srgb, var(--muted) 28%, #c4a86a) 100%
+    );
+  opacity: 0.78;
+  mix-blend-mode: multiply;
+  clip-path: polygon(
+    0% 28%,
+    6% 14%,
+    14% 22%,
+    24% 8%,
+    36% 18%,
+    48% 6%,
+    60% 16%,
+    72% 9%,
+    84% 20%,
+    93% 12%,
+    100% 24%,
+    99% 78%,
+    90% 70%,
+    78% 86%,
+    66% 74%,
+    52% 90%,
+    38% 76%,
+    24% 88%,
+    12% 74%,
+    3% 82%,
+    0% 62%
+  );
+}
+
+.marketing-hand-highlight-bristle {
+  left: 2%;
+  right: 10%;
+  top: 58%;
+  height: 0.22em;
+  opacity: 0.55;
+  background: color-mix(in srgb, var(--muted) 42%, #a8905c);
+  mix-blend-mode: multiply;
+  clip-path: polygon(
+    0 40%,
+    14% 8%,
+    30% 48%,
+    46% 12%,
+    64% 52%,
+    80% 10%,
+    100% 42%,
+    97% 88%,
+    78% 68%,
+    58% 96%,
+    38% 70%,
+    18% 94%,
+    2% 72%
+  );
+}
+
+html[data-theme="paper-dark"] .marketing-hand-highlight-stroke,
+html[data-theme="paper-dark"] .marketing-hand-highlight-bristle,
+html[data-theme="dark"] .marketing-hand-highlight-stroke,
+html[data-theme="dark"] .marketing-hand-highlight-bristle {
+  mix-blend-mode: soft-light;
+  opacity: 0.9;
+}
+
+html[data-theme="paper-dark"] .marketing-hand-highlight-stroke,
+html[data-theme="dark"] .marketing-hand-highlight-stroke {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, #c4a86a 45%, transparent),
+      color-mix(in srgb, #a8905c 55%, transparent)
+    );
+}
+
+html[data-theme="paper-dark"] .marketing-hand-highlight-bristle,
+html[data-theme="dark"] .marketing-hand-highlight-bristle {
+  background: color-mix(in srgb, #c4a86a 50%, transparent);
+}
+
+.marketing-brush-anchor {
+  font-family: "Yuji Boku", "Noto Serif JP", serif;
+  line-height: 0.9;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Static-first: enhanced layouts activate after GSAP */
+.marketing-pin-stage[data-enhanced="true"] .marketing-pin-panels {
+  position: relative;
+  min-height: 22rem;
+}
+
+.marketing-pin-stage[data-enhanced="true"] .marketing-pin-panel {
+  position: absolute;
+  inset: 0;
+}
+
+.marketing-pin-stage:not([data-enhanced="true"]) .marketing-pin-panel + .marketing-pin-panel {
+  margin-top: 1rem;
+}
+
+/* Feature energy — accent glows, progress, markers (existing palette only) */
+.marketing-accent-glow {
+  will-change: transform, opacity;
+}
+
+.marketing-feature-marker,
+.marketing-step-num {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+.marketing-feature-shell {
+  transition: border-color 0.2s ease;
+}
+
+.marketing-progress-track {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--foreground) 8%, transparent);
+}
+
+.marketing-progress-fill {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--foreground) 68%, var(--surface)) 0%,
+    var(--foreground) 100%
+  );
+  box-shadow:
+    0 0 5px color-mix(in srgb, var(--foreground) 55%, transparent),
+    0 0 18px color-mix(in srgb, var(--foreground) 32%, transparent);
+}
+
+.marketing-progress-marker {
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--foreground) 16%, transparent),
+    0 0 20px color-mix(in srgb, var(--foreground) 52%, transparent);
+  will-change: transform;
+}
+
+.marketing-scroll-cue {
+  animation: marketing-scroll-cue-enter 420ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.marketing-scroll-cue-dot {
+  animation: marketing-scroll-cue-wheel 1.35s ease-in-out infinite;
+}
+
+.marketing-scroll-cue-chevron {
+  animation: marketing-scroll-cue-chevron 1.35s ease-in-out infinite;
+}
+
+@keyframes marketing-scroll-cue-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes marketing-scroll-cue-wheel {
+  0% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  35% {
+    opacity: 1;
+  }
+  75%,
+  100% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+@keyframes marketing-scroll-cue-chevron {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: translateY(-2px);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(3px);
+  }
+}
+
+.marketing-narration-line.is-active {
+  position: relative;
+  z-index: 10;
+  transform: translateY(-1px);
+}
+
+.marketing-illustrated-feature,
+.marketing-carousel-card {
+  box-shadow:
+    var(--shadow-lg),
+    0 0 48px color-mix(in srgb, var(--feature-accent, var(--step-accent)) 18%, transparent);
+}
+
+[data-step-carousel]:not([data-enhanced="true"]) {
+  min-height: auto;
+}
+
+[data-step-carousel]:not([data-enhanced="true"]) > div {
+  position: static;
+  display: grid;
+  gap: 1rem;
+}
+
+[data-step-carousel]:not([data-enhanced="true"]) .marketing-carousel-card {
+  position: relative;
+  inset: auto;
+  width: 100%;
+  transform: none;
+  opacity: 1;
+}
+
+.marketing-illustration-stage::after,
+.marketing-step-illustration::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: var(--washi-grain-image);
+  background-size: var(--washi-grain-size);
+  opacity: 0.08;
+  mix-blend-mode: overlay;
+}
+
+.marketing-illustration-rig {
+  transform: translateZ(42px);
+}
+
+.marketing-feature-morph-visual {
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+}
+
+[data-feature-portal] {
+  box-shadow:
+    inset 0 0 80px color-mix(in srgb, var(--foreground) 4%, transparent),
+    0 0 90px color-mix(in srgb, var(--mode-listen) 10%, transparent);
+  will-change: transform, border-radius;
+}
+
+.marketing-svg-layer-back {
+  transform: translateZ(-35px);
+}
+
+.marketing-svg-layer-mid {
+  transform: translateZ(10px);
+}
+
+.marketing-svg-layer-front {
+  transform: translateZ(48px);
+}
+
+.marketing-particle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: marketing-particle-drift 3.8s ease-in-out infinite alternate;
+}
+
+.marketing-particle-2 {
+  animation-delay: -1.1s;
+  animation-duration: 4.5s;
+}
+
+.marketing-particle-3 {
+  animation-delay: -2.2s;
+  animation-duration: 3.2s;
+}
+
+.marketing-particle-4 {
+  animation-delay: -0.6s;
+  animation-duration: 5s;
+}
+
+.marketing-wave-bar {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: marketing-wave-pulse 1.25s ease-in-out infinite alternate;
+}
+
+.marketing-link-path {
+  animation: marketing-link-flow 2.3s linear infinite;
+}
+
+.marketing-copy-chip {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: marketing-chip-breathe 2.4s cubic-bezier(0.16, 1, 0.3, 1) infinite alternate;
+}
+
+.marketing-carousel-card {
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.marketing-carousel-card.is-active {
+  pointer-events: auto;
+  will-change: auto;
+}
+
+.marketing-step-readable {
+  filter: none !important;
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+}
+
+.marketing-carousel-card.is-active .marketing-step-readable {
+  will-change: auto;
+}
+
+.marketing-trial-confirm-card {
+  transition:
+    border-color 280ms ease-out,
+    box-shadow 280ms ease-out,
+    background-color 280ms ease-out;
+}
+
+.marketing-trial-confirm-check {
+  opacity: 0;
+  transform: scale(0.45) rotate(-18deg);
+}
+
+.marketing-trial-confirm-card.is-confirming {
+  border-color: var(--mode-review);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--mode-review) 18%, transparent),
+    var(--shadow-md);
+  animation: marketing-confirm-settle 480ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.marketing-trial-confirm-card.is-confirming .marketing-trial-confirm-check {
+  animation: marketing-confirm-check 480ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.marketing-trial-wave-bar {
+  opacity: 0.34;
+  transform: scaleY(0.32);
+  transform-origin: center;
+  transition:
+    opacity 180ms ease-out,
+    transform 180ms ease-out;
+}
+
+.marketing-trial-wave-bar.is-playing {
+  opacity: 0.9;
+  animation: marketing-trial-wave ease-in-out infinite alternate;
+}
+
+.marketing-recall-flip-frame {
+  min-height: 11.5rem;
+  perspective: 900px;
+}
+
+.marketing-recall-flip-card {
+  position: relative;
+  height: 100%;
+  min-height: 11.5rem;
+  transform-style: preserve-3d;
+  transition: transform 620ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.marketing-recall-flip-card.is-revealed {
+  transform: rotateY(180deg);
+}
+
+.marketing-recall-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+}
+
+.marketing-recall-back {
+  transform: rotateY(180deg);
+}
+
+.marketing-recall-result {
+  animation: marketing-recall-result 420ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.marketing-recall-result.is-correct {
+  border-color: color-mix(in srgb, var(--mode-review) 55%, var(--border));
+  background: color-mix(in srgb, var(--mode-review) 12%, var(--surface));
+  color: var(--mode-review);
+}
+
+.marketing-recall-result.is-incorrect {
+  border-color: color-mix(in srgb, var(--mode-weak) 55%, var(--border));
+  background: color-mix(in srgb, var(--mode-weak) 10%, var(--surface));
+  color: var(--mode-weak);
+}
+
+.marketing-retention-card {
+  transition: transform 680ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.marketing-retention-card.is-retired {
+  transform: translateX(calc(100% + 0.5rem));
+}
+
+.marketing-review-node.is-scheduled {
+  animation: marketing-review-schedule 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes marketing-confirm-settle {
+  0% { transform: translateY(0); }
+  45% { transform: translateY(-4px); }
+  72% { transform: translateY(1px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes marketing-confirm-check {
+  0% { opacity: 0; transform: scale(0.45) rotate(-18deg); }
+  58% { opacity: 1; transform: scale(1.16) rotate(4deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0); }
+}
+
+@keyframes marketing-trial-wave {
+  0% { transform: scaleY(0.28); }
+  100% { transform: scaleY(1); }
+}
+
+@keyframes marketing-recall-result {
+  0% { opacity: 0; transform: translateY(8px) scale(0.98); }
+  65% { opacity: 1; transform: translateY(-1px) scale(1.01); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes marketing-review-schedule {
+  0% { transform: scale(0.55); background: var(--surface); }
+  65% { transform: scale(1.18); }
+  100% { transform: scale(1); background: currentColor; }
+}
+
+.marketing-carousel-card.is-active .marketing-step-illustration svg {
+  animation: marketing-active-float 2.8s ease-in-out infinite alternate;
+}
+
+.marketing-carousel-card.is-active .marketing-check-orbit,
+.marketing-carousel-card.is-active .marketing-review-orbit,
+[data-step-card-mobile] .marketing-check-orbit,
+[data-step-card-mobile] .marketing-review-orbit {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: marketing-orbit 7s linear infinite;
+}
+
+.marketing-recall-card {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+html[data-theme="light"] .marketing-illustrated-feature,
+html[data-theme="light"] .marketing-carousel-card {
+  box-shadow:
+    0 18px 45px rgb(60 40 10 / 0.18),
+    0 0 42px color-mix(in srgb, var(--feature-accent, var(--step-accent)) 20%, transparent);
+}
+
+html[data-theme="paper-dark"] .marketing-illustrated-feature,
+html[data-theme="paper-dark"] .marketing-carousel-card {
+  box-shadow:
+    0 20px 52px rgb(8 6 3 / 0.46),
+    0 0 46px color-mix(in srgb, var(--feature-accent, var(--step-accent)) 22%, transparent);
+}
+
+@keyframes marketing-particle-drift {
+  from { transform: translate3d(-4px, 6px, 0) scale(0.8); opacity: 0.35; }
+  to { transform: translate3d(7px, -8px, 0) scale(1.25); opacity: 0.9; }
+}
+
+@keyframes marketing-wave-pulse {
+  from { transform: scaleY(0.42); opacity: 0.55; }
+  to { transform: scaleY(1); opacity: 1; }
+}
+
+@keyframes marketing-link-flow {
+  to { stroke-dashoffset: -48; }
+}
+
+@keyframes marketing-chip-breathe {
+  from { transform: translateY(2px) scale(0.94); }
+  to { transform: translateY(-3px) scale(1.04); }
+}
+
+@keyframes marketing-active-float {
+  from { transform: translate3d(0, 4px, 0) rotate(-0.8deg) scale(0.99); }
+  to { transform: translate3d(0, -7px, 0) rotate(0.8deg) scale(1.015); }
+}
+
+@keyframes marketing-orbit {
+  to { transform: rotate(360deg); }
+}
+
+/* Pricing concept — deliberately theatrical, still driven by theme tokens */
+.pricing-page {
+  isolation: isolate;
+}
+
+.pricing-grid {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.16;
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--foreground) 18%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--foreground) 18%, transparent) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: linear-gradient(to bottom, black, transparent 78%);
+}
+
+.pricing-kanji {
+  position: fixed;
+  right: -0.04em;
+  top: 0.1em;
+  z-index: 0;
+  pointer-events: none;
+  color: color-mix(in srgb, var(--foreground) 7%, transparent);
+  font-size: clamp(10rem, 30vw, 31rem);
+  line-height: 0.9;
+  writing-mode: vertical-rl;
+  user-select: none;
+}
+
+.pricing-aurora {
+  position: fixed;
+  z-index: 0;
+  width: min(62vw, 54rem);
+  aspect-ratio: 1;
+  border-radius: 42% 58% 53% 47% / 61% 39% 61% 39%;
+  pointer-events: none;
+  filter: blur(80px);
+  opacity: 0.22;
+  animation: pricing-aurora-drift 13s ease-in-out infinite alternate;
+}
+
+.pricing-aurora--one {
+  left: -18vw;
+  top: -24vw;
+  background: var(--mode-listen);
+}
+
+.pricing-aurora--two {
+  bottom: -24vw;
+  right: -18vw;
+  background: var(--mode-review);
+  animation-delay: -6s;
+  animation-duration: 16s;
+}
+
+.pricing-orbit {
+  position: fixed;
+  z-index: 0;
+  pointer-events: none;
+  border: 1px solid color-mix(in srgb, var(--foreground) 12%, transparent);
+  border-radius: 50%;
+  animation: pricing-orbit-spin 24s linear infinite;
+}
+
+.pricing-orbit::after {
+  content: "";
+  position: absolute;
+  left: 18%;
+  top: -5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--mode-recall);
+  box-shadow: 0 0 20px var(--mode-recall);
+}
+
+.pricing-orbit--one {
+  left: 4vw;
+  top: 22vh;
+  width: min(34vw, 32rem);
+  aspect-ratio: 1;
+}
+
+.pricing-orbit--two {
+  bottom: 5vh;
+  right: 3vw;
+  width: min(26vw, 25rem);
+  aspect-ratio: 1;
+  animation-direction: reverse;
+  animation-duration: 31s;
+}
+
+.pricing-card-stage {
+  perspective: 1400px;
+}
+
+.pricing-plan-card {
+  transform-style: preserve-3d;
+  box-shadow:
+    var(--shadow-lg),
+    0 30px 80px color-mix(in srgb, var(--foreground) 8%, transparent);
+}
+
+.pricing-plan-card--plus {
+  box-shadow:
+    var(--shadow-lg),
+    0 28px 85px color-mix(in srgb, var(--mode-listen) 22%, transparent);
+}
+
+.pricing-plan-border {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  background: conic-gradient(
+    from var(--pricing-border-angle, 0deg),
+    var(--mode-meaning),
+    var(--mode-listen),
+    var(--mode-recall),
+    var(--mode-review),
+    var(--mode-meaning)
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: pricing-border-spin 7s linear infinite;
+}
+
+.pricing-plan-sheen {
+  position: absolute;
+  inset: -50%;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(-45%) rotate(18deg);
+  background: linear-gradient(
+    90deg,
+    transparent 42%,
+    color-mix(in srgb, var(--foreground) 11%, transparent) 50%,
+    transparent 58%
+  );
+  transition: opacity 280ms ease-out;
+}
+
+.pricing-plan-card--plus:hover .pricing-plan-sheen {
+  opacity: 1;
+  animation: pricing-sheen 1.1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pricing-plan-orbit {
+  animation: pricing-icon-orbit 12s linear infinite;
+}
+
+@property --pricing-border-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes pricing-border-spin {
+  to { --pricing-border-angle: 360deg; }
+}
+
+@keyframes pricing-aurora-drift {
+  from { transform: translate3d(-3%, -2%, 0) rotate(-7deg) scale(0.94); }
+  to { transform: translate3d(7%, 5%, 0) rotate(9deg) scale(1.08); }
+}
+
+@keyframes pricing-orbit-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pricing-icon-orbit {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pricing-sheen {
+  from { transform: translateX(-45%) rotate(18deg); }
+  to { transform: translateX(45%) rotate(18deg); }
+}
+
+@media (max-width: 767px) {
+  .marketing-scene {
+    perspective: none;
+  }
+
+  .marketing-scroll-rig,
+  .marketing-pointer-rig,
+  .marketing-depth {
+    transform: none !important;
+    transform-style: flat;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marketing-page .will-change-transform {
+    will-change: auto !important;
+  }
+
+  .marketing-scene {
+    perspective: none;
+  }
+
+  .marketing-scroll-rig,
+  .marketing-pointer-rig,
+  .marketing-depth,
+  .marketing-page [data-reveal-item],
+  .marketing-page [data-hero-enter],
+  .marketing-page [data-hero-visual],
+  .marketing-page [data-problem-card],
+  .marketing-page [data-step-card],
+  .marketing-page [data-h-panel] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .marketing-pin-stage[data-enhanced="true"] .marketing-pin-panel {
+    position: relative !important;
+    inset: auto !important;
+  }
+
+  [data-step-carousel] {
+    min-height: auto !important;
+  }
+
+  [data-step-carousel] > div {
+    position: static !important;
+    display: grid !important;
+    gap: 1rem;
+  }
+
+  [data-step-carousel] .marketing-carousel-card {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  [data-h-track] {
+    width: auto !important;
+    display: grid !important;
+    transform: none !important;
+    gap: 1.5rem !important;
+  }
+
+  [data-h-panel] {
+    width: 100% !important;
+    height: auto !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  [data-feature-desktop] {
+    display: none !important;
+  }
+
+  [data-feature-fallback] {
+    display: grid !important;
+  }
+
+  .marketing-particle,
+  .marketing-wave-bar,
+  .marketing-link-path,
+  .marketing-copy-chip,
+  .marketing-carousel-card.is-active .marketing-step-illustration svg,
+  .marketing-check-orbit,
+  .marketing-review-orbit,
+  .marketing-trial-confirm-card,
+  .marketing-trial-confirm-check,
+  .marketing-trial-wave-bar,
+  .marketing-recall-result,
+  .marketing-review-node,
+  .marketing-scroll-cue,
+  .marketing-scroll-cue-dot,
+  .marketing-scroll-cue-chevron,
+  .pricing-aurora,
+  .pricing-orbit,
+  .pricing-plan-border,
+  .pricing-plan-sheen,
+  .pricing-plan-orbit {
+    animation: none !important;
+  }
+
+  .marketing-recall-flip-card,
+  .marketing-retention-card {
+    transition-duration: 1ms !important;
+  }
+}

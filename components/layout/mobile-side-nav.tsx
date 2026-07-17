@@ -13,6 +13,7 @@ import {
   toolsNav,
 } from "@/components/layout/app-nav-config";
 import { AppBrandHeader } from "@/components/layout/app-brand-header";
+import { ThemeMenuControl } from "@/components/settings/theme-menu-control";
 import {
   Sheet,
   SheetClose,
@@ -172,7 +173,8 @@ export function MobileSideNav() {
                 </button>
             </div>
 
-            <div className="mt-5 border-t border-border pt-3">
+            <div className="mt-5 space-y-3 border-t border-border pt-3">
+                <ThemeMenuControl compact />
                 {footerNav.map(({ href, label, icon }) => (
                   <NavLink
                     key={href}

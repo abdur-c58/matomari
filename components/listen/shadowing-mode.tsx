@@ -118,7 +118,7 @@ export function ShadowingMode({ sentences }: { sentences: Sentence[] }) {
       <ResponsivePageHeader
         title="Listen & Shadow"
         subtitle={`${currentIndex + 1} / ${sentences.length}`}
-        backHref="/"
+        backHref="/today"
         action={
           current ? (
             <AskButton

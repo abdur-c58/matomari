@@ -79,6 +79,8 @@ export interface AppSettings {
   placement?: PlacementResult;
   /** UI typeface for Latin headings and body (Japanese uses separate fonts). */
   uiFont?: UiFont;
+  /** Theme preference for app chrome and surfaces. */
+  themeMode?: "system" | "light" | "paper-dark" | "dark";
   /** Browse display on island/pathway detail pages. */
   islandBrowseDisplay?: "en" | "jp" | "both";
   /** Pause between sentences when playing casual playlists (ms). */

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { KotoshimaLogo } from "@/components/brand/kotoshima-logo";
 import { formatAppGreeting, getTimeOfDayGreeting } from "@/lib/utils/greeting";
@@ -22,7 +23,13 @@ export function AppBrandHeader({ variant, className }: AppBrandHeaderProps) {
 
   return (
     <div className={cn("flex min-w-0 items-center gap-3", className)}>
-      <KotoshimaLogo size={logoSize} className="shrink-0" />
+      <Link
+        href="/"
+        aria-label="Go to home"
+        className="shrink-0 rounded-md transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/20"
+      >
+        <KotoshimaLogo size={logoSize} />
+      </Link>
       <p
         className={cn(
           "min-w-0 font-display font-bold tracking-tight text-foreground",

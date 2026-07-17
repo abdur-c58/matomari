@@ -206,7 +206,7 @@ export function ActiveRecallModeMobile() {
         <PageShell>
           <StudyStepLocked
             lockedReason={recallAccess.lockedReason ?? "Finish the previous steps first."}
-            continueHref={recallAccess.continueHref ?? "/"}
+            continueHref={recallAccess.continueHref ?? "/today"}
           />
         </PageShell>
       </AppGate>
@@ -239,8 +239,8 @@ export function ActiveRecallModeMobile() {
           <EmptyState
             title="All caught up"
             description="No sentences due for recall right now."
-            actionHref="/"
-            actionLabel="Back to Today"
+            actionHref="/today"
+          actionLabel="Back to Dashboard"
           />
         </PageShell>
       </AppGate>
@@ -273,7 +273,7 @@ export function ActiveRecallModeMobile() {
           <PageHeader
             title={mode === "return" ? "Quick review" : "Active Recall"}
             subtitle={`${index + 1} / ${sentences.length}`}
-            backHref="/"
+            backHref="/today"
             action={
               <AskButton
                 context={{ type: "sentence", sentenceId: current.id }}
