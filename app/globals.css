@@ -600,21 +600,28 @@ html[data-theme="true-light"] {
   --shadow-lg: var(--shadow-lg);
 }
 
-html.theme-changing body,
-html.theme-changing header,
-html.theme-changing nav,
-html.theme-changing aside,
-html.theme-changing main,
-html.theme-changing section,
-html.theme-changing article,
-html.theme-changing button,
-html.theme-changing input,
-html.theme-changing textarea {
+html.theme-changing,
+html.theme-changing body {
   transition:
-    background-color 480ms cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 480ms cubic-bezier(0.16, 1, 0.3, 1),
-    color 480ms cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 480ms cubic-bezier(0.16, 1, 0.3, 1);
+    background-color 280ms cubic-bezier(0.16, 1, 0.3, 1),
+    color 280ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Avoid re-compositing the full-viewport grain overlay during the swap. */
+html.theme-changing body::before {
+  transition: none !important;
+  opacity: 0 !important;
+}
+
+/* Prefer a single GPU page crossfade when the browser supports it. */
+@supports (view-transition-name: none) {
+  @media (prefers-reduced-motion: no-preference) {
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+      animation-duration: 280ms;
+      animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+  }
 }
 
 * {

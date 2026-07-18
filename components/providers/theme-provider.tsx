@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useSyncExternalStore,
   type ReactNode,
 } from "react";
@@ -22,6 +23,7 @@ import {
 
 export const THEME_STORAGE_KEY = "kotoshima-theme-mode";
 const THEME_EVENT = "kotoshima-theme-change";
+const THEME_TRANSITION_MS = 280;
 
 type ThemeContextValue = {
   mode: ThemeMode;
@@ -54,6 +56,16 @@ function subscribeSystem(onChange: () => void) {
   return () => media.removeEventListener("change", onChange);
 }
 
+function prefersReducedMotion() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function commitThemeMode(resolved: ThemeMode, systemDark: boolean) {
+  window.localStorage.setItem(THEME_STORAGE_KEY, resolved);
+  applyThemeToDocument(resolved, systemDark);
+  window.dispatchEvent(new Event(THEME_EVENT));
+}
+
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const mode = useSyncExternalStore(
     subscribeStoredMode,
@@ -66,6 +78,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     () => false
   );
   const appliedTheme = resolveAppliedTheme(mode, systemDark);
+  const clearingRef = useRef(0);
 
   useEffect(() => {
     applyThemeToDocument(mode, systemDark);
@@ -73,12 +86,33 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   const setMode = useCallback((nextMode: ThemeMode) => {
     const resolved = resolveThemeMode(nextMode);
-    document.documentElement.classList.add("theme-changing");
-    window.localStorage.setItem(THEME_STORAGE_KEY, resolved);
-    window.dispatchEvent(new Event(THEME_EVENT));
-    window.setTimeout(() => {
-      document.documentElement.classList.remove("theme-changing");
-    }, 520);
+    if (resolved === getStoredMode()) return;
+
+    const systemIsDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const run = () => commitThemeMode(resolved, systemIsDark);
+
+    // View Transitions: one GPU crossfade of the painted page — much cheaper
+    // than transitioning colors on every button/section/article in the tree.
+    const doc = document as Document & {
+      startViewTransition?: (update: () => void) => { finished: Promise<void> };
+    };
+
+    if (
+      typeof doc.startViewTransition === "function" &&
+      !prefersReducedMotion()
+    ) {
+      const transition = doc.startViewTransition(run);
+      void transition.finished.catch(() => undefined);
+      return;
+    }
+
+    const root = document.documentElement;
+    window.clearTimeout(clearingRef.current);
+    root.classList.add("theme-changing");
+    run();
+    clearingRef.current = window.setTimeout(() => {
+      root.classList.remove("theme-changing");
+    }, THEME_TRANSITION_MS);
   }, []);
 
   const value = useMemo(

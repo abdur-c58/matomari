@@ -20,12 +20,14 @@ export function ThemeMenuControl({
   const themeMode = resolveThemeMode(progress.settings.themeMode);
 
   const onChange = useCallback(
-    async (mode: ThemeMode) => {
+    (mode: ThemeMode) => {
       const resolved = resolveThemeMode(mode);
       if (resolved === themeMode) return;
 
+      // Paint first; persist progress off the critical path so IndexedDB/sync
+      // work doesn't contend with the theme transition.
       setMode(resolved);
-      await setProgress((current) => ({
+      void setProgress((current) => ({
         ...current,
         settings: { ...current.settings, themeMode: resolved },
       }));
