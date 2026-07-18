@@ -180,27 +180,29 @@
   transition: letter-spacing 420ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.marketing-dashboard-cta:hover {
-  transform: translateY(-3px);
-  box-shadow:
-    0 12px 28px color-mix(in srgb, var(--foreground) 16%, transparent),
-    0 0 0 1px color-mix(in srgb, var(--mode-listen) 35%, transparent);
-}
+@media (hover: hover) and (pointer: fine) {
+  .marketing-dashboard-cta:hover {
+    transform: translateY(-3px);
+    box-shadow:
+      0 12px 28px color-mix(in srgb, var(--foreground) 16%, transparent),
+      0 0 0 1px color-mix(in srgb, var(--mode-listen) 35%, transparent);
+  }
 
-.marketing-dashboard-cta:hover::before {
-  transform: translateX(55%) skewX(-18deg);
-}
+  .marketing-dashboard-cta:hover::before {
+    transform: translateX(55%) skewX(-18deg);
+  }
 
-.marketing-dashboard-cta:hover::after {
-  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--mode-listen) 50%, transparent);
-}
+  .marketing-dashboard-cta:hover::after {
+    box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--mode-listen) 50%, transparent);
+  }
 
-.marketing-dashboard-cta:hover .marketing-dashboard-cta-arrow {
-  transform: translateX(5px);
-}
+  .marketing-dashboard-cta:hover .marketing-dashboard-cta-arrow {
+    transform: translateX(5px);
+  }
 
-.marketing-dashboard-cta:hover .marketing-dashboard-cta-label {
-  letter-spacing: 0.02em;
+  .marketing-dashboard-cta:hover .marketing-dashboard-cta-label {
+    letter-spacing: 0.02em;
+  }
 }
 
 .marketing-dashboard-cta:active {
@@ -216,12 +218,14 @@
     transition: none !important;
   }
 
-  .marketing-dashboard-cta:hover {
-    transform: none;
-  }
+  @media (hover: hover) and (pointer: fine) {
+    .marketing-dashboard-cta:hover {
+      transform: none;
+    }
 
-  .marketing-dashboard-cta:hover .marketing-dashboard-cta-arrow {
-    transform: none;
+    .marketing-dashboard-cta:hover .marketing-dashboard-cta-arrow {
+      transform: none;
+    }
   }
 }
 
@@ -314,6 +318,11 @@
 
   .marketing-gap-play-hint-touch {
     display: inline;
+  }
+
+  /* Mouse glyph has no meaning on touch — keep the chevron scroll cue. */
+  .marketing-scroll-cue-mouse {
+    display: none !important;
   }
 }
 
@@ -1062,9 +1071,15 @@ html[data-theme="paper-dark"] .marketing-carousel-card {
   transition: opacity 280ms ease-out;
 }
 
-.pricing-plan-card--plus:hover .pricing-plan-sheen {
-  opacity: 1;
-  animation: pricing-sheen 1.1s cubic-bezier(0.16, 1, 0.3, 1);
+@media (hover: hover) and (pointer: fine) {
+  .pricing-plan-card--plus:hover .pricing-plan-sheen {
+    opacity: 1;
+    animation: pricing-sheen 1.1s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .pricing-free-cta:hover {
+    transform: translateY(-0.125rem);
+  }
 }
 
 .pricing-plan-orbit {
@@ -1114,6 +1129,61 @@ html[data-theme="paper-dark"] .marketing-carousel-card {
   /* Tighter vertical rhythm on small screens — more content per viewport */
   .marketing-page section {
     scroll-margin-top: calc(4.5rem + env(safe-area-inset-top, 0px));
+  }
+
+  /*
+    Mobile cohesion: consistent type scale and ≥44px taps.
+    Desktop (md+) is unchanged.
+  */
+  .marketing-page .marketing-giant-type {
+    letter-spacing: -0.045em;
+    line-height: 0.92;
+  }
+
+  /* Comfortable tap targets without changing desktop button sizes */
+  .marketing-page header button,
+  .marketing-page header a[class*="inline-flex"],
+  .marketing-page header [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .marketing-page .marketing-gap-phrase {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding-inline: 0.65rem;
+  }
+
+  .marketing-page .marketing-gap-play-hint {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+  }
+
+  /* Pricing page mobile density */
+  .pricing-page .pricing-plan-card {
+    min-height: 0;
+    padding: 1.25rem;
+    border-radius: 1.35rem;
+  }
+
+  .pricing-page .pricing-plan-card h2 {
+    font-size: clamp(1.75rem, 8vw, 2.25rem);
+  }
+
+  .pricing-page .pricing-plan-card .font-display.text-6xl {
+    font-size: clamp(2.5rem, 12vw, 3.5rem);
+  }
+
+  /* Prevent accidental sideways scroll from full-bleed hero / illustrations */
+  .marketing-page,
+  .pricing-page {
+    overflow-x: clip;
+  }
+
+  .marketing-page .marketing-hero-model {
+    max-width: 100%;
   }
 }
 

@@ -999,7 +999,7 @@ export function ProblemSection() {
                       }
                       className="marketing-gap-phrase mx-auto font-japanese text-[clamp(1.45rem,4vw,2.55rem)] leading-snug tracking-wide transition-[color,padding] duration-300"
                       style={{ color: "var(--mode-listen)" }}
-                      aria-label={`Play audio: ${stage.real}. ${stage.meaning}. Hover, then click to play.`}
+                      aria-label={`Play audio: ${stage.real}. ${stage.meaning}. Activate to play.`}
                     >
                       {stage.real}
                     </button>

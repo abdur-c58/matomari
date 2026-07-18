@@ -5,6 +5,7 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { MarketingFooter } from "@/components/marketing/marketing-footer";
 import { MarketingNav } from "@/components/marketing/marketing-nav";
+import { useIsFinePointer } from "@/components/marketing/motion/use-prefers-reduced-motion";
 import { marketingPricingTiers } from "@/lib/constants/marketing-pricing";
 import { cn } from "@/lib/utils";
 
@@ -51,6 +52,7 @@ function PriceCard({
   plan: "free" | "plus";
   period: BillingPeriod;
 }) {
+  const finePointer = useIsFinePointer();
   const plus = plan === "plus";
   const price = plusPrices[period];
   const features = plus ? plusFeatures : freeFeatures;
@@ -71,12 +73,17 @@ function PriceCard({
         damping: 18,
         delay: plus ? 0.1 : 0,
       }}
-      whileHover={{
-        y: -10,
-        rotateY: plus ? -2 : 2,
-        rotateX: 1,
-        transition: { type: "spring", stiffness: 220, damping: 18 },
-      }}
+      whileHover={
+        finePointer
+          ? {
+              y: -10,
+              rotateY: plus ? -2 : 2,
+              rotateX: 1,
+              transition: { type: "spring", stiffness: 220, damping: 18 },
+            }
+          : undefined
+      }
+      whileTap={finePointer ? undefined : { scale: 0.985 }}
     >
       {plus && (
         <>
@@ -176,7 +183,7 @@ function PriceCard({
         ) : (
           <Link
             href="/today"
-            className="flex h-12 w-full items-center justify-center rounded-2xl bg-cta text-sm font-semibold text-cta-foreground shadow-sm transition-transform hover:-translate-y-0.5 active:translate-y-0"
+            className="pricing-free-cta flex h-12 w-full items-center justify-center rounded-2xl bg-cta text-sm font-semibold text-cta-foreground shadow-sm transition-transform active:translate-y-0"
           >
             Continue with Free
           </Link>
@@ -257,7 +264,7 @@ export function PricingPageExperience() {
                 </span>
                 <span
                   className={cn(
-                    "relative z-[1] mt-0.5 block text-[9px] transition-colors",
+                    "relative z-[1] mt-0.5 block text-[10px] transition-colors md:text-[9px]",
                     selected ? "text-background/70" : "text-muted"
                   )}
                 >

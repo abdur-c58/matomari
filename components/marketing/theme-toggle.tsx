@@ -25,7 +25,7 @@ export function MarketingThemeToggle({ className }: { className?: string }) {
     <button
       type="button"
       className={cn(
-        "group relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl border border-border bg-surface/80 text-foreground shadow-sm backdrop-blur-md transition-[background-color,border-color,color,transform] duration-300 hover:bg-surface-raised active:scale-[0.94]",
+        "group relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-xl border border-border bg-surface/80 text-foreground shadow-sm backdrop-blur-md transition-[background-color,border-color,color,transform] duration-300 hover:bg-surface-raised active:scale-[0.94] md:h-9 md:w-9",
         className
       )}
       onClick={() => setMode(nextTheme)}

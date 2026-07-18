@@ -13,6 +13,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
   useIsDesktopMarketing,
+  useIsFinePointer,
   usePrefersReducedMotion,
 } from "./use-prefers-reduced-motion";
 
@@ -35,6 +36,7 @@ export function useSmoothScroll() {
 export function SmoothScrollProvider({ children }: { children: ReactNode }) {
   const reduced = usePrefersReducedMotion();
   const isDesktop = useIsDesktopMarketing();
+  const finePointer = useIsFinePointer();
   const [value, setValue] = useState<SmoothScrollContextValue>({
     lenis: null,
     ready: false,
@@ -48,8 +50,9 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
     let ticker: ((time: number) => void) | null = null;
     let resizeTimer = 0;
 
-    // Native scroll on mobile / reduced motion — Lenis only on desktop wheel.
-    if (reduced || !isDesktop) {
+    // Native scroll on mobile / touch / reduced motion — Lenis only for
+    // desktop fine-pointer wheel. Touch tablets ≥768px must not get Lenis.
+    if (reduced || !isDesktop || !finePointer) {
       if (!cancelled) setValue({ lenis: null, ready: true });
       return () => {
         cancelled = true;
@@ -100,7 +103,7 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
       instance?.destroy();
       // Section contexts own their ScrollTriggers via gsap.context().revert().
     };
-  }, [reduced, isDesktop]);
+  }, [reduced, isDesktop, finePointer]);
 
   return (
     <SmoothScrollContext.Provider value={value}>

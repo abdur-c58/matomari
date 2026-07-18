@@ -21,7 +21,7 @@ export function MarketingNav({ className }: { className?: string }) {
       <div className="pointer-events-auto mx-auto mt-2 flex max-w-[1400px] items-center justify-between gap-4 rounded-2xl border border-border/60 bg-background/75 px-4 py-2 shadow-sm backdrop-blur-xl sm:px-5">
         <Link href="/" className="flex items-center gap-3 text-foreground">
           <KotoshimaLogo size={36} />
-          <span className="font-display text-lg font-semibold tracking-tight">
+          <span className="hidden font-display text-lg font-semibold tracking-tight min-[400px]:inline">
             {APP_NAME}
           </span>
         </Link>
