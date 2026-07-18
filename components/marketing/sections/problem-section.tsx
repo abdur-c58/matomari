@@ -927,6 +927,9 @@ export function ProblemSection() {
             <p className="font-display text-base font-medium tracking-tight text-foreground sm:text-lg">
               {gapDemo.bridge}
             </p>
+            <h2 className="font-display text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+              {gapDemo.pictureThis}
+            </h2>
             <span
               className="flex flex-col items-center gap-1 text-muted"
               aria-hidden

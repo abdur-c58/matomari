@@ -52,6 +52,7 @@ export const marketingProblem = {
       "That's what Kotoshima trains: not grammar drills, but the moments themselves.",
     ],
     bridge: "Here's what we mean.",
+    pictureThis: "Picture this",
   },
 } as const;
 
