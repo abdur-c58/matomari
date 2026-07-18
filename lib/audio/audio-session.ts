@@ -25,6 +25,7 @@ import {
   updateMediaSessionPlaybackState,
   updateMediaSessionPositionState,
 } from "@/lib/audio/media-session";
+import { attachMarketingCursorAudio } from "@/components/marketing/motion/marketing-cursor-audio";
 
 export interface TtsRequest {
   sentenceId: string;
@@ -246,6 +247,8 @@ export class AudioSessionManager {
         document.addEventListener("visibilitychange", this.handleVisibilityChange);
       }
     }
+    // Keep the custom cursor progress rim in sync with island / study playback.
+    attachMarketingCursorAudio(this.audio);
     return this.audio;
   }
 

@@ -1,6 +1,6 @@
 /**
- * Shared marketing playback registry for the custom cursor progress rim.
- * Homepage-only — not wired into islands or the main audio session.
+ * Shared playback registry for the custom cursor progress rim.
+ * Used by marketing demos and the in-app audio session.
  */
 
 type Listener = () => void;
