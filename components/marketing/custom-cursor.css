@@ -1,0 +1,534 @@
+﻿/* Shared custom cursor — imported by the cursor component and marketing.css */
+
+@media (hover: hover) and (pointer: fine) {
+  html.marketing-custom-cursor,
+  html.marketing-custom-cursor body,
+  html.marketing-custom-cursor * {
+    cursor: none !important;
+  }
+}
+
+.marketing-cursor {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 220ms ease-out;
+}
+
+.marketing-cursor[data-visible="true"] {
+  opacity: 1;
+}
+
+.marketing-cursor-core-anchor,
+.marketing-cursor-halo,
+.marketing-cursor-wisp {
+  position: fixed;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.marketing-cursor-core-anchor {
+  display: grid;
+  place-items: center;
+}
+
+.marketing-cursor-core {
+  position: relative;
+  width: 10px;
+  height: 10px;
+  display: grid;
+  place-items: center;
+  border-radius: 46% 54% 51% 49% / 43% 48% 52% 57%;
+  background:
+    radial-gradient(
+      circle at 34% 28%,
+      color-mix(in srgb, var(--mode-listen) 24%, var(--foreground)),
+      var(--foreground) 68%
+    );
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--background) 70%, transparent),
+    0 0 16px color-mix(in srgb, var(--mode-listen) 55%, transparent);
+  animation: marketing-cursor-ink-breathe 3.8s ease-in-out infinite alternate;
+  will-change: transform;
+  transition:
+    width 180ms cubic-bezier(0.2, 0.9, 0.3, 1),
+    height 180ms cubic-bezier(0.2, 0.9, 0.3, 1),
+    background 140ms cubic-bezier(0.2, 0.9, 0.3, 1),
+    border-radius 160ms cubic-bezier(0.2, 0.9, 0.3, 1),
+    box-shadow 140ms ease-out;
+}
+
+.marketing-cursor-core-mark {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--background);
+  opacity: 0;
+  transform: scale(0);
+  transition:
+    opacity 260ms ease-out,
+    width 360ms cubic-bezier(0.16, 1, 0.3, 1),
+    height 360ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.marketing-cursor-star-arm,
+.marketing-cursor-star-center {
+  display: none;
+}
+
+.marketing-cursor-halo {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--foreground) 18%, transparent);
+  background:
+    radial-gradient(
+      circle,
+      transparent 34%,
+      color-mix(in srgb, var(--foreground) 9%, transparent) 58%,
+      color-mix(in srgb, var(--mode-listen) 14%, transparent) 72%,
+      transparent 100%
+    );
+  box-shadow:
+    inset 0 0 8px color-mix(in srgb, var(--foreground) 8%, transparent),
+    0 0 12px color-mix(in srgb, var(--mode-listen) 10%, transparent);
+  filter: blur(0.45px);
+  transition:
+    width 420ms cubic-bezier(0.16, 1, 0.3, 1),
+    height 420ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-radius 420ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 320ms ease-out,
+    background-color 320ms ease-out;
+}
+
+.marketing-cursor-wisp {
+  width: 7px;
+  height: 4px;
+  border-radius: 64% 36% 58% 42% / 55% 62% 38% 45%;
+  background: color-mix(in srgb, var(--foreground) 78%, var(--mode-listen));
+  filter: blur(0.35px);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.marketing-cursor-wisp-secondary {
+  width: 4px;
+  height: 3px;
+  background: color-mix(in srgb, var(--foreground) 62%, var(--mode-listen));
+  filter: blur(0.6px);
+}
+
+.marketing-cursor-orbit {
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  background:
+    conic-gradient(
+      from 0deg,
+      var(--mode-meaning),
+      var(--mode-listen),
+      var(--mode-recall),
+      var(--mode-review),
+      var(--mode-meaning)
+    );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  padding: 1px;
+  opacity: 0;
+  transform: rotate(0deg);
+  transition: opacity 300ms ease-out;
+}
+
+.marketing-cursor[data-interactive="true"] .marketing-cursor-halo {
+  width: 54px;
+  height: 54px;
+  border-radius: 42% 58% 48% 52%;
+  border-color: transparent;
+  background:
+    radial-gradient(
+      circle,
+      color-mix(in srgb, var(--mode-listen) 5%, transparent) 20%,
+      color-mix(in srgb, var(--mode-listen) 16%, transparent) 58%,
+      transparent 78%
+    );
+}
+
+.marketing-cursor[data-interactive="true"] .marketing-cursor-orbit {
+  opacity: 0.9;
+  animation: marketing-cursor-orbit 2.8s linear infinite;
+}
+
+.marketing-cursor[data-interactive="true"] .marketing-cursor-core {
+  width: 18px;
+  height: 18px;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  animation: none;
+  overflow: visible;
+}
+
+.marketing-cursor[data-interactive="true"] .marketing-cursor-core-mark {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 0;
+  opacity: 1;
+  transform: none;
+  background: transparent;
+  overflow: visible;
+  box-shadow: none;
+  will-change: transform;
+  transition:
+    opacity 260ms ease-out,
+    width 360ms cubic-bezier(0.16, 1, 0.3, 1),
+    height 360ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.marketing-cursor[data-interactive="true"] .marketing-cursor-core-mark::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  background: color-mix(in srgb, var(--mode-listen) 88%, transparent);
+  /* Pointy 4-point star â€” thicker arms so it reads at cursor size */
+  clip-path: polygon(
+    50% 0%,
+    62% 38%,
+    100% 50%,
+    62% 62%,
+    50% 100%,
+    38% 62%,
+    0% 50%,
+    38% 38%
+  );
+  filter:
+    drop-shadow(0 0 1.5px color-mix(in srgb, var(--mode-listen) 95%, transparent))
+    drop-shadow(0 0 4px color-mix(in srgb, var(--mode-listen) 55%, transparent))
+    drop-shadow(0 0 8px color-mix(in srgb, var(--mode-listen) 30%, transparent));
+}
+
+.marketing-cursor[data-interactive="true"] .marketing-cursor-star-arm {
+  display: none;
+}
+
+.marketing-cursor[data-interactive="true"] .marketing-cursor-star-center {
+  display: block;
+  position: relative;
+  z-index: 1;
+  width: 2.5px;
+  height: 2.5px;
+  border-radius: 50%;
+  background: var(--background);
+  box-shadow: 0 0 0 0.5px color-mix(in srgb, var(--mode-listen) 30%, transparent);
+}
+
+.marketing-cursor[data-pressed="true"] .marketing-cursor-halo {
+  width: 42px;
+  height: 42px;
+}
+
+.marketing-cursor[data-pressed="true"]:not([data-interactive="true"]) .marketing-cursor-core {
+  width: 8px;
+  height: 8px;
+}
+
+.marketing-cursor[data-pressed="true"][data-interactive="true"] .marketing-cursor-core {
+  width: 15px;
+  height: 15px;
+}
+
+.marketing-cursor[data-pressed="true"][data-interactive="true"] .marketing-cursor-core-mark {
+  width: 13px;
+  height: 13px;
+}
+
+.marketing-cursor[data-pressed="true"][data-interactive="true"] .marketing-cursor-star-center {
+  width: 2px;
+  height: 2px;
+}
+
+/* Audio playback: progress rim + larger core with speaker icon */
+.marketing-cursor-audio-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  background: conic-gradient(
+    from -90deg,
+    var(--mode-listen) 0deg,
+    var(--mode-listen) calc(var(--audio-progress, 0) * 360deg),
+    color-mix(in srgb, var(--foreground) 16%, transparent) 0deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  padding: 2px;
+  transition: opacity 220ms ease-out;
+}
+
+.marketing-cursor-audio-icon {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  color: var(--background);
+  opacity: 0;
+  transform: scale(0.72);
+  pointer-events: none;
+  transition:
+    opacity 200ms ease-out,
+    transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.marketing-cursor-audio-icon-svg {
+  width: 12px;
+  height: 12px;
+  display: block;
+}
+
+/* Idle audio: enlarged core + speaker + progress rim */
+.marketing-cursor[data-audio="true"]:not([data-interactive="true"]) .marketing-cursor-halo {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+  filter: none;
+}
+
+.marketing-cursor[data-audio="true"]:not([data-interactive="true"]) .marketing-cursor-orbit,
+.marketing-cursor[data-audio="true"]:not([data-interactive="true"]) .marketing-cursor-wisp {
+  opacity: 0 !important;
+}
+
+.marketing-cursor[data-audio="true"]:not([data-interactive="true"]) .marketing-cursor-audio-ring {
+  opacity: 1;
+  padding: 2.5px;
+}
+
+.marketing-cursor[data-audio="true"]:not([data-interactive="true"]) .marketing-cursor-core {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  animation: none;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--background) 70%, transparent),
+    0 0 22px color-mix(in srgb, var(--mode-listen) 42%, transparent);
+}
+
+.marketing-cursor[data-audio="true"]:not([data-interactive="true"]) .marketing-cursor-core-mark {
+  opacity: 0;
+  transform: scale(0);
+}
+
+.marketing-cursor[data-audio="true"]:not([data-interactive="true"]) .marketing-cursor-audio-icon {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.marketing-cursor[data-audio="true"]:not([data-interactive="true"]) .marketing-cursor-audio-icon-svg {
+  width: 16px;
+  height: 16px;
+}
+
+.marketing-cursor[data-pressed="true"][data-audio="true"]:not([data-interactive="true"]) .marketing-cursor-halo {
+  width: 58px;
+  height: 58px;
+}
+
+.marketing-cursor[data-pressed="true"][data-audio="true"]:not([data-interactive="true"]) .marketing-cursor-core {
+  width: 30px;
+  height: 30px;
+}
+
+/* Interactive + audio: keep spinning star; swap purple orbit for progress rim */
+.marketing-cursor[data-audio="true"][data-interactive="true"] .marketing-cursor-halo {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+  filter: none;
+}
+
+.marketing-cursor[data-audio="true"][data-interactive="true"] .marketing-cursor-orbit {
+  opacity: 0 !important;
+  animation: none;
+}
+
+.marketing-cursor[data-audio="true"][data-interactive="true"] .marketing-cursor-audio-ring {
+  opacity: 1;
+  padding: 2.5px;
+}
+
+.marketing-cursor[data-pressed="true"][data-audio="true"][data-interactive="true"] .marketing-cursor-halo {
+  width: 48px;
+  height: 48px;
+}
+
+.marketing-cursor[data-highlight="true"] .marketing-cursor-audio-ring,
+.marketing-cursor[data-highlight="exit"] .marketing-cursor-audio-ring,
+.marketing-cursor[data-highlight="true"] .marketing-cursor-audio-icon,
+.marketing-cursor[data-highlight="exit"] .marketing-cursor-audio-icon {
+  opacity: 0 !important;
+}
+
+/* Cursor morphs into a full-colour rounded highlight; Japanese paints on top inside it */
+.marketing-cursor-highlight {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.35rem 0.7rem 0.35rem 0.55rem;
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.92);
+  transform-origin: center left;
+  transition:
+    opacity 110ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 140ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.marketing-cursor-highlight-play {
+  display: grid;
+  place-items: center;
+  width: 1.55rem;
+  height: 1.55rem;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: var(--background);
+  color: var(--mode-listen);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--background) 50%, transparent);
+}
+
+.marketing-cursor-highlight-play-icon {
+  display: block;
+  width: 0;
+  height: 0;
+  margin-left: 1px;
+  border-style: solid;
+  border-width: 4px 0 4px 6.5px;
+  border-color: transparent transparent transparent currentColor;
+}
+
+.marketing-cursor-highlight-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: min(17.5rem, 68vw);
+  color: var(--background);
+  font-family: var(--font-japanese), var(--font-display), serif;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: 0.02em;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  text-align: left;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+.marketing-cursor[data-highlight="true"] .marketing-cursor-halo,
+.marketing-cursor[data-highlight="true"] .marketing-cursor-orbit,
+.marketing-cursor[data-highlight="true"] .marketing-cursor-wisp,
+.marketing-cursor[data-highlight="exit"] .marketing-cursor-halo,
+.marketing-cursor[data-highlight="exit"] .marketing-cursor-orbit,
+.marketing-cursor[data-highlight="exit"] .marketing-cursor-wisp {
+  opacity: 0 !important;
+}
+
+.marketing-cursor[data-highlight="true"] .marketing-cursor-core,
+.marketing-cursor[data-highlight="exit"] .marketing-cursor-core {
+  border-radius: 12px;
+  background: var(--mode-listen);
+  box-shadow:
+    0 10px 26px color-mix(in srgb, var(--mode-listen) 34%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--mode-listen) 50%, var(--foreground));
+  animation: none;
+  overflow: hidden;
+  will-change: transform;
+}
+
+.marketing-cursor[data-highlight="exit"] .marketing-cursor-core {
+  box-shadow:
+    0 4px 14px color-mix(in srgb, var(--mode-listen) 22%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--mode-listen) 35%, var(--foreground));
+  transition:
+    background 160ms ease-in,
+    border-radius 180ms cubic-bezier(0.4, 0, 0.8, 1),
+    box-shadow 140ms ease-in;
+}
+
+.marketing-cursor[data-highlight="true"] .marketing-cursor-core-mark,
+.marketing-cursor[data-highlight="exit"] .marketing-cursor-core-mark {
+  opacity: 0;
+  transform: scale(0);
+}
+
+.marketing-cursor[data-highlight="true"] .marketing-cursor-highlight {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.marketing-cursor[data-highlight="exit"] .marketing-cursor-highlight {
+  opacity: 0;
+  transform: scale(0.86);
+  transition:
+    opacity 90ms ease-in,
+    transform 130ms cubic-bezier(0.4, 0, 1, 1);
+}
+
+.marketing-cursor[data-pressed="true"][data-highlight="true"] .marketing-cursor-core {
+  filter: brightness(0.96);
+}
+
+/*
+  Original phrase becomes an invisible hit-target while highlighted â€”
+  visible glyphs are rendered on the cursor above the solid fill.
+*/
+[data-cursor-highlight].is-cursor-highlighted {
+  position: relative;
+  border-radius: 12px;
+  color: transparent !important;
+  background: transparent !important;
+  padding: 0.12em 0.5em 0.12em calc(0.35em + 2.75rem);
+  box-shadow: none;
+  will-change: transform;
+  transition: padding 120ms cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+@keyframes marketing-cursor-orbit {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes marketing-cursor-ink-breathe {
+  0% {
+    border-radius: 46% 54% 51% 49% / 43% 48% 52% 57%;
+  }
+  55% {
+    border-radius: 53% 47% 45% 55% / 50% 42% 58% 50%;
+  }
+  100% {
+    border-radius: 48% 52% 57% 43% / 56% 51% 49% 44%;
+  }
+}

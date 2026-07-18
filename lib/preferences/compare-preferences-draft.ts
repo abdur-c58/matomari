@@ -10,6 +10,7 @@ export type PreferencesDraft = {
   showKansaiDialect: boolean;
   kansaiAsPrimary: boolean;
   uiFont: UiFont;
+  useStandardCursor: boolean;
   notifications: NotificationPreferences;
 };
 
@@ -22,6 +23,7 @@ function savedPreferencesDraft(settings: AppSettings): PreferencesDraft {
     showKansaiDialect: settings.showKansaiDialect ?? false,
     kansaiAsPrimary: settings.kansaiAsPrimary ?? false,
     uiFont: resolveUiFont(settings.uiFont),
+    useStandardCursor: settings.useStandardCursor ?? false,
     notifications: settings.notifications ?? DEFAULT_NOTIFICATION_PREFERENCES,
   };
 }
@@ -35,6 +37,7 @@ export function preferencesDraftHasChanges(
     draft.showKansaiDialect !== saved.showKansaiDialect ||
     effectiveKansaiPrimary(draft) !== effectiveKansaiPrimary(saved) ||
     resolveUiFont(draft.uiFont) !== saved.uiFont ||
+    Boolean(draft.useStandardCursor) !== Boolean(saved.useStandardCursor) ||
     JSON.stringify(draft.notifications) !== JSON.stringify(saved.notifications)
   );
 }

@@ -78,7 +78,13 @@ export function MarketingFooter() {
         </ul>
       </div>
       <div className="border-t border-border/70 py-4 text-center text-xs text-muted">
-        © {new Date().getFullYear()} {APP_NAME}
+        <p className="m-0">
+          © {new Date().getFullYear()} {APP_NAME}
+          <span className="mx-2 text-border" aria-hidden>
+            ·
+          </span>
+          Made by pank&ren
+        </p>
       </div>
     </footer>
   );

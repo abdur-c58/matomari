@@ -1,22 +1,25 @@
 "use client";
 
-import { Moon, MoonStar, Sun } from "lucide-react";
+import { Moon, MoonStar, Sun, SunDim } from "lucide-react";
 import { useTheme } from "@/components/providers/theme-provider";
-import type { AppliedTheme } from "@/lib/constants/theme";
+import {
+  themeModeLabel,
+  type AppliedTheme,
+} from "@/lib/constants/theme";
 import { cn } from "@/lib/utils";
 
-const THEME_CYCLE: AppliedTheme[] = ["light", "paper-dark", "dark"];
+const THEME_CYCLE: AppliedTheme[] = [
+  "light",
+  "paper-dark",
+  "true-light",
+  "dark",
+];
 
 export function MarketingThemeToggle({ className }: { className?: string }) {
   const { appliedTheme, setMode } = useTheme();
-  const currentIndex = THEME_CYCLE.indexOf(appliedTheme);
+  const currentIndex = Math.max(0, THEME_CYCLE.indexOf(appliedTheme));
   const nextTheme = THEME_CYCLE[(currentIndex + 1) % THEME_CYCLE.length];
-  const nextLabel =
-    nextTheme === "light"
-      ? "light washi"
-      : nextTheme === "paper-dark"
-        ? "dark washi"
-        : "true black";
+  const nextLabel = themeModeLabel(nextTheme).toLowerCase();
 
   return (
     <button
@@ -43,6 +46,14 @@ export function MarketingThemeToggle({ className }: { className?: string }) {
           appliedTheme === "paper-dark"
             ? "rotate-0 scale-100 opacity-100"
             : "rotate-90 scale-50 opacity-0"
+        )}
+      />
+      <SunDim
+        className={cn(
+          "absolute h-4 w-4 transition-[transform,opacity] duration-500 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)]",
+          appliedTheme === "true-light"
+            ? "rotate-0 scale-100 opacity-100"
+            : "-rotate-90 scale-50 opacity-0"
         )}
       />
       <Moon

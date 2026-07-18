@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { InViewVideo } from "@/components/marketing/motion/in-view-video";
 import { MARKETING_DESKTOP_MQ, MARKETING_Z } from "@/components/marketing/motion/easings";
+import { revealOnMobile } from "@/components/marketing/motion/mobile-scroll-reveal";
 import { useGsapContext } from "@/components/marketing/motion/use-gsap-context";
 import { usePointerTilt } from "@/components/marketing/motion/use-pointer-tilt";
 import { usePrefersReducedMotion } from "@/components/marketing/motion/use-prefers-reduced-motion";
@@ -89,6 +90,16 @@ export function VideoShowcaseSection() {
       }
     });
 
+    revealOnMobile(mm, root, "[data-video-caption]", {
+      y: 18,
+      start: "top 86%",
+    });
+    revealOnMobile(mm, root, "[data-video-frame]", {
+      y: 24,
+      start: "top 88%",
+      duration: 0.8,
+    });
+
     return () => mm.revert();
   }, []);
 
@@ -96,28 +107,29 @@ export function VideoShowcaseSection() {
     <section
       ref={rootRef}
       id="walkthrough"
-      className="relative overflow-hidden py-16 md:py-28"
+      className="relative overflow-hidden py-12 md:py-28"
     >
-      <div className="mx-auto grid max-w-[1400px] gap-8 px-4 sm:px-8 md:grid-cols-[minmax(0,0.4fr)_minmax(0,0.6fr)] md:items-end md:gap-4">
+      <div className="mx-auto grid max-w-[1400px] gap-6 px-4 sm:px-8 md:grid-cols-[minmax(0,0.4fr)_minmax(0,0.6fr)] md:items-end md:gap-4">
         <div data-video-caption className="marketing-depth md:pb-6 md:pr-6">
           <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted">
             {marketingVideo.eyebrow}
           </p>
-          <h2 className="marketing-giant-type mt-4 text-[clamp(2.2rem,5vw,4rem)]">
+          <h2 className="marketing-giant-type mt-3 text-[clamp(1.95rem,5.5vw,4rem)] sm:mt-4">
             {marketingVideo.title}
           </h2>
-          <p className="mt-4 max-w-sm text-base leading-relaxed text-muted">
+          <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted sm:mt-4 sm:text-base">
             {marketingVideo.body}
           </p>
           <div
             data-video-stripe
-            className="marketing-hard-stripe mt-8 h-1 w-40 origin-left"
+            className="marketing-hard-stripe mt-6 h-1 w-40 origin-left sm:mt-8"
             aria-hidden
           />
         </div>
 
         <div
           ref={frameRef}
+          data-video-frame
           className="marketing-scene relative -mx-4 sm:mx-0 md:translate-x-6 lg:translate-x-12"
         >
           <div data-scroll-rig className="marketing-scroll-rig will-change-transform">
@@ -129,11 +141,6 @@ export function VideoShowcaseSection() {
           </div>
         </div>
       </div>
-      <p className="mx-auto mt-5 max-w-[1400px] px-4 text-sm text-muted sm:px-8 md:text-right">
-        {reduced
-          ? "Use the controls to play the walkthrough."
-          : "Plays muted when this section enters view."}
-      </p>
     </section>
   );
 }

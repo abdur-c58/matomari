@@ -1,206 +1,43 @@
+@import "./custom-cursor.css";
+
 /* Marketing-only styles — brand tokens, intentional 3D scene shells */
 
 .marketing-page {
   overflow-x: clip;
 }
 
-/* Homepage-only custom cursor */
-@media (hover: hover) and (pointer: fine) {
-  html.marketing-custom-cursor,
-  html.marketing-custom-cursor body,
-  html.marketing-custom-cursor .marketing-page,
-  html.marketing-custom-cursor .marketing-page * {
-    cursor: none !important;
+/*
+  Pre-hide motion-owned content until the first GSAP context marks the page ready.
+  Prevents a one-frame flash of full-opacity / stacked layouts on refresh.
+*/
+@media (prefers-reduced-motion: no-preference) {
+  .marketing-page:not([data-motion-ready="true"]) [data-hero-enter],
+  .marketing-page:not([data-motion-ready="true"]) [data-hero-visual],
+  .marketing-page:not([data-motion-ready="true"]) [data-problem-title],
+  .marketing-page:not([data-motion-ready="true"]) [data-problem-body],
+  .marketing-page:not([data-motion-ready="true"]) [data-problem-bridge],
+  .marketing-page:not([data-motion-ready="true"]) [data-loop-intro],
+  .marketing-page:not([data-motion-ready="true"]) [data-narration-copy],
+  .marketing-page:not([data-motion-ready="true"]) [data-narration-trial],
+  .marketing-page:not([data-motion-ready="true"]) [data-video-caption],
+  .marketing-page:not([data-motion-ready="true"]) [data-video-frame],
+  .marketing-page:not([data-motion-ready="true"]) [data-proof-block],
+  .marketing-page:not([data-motion-ready="true"]) [data-pricing-intro],
+  .marketing-page:not([data-motion-ready="true"]) [data-pricing-card],
+  .marketing-page:not([data-motion-ready="true"]) [data-cta-title],
+  .marketing-page:not([data-motion-ready="true"]) [data-cta-body],
+  .marketing-page:not([data-motion-ready="true"]) [data-cta-action],
+  .marketing-page:not([data-motion-ready="true"]) [data-feature-scene]:not(:first-of-type),
+  .marketing-page:not([data-motion-ready="true"]) [data-gap-stage] {
+    opacity: 0;
+  }
+
+  .marketing-page:not([data-motion-ready="true"]) [data-feature-scene]:first-of-type {
+    opacity: 1;
   }
 }
 
-.marketing-cursor {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 220ms ease-out;
-}
 
-.marketing-cursor[data-visible="true"] {
-  opacity: 1;
-}
-
-.marketing-cursor-core-anchor,
-.marketing-cursor-halo,
-.marketing-cursor-wisp {
-  position: fixed;
-  left: 0;
-  top: 0;
-  pointer-events: none;
-  will-change: transform;
-}
-
-.marketing-cursor-core-anchor {
-  display: grid;
-  place-items: center;
-}
-
-.marketing-cursor-core {
-  position: relative;
-  width: 10px;
-  height: 10px;
-  display: grid;
-  place-items: center;
-  border-radius: 46% 54% 51% 49% / 43% 48% 52% 57%;
-  background:
-    radial-gradient(
-      circle at 34% 28%,
-      color-mix(in srgb, var(--mode-listen) 24%, var(--foreground)),
-      var(--foreground) 68%
-    );
-  box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--background) 70%, transparent),
-    0 0 16px color-mix(in srgb, var(--mode-listen) 55%, transparent);
-  animation: marketing-cursor-ink-breathe 3.8s ease-in-out infinite alternate;
-  will-change: transform;
-  transition:
-    width 360ms cubic-bezier(0.16, 1, 0.3, 1),
-    height 360ms cubic-bezier(0.16, 1, 0.3, 1),
-    background-color 360ms cubic-bezier(0.16, 1, 0.3, 1),
-    border-radius 360ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.marketing-cursor-core-mark {
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: var(--background);
-  opacity: 0;
-  transform: scale(0);
-  transition:
-    opacity 260ms ease-out,
-    transform 360ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.marketing-cursor-halo {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  border: 1px solid color-mix(in srgb, var(--foreground) 18%, transparent);
-  background:
-    radial-gradient(
-      circle,
-      transparent 34%,
-      color-mix(in srgb, var(--foreground) 9%, transparent) 58%,
-      color-mix(in srgb, var(--mode-listen) 14%, transparent) 72%,
-      transparent 100%
-    );
-  box-shadow:
-    inset 0 0 8px color-mix(in srgb, var(--foreground) 8%, transparent),
-    0 0 12px color-mix(in srgb, var(--mode-listen) 10%, transparent);
-  filter: blur(0.45px);
-  transition:
-    width 420ms cubic-bezier(0.16, 1, 0.3, 1),
-    height 420ms cubic-bezier(0.16, 1, 0.3, 1),
-    border-radius 420ms cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 320ms ease-out,
-    background-color 320ms ease-out;
-}
-
-.marketing-cursor-wisp {
-  width: 7px;
-  height: 4px;
-  border-radius: 64% 36% 58% 42% / 55% 62% 38% 45%;
-  background: color-mix(in srgb, var(--foreground) 78%, var(--mode-listen));
-  filter: blur(0.35px);
-  opacity: 0;
-  will-change: transform, opacity;
-}
-
-.marketing-cursor-wisp-secondary {
-  width: 4px;
-  height: 3px;
-  background: color-mix(in srgb, var(--foreground) 62%, var(--mode-listen));
-  filter: blur(0.6px);
-}
-
-.marketing-cursor-orbit {
-  position: absolute;
-  inset: -3px;
-  border-radius: inherit;
-  background:
-    conic-gradient(
-      from 0deg,
-      var(--mode-meaning),
-      var(--mode-listen),
-      var(--mode-recall),
-      var(--mode-review),
-      var(--mode-meaning)
-    );
-  -webkit-mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  padding: 1px;
-  opacity: 0;
-  transform: rotate(0deg);
-  transition: opacity 300ms ease-out;
-}
-
-.marketing-cursor[data-interactive="true"] .marketing-cursor-halo {
-  width: 54px;
-  height: 54px;
-  border-radius: 42% 58% 48% 52%;
-  border-color: transparent;
-  background:
-    radial-gradient(
-      circle,
-      color-mix(in srgb, var(--mode-listen) 5%, transparent) 20%,
-      color-mix(in srgb, var(--mode-listen) 16%, transparent) 58%,
-      transparent 78%
-    );
-}
-
-.marketing-cursor[data-interactive="true"] .marketing-cursor-orbit {
-  opacity: 0.9;
-  animation: marketing-cursor-orbit 2.8s linear infinite;
-}
-
-.marketing-cursor[data-interactive="true"] .marketing-cursor-core {
-  width: 16px;
-  height: 16px;
-  border-radius: 38% 62% 58% 42%;
-  background: var(--mode-listen);
-}
-
-.marketing-cursor[data-interactive="true"] .marketing-cursor-core-mark {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.marketing-cursor[data-pressed="true"] .marketing-cursor-halo {
-  width: 42px;
-  height: 42px;
-}
-
-.marketing-cursor[data-pressed="true"] .marketing-cursor-core {
-  width: 8px;
-  height: 8px;
-}
-
-@keyframes marketing-cursor-orbit {
-  to { transform: rotate(360deg); }
-}
-
-@keyframes marketing-cursor-ink-breathe {
-  0% {
-    border-radius: 46% 54% 51% 49% / 43% 48% 52% 57%;
-  }
-  55% {
-    border-radius: 53% 47% 45% 55% / 50% 42% 58% 50%;
-  }
-  100% {
-    border-radius: 48% 52% 57% 43% / 56% 51% 49% 44%;
-  }
-}
 
 /* Sharp, brand-tied fields — not soft pastel blobs */
 .marketing-hero-field {
@@ -292,6 +129,102 @@
   pointer-events: none;
 }
 
+/* Open Dashboard — no magnetic stickiness; unique hover beat */
+.marketing-dashboard-cta {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition:
+    transform 420ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 420ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 320ms ease-out;
+}
+
+.marketing-dashboard-cta::before {
+  content: "";
+  position: absolute;
+  inset: -40% -60%;
+  z-index: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 35%,
+    color-mix(in srgb, var(--cta-foreground) 22%, transparent) 48%,
+    transparent 62%
+  );
+  transform: translateX(-55%) skewX(-18deg);
+  transition: transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.marketing-dashboard-cta::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 0 color-mix(in srgb, var(--mode-listen) 55%, transparent);
+  transition: box-shadow 420ms cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.marketing-dashboard-cta > * {
+  position: relative;
+  z-index: 1;
+}
+
+.marketing-dashboard-cta-arrow {
+  transition: transform 420ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.marketing-dashboard-cta-label {
+  transition: letter-spacing 420ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.marketing-dashboard-cta:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 12px 28px color-mix(in srgb, var(--foreground) 16%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--mode-listen) 35%, transparent);
+}
+
+.marketing-dashboard-cta:hover::before {
+  transform: translateX(55%) skewX(-18deg);
+}
+
+.marketing-dashboard-cta:hover::after {
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--mode-listen) 50%, transparent);
+}
+
+.marketing-dashboard-cta:hover .marketing-dashboard-cta-arrow {
+  transform: translateX(5px);
+}
+
+.marketing-dashboard-cta:hover .marketing-dashboard-cta-label {
+  letter-spacing: 0.02em;
+}
+
+.marketing-dashboard-cta:active {
+  transform: translateY(-1px) scale(0.98);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marketing-dashboard-cta,
+  .marketing-dashboard-cta::before,
+  .marketing-dashboard-cta::after,
+  .marketing-dashboard-cta-arrow,
+  .marketing-dashboard-cta-label {
+    transition: none !important;
+  }
+
+  .marketing-dashboard-cta:hover {
+    transform: none;
+  }
+
+  .marketing-dashboard-cta:hover .marketing-dashboard-cta-arrow {
+    transform: none;
+  }
+}
+
 /* Perspective scenes — clipping lives on inner shells only */
 .marketing-scene {
   perspective: 1200px;
@@ -321,6 +254,96 @@
   font-weight: 600;
   letter-spacing: -0.06em;
   line-height: 0.85;
+}
+
+.marketing-gap-item {
+  color: var(--muted);
+}
+
+.marketing-gap-item[data-active="true"] {
+  color: var(--foreground);
+  border-color: color-mix(in srgb, var(--mode-listen) 42%, var(--border));
+  background: color-mix(in srgb, var(--mode-listen) 10%, var(--surface));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--mode-listen) 18%, transparent);
+}
+
+.marketing-gap-item[data-done="true"] {
+  color: var(--foreground);
+}
+
+.marketing-gap-low {
+  font-style: italic;
+  color: color-mix(in srgb, var(--foreground) 62%, var(--muted));
+}
+
+.marketing-gap-phrase {
+  position: relative;
+  border-radius: 12px;
+  padding: 0.08em 0.2em;
+  animation: marketing-gap-phrase-pulse 2.4s ease-in-out infinite;
+}
+
+.marketing-gap-phrase:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--mode-listen) 70%, transparent);
+  outline-offset: 4px;
+}
+
+.marketing-gap-play-hint {
+  opacity: 0.78;
+  animation: marketing-gap-hint-fade 2.4s ease-in-out infinite;
+}
+
+.marketing-gap-play-hint-icon {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 4px 0 4px 7px;
+  border-color: transparent transparent transparent currentColor;
+  opacity: 0.9;
+}
+
+.marketing-gap-play-hint-touch {
+  display: none;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .marketing-gap-play-hint-fine {
+    display: none;
+  }
+
+  .marketing-gap-play-hint-touch {
+    display: inline;
+  }
+}
+
+@keyframes marketing-gap-phrase-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--mode-listen) 0%, transparent);
+  }
+  50% {
+    box-shadow:
+      0 0 0 6px color-mix(in srgb, var(--mode-listen) 12%, transparent),
+      0 0 18px color-mix(in srgb, var(--mode-listen) 22%, transparent);
+  }
+}
+
+@keyframes marketing-gap-hint-fade {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.95;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marketing-gap-phrase,
+  .marketing-gap-play-hint {
+    animation: none;
+  }
 }
 
 .marketing-hand-highlight {
@@ -424,6 +447,19 @@ html[data-theme="dark"] .marketing-hand-highlight-stroke {
 html[data-theme="paper-dark"] .marketing-hand-highlight-bristle,
 html[data-theme="dark"] .marketing-hand-highlight-bristle {
   background: color-mix(in srgb, #c4a86a 50%, transparent);
+}
+
+html[data-theme="true-light"] .marketing-hand-highlight-stroke {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, #a78bfa 50%, transparent),
+      color-mix(in srgb, #f472b6 45%, transparent)
+    );
+}
+
+html[data-theme="true-light"] .marketing-hand-highlight-bristle {
+  background: color-mix(in srgb, #c4b5fd 55%, transparent);
 }
 
 .marketing-brush-anchor {
@@ -552,18 +588,45 @@ html[data-theme="dark"] .marketing-hand-highlight-bristle {
   min-height: auto;
 }
 
-[data-step-carousel]:not([data-enhanced="true"]) > div {
-  position: static;
-  display: grid;
-  gap: 1rem;
+/*
+  Before GSAP enhances the desktop carousel, do NOT fall back to a stacked grid —
+  that paints every card at once (refresh FOUC). Keep the absolute shell and only
+  show the first card until poses are applied.
+*/
+@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  [data-step-carousel]:not([data-enhanced="true"]) > div {
+    position: absolute;
+    inset: 0;
+    display: block;
+  }
+
+  [data-step-carousel]:not([data-enhanced="true"]) .marketing-carousel-card {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  [data-step-carousel]:not([data-enhanced="true"]) .marketing-carousel-card:first-child {
+    opacity: 1;
+    visibility: visible;
+  }
 }
 
-[data-step-carousel]:not([data-enhanced="true"]) .marketing-carousel-card {
-  position: relative;
-  inset: auto;
-  width: 100%;
-  transform: none;
-  opacity: 1;
+@media (max-width: 767px), (prefers-reduced-motion: reduce) {
+  [data-step-carousel]:not([data-enhanced="true"]) > div {
+    position: static;
+    display: grid;
+    gap: 1rem;
+  }
+
+  [data-step-carousel]:not([data-enhanced="true"]) .marketing-carousel-card {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    transform: none;
+    opacity: 1;
+    visibility: visible;
+  }
 }
 
 .marketing-illustration-stage::after,
@@ -806,7 +869,9 @@ html[data-theme="dark"] .marketing-hand-highlight-bristle {
 }
 
 html[data-theme="light"] .marketing-illustrated-feature,
-html[data-theme="light"] .marketing-carousel-card {
+html[data-theme="light"] .marketing-carousel-card,
+html[data-theme="true-light"] .marketing-illustrated-feature,
+html[data-theme="true-light"] .marketing-carousel-card {
   box-shadow:
     0 18px 45px rgb(60 40 10 / 0.18),
     0 0 42px color-mix(in srgb, var(--feature-accent, var(--step-accent)) 20%, transparent);
@@ -1045,6 +1110,19 @@ html[data-theme="paper-dark"] .marketing-carousel-card {
     transform: none !important;
     transform-style: flat;
   }
+
+  /* Tighter vertical rhythm on small screens — more content per viewport */
+  .marketing-page section {
+    scroll-margin-top: calc(4.5rem + env(safe-area-inset-top, 0px));
+  }
+}
+
+/* iOS PWA standalone: content draws under the status bar with black-translucent */
+@media (display-mode: standalone) {
+  .marketing-page {
+    /* Keep page paint under the translucent status bar; nav owns the inset. */
+    min-height: 100dvh;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1063,8 +1141,21 @@ html[data-theme="paper-dark"] .marketing-carousel-card {
   .marketing-page [data-hero-enter],
   .marketing-page [data-hero-visual],
   .marketing-page [data-problem-card],
+  .marketing-page [data-problem-title],
+  .marketing-page [data-problem-body],
   .marketing-page [data-step-card],
-  .marketing-page [data-h-panel] {
+  .marketing-page [data-loop-intro],
+  .marketing-page [data-h-panel],
+  .marketing-page [data-narration-copy],
+  .marketing-page [data-narration-trial],
+  .marketing-page [data-video-caption],
+  .marketing-page [data-video-frame],
+  .marketing-page [data-proof-block],
+  .marketing-page [data-pricing-intro],
+  .marketing-page [data-pricing-card],
+  .marketing-page [data-cta-title],
+  .marketing-page [data-cta-body],
+  .marketing-page [data-cta-action] {
     opacity: 1 !important;
     transform: none !important;
   }

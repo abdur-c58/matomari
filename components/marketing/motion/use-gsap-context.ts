@@ -34,6 +34,12 @@ export function useGsapContext(
       extraCleanup = setup(self);
     }, root);
 
+    // Mark the marketing page ready after this section's initial GSAP state is applied.
+    const page = root.closest(".marketing-page");
+    if (page instanceof HTMLElement) {
+      page.dataset.motionReady = "true";
+    }
+
     // Single deferred refresh per context — no per-instance load listeners.
     const t = window.setTimeout(() => ScrollTrigger.refresh(), 180);
 

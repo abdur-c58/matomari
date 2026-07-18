@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { MarketingAuthCta } from "@/components/marketing/marketing-auth-cta";
 import { MARKETING_DESKTOP_MQ } from "@/components/marketing/motion/easings";
+import { revealOnMobile } from "@/components/marketing/motion/mobile-scroll-reveal";
 import { useGsapContext } from "@/components/marketing/motion/use-gsap-context";
 import { marketingCta } from "@/lib/constants/marketing";
 
@@ -73,24 +74,36 @@ export function CtaSection() {
         );
       }
     });
+
+    revealOnMobile(
+      mm,
+      root,
+      "[data-cta-title], [data-cta-body], [data-cta-action]",
+      { y: 20, stagger: 0.1, start: "top 88%" }
+    );
+
     return () => mm.revert();
   }, []);
 
   return (
-    <section ref={rootRef} className="relative overflow-hidden px-4 py-24 sm:px-8 md:py-32">
+    <section
+      ref={rootRef}
+      id="cta"
+      className="relative overflow-hidden px-4 py-16 sm:px-8 md:py-32"
+    >
       <div className="marketing-cta-field absolute inset-0" aria-hidden />
       <div className="marketing-hard-stripe absolute inset-x-0 top-0 h-1" aria-hidden />
-      <div className="relative mx-auto grid max-w-[1400px] gap-8 md:grid-cols-[1.2fr_0.8fr] md:items-end">
+      <div className="relative mx-auto grid max-w-[1400px] gap-6 md:grid-cols-[1.2fr_0.8fr] md:items-end md:gap-8">
         <div>
           <h2
             data-cta-title
-            className="marketing-giant-type max-w-[12ch] text-[clamp(2.4rem,6vw,4.75rem)]"
+            className="marketing-giant-type max-w-[12ch] text-[clamp(2.1rem,6.5vw,4.75rem)]"
           >
             {marketingCta.title}
           </h2>
           <p
             data-cta-body
-            className="mt-5 max-w-md text-base leading-relaxed text-muted sm:text-lg"
+            className="mt-4 max-w-md text-sm leading-relaxed text-muted sm:mt-5 sm:text-base md:text-lg"
           >
             {marketingCta.body}
           </p>

@@ -4,6 +4,7 @@ import { useCallback, useRef, useState, type CSSProperties } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { MARKETING_DESKTOP_MQ } from "@/components/marketing/motion/easings";
+import { revealOnMobile } from "@/components/marketing/motion/mobile-scroll-reveal";
 import { useGsapContext } from "@/components/marketing/motion/use-gsap-context";
 import { useSmoothScroll } from "@/components/marketing/motion/smooth-scroll-provider";
 import { DailyLoopTrial } from "@/components/marketing/trials/daily-loop-trials";
@@ -317,6 +318,11 @@ export function FeatureShowcaseSection() {
       });
     });
 
+    revealOnMobile(mm, root, "[data-loop-intro]", {
+      y: 18,
+      start: "top 86%",
+    });
+
     return () => {
       const stage = root.querySelector<HTMLElement>("[data-step-carousel]");
       if (stage) delete stage.dataset.enhanced;
@@ -331,15 +337,15 @@ export function FeatureShowcaseSection() {
       id="features"
       className="relative overflow-hidden bg-background"
     >
-      <div className="mx-auto flex min-h-[100svh] max-w-[1400px] flex-col justify-center px-4 py-16 sm:px-8 md:py-0">
-        <div className="relative z-20 max-w-xl md:max-w-lg">
+      <div className="mx-auto flex min-h-0 max-w-[1400px] flex-col justify-center px-4 py-12 sm:px-8 md:min-h-[100svh] md:py-0">
+        <div className="relative z-20 max-w-xl md:max-w-lg" data-loop-intro>
           <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted">
             {marketingDailyLoop.eyebrow}
           </p>
-          <h2 className="marketing-giant-type mt-4 text-[clamp(2.2rem,5.5vw,4.25rem)]">
+          <h2 className="marketing-giant-type mt-3 text-[clamp(1.95rem,5.5vw,4.25rem)] sm:mt-4">
             {marketingDailyLoop.title}
           </h2>
-          <p className="mt-5 text-base leading-relaxed text-muted sm:text-lg">
+          <p className="mt-4 text-sm leading-relaxed text-muted sm:mt-5 sm:text-base md:text-lg">
             {marketingDailyLoop.body}
           </p>
           <div

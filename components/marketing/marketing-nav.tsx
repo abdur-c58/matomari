@@ -12,7 +12,9 @@ export function MarketingNav({ className }: { className?: string }) {
   return (
     <header
       className={cn(
-        "pointer-events-none fixed inset-x-0 top-0 z-40",
+        // iOS PWA standalone + black-translucent draws under the status bar;
+        // without safe-area padding the pill sits behind it and looks "missing".
+        "pointer-events-none fixed inset-x-0 top-0 z-40 pt-[env(safe-area-inset-top,0px)]",
         className
       )}
     >

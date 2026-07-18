@@ -9,6 +9,8 @@ import { UploadProgressBar } from "@/components/layout/upload-progress-bar";
 import { OnboardingProvider } from "@/components/onboarding/onboarding-provider";
 import { NotificationProvider } from "@/components/notifications/notification-provider";
 import { GlobalAudioPlayer } from "@/components/audio/global-audio-player";
+import { AppCustomCursor } from "@/components/layout/app-custom-cursor";
+import { PreAuthCustomCursor } from "@/components/layout/pre-auth-custom-cursor";
 
 export default function AppLayout({
   children,
@@ -17,6 +19,7 @@ export default function AppLayout({
 }>) {
   return (
     <AuthProvider>
+      <PreAuthCustomCursor />
       <AuthGate>
         <AppProvider>
           <UiFontProvider>
@@ -28,6 +31,7 @@ export default function AppLayout({
                 </TutorProvider>
               </OnboardingProvider>
               <GlobalAudioPlayer />
+              <AppCustomCursor />
               <Toaster />
             </NotificationProvider>
           </UiFontProvider>

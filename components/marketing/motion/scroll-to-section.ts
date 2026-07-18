@@ -3,12 +3,30 @@
 import type Lenis from "lenis";
 
 export const MARKETING_SECTION_IDS = [
+  "hero",
+  "problem",
   "features",
+  "islands",
   "narration",
   "walkthrough",
+  "social-proof",
+  "pricing",
+  "cta",
 ] as const;
 
 export type MarketingSectionId = (typeof MARKETING_SECTION_IDS)[number];
+
+export const MARKETING_SECTION_LINKS = [
+  { id: "hero", label: "Home" },
+  { id: "problem", label: "The gap" },
+  { id: "features", label: "Daily loop" },
+  { id: "islands", label: "Islands" },
+  { id: "narration", label: "Narration" },
+  { id: "walkthrough", label: "Walkthrough" },
+  { id: "social-proof", label: "Social" },
+  { id: "pricing", label: "Pricing" },
+  { id: "cta", label: "Start" },
+] as const satisfies ReadonlyArray<{ id: MarketingSectionId; label: string }>;
 
 const PENDING_KEY = "marketing-pending-section";
 const DEFAULT_SCROLL_DURATION = 1.8;
@@ -41,6 +59,31 @@ export function consumePendingMarketingSection(): MarketingSectionId | null {
     // Ignore storage failures.
   }
   return null;
+}
+
+/** True when this document load is a browser refresh/reload. */
+export function isPageReload(): boolean {
+  if (typeof performance === "undefined") return false;
+  const entry = performance.getEntriesByType?.(
+    "navigation"
+  )[0] as PerformanceNavigationTiming | undefined;
+  if (entry?.type === "reload") return true;
+  // Legacy fallback
+  const legacy = (
+    performance as Performance & { navigation?: { type?: number } }
+  ).navigation;
+  return legacy?.type === 1;
+}
+
+/** Jump to the top of the page (Lenis-aware when available). */
+export function scrollMarketingToTop(lenis: Lenis | null) {
+  if (lenis) {
+    lenis.scrollTo(0, { immediate: true, force: true });
+    return;
+  }
+  window.scrollTo(0, 0);
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
 }
 
 /** Smooth-scroll to a section without writing a hash into the URL. */

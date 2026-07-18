@@ -15,12 +15,14 @@ export function useSavePreferences({
   kansaiAsPrimary,
   notifications,
   uiFont,
+  useStandardCursor,
   returnTo,
 }: {
   showKansaiDialect: boolean;
   kansaiAsPrimary: boolean;
   notifications: NotificationPreferences;
   uiFont: UiFont;
+  useStandardCursor: boolean;
   returnTo: string;
 }) {
   const router = useRouter();
@@ -30,10 +32,17 @@ export function useSavePreferences({
   const hasUnsavedChanges = useMemo(
     () =>
       preferencesDraftHasChanges(
-        { showKansaiDialect, kansaiAsPrimary, uiFont, notifications },
+        { showKansaiDialect, kansaiAsPrimary, uiFont, useStandardCursor, notifications },
         progress.settings
       ),
-    [showKansaiDialect, kansaiAsPrimary, uiFont, notifications, progress.settings]
+    [
+      showKansaiDialect,
+      kansaiAsPrimary,
+      uiFont,
+      useStandardCursor,
+      notifications,
+      progress.settings,
+    ]
   );
 
   const handleSave = useCallback(
@@ -46,6 +55,7 @@ export function useSavePreferences({
           kansaiAsPrimary: showKansaiDialect ? kansaiAsPrimary : false,
           notifications,
           uiFont: resolveUiFont(uiFont),
+          useStandardCursor,
         };
         const resolved = resolveTranslationSettings(merged);
 
@@ -70,6 +80,7 @@ export function useSavePreferences({
       kansaiAsPrimary,
       notifications,
       uiFont,
+      useStandardCursor,
       progress,
       returnTo,
       router,

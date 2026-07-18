@@ -1,5 +1,10 @@
 "use client";
 
+import {
+  attachMarketingCursorAudio,
+  detachMarketingCursorAudio,
+} from "@/components/marketing/motion/marketing-cursor-audio";
+
 /**
  * Reusable Web Audio graph for marketing demos.
  * One MediaElementSource per HTMLAudioElement (browser constraint).
@@ -46,6 +51,8 @@ export class MarketingAudioGraph {
 
   private handleVisibilityChange = () => {
     if (!this.intendedPlaying) return;
+    // Only resume when returning to the tab — do not fight intentional pauses.
+    if (document.visibilityState !== "visible") return;
     void this.keepPlaying();
   };
 
@@ -63,6 +70,10 @@ export class MarketingAudioGraph {
   private async keepPlaying() {
     if (!this.intendedPlaying) return;
 
+    const audio = this.audio;
+    // Natural clip end also leaves the element paused — never restart it here.
+    if (audio?.ended) return;
+
     if (this.ctx?.state === "suspended") {
       try {
         await this.ctx.resume();
@@ -71,8 +82,7 @@ export class MarketingAudioGraph {
       }
     }
 
-    const audio = this.audio;
-    if (!audio || !this.intendedPlaying) return;
+    if (!audio || !this.intendedPlaying || audio.ended) return;
     if (audio.paused) {
       try {
         await audio.play();
@@ -158,10 +168,10 @@ export class MarketingAudioGraph {
     await this.ensureGraph();
 
     const generation = ++this.playGeneration;
-    this.intendedPlaying = true;
     this.sessionTitle = options?.title?.trim() || "Kotoshima";
-    this.syncMediaSession(true);
 
+    // Pause without keep-alive treating it as a background interrupt.
+    this.intendedPlaying = false;
     audio.pause();
 
     const absolute = new URL(src, window.location.href).href;
@@ -176,47 +186,63 @@ export class MarketingAudioGraph {
       // Ignore if not seekable yet.
     }
 
-    await this.keepPlaying();
-    await audio.play();
+    this.intendedPlaying = true;
+    this.syncMediaSession(true);
+    attachMarketingCursorAudio(audio);
 
-    await new Promise<void>((resolve, reject) => {
-      const onEnded = () => {
-        cleanup();
-        resolve();
-      };
-      const onError = () => {
-        cleanup();
-        reject(new Error("Audio playback failed"));
-      };
-      const onPause = () => {
-        // stop()/new play bumps generation — treat as abort.
-        if (generation !== this.playGeneration) {
+    try {
+      await this.keepPlaying();
+      if (generation !== this.playGeneration) {
+        throw new DOMException("Playback aborted", "AbortError");
+      }
+      if (audio.paused) {
+        await audio.play();
+      }
+
+      await new Promise<void>((resolve, reject) => {
+        const onEnded = () => {
           cleanup();
           resolve();
-          return;
-        }
-        // Browser may pause when backgrounding; keep going for multitasking.
-        if (this.intendedPlaying) {
-          void this.keepPlaying();
-        }
-      };
-      const cleanup = () => {
-        audio.removeEventListener("ended", onEnded);
-        audio.removeEventListener("error", onError);
-        audio.removeEventListener("pause", onPause);
-      };
-      audio.addEventListener("ended", onEnded);
-      audio.addEventListener("error", onError);
-      audio.addEventListener("pause", onPause);
-    });
+        };
+        const onError = () => {
+          cleanup();
+          reject(new Error("Audio playback failed"));
+        };
+        const onPause = () => {
+          // stop()/new play bumps generation — treat as abort.
+          if (generation !== this.playGeneration) {
+            cleanup();
+            resolve();
+            return;
+          }
+          // Browsers fire `pause` before `ended` when a clip finishes.
+          // Never call keepPlaying here — that was restarting the clip.
+          if (audio.ended) return;
+          const nearEnd =
+            Number.isFinite(audio.duration) &&
+            audio.duration > 0 &&
+            audio.currentTime >= audio.duration - 0.08;
+          if (nearEnd) return;
+        };
+        const cleanup = () => {
+          audio.removeEventListener("ended", onEnded);
+          audio.removeEventListener("error", onError);
+          audio.removeEventListener("pause", onPause);
+        };
+        audio.addEventListener("ended", onEnded);
+        audio.addEventListener("error", onError);
+        audio.addEventListener("pause", onPause);
+      });
 
-    if (generation !== this.playGeneration) {
-      throw new DOMException("Playback aborted", "AbortError");
-    }
-
-    if (this.playGeneration === generation) {
-      this.intendedPlaying = false;
-      this.syncMediaSession(false);
+      if (generation !== this.playGeneration) {
+        throw new DOMException("Playback aborted", "AbortError");
+      }
+    } finally {
+      if (this.playGeneration === generation) {
+        this.intendedPlaying = false;
+        this.syncMediaSession(false);
+        detachMarketingCursorAudio(audio);
+      }
     }
   }
 
@@ -225,6 +251,7 @@ export class MarketingAudioGraph {
     this.intendedPlaying = false;
     this.syncMediaSession(false);
     const audio = this.audio;
+    if (audio) detachMarketingCursorAudio(audio);
     if (!audio) return;
     audio.pause();
     try {
@@ -242,6 +269,7 @@ export class MarketingAudioGraph {
       this.keepAliveBound = false;
     }
     if (this.audio) {
+      detachMarketingCursorAudio(this.audio);
       this.audio.removeAttribute("src");
       this.audio.load();
       this.audio = null;

@@ -16,6 +16,7 @@ import {
 } from "@/lib/constants/notifications";
 import { NotificationPreferencesSection } from "@/components/settings/notification-preferences-section";
 import { FontPreferencesSection } from "@/components/settings/font-preferences-section";
+import { CursorPreferencesSection } from "@/components/settings/cursor-preferences-section";
 import { PreferencesSaveBar } from "@/components/settings/preferences-save-bar";
 import { UnsavedPreferencesDialog } from "@/components/settings/unsaved-preferences-dialog";
 import { parseReturnTo } from "@/lib/utils/dialect-preferences";
@@ -30,14 +31,22 @@ export function PreferencesScreenDesktop() {
   const searchParams = useSearchParams();
   const { dataset, progress } = useApp();
   const [uiFont, setUiFont] = useState<UiFont>(resolveUiFont(progress.settings.uiFont));
+  const [useStandardCursor, setUseStandardCursor] = useState(
+    Boolean(progress.settings.useStandardCursor)
+  );
   const [notifications, setNotifications] = useState<NotificationPreferences>(
     progress.settings.notifications ?? DEFAULT_NOTIFICATION_PREFERENCES
   );
 
   useEffect(() => {
     setUiFont(resolveUiFont(progress.settings.uiFont));
+    setUseStandardCursor(Boolean(progress.settings.useStandardCursor));
     setNotifications(progress.settings.notifications ?? DEFAULT_NOTIFICATION_PREFERENCES);
-  }, [progress.settings.uiFont, progress.settings.notifications]);
+  }, [
+    progress.settings.uiFont,
+    progress.settings.useStandardCursor,
+    progress.settings.notifications,
+  ]);
 
   useEffect(() => {
     document.documentElement.dataset.uiFont = uiFont;
@@ -51,6 +60,7 @@ export function PreferencesScreenDesktop() {
     showKansaiDialect: false,
     kansaiAsPrimary: false,
     uiFont,
+    useStandardCursor,
     notifications,
     returnTo,
   });
@@ -75,10 +85,15 @@ export function PreferencesScreenDesktop() {
       >
         <DesktopPageHeader
           title="Preferences"
-          subtitle="Font and notifications"
+          subtitle="Font, cursor, and notifications"
         />
 
         <FontPreferencesSection uiFont={uiFont} onChange={setUiFont} />
+
+        <CursorPreferencesSection
+          useStandardCursor={useStandardCursor}
+          onChange={setUseStandardCursor}
+        />
 
         <Card className="mb-6 p-4">
           <Label className="text-base">Notifications</Label>

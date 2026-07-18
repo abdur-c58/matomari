@@ -3,9 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { MarketingCustomCursor } from "@/components/marketing/custom-cursor";
 import { MarketingFooter } from "@/components/marketing/marketing-footer";
 import { MarketingNav } from "@/components/marketing/marketing-nav";
+import { marketingPricingTiers } from "@/lib/constants/marketing-pricing";
 import { cn } from "@/lib/utils";
 
 type BillingPeriod = "monthly" | "semiannual" | "annual";
@@ -20,11 +20,15 @@ const billingOptions: {
   { value: "annual", label: "Annual", note: "Save 42%" },
 ];
 
+/** Dummy Plus prices — monthly comes from marketingPricingTiers.plus.priceMonthly. */
 const plusPrices: Record<
   BillingPeriod,
   { monthly: number; billed: string; saving?: string }
 > = {
-  monthly: { monthly: 12, billed: "Billed monthly" },
+  monthly: {
+    monthly: marketingPricingTiers.plus.priceMonthly,
+    billed: "Billed monthly",
+  },
   semiannual: {
     monthly: 9,
     billed: "$54 billed every 6 months",
@@ -37,20 +41,8 @@ const plusPrices: Record<
   },
 };
 
-const freeFeatures = [
-  "The complete meaning → shadow → recall loop",
-  "A focused daily Dashboard",
-  "AI-built topic islands shaped to your needs",
-  "Sentence audio and progress tracking",
-];
-
-const plusFeatures = [
-  "Everything in Free",
-  "Expanded AI island generation limits",
-  "Offline-ready audio packages",
-  "Deeper progress and retention views",
-  "Priority access to future study tools",
-];
+const freeFeatures = [...marketingPricingTiers.free.features];
+const plusFeatures = [...marketingPricingTiers.plus.features];
 
 function PriceCard({
   plan,
@@ -140,8 +132,8 @@ function PriceCard({
             <>
               <div className="flex items-end gap-2">
                 <span className="font-display text-6xl font-semibold tracking-[-0.07em]">
-                  $0
-                </span>
+                    ${marketingPricingTiers.free.priceMonthly}
+                  </span>
                 <span className="pb-2 text-sm text-muted">forever</span>
               </div>
               <p className="mt-2 text-sm text-muted">
@@ -199,7 +191,6 @@ export function PricingPageExperience() {
 
   return (
     <div className="marketing-page pricing-page relative min-h-dvh overflow-hidden bg-background text-foreground">
-      <MarketingCustomCursor />
       <MarketingNav />
 
       <div className="pricing-aurora pricing-aurora--one" aria-hidden />
@@ -211,7 +202,7 @@ export function PricingPageExperience() {
         料金
       </span>
 
-      <main className="relative z-[2] mx-auto max-w-[1200px] px-4 pb-24 pt-32 sm:px-8 md:pt-40">
+      <main className="relative z-[2] mx-auto max-w-[1200px] px-4 pb-24 pt-[calc(8rem+env(safe-area-inset-top,0px))] sm:px-8 md:pt-40">
         <motion.header
           className="mx-auto max-w-3xl text-center"
           initial={{ opacity: 0, y: 30 }}

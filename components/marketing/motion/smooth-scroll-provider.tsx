@@ -3,7 +3,7 @@
 import {
   createContext,
   useContext,
-  useEffect,
+  useLayoutEffect,
   useState,
   type ReactNode,
 } from "react";
@@ -40,21 +40,17 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
     ready: false,
   });
 
-  useEffect(() => {
+  // useLayoutEffect so Lenis + `ready` settle before the browser paints —
+  // avoids one frame of unposed/stacked marketing layouts (FOUC).
+  useLayoutEffect(() => {
     let cancelled = false;
     let instance: Lenis | null = null;
     let ticker: ((time: number) => void) | null = null;
     let resizeTimer = 0;
 
-    const markReady = (next: SmoothScrollContextValue) => {
-      queueMicrotask(() => {
-        if (!cancelled) setValue(next);
-      });
-    };
-
     // Native scroll on mobile / reduced motion — Lenis only on desktop wheel.
     if (reduced || !isDesktop) {
-      markReady({ lenis: null, ready: true });
+      if (!cancelled) setValue({ lenis: null, ready: true });
       return () => {
         cancelled = true;
       };
@@ -73,12 +69,20 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
     document.documentElement.classList.add("lenis", "lenis-smooth");
     instance.on("scroll", ScrollTrigger.update);
 
+    // Browser may restore scroll before Lenis mounts — snap back on reload.
+    const nav = performance.getEntriesByType(
+      "navigation"
+    )[0] as PerformanceNavigationTiming | undefined;
+    if (nav?.type === "reload") {
+      instance.scrollTo(0, { immediate: true, force: true });
+    }
+
     ticker = (time: number) => {
       instance?.raf(time * 1000);
     };
     gsap.ticker.add(ticker);
     gsap.ticker.lagSmoothing(0);
-    markReady({ lenis: instance, ready: true });
+    if (!cancelled) setValue({ lenis: instance, ready: true });
 
     const onResize = () => {
       window.clearTimeout(resizeTimer);

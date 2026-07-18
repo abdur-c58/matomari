@@ -4,6 +4,7 @@ import { useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { MARKETING_DESKTOP_MQ } from "@/components/marketing/motion/easings";
+import { revealOnMobile } from "@/components/marketing/motion/mobile-scroll-reveal";
 import { useGsapContext } from "@/components/marketing/motion/use-gsap-context";
 import { NarrationTrial } from "@/components/marketing/trials/narration-trial";
 import { marketingNarration } from "@/lib/constants/marketing";
@@ -62,6 +63,16 @@ export function NarrationSection() {
       }
     });
 
+    revealOnMobile(mm, root, "[data-narration-copy]", {
+      y: 20,
+      start: "top 86%",
+    });
+    revealOnMobile(mm, root, "[data-narration-trial]", {
+      y: 28,
+      start: "top 88%",
+      duration: 0.8,
+    });
+
     return () => mm.revert();
   }, []);
 
@@ -69,7 +80,7 @@ export function NarrationSection() {
     <section
       ref={rootRef}
       id="narration"
-      className="relative overflow-hidden bg-background px-4 py-20 sm:px-8 md:py-28"
+      className="relative overflow-hidden bg-background px-4 py-14 sm:px-8 md:py-28"
     >
       <div
         className="pointer-events-none absolute inset-x-0 top-0 h-48 opacity-60"
@@ -80,19 +91,19 @@ export function NarrationSection() {
         }}
       />
 
-      <div className="relative mx-auto grid max-w-[1400px] gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-center lg:gap-14">
+      <div className="relative mx-auto grid max-w-[1400px] gap-7 lg:grid-cols-[0.95fr_1.05fr] lg:items-center lg:gap-14">
         <div data-narration-copy className="max-w-xl min-w-0">
           <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted">
             {marketingNarration.eyebrow}
           </p>
-          <h2 className="marketing-giant-type mt-4 text-[clamp(2.1rem,5vw,3.75rem)]">
+          <h2 className="marketing-giant-type mt-3 text-[clamp(1.95rem,5.5vw,3.75rem)] sm:mt-4">
             {marketingNarration.title}
           </h2>
-          <p className="mt-5 text-base leading-relaxed text-muted sm:text-lg">
+          <p className="mt-4 text-sm leading-relaxed text-muted sm:mt-5 sm:text-base md:text-lg">
             {marketingNarration.body}
           </p>
 
-          <ul className="mt-7 space-y-3">
+          <ul className="mt-5 space-y-2.5 sm:mt-7 sm:space-y-3">
             {marketingNarration.points.map((point) => (
               <li
                 key={point}
@@ -111,7 +122,7 @@ export function NarrationSection() {
 
         <div
           data-narration-trial
-          className="marketing-scene relative min-h-[40rem] min-w-0"
+          className="marketing-scene relative min-h-[32rem] min-w-0 sm:min-h-[36rem] md:min-h-[40rem]"
         >
           <div
             className="pointer-events-none absolute -inset-8 opacity-70 blur-3xl"
@@ -121,7 +132,7 @@ export function NarrationSection() {
                 "radial-gradient(ellipse at 50% 40%, color-mix(in srgb, var(--mode-listen) 34%, transparent), transparent 68%)",
             }}
           />
-          <div className="relative h-full min-h-[40rem] min-w-0">
+          <div className="relative h-full min-h-[32rem] min-w-0 sm:min-h-[36rem] md:min-h-[40rem]">
             <NarrationTrial accent={ACCENT} />
           </div>
         </div>

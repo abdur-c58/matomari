@@ -2,10 +2,11 @@
 
 /*
  * Visual rules:
- * - Light mode: warm washi paper (#d2c5a4) with sepia ink and paper grain
- * - Paper dark: warm low-light washi with cream ink and visible fibers
+ * - Washi light: warm paper (#d2c5a4) with sepia ink and paper grain
+ * - Washi dark (paper-dark): warm low-light washi with cream ink and fibers
+ * - True light: clean white counterpart to true dark — no washi grain
+ * - True dark: pure black (#000) — no washi grain
  * - Color accents only on modes, guide stripes, Today mesh, warnings, stars
- * - Ink black uses true black (#000) and remains available unchanged
  */
 
 :root {
@@ -459,6 +460,106 @@ html[data-theme="dark"] {
     0 0 12px rgba(255, 255, 255, 0.18);
 }
 
+/* True light — clean white counterpart to true dark (no washi grain). */
+html[data-theme="true-light"] {
+  color-scheme: light;
+  --background: #ffffff;
+  --surface: #f5f5f5;
+  --surface-raised: #ebebeb;
+  --border: #d4d4d4;
+  --border-subtle: #e5e5e5;
+  --foreground: #000000;
+  --muted: #525252;
+  --cta: #000000;
+  --cta-foreground: #ffffff;
+  --ring: #000000;
+  --disabled: color-mix(in srgb, var(--muted) 55%, var(--background));
+  --hover-fill: color-mix(in srgb, var(--foreground) 5%, var(--surface));
+
+  --primary: var(--cta);
+  --primary-hover: var(--foreground);
+  --accent: var(--mode-listen);
+  --ink: var(--foreground);
+  --paper: var(--background);
+  --mist: var(--border-subtle);
+  --sage: var(--cta);
+  --amber: var(--warning);
+  --coral: var(--destructive);
+
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 12px -2px rgb(0 0 0 / 0.08);
+  --shadow-lg: 0 12px 24px -4px rgb(0 0 0 / 0.1);
+
+  --scrollbar-thumb: color-mix(in srgb, var(--foreground) 16%, transparent);
+  --scrollbar-thumb-hover: color-mix(in srgb, var(--foreground) 28%, transparent);
+
+  --selection-bg: var(--foreground);
+  --selection-fg: var(--background);
+  --caret: var(--foreground);
+
+  /* Soft pastel echo of the true-dark purple/pink mesh */
+  --page-mesh-base: #f7f4ff;
+  --page-mesh-overlay-1: rgba(236, 72, 153, 0.22);
+  --page-mesh-overlay-2: rgba(251, 191, 36, 0.2);
+  --page-mesh-overlay-3: rgba(167, 139, 250, 0.22);
+  --page-mesh-overlay-4: rgba(129, 140, 248, 0.2);
+  --page-mesh-overlay-5: rgba(244, 114, 182, 0.18);
+  --page-mesh-overlay-6: rgba(255, 255, 255, 0.82);
+  --page-mesh-fade-mid-1: color-mix(in srgb, var(--background) 12%, transparent);
+  --page-mesh-fade-mid-2: color-mix(in srgb, var(--background) 42%, transparent);
+  --page-mesh-fade-mid-3: color-mix(in srgb, var(--background) 76%, transparent);
+  --page-mesh-grain-opacity: 0.12;
+  --page-mesh-grain-blend: multiply;
+
+  --hero-base: #f7f4ff;
+  --hero-overlay-1: rgba(236, 72, 153, 0.24);
+  --hero-overlay-2: rgba(251, 191, 36, 0.22);
+  --hero-overlay-3: rgba(167, 139, 250, 0.24);
+  --hero-overlay-4: rgba(129, 140, 248, 0.22);
+  --hero-overlay-5: rgba(244, 114, 182, 0.2);
+  --hero-overlay-6: rgba(255, 255, 255, 0.85);
+  --hero-fade-1: color-mix(in srgb, var(--background) 10%, transparent);
+  --hero-fade-2: color-mix(in srgb, var(--background) 40%, transparent);
+  --hero-fade-3: color-mix(in srgb, var(--background) 74%, transparent);
+  --hero-foreground: #000000;
+  --hero-muted: rgba(0, 0, 0, 0.58);
+  --hero-subtitle: rgba(0, 0, 0, 0.88);
+  --hero-kanji: rgba(0, 0, 0, 0.1);
+  --hero-kanji-shadow: 0 2px 24px rgba(255, 255, 255, 0.8), 0 0 1px rgba(0, 0, 0, 0.06);
+  --hero-sync-border: rgba(0, 0, 0, 0.1);
+  --hero-sync-bg: rgba(255, 255, 255, 0.78);
+  --hero-sync-fg: rgba(0, 0, 0, 0.78);
+  --hero-icon-fg: rgba(0, 0, 0, 0.7);
+  --hero-icon-hover-bg: rgba(0, 0, 0, 0.05);
+  --hero-icon-hover-fg: #000000;
+  --hero-grain-opacity: 0.1;
+  --hero-grain-blend: multiply;
+  --hero-panel-border: rgba(0, 0, 0, 0.1);
+  --hero-panel-bg: rgba(255, 255, 255, 0.82);
+  --hero-panel-title: rgba(0, 0, 0, 0.55);
+  --hero-panel-fg: rgba(0, 0, 0, 0.9);
+  --hero-panel-muted: rgba(0, 0, 0, 0.5);
+  --hero-panel-chip-bg: rgba(0, 0, 0, 0.06);
+  --hero-panel-chip-fg: rgba(0, 0, 0, 0.88);
+  --hero-panel-check: #059669;
+
+  --mobile-top-shadow: 0 5px 8px -7px color-mix(in srgb, var(--foreground) 10%, transparent);
+  --mobile-top-gradient-tail: transparent;
+  --mobile-page-top-shadow: 0 6px 9px -7px rgba(0, 0, 0, 0.08);
+  --mobile-page-top-gradient-tail: transparent;
+
+  --surface-grain-opacity: 0.08;
+  --surface-grain-blend: multiply;
+  --surface-grain-pathway-opacity: 0.2;
+  --surface-grain-pathway-bg: color-mix(in srgb, #e87b35 12%, transparent);
+
+  --study-grain-opacity: 0.12;
+  --study-grain-blend: multiply;
+  --browse-selected-shadow:
+    0 0 0 2px color-mix(in srgb, var(--foreground) 18%, transparent),
+    0 0 12px color-mix(in srgb, var(--foreground) 8%, transparent);
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-surface: var(--surface);
@@ -538,8 +639,11 @@ body {
   caret-color: var(--caret);
 }
 
-/* Global washi paper grain — light and warm paper-dark themes */
-html:not([data-theme="dark"]) body::before {
+/* Global washi paper grain — washi family only (not true light/dark) */
+html:is([data-theme="light"], [data-theme="paper-dark"]):not([data-theme-family="normal"])
+  body::before,
+html[data-theme-family="washi"] body::before,
+html:not([data-theme]):not([data-theme-family]) body::before {
   content: "";
   position: fixed;
   inset: 0;
@@ -552,7 +656,8 @@ html:not([data-theme="dark"]) body::before {
   background-repeat: repeat;
 }
 
-html[data-theme="dark"] body::before {
+html:is([data-theme="dark"], [data-theme="true-light"]) body::before,
+html[data-theme-family="normal"] body::before {
   content: none;
 }
 
@@ -1870,12 +1975,14 @@ html[data-theme="paper-dark"] .narration-island-card {
   color: #ede9fe;
 }
 
-html[data-theme="light"] .essentials-island-badge {
+html[data-theme="light"] .essentials-island-badge,
+html[data-theme="true-light"] .essentials-island-badge {
   background: color-mix(in srgb, #a11f2a 16%, transparent);
   color: #a11f2a;
 }
 
-html[data-theme="light"] .narration-island-badge {
+html[data-theme="light"] .narration-island-badge,
+html[data-theme="true-light"] .narration-island-badge {
   background: color-mix(in srgb, #9b87c7 22%, transparent);
   color: #6f5b9e;
 }

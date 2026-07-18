@@ -97,6 +97,8 @@ export function IslandsIllustration({ className }: IllustrationProps) {
 
 export function AudioIllustration({ className }: IllustrationProps) {
   const bars = [42, 72, 98, 58, 118, 82, 48, 104, 66, 90, 52];
+  const barWidth = 9;
+  const strokeOffset = 3;
   return (
     <svg
       viewBox="0 0 300 220"
@@ -105,11 +107,6 @@ export function AudioIllustration({ className }: IllustrationProps) {
       aria-label="Animated shadowing waveform"
     >
       <defs>
-        <linearGradient id="audio-gradient" x1="0" y1="0" x2="1" y2="0">
-          <stop stopColor="var(--mode-listen)" />
-          <stop offset=".55" stopColor="color-mix(in srgb, var(--mode-listen) 60%, white)" />
-          <stop offset="1" stopColor="var(--mode-meaning)" />
-        </linearGradient>
         <filter id="audio-glow" x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="7" result="blur" />
           <feMerge>
@@ -131,20 +128,38 @@ export function AudioIllustration({ className }: IllustrationProps) {
         <circle cx="150" cy="110" r="68" fill="none" stroke="var(--mode-listen)" strokeWidth="2" opacity=".35" />
         <circle cx="150" cy="110" r="84" fill="none" stroke="var(--mode-listen)" strokeWidth="1.5" opacity=".16" />
       </g>
-      <g data-illustration-part className="marketing-waveform" filter="url(#audio-glow)">
-        {bars.map((height, index) => (
-          <rect
-            key={index}
-            className="marketing-wave-bar"
-            style={{ animationDelay: `${index * -80}ms` }}
-            x={65 + index * 17}
-            y={110 - height / 2}
-            width="9"
-            height={height}
-            rx="4.5"
-            fill="url(#audio-gradient)"
-          />
-        ))}
+      <g data-illustration-part className="marketing-waveform">
+        {bars.map((height, index) => {
+          const x = 65 + index * 17;
+          const y = 110 - height / 2;
+          return (
+            <g
+              key={index}
+              className="marketing-wave-bar"
+              style={{ animationDelay: `${index * -80}ms` }}
+            >
+              <rect
+                x={x + strokeOffset}
+                y={y + strokeOffset}
+                width={barWidth}
+                height={height}
+                rx={barWidth / 2}
+                fill="none"
+                stroke="color-mix(in srgb, var(--mode-listen) 45%, var(--foreground))"
+                strokeWidth="1.75"
+                opacity="0.35"
+              />
+              <rect
+                x={x}
+                y={y}
+                width={barWidth}
+                height={height}
+                rx={barWidth / 2}
+                fill="color-mix(in srgb, var(--mode-listen) 38%, var(--background))"
+              />
+            </g>
+          );
+        })}
       </g>
       <g data-illustration-part className="marketing-svg-layer marketing-svg-layer-front">
         <circle cx="150" cy="110" r="28" fill="var(--surface)" stroke="var(--mode-listen)" strokeWidth="3" />

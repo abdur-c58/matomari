@@ -7,7 +7,7 @@ export const MARKETING_VIDEO = {
 } as const;
 
 export const marketingHero = {
-  eyebrow: "Japanese for real use",
+  eyebrow: "",
   title: "A daily loop built around your life.",
   subtitle:
     "Tell Kotoshima what you need Japanese for. AI shapes real sentences around your goals, interests, level, and daily life.",
@@ -18,13 +18,41 @@ export const marketingHero = {
 
 export const marketingProblem = {
   eyebrow: "The gap",
-  title: "Be ready to say it.",
-  body: "Generic phrases only take you so far. Kotoshima helps you practice the Japanese your life actually calls for — then trains the useful test: can you say it when you need it?",
-  cards: [
-    { label: "Seen before", detail: "Familiar on the page" },
-    { label: "Sounds familiar", detail: "Recognized in audio" },
-    { label: "Hard to produce", detail: "Missing when speaking" },
-  ],
+  title: "Textbooks teach grammar. Life asks different questions.",
+  body: "Kotoshima trains the sentences real situations actually call for — the ones you'd normally only pick up after months of mistakes and corrections. Learn them straight, and be ready to say it when it counts.",
+  gapDemo: {
+    stages: [
+      {
+        situation: "Splitting a bill",
+        confidence: "You can ask how much something costs.",
+        moment: "Dinner's over. Four people, one check.",
+        gap: 'You don\'t know how to say "separately."',
+        real: "別々に払えますか。",
+        meaning: "Can we pay separately?",
+        audioSrc: "/assets/marketing/gap-03.mp3",
+        payoff: "Two words your textbook skipped. The ones that save the moment.",
+      },
+      {
+        situation: "Asking someone to slow down",
+        confidence: "You can conjugate verbs. You can describe your day.",
+        moment: "Someone just answered you — too fast to follow.",
+        gap: "You smile. You nod. You understood nothing.",
+        real: "もう少しゆっくり話していただけますか。",
+        meaning: "Could you speak a little more slowly?",
+        audioSrc: "/assets/marketing/gap-02.mp3",
+        payoff: "This is what gets you the second try!",
+      },
+    ],
+    /** Shown under each Japanese reveal so hover/click isn't missed. */
+    playHint: "Hover · click to play",
+    playHintTouch: "Tap the Japanese to play",
+    closing: [
+      "You don't need fluency to walk into these moments with confidence.",
+      "You need the right sentences — ready before you need them.",
+      "That's what Kotoshima trains: not grammar drills, but the moments themselves.",
+    ],
+    bridge: "Here's what we mean.",
+  },
 } as const;
 
 export const marketingDailyLoop = {
@@ -54,7 +82,7 @@ export const marketingDailyLoop = {
       id: "review",
       accent: "var(--mode-review)",
       title: "Review retired sentences",
-      description: "Bring confident sentences back at widening intervals so they remain available.",
+      description: "Bring confident sentences back at widening intervals so they remain available and wired to your subconscious.",
     },
   ],
 } as const;
@@ -82,19 +110,24 @@ export const marketingHorizontalFeatures = [
     id: "sharing",
     eyebrow: "Island sharing",
     title: "Create a link. Copy it.",
-    body: "Anyone signed in with the link can preview and import a live read-only copy. Regenerating replaces the link; existing copies stay in libraries.",
-    points: ["Share links for signed-in previews", "Live read-only import", "Clone later if you want to edit"],
+    body: "Share what you've built with a friend, a study group, or your classroom — they can try it instantly, no account needed to preview.",
+    points: [
+      "Share with friends, study groups, or classrooms",
+      "Instant preview — no account required",
+      "Clone later if you want to edit",
+    ],
   },
 ] as const;
 
 export const marketingNarration = {
   eyebrow: "AI-generated conversations",
-  title: "Two voices. One scene.",
-  body: "Describe a conversation you want to handle. Kotoshima turns it into a natural two-person scene you can listen to, shadow, and say out loud.",
+  title: "Two voices. One scene. Casual speech.",
+  body: "Describe a conversation/theme you want to handle. Kotoshima generates a natural two-person scene you can listen to, shadow, and say out loud.",
   points: [
     "Build scenes for your real plans and relationships",
     "Choose your level, tone, and conversation depth",
     "Practice natural back-and-forth instead of isolated phrases",
+    "Generate conversations that last for as long as you need."
   ],
 } as const;
 
@@ -111,13 +144,12 @@ export const marketingSocialProofPlaceholder = {
   body: "No testimonials, user counts, or review scores yet. Replace this block when real feedback is ready — do not invent quotes or numbers.",
 } as const;
 
-export const marketingPricingPlaceholder = {
-  tag: "[PRICING_TODO]",
-  eyebrow: "Plans",
-  title: "Pricing details coming soon.",
-  body: "Kotoshima is free to use today. Formal plan tiers are not defined in the product yet — fill this section when billing exists.",
-  note: "LICENSE.md currently states: “Kotoshima is free to use.”",
-} as const;
+// Pricing copy + dummy tier prices live in marketing-pricing.ts (single swap point).
+export {
+  marketingPricingSection,
+  marketingPricingTiers,
+  marketingPricingPlaceholder,
+} from "@/lib/constants/marketing-pricing";
 
 export const marketingCta = {
   title: "Build Japanese around your life.",
@@ -128,11 +160,13 @@ export const marketingCta = {
 export const marketingFooter = {
   tagline: "Personalized Japanese learning through language islands",
   links: [
+    { label: "The gap", href: "/", section: "problem" },
     { label: "Features", href: "/", section: "features" },
+    { label: "Islands", href: "/", section: "islands" },
     { label: "Narration", href: "/", section: "narration" },
     { label: "Walkthrough", href: "/", section: "walkthrough" },
+    { label: "Pricing", href: "/", section: "pricing" },
     { label: "Sign in", href: "/today" },
-    { label: "Pricing", href: "/pricing" },
     { label: "Privacy", href: "/privacy" },
     { label: "Terms", href: "/terms" },
   ],

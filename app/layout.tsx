@@ -98,7 +98,12 @@ export default function RootLayout({
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var m=localStorage.getItem("kotoshima-theme-mode");m=m==="light"||m==="paper-dark"||m==="dark"||m==="system"?m:"system";var sd=window.matchMedia("(prefers-color-scheme: dark)").matches;var t=m==="system"?(sd?"paper-dark":"light"):m;document.documentElement.dataset.theme=t;document.documentElement.dataset.themeMode=m;document.documentElement.style.colorScheme=t==="light"?"light":"dark";}catch(e){}})();`,
+            __html: `(function(){try{var m=localStorage.getItem("kotoshima-theme-mode");m=m==="light"||m==="paper-dark"||m==="true-light"||m==="dark"||m==="system"?m:"system";var sd=window.matchMedia("(prefers-color-scheme: dark)").matches;var t=m==="system"?(sd?"paper-dark":"light"):m;var f=t==="light"||t==="paper-dark"?"washi":"normal";var p=t==="light"||t==="true-light"?"light":"dark";document.documentElement.dataset.theme=t;document.documentElement.dataset.themeMode=m;document.documentElement.dataset.themeFamily=f;document.documentElement.dataset.themePolarity=p;document.documentElement.style.colorScheme=p;}catch(e){}})();`,
+          }}
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{if("scrollRestoration" in history)history.scrollRestoration="manual";var n=performance.getEntriesByType&&performance.getEntriesByType("navigation")[0];var reload=(n&&n.type==="reload")||(performance.navigation&&performance.navigation.type===1);if(!reload)return;if(location.hash)history.replaceState(null,"",location.pathname+location.search);try{sessionStorage.removeItem("marketing-pending-section")}catch(e){}window.scrollTo(0,0);document.documentElement.scrollTop=0;document.body&&(document.body.scrollTop=0);}catch(e){}})();`,
           }}
         />
       </head>

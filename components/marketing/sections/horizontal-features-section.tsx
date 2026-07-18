@@ -370,6 +370,7 @@ export function HorizontalFeaturesSection() {
   return (
     <section
       ref={rootRef}
+      id="islands"
       className="relative overflow-hidden bg-background"
       aria-label="Islands, audio, and sharing"
     >
@@ -483,7 +484,7 @@ export function HorizontalFeaturesSection() {
             <article
               key={feature.id}
               data-feature-mobile-scene
-              className="relative flex min-h-[88svh] flex-col justify-center overflow-hidden px-4 py-16 sm:px-8"
+              className="relative flex min-h-[72svh] flex-col justify-center overflow-hidden px-4 py-12 sm:min-h-[88svh] sm:px-8 sm:py-16"
             >
               <div
                 className="pointer-events-none absolute inset-0 opacity-70"

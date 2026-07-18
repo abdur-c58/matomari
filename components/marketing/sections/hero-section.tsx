@@ -147,6 +147,7 @@ export function HeroSection() {
   return (
     <section
       ref={rootRef}
+      id="hero"
       className="marketing-hero relative isolate min-h-[100svh] overflow-hidden"
     >
       <div className="marketing-hero-field absolute inset-0" aria-hidden />
@@ -160,7 +161,7 @@ export function HeroSection() {
         {marketingHero.brandJp}
       </span>
 
-      <div className="relative mx-auto grid max-w-[1400px] gap-12 px-4 pb-14 pt-28 sm:px-8 md:min-h-[100svh] md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] md:items-center md:gap-3 md:py-24">
+      <div className="relative mx-auto grid max-w-[1400px] gap-8 px-4 pb-10 pt-[calc(5.5rem+env(safe-area-inset-top,0px))] sm:px-8 md:min-h-[100svh] md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] md:items-center md:gap-3 md:py-24 md:pt-24">
         <div>
           <p
             data-hero-enter
@@ -176,17 +177,17 @@ export function HeroSection() {
           </p>
           <h1
             data-hero-enter
-            className="marketing-giant-type mt-3 max-w-[14ch] text-[clamp(2.8rem,7.5vw,5.5rem)] text-foreground"
+            className="marketing-giant-type mt-3 max-w-[14ch] text-[clamp(2.35rem,8vw,5.5rem)] text-foreground"
           >
             {marketingHero.title}
           </h1>
           <p
             data-hero-enter
-            className="mt-6 max-w-md text-base leading-relaxed text-muted sm:text-lg"
+            className="mt-4 max-w-md text-sm leading-relaxed text-muted sm:mt-6 sm:text-base md:text-lg"
           >
             {marketingHero.subtitle}
           </p>
-          <div data-hero-enter className="mt-9 flex flex-wrap items-center gap-3">
+          <div data-hero-enter className="mt-7 flex flex-wrap items-center gap-3 sm:mt-9">
             <MarketingAuthCta
               size="lg"
               signedOutLabel={marketingHero.primaryCta}
