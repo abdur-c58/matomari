@@ -15,6 +15,30 @@ import { useApp } from "@/components/providers/app-provider";
 import { OnboardingOverlay } from "@/components/onboarding/onboarding-overlay";
 import { onboardingSteps } from "@/lib/content/onboarding-steps";
 
+/**
+ * localStorage key used as a fast, synchronous guard.
+ * Written when the user completes or skips onboarding on *any* device, and
+ * also kept in sync with the Supabase-backed progress field so cross-device
+ * sign-ins are covered once the remote pull arrives.
+ */
+const LS_DONE_KEY = "kotoshima-onboarding-done";
+
+function lsGetDone(): boolean {
+  try {
+    return localStorage.getItem(LS_DONE_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function lsSetDone() {
+  try {
+    localStorage.setItem(LS_DONE_KEY, "1");
+  } catch {
+    // private-browsing / SSR — safe to ignore
+  }
+}
+
 type OnboardingContextValue = {
   isOpen: boolean;
   stepIndex: number;
@@ -57,6 +81,10 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
 
   const completeOnboarding = useCallback(async () => {
     manualReplayRef.current = false;
+    // Write localStorage immediately — before the async Supabase save — so the
+    // overlay can never re-appear even if the user navigates away and back
+    // before the sync cycle has flushed the completion to the cloud.
+    lsSetDone();
     setIsOpen(false);
     setStepIndex(0);
     if (!progress.settings.onboardingCompleted) {
@@ -87,12 +115,29 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     setStepIndex(index);
   }, []);
 
+  // Keep the localStorage flag in sync with Supabase progress so that
+  // cross-device sign-ins are covered once the remote pull arrives.
+  useEffect(() => {
+    if (progress.settings.onboardingCompleted === true) {
+      lsSetDone();
+    }
+  }, [progress.settings.onboardingCompleted]);
+
   useEffect(() => {
     if (loading) return;
     if (autoTriggeredRef.current) return;
     if (manualReplayRef.current) return;
     if (pathname.startsWith("/settings/preferences")) return;
     if (progress.settings.onboardingCompleted !== false) return;
+
+    // Fast synchronous guard: localStorage says the user has completed
+    // onboarding on this device.  Skip the overlay even if the Supabase pull
+    // hasn't updated progress yet — the merge-remote-progress fix will correct
+    // the value on the next cycle and this effect won't re-fire.
+    if (lsGetDone()) {
+      autoTriggeredRef.current = true;
+      return;
+    }
 
     autoTriggeredRef.current = true;
     setStepIndex(0);
