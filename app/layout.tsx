@@ -38,13 +38,18 @@ export const viewport: Viewport = {
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ??
   (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+const ogImageUrl = new URL("/og.png", siteUrl).toString();
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: APP_FULL_TITLE,
   description: APP_DESCRIPTION,
   manifest: "/manifest.json",
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
+    url: siteUrl,
     title: APP_FULL_TITLE,
     description: APP_DESCRIPTION,
     siteName: APP_SHORT_TITLE,
@@ -52,7 +57,7 @@ export const metadata: Metadata = {
     locale: "en_US",
     images: [
       {
-        url: "/og.png",
+        url: ogImageUrl,
         width: 1200,
         height: 630,
         alt: "Matomari — まとまり",
@@ -63,7 +68,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: APP_FULL_TITLE,
     description: APP_DESCRIPTION,
-    images: ["/og.png"],
+    images: [ogImageUrl],
   },
   appleWebApp: {
     capable: true,
@@ -97,6 +102,11 @@ export default function RootLayout({
   return (
     <html lang="en" className="antialiased" data-ui-font="bitter" suppressHydrationWarning>
       <head>
+        <meta property="og:image" content={ogImageUrl} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="Matomari — まとまり" />
+        <meta name="twitter:image" content={ogImageUrl} />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var m=localStorage.getItem("matomari-theme-mode");m=m==="light"||m==="paper-dark"||m==="true-light"||m==="dark"||m==="system"?m:"system";var sd=window.matchMedia("(prefers-color-scheme: dark)").matches;var t=m==="system"?(sd?"paper-dark":"light"):m;var f=t==="light"||t==="paper-dark"?"washi":"normal";var p=t==="light"||t==="true-light"?"light":"dark";document.documentElement.dataset.theme=t;document.documentElement.dataset.themeMode=m;document.documentElement.dataset.themeFamily=f;document.documentElement.dataset.themePolarity=p;document.documentElement.style.colorScheme=p;}catch(e){}})();`,
