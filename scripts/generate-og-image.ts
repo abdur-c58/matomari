@@ -1,9 +1,9 @@
 import sharp from "sharp";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { TRANSPARENT_OUT, WHITE_BG, writeBrandCoreAssets } from "./brand-asset-utils";
 
 const ROOT = path.join(import.meta.dirname, "..");
-const SOURCE = path.join(ROOT, "public", "readmeimage.png");
 const OUT = path.join(ROOT, "public", "og.png");
 const FONT_BOLD = path.join(
   ROOT,
@@ -24,7 +24,7 @@ const FONT_REGULAR = path.join(
 
 const WIDTH = 1200;
 const HEIGHT = 630;
-const BG = "#000000";
+const BG = "#f6f0e5";
 
 async function fontBase64(filePath: string): Promise<string> {
   const buf = await readFile(filePath);
@@ -32,13 +32,15 @@ async function fontBase64(filePath: string): Promise<string> {
 }
 
 async function main() {
+  await writeBrandCoreAssets();
+
   const [boldB64, regularB64, logoBuf] = await Promise.all([
     fontBase64(FONT_BOLD),
     fontBase64(FONT_REGULAR),
-    readFile(SOURCE),
+    readFile(TRANSPARENT_OUT),
   ]);
 
-  const logoHeight = 380;
+  const logoHeight = 360;
   const logo = await sharp(logoBuf)
     .resize({ height: logoHeight, fit: "contain", background: BG })
     .png()
@@ -62,18 +64,15 @@ async function main() {
       }
     </style>
   </defs>
-  <rect x="0" y="${HEIGHT - 4}" width="${WIDTH / 4}" height="4" fill="#3b82f6"/>
-  <rect x="${WIDTH / 4}" y="${HEIGHT - 4}" width="${WIDTH / 4}" height="4" fill="#8b5cf6"/>
-  <rect x="${WIDTH / 2}" y="${HEIGHT - 4}" width="${WIDTH / 4}" height="4" fill="#f59e0b"/>
-  <rect x="${(WIDTH * 3) / 4}" y="${HEIGHT - 4}" width="${WIDTH / 4}" height="4" fill="#10b981"/>
-  <text x="560" y="248" font-family="RHD" font-weight="700" font-size="88" fill="#ffffff">Matomari</text>
-  <text x="560" y="312" font-family="RHD" font-weight="400" font-size="36" fill="#a3a3a3">Japanese Learning</text>
-  <line x1="560" y1="348" x2="1120" y2="348" stroke="#262626" stroke-width="2"/>
-  <text x="560" y="404" font-family="RHD" font-weight="400" font-size="28" fill="#737373">Personalized Japanese learning through language scenes</text>
-  <text x="560" y="468" font-family="RHD" font-weight="400" font-size="22" fill="#525252">Listen · Shadow · Recall · Language scenes</text>
+  <rect x="34" y="34" width="${WIDTH - 68}" height="${HEIGHT - 68}" rx="28" fill="#fbf7ef" stroke="#d9cdb6" stroke-width="2"/>
+  <text x="540" y="232" font-family="RHD" font-weight="700" font-size="88" fill="#1f170f">Matomari</text>
+  <text x="540" y="292" font-family="RHD" font-weight="400" font-size="34" fill="#6f6356">Japanese learning through language scenes</text>
+  <line x1="540" y1="328" x2="1070" y2="328" stroke="#d9cdb6" stroke-width="2"/>
+  <text x="540" y="390" font-family="RHD" font-weight="400" font-size="26" fill="#594e42">Listen · Shadow · Recall</text>
+  <text x="540" y="438" font-family="RHD" font-weight="400" font-size="26" fill="#594e42">Create scenes · Build fluency · Study daily</text>
 </svg>`);
 
-  const logoLeft = 80;
+  const logoLeft = 92;
   const logoTop = Math.round((HEIGHT - logoHeight) / 2);
 
   await sharp({
@@ -81,7 +80,7 @@ async function main() {
       width: WIDTH,
       height: HEIGHT,
       channels: 4,
-      background: BG,
+      background: WHITE_BG,
     },
   })
     .composite([

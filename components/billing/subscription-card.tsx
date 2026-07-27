@@ -159,12 +159,20 @@ export function SubscriptionCard() {
   const sub = data.subscription;
   const isPaid = hasMinTier(effective, "plus");
   const cancelScheduled = Boolean(sub?.cancelAtPeriodEnd && isPaid);
+  const paymentFailed = sub?.status === "past_due" && !isPaid;
 
   return (
     <Card className="mb-6 space-y-4 p-4">
       {confirming && (
         <p className="rounded-lg bg-surface-raised px-3 py-2 text-sm text-muted">
           Confirming your subscription…
+        </p>
+      )}
+
+      {paymentFailed && (
+        <p className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-foreground">
+          Your last payment didn&apos;t go through, so Plus/Pro access has ended.
+          Your scenes are still saved — resubscribe to unlock them again.
         </p>
       )}
 
@@ -214,13 +222,13 @@ export function SubscriptionCard() {
           <>
             <Button type="button" size="sm" asChild>
               <Link href="/billing/checkout?plan=plus">
-                Upgrade to Plus (
+                {paymentFailed ? "Resubscribe to Plus" : "Upgrade to Plus"} (
                 {data.plusPriceLabel ?? formatUsd(PLUS_PRICE_MONTHLY_USD)}/mo)
               </Link>
             </Button>
             <Button type="button" size="sm" variant="secondary" asChild>
               <Link href="/billing/checkout?plan=pro">
-                Upgrade to Pro (
+                {paymentFailed ? "Resubscribe to Pro" : "Upgrade to Pro"} (
                 {data.proPriceLabel ?? formatUsd(PRO_PRICE_MONTHLY_USD)}/mo)
               </Link>
             </Button>

@@ -14,6 +14,7 @@ import {
 import { hasMinTier, type SubscriptionTierId } from "@/lib/constants/entitlements";
 import {
   finalizeDowngradeToFree,
+  finalizePaymentFailedDowngrade,
   getUserSubscriptionAdmin,
   upsertUserSubscriptionAdmin,
   type SubscriptionStatus,
@@ -284,6 +285,13 @@ export class PaddleBillingProvider implements BillingProvider {
         break;
       }
       case "customer.subscription.updated": {
+        if (event.data.status === "past_due") {
+          await finalizePaymentFailedDowngrade(userId, {
+            customerId: event.data.customerId,
+            subscriptionId: event.data.subscriptionId,
+          });
+          break;
+        }
         await upsertUserSubscriptionAdmin({
           userId,
           tier: event.data.tier ?? existing?.tier ?? "plus",
@@ -304,18 +312,9 @@ export class PaddleBillingProvider implements BillingProvider {
         break;
       }
       case "invoice.payment_failed": {
-        await upsertUserSubscriptionAdmin({
-          userId,
-          tier: event.data.tier ?? existing?.tier ?? "plus",
-          status: "past_due",
-          paddleCustomerId:
-            event.data.customerId ?? existing?.paddleCustomerId ?? null,
-          paddleSubscriptionId:
-            event.data.subscriptionId ?? existing?.paddleSubscriptionId ?? null,
-          currentPeriodEnd:
-            event.data.currentPeriodEnd ?? existing?.currentPeriodEnd ?? null,
-          cancelAtPeriodEnd:
-            event.data.cancelAtPeriodEnd ?? existing?.cancelAtPeriodEnd ?? false,
+        await finalizePaymentFailedDowngrade(userId, {
+          customerId: event.data.customerId,
+          subscriptionId: event.data.subscriptionId,
         });
         break;
       }
@@ -326,11 +325,28 @@ export class PaddleBillingProvider implements BillingProvider {
 
   async handlePaddleEvent(event: EventEntity): Promise<void> {
     switch (event.eventType) {
+      case EventName.SubscriptionPastDue: {
+        const data = event.data;
+        const userId =
+          customDataString(
+            data.customData as Record<string, unknown> | null,
+            "userId"
+          ) || null;
+        if (!userId) {
+          console.warn("paddle subscription.past_due missing userId", data.id);
+          return;
+        }
+        await finalizePaymentFailedDowngrade(userId, {
+          customerId: data.customerId,
+          subscriptionId: data.id,
+        });
+        break;
+      }
+
       case EventName.SubscriptionActivated:
       case EventName.SubscriptionCreated:
       case EventName.SubscriptionTrialing:
       case EventName.SubscriptionUpdated:
-      case EventName.SubscriptionPastDue:
       case EventName.SubscriptionResumed: {
         const data = event.data;
         const userId =
@@ -343,11 +359,16 @@ export class PaddleBillingProvider implements BillingProvider {
           return;
         }
 
+        if (data.status === "past_due") {
+          await finalizePaymentFailedDowngrade(userId, {
+            customerId: data.customerId,
+            subscriptionId: data.id,
+          });
+          break;
+        }
+
         const cancelAtPeriodEnd = cancelScheduled(data);
-        const status =
-          event.eventType === EventName.SubscriptionPastDue
-            ? "past_due"
-            : mapPaddleStatus(data.status);
+        const status = mapPaddleStatus(data.status);
 
         await syncSubscriptionRow({
           userId,
@@ -365,7 +386,8 @@ export class PaddleBillingProvider implements BillingProvider {
           cancelAtPeriodEnd,
           clearUnlockKeys:
             event.eventType === EventName.SubscriptionActivated ||
-            event.eventType === EventName.SubscriptionCreated,
+            event.eventType === EventName.SubscriptionCreated ||
+            status === "active",
         });
         break;
       }
@@ -395,15 +417,9 @@ export class PaddleBillingProvider implements BillingProvider {
           ) || null;
         if (!userId || !subscriptionId) return;
 
-        const existing = await getUserSubscriptionAdmin(userId);
-        await upsertUserSubscriptionAdmin({
-          userId,
-          tier: existing?.tier ?? "plus",
-          status: "past_due",
-          paddleCustomerId: data.customerId ?? existing?.paddleCustomerId ?? null,
-          paddleSubscriptionId: subscriptionId,
-          currentPeriodEnd: existing?.currentPeriodEnd ?? null,
-          cancelAtPeriodEnd: existing?.cancelAtPeriodEnd ?? false,
+        await finalizePaymentFailedDowngrade(userId, {
+          customerId: data.customerId,
+          subscriptionId,
         });
         break;
       }

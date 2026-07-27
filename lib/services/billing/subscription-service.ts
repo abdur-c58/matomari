@@ -96,12 +96,12 @@ async function selectSubscription(
     .maybeSingle();
 }
 
-/** Lazy period-end downgrade for canceled-at-period-end Plus/Pro. */
+/** Paid access only while billing is active — no grace for failed payments. */
 export function computeEffectiveTier(
   sub: UserSubscriptionRow | null
 ): SubscriptionTierId {
   if (!sub || !hasMinTier(sub.tier, "plus")) return "free";
-  if (sub.status === "active" || sub.status === "past_due") return sub.tier;
+  if (sub.status === "active") return sub.tier;
   if (
     sub.status === "canceled" &&
     sub.cancelAtPeriodEnd &&
@@ -208,6 +208,41 @@ export async function finalizeDowngradeToTier(
 }
 
 /**
+ * Failed payment: revoke Plus/Pro access immediately (no grace).
+ * Scene data stays in the library; resubscribing clears unlock caps again.
+ */
+export async function finalizePaymentFailedDowngrade(
+  userId: string,
+  paddle?: { customerId?: string | null; subscriptionId?: string | null }
+): Promise<UserSubscriptionRow | null> {
+  const existing = await ensureUserSubscriptionAdmin(userId);
+  const [library, progress] = await Promise.all([
+    fetchRemoteLibraryAdmin(userId),
+    fetchRemoteProgressAdmin(userId),
+  ]);
+  const ownedKeys = Object.keys(library?.data?.scenes ?? {});
+  const unlocked = resolveFreeUnlockedSceneKeys({
+    ownedKeys,
+    lastOpened: progress?.data?.studyUnitLastOpened ?? null,
+    storedKeys: existing?.unlockedSceneKeys ?? [],
+    max: ENTITLEMENTS.free.maxScenes,
+  });
+
+  return upsertUserSubscriptionAdmin({
+    userId,
+    tier: "free",
+    status: "past_due",
+    paddleCustomerId: paddle?.customerId ?? existing?.paddleCustomerId ?? undefined,
+    paddleSubscriptionId:
+      paddle?.subscriptionId ?? existing?.paddleSubscriptionId ?? undefined,
+    currentPeriodEnd: null,
+    cancelAtPeriodEnd: false,
+    unlockedSceneKeys: unlocked,
+    preserveCustomerId: true,
+  });
+}
+
+/**
  * Read subscription and apply lazy period-end downgrade when needed.
  */
 export async function getUserSubscriptionAdmin(
@@ -215,6 +250,10 @@ export async function getUserSubscriptionAdmin(
 ): Promise<UserSubscriptionRow | null> {
   let sub = await ensureUserSubscriptionAdmin(userId);
   if (!sub) return null;
+
+  if (hasMinTier(sub.tier, "plus") && sub.status === "past_due") {
+    sub = (await finalizePaymentFailedDowngrade(userId)) ?? sub;
+  }
 
   const effective = computeEffectiveTier(sub);
   if (

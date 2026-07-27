@@ -53,19 +53,24 @@ function TierPriceBlock({
 
   return (
     <motion.div
-      key={price.billingLabel}
-      initial={{ opacity: 0.6 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.2 }}
+      initial={false}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
     >
-      <div className="flex items-end gap-1.5">
-        <PaddlePriceCountup
-          price={price}
-          className="font-display text-4xl font-semibold tracking-[-0.06em] sm:text-5xl"
-        />
-        <span className="pb-1.5 text-sm text-muted">/ mo</span>
-      </div>
-      <p className="mt-1.5 text-sm text-muted">{price.billingLabel}</p>
+      <motion.div
+        initial={false}
+        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+        transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <div className="flex items-end gap-1.5">
+          <PaddlePriceCountup
+            price={price}
+            className="font-display text-4xl font-semibold tracking-[-0.06em] sm:text-5xl"
+          />
+          <span className="pb-1.5 text-sm text-muted">/ mo</span>
+        </div>
+        <p className="mt-1.5 text-sm text-muted">{price.billingLabel}</p>
+      </motion.div>
     </motion.div>
   );
 }
@@ -147,7 +152,10 @@ export function PaddlePricingTierCards({
             : undefined;
 
         const showAnnualGlow = period === "annual" && tier.id === "pro";
-        const savePct = showAnnualGlow ? discountPct("pro") : null;
+        const savePct =
+          period === "annual" && paid && (tier.id === "plus" || tier.id === "pro")
+            ? discountPct(tier.id)
+            : null;
 
         return (
           <article
@@ -181,14 +189,23 @@ export function PaddlePricingTierCards({
               />
             )}
 
-            {showAnnualGlow && savePct !== null && (
+            {savePct !== null && savePct > 0 && (
               <div className="absolute right-4 top-4 z-[3] flex flex-col items-end gap-1">
-                <span className="rounded-full border border-[color:var(--mode-listen)]/40 bg-[color:var(--mode-listen)]/10 px-3 py-1 text-[11px] font-semibold text-[color:var(--mode-listen)]">
-                  {savePct}% off
+                <span
+                  className={cn(
+                    "rounded-full border px-3 py-1 text-[11px] font-semibold",
+                    isPro
+                      ? "border-[color:var(--mode-listen)]/40 bg-[color:var(--mode-listen)]/10 text-[color:var(--mode-listen)]"
+                      : "border-[color:var(--mode-review)]/40 bg-[color:var(--mode-review)]/10 text-[color:var(--mode-review)]"
+                  )}
+                >
+                  Save {savePct}%
                 </span>
-                <span className="rounded-full bg-foreground/10 px-3 py-1 text-[11px] font-semibold text-foreground">
-                  Recommended
-                </span>
+                {isPro && (
+                  <span className="rounded-full bg-foreground/10 px-3 py-1 text-[11px] font-semibold text-foreground">
+                    Recommended
+                  </span>
+                )}
               </div>
             )}
 

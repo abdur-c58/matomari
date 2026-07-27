@@ -1,33 +1,31 @@
 "use client";
 
-import { useId } from "react";
 import { APP_NAME } from "@/lib/constants/branding";
 import { cn } from "@/lib/utils";
 
 type MatomariLogoProps = {
   className?: string;
   size?: number;
+  variant?: "source" | "transparent";
 };
 
-export function MatomariLogo({ className, size = 120 }: MatomariLogoProps) {
-  const maskId = useId();
+export function MatomariLogo({
+  className,
+  size = 120,
+  variant = "source",
+}: MatomariLogoProps) {
+  const src =
+    variant === "transparent"
+      ? "/brand/matomari-logo-transparent.png"
+      : "/brand/matomari-logo-source.png";
 
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 1065 1065"
+    <img
+      src={src}
       width={size}
       height={size}
-      className={cn("text-foreground", className)}
-      role="img"
-      aria-label={APP_NAME}
-    >
-      <defs>
-        <mask id={maskId} maskUnits="userSpaceOnUse" x="0" y="0" width="1065" height="1065">
-          <image href="/readmeimage.png" width="1065" height="1065" preserveAspectRatio="xMidYMid meet" />
-        </mask>
-      </defs>
-      <rect width="1065" height="1065" fill="currentColor" mask={`url(#${maskId})`} />
-    </svg>
+      alt={APP_NAME}
+      className={cn("object-contain", className)}
+    />
   );
 }

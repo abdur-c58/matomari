@@ -5,41 +5,21 @@ import {
   APPLE_SPLASH_SCREENS,
   type SplashTheme,
 } from "../lib/constants/apple-splash-screens";
-
-const ROOT = path.join(import.meta.dirname, "..");
-const PWA_SOURCE = path.join(ROOT, "public", "logonew.png");
-const SPLASH_DIR = path.join(ROOT, "public", "splash");
-
-type RgbaBackground = { r: number; g: number; b: number; alpha: number };
-
-const WHITE_BG: RgbaBackground = { r: 255, g: 255, b: 255, alpha: 1 };
-const BLACK_BG: RgbaBackground = { r: 0, g: 0, b: 0, alpha: 1 };
+import {
+  BLACK_BG,
+  SPLASH_DIR,
+  WHITE_BG,
+  type RgbaBackground,
+  writeBrandCoreAssets,
+} from "./brand-asset-utils";
 
 const LOGO_SCALE = 0.22;
 
-async function prepareLogoSource(background: RgbaBackground): Promise<Buffer> {
-  const trimmed = await sharp(PWA_SOURCE).trim({ threshold: 12 }).toBuffer();
-  const meta = await sharp(trimmed).metadata();
-  const maxDim = Math.max(meta.width ?? 0, meta.height ?? 0);
-  const outer = Math.max(8, Math.round(maxDim * 0.055));
-
-  return sharp(trimmed)
-    .resize(maxDim, maxDim, { fit: "contain", background, kernel: sharp.kernel.lanczos3 })
-    .extend({ top: outer, bottom: outer, left: outer, right: outer, background })
-    .png()
-    .toBuffer();
-}
-
 /** Dark splash: white logo on black (invert trimmed logo). */
 async function prepareDarkLogo(): Promise<Buffer> {
-  const trimmed = await sharp(PWA_SOURCE).trim({ threshold: 12 }).toBuffer();
-  const meta = await sharp(trimmed).metadata();
-  const maxDim = Math.max(meta.width ?? 0, meta.height ?? 0);
-  const outer = Math.max(8, Math.round(maxDim * 0.055));
+  const { squareTransparent } = await writeBrandCoreAssets();
 
-  return sharp(trimmed)
-    .resize(maxDim, maxDim, { fit: "contain", background: BLACK_BG, kernel: sharp.kernel.lanczos3 })
-    .extend({ top: outer, bottom: outer, left: outer, right: outer, background: BLACK_BG })
+  return sharp(squareTransparent)
     .negate({ alpha: false })
     .png()
     .toBuffer();
@@ -86,7 +66,7 @@ async function generateTheme(
 }
 
 async function main() {
-  const lightLogo = await prepareLogoSource(WHITE_BG);
+  const { squareTransparent: lightLogo } = await writeBrandCoreAssets();
   const darkLogo = await prepareDarkLogo();
 
   await generateTheme("light", WHITE_BG, lightLogo);

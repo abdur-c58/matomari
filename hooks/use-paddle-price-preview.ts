@@ -57,10 +57,11 @@ function mapPreviewToPrices(
     if (!line) continue;
     const rawTotal = line.totals.total;
     const formattedTotal = line.formattedTotals.total;
+    const amount = parseFloat(rawTotal) / 100;
     next[tierId] = {
       total: formattedTotal,
       billingLabel: billingLabelFromPreview(line),
-      amount: parseFloat(rawTotal),
+      amount,
       displayParts: priceDisplayParts(formattedTotal, rawTotal),
     };
   }
