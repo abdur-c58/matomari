@@ -58,7 +58,7 @@
       "themeKanji": "食"
     }
   ],
-  "islands": {
+  "scenes": {
     "premade_100_basic_sentences": {
       "description": "Practice sentences for 100 Basic Sentences.",
       "subtopics": [
@@ -3380,7 +3380,7 @@
         },
         {
           "id": "premade_sent_e9ead00d0c",
-          "english": "I learn with “language islands.”",
+          "english": "I learn with “language scenes.”",
           "register": "polite",
           "difficulty": 2,
           "category": "learn_the_basics",
@@ -11529,7 +11529,7 @@
         },
         {
           "id": "premade_sent_e9ead00d0c",
-          "english": "I learn with “language islands.”",
+          "english": "I learn with “language scenes.”",
           "register": "polite",
           "difficulty": 1,
           "category": "learn_the_basics",
@@ -12529,7 +12529,7 @@
         },
         {
           "id": "premade_sent_f3ff29e471",
-          "english": "Next week I will add a new island.",
+          "english": "Next week I will add a new scene.",
           "register": "polite",
           "difficulty": 1,
           "category": "learn_the_basics",
@@ -90009,7 +90009,7 @@
         },
         {
           "id": "premade_sent_2041079835",
-          "english": "Is there a boat tour that goes around the island?",
+          "english": "Is there a boat tour that goes around the scene?",
           "register": "polite",
           "difficulty": 1,
           "category": "travel_and_abroad",
@@ -95190,7 +95190,7 @@
       ]
     }
   },
-  "islandFolderAssignments": {
+  "sceneFolderAssignments": {
     "premade_100_basic_sentences": "learn_the_basics",
     "premade_300_language_essentials": "learn_the_basics",
     "premade_daily_routine": "learn_the_basics",

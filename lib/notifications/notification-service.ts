@@ -27,15 +27,15 @@ export function normalizeNotificationPreferences(
       enabled: raw.reviewReminders?.enabled ?? base.reviewReminders.enabled,
       frequency: raw.reviewReminders?.frequency ?? base.reviewReminders.frequency,
     },
-    islandReminders: {
-      enabled: raw.islandReminders?.enabled ?? base.islandReminders.enabled,
-      islandKeys: raw.islandReminders?.islandKeys ?? base.islandReminders.islandKeys,
-      frequency: raw.islandReminders?.frequency ?? base.islandReminders.frequency,
+    sceneReminders: {
+      enabled: raw.sceneReminders?.enabled ?? base.sceneReminders.enabled,
+      sceneKeys: raw.sceneReminders?.sceneKeys ?? base.sceneReminders.sceneKeys,
+      frequency: raw.sceneReminders?.frequency ?? base.sceneReminders.frequency,
     },
     lastSent: {
       daily: raw.lastSent?.daily,
       review: raw.lastSent?.review,
-      islands: { ...raw.lastSent?.islands },
+      scenes: { ...raw.lastSent?.scenes },
     },
   };
 }
@@ -75,19 +75,19 @@ function isPastLocalTime(timeLocal: string): boolean {
   return now.getHours() > h || (now.getHours() === h && now.getMinutes() >= m);
 }
 
-function formatIslandLabel(key: string): string {
+function formatSceneLabel(key: string): string {
   return key.replace(/_/g, " ");
 }
 
-function getDueReviewsForIsland(
+function getDueReviewsForScene(
   progress: UserProgress,
-  islandKey: string
+  sceneKey: string
 ): string[] {
   return Object.values(progress.sentences)
     .filter(
       (s) =>
-        s.sourceType === "island" &&
-        s.sourceKey === islandKey &&
+        s.sourceType === "scene" &&
+        s.sourceKey === sceneKey &&
         s.batchStatus === "retired" &&
         isDue(s.srsNextReview)
     )
@@ -118,9 +118,9 @@ export function collectPendingNotifications(
     prefs.lastSent.daily !== today
   ) {
     pending.push({
-      tag: "kotoshima-daily",
+      tag: "matomari-daily",
       title: `${APP_NAME} — daily study`,
-      body: "Your daily Japanese session is ready. Open Kotoshima to keep your streak going.",
+      body: "Your daily Japanese session is ready. Open Matomari to keep your streak going.",
       url: "/today",
       lastSentPatch: { daily: today },
     });
@@ -133,7 +133,7 @@ export function collectPendingNotifications(
     const dueCount = getDueReviewIds(progress.sentences).length;
     if (dueCount > 0) {
       pending.push({
-        tag: "kotoshima-review",
+        tag: "matomari-review",
         title: "Reviews due",
         body: `${dueCount} sentence${dueCount === 1 ? "" : "s"} ready for spaced repetition review.`,
         url: "/recall",
@@ -142,23 +142,23 @@ export function collectPendingNotifications(
     }
   }
 
-  if (prefs.islandReminders.enabled && prefs.islandReminders.islandKeys.length > 0) {
-    for (const islandKey of prefs.islandReminders.islandKeys) {
-      if (!dataset.islands[islandKey]) continue;
-      const lastIsland = prefs.lastSent.islands?.[islandKey];
-      if (!canSendByFrequency(lastIsland, prefs.islandReminders.frequency)) continue;
+  if (prefs.sceneReminders.enabled && prefs.sceneReminders.sceneKeys.length > 0) {
+    for (const sceneKey of prefs.sceneReminders.sceneKeys) {
+      if (!dataset.scenes[sceneKey]) continue;
+      const lastScene = prefs.lastSent.scenes?.[sceneKey];
+      if (!canSendByFrequency(lastScene, prefs.sceneReminders.frequency)) continue;
 
-      const dueCount = getDueReviewsForIsland(progress, islandKey).length;
+      const dueCount = getDueReviewsForScene(progress, sceneKey).length;
       if (dueCount === 0) continue;
 
-      const label = formatIslandLabel(islandKey);
+      const label = formatSceneLabel(sceneKey);
       pending.push({
-        tag: `kotoshima-island-${islandKey}`,
-        title: `${label} island`,
-        body: `${dueCount} review${dueCount === 1 ? "" : "s"} waiting in your ${label} island.`,
-        url: `/batch/island/${islandKey}`,
+        tag: `matomari-scene-${sceneKey}`,
+        title: `${label} scene`,
+        body: `${dueCount} review${dueCount === 1 ? "" : "s"} waiting in your ${label} scene.`,
+        url: `/batch/scene/${sceneKey}`,
         lastSentPatch: {
-          islands: { ...(prefs.lastSent.islands ?? {}), [islandKey]: today },
+          scenes: { ...(prefs.lastSent.scenes ?? {}), [sceneKey]: today },
         },
       });
     }
@@ -194,6 +194,6 @@ export function mergeLastSent(
   return {
     daily: patch.daily ?? current.daily,
     review: patch.review ?? current.review,
-    islands: { ...current.islands, ...patch.islands },
+    scenes: { ...current.scenes, ...patch.scenes },
   };
 }

@@ -1,37 +1,37 @@
-import type { Island, SentenceDialectTranslations } from "@/types/sentence";
+import type { Scene, SentenceDialectTranslations } from "@/types/sentence";
 
-export async function fetchResolvedSharedIslands(): Promise<{
-  islands: Record<string, Island>;
+export async function fetchResolvedSharedScenes(): Promise<{
+  scenes: Record<string, Scene>;
   translations: Record<string, SentenceDialectTranslations>;
 }> {
   try {
-    const res = await fetch("/api/islands/shared", { cache: "no-store" });
+    const res = await fetch("/api/scenes/shared", { cache: "no-store" });
     if (!res.ok) {
-      return { islands: {}, translations: {} };
+      return { scenes: {}, translations: {} };
     }
     return (await res.json()) as {
-      islands: Record<string, Island>;
+      scenes: Record<string, Scene>;
       translations: Record<string, SentenceDialectTranslations>;
     };
   } catch {
-    return { islands: {}, translations: {} };
+    return { scenes: {}, translations: {} };
   }
 }
 
-export function mergeSharedIslandsIntoDataset(
+export function mergeSharedScenesIntoDataset(
   dataset: {
     main_pathway: unknown;
-    islands: Record<string, Island>;
+    scenes: Record<string, Scene>;
   } | null,
-  sharedIslands: Record<string, Island>
+  sharedScenes: Record<string, Scene>
 ) {
   if (!dataset) return dataset;
-  if (Object.keys(sharedIslands).length === 0) return dataset;
+  if (Object.keys(sharedScenes).length === 0) return dataset;
   return {
     ...dataset,
-    islands: {
-      ...dataset.islands,
-      ...sharedIslands,
+    scenes: {
+      ...dataset.scenes,
+      ...sharedScenes,
     },
   };
 }

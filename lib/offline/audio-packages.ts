@@ -83,7 +83,7 @@ async function downloadAssetBlob(
 
 async function persistPackageDownloads(input: {
   packageId: string;
-  islandKey: string | null;
+  sceneKey: string | null;
   label: string;
   dialect: Dialect;
   sentenceIds: string[];
@@ -106,7 +106,7 @@ async function persistPackageDownloads(input: {
     if (input.signal.signal.aborted) throw new Error("Download cancelled");
 
     const blob = await downloadAssetBlob(item, input.signal.signal);
-    const islandKeys = input.islandKey ? [input.islandKey] : ["__all__"];
+    const sceneKeys = input.sceneKey ? [input.sceneKey] : ["__all__"];
     await saveOfflineAsset({
       textHash: item.textHash,
       sentenceId: item.sentenceId,
@@ -116,7 +116,7 @@ async function persistPackageDownloads(input: {
       blob,
       r2Key: item.r2Key,
       createdAt: new Date().toISOString(),
-      islandKeys,
+      sceneKeys,
     });
     textHashes.push(item.textHash);
     totalBytes += item.byteSize ?? blob.size;
@@ -132,7 +132,7 @@ async function persistPackageDownloads(input: {
 
   const record: OfflinePackageRecord = {
     id: input.packageId,
-    islandKey: input.islandKey,
+    sceneKey: input.sceneKey,
     label: input.label,
     dialect: input.dialect,
     textHashes,
@@ -149,16 +149,16 @@ async function persistPackageDownloads(input: {
   return record;
 }
 
-export async function downloadIslandPackage(input: {
-  islandKey: string;
+export async function downloadScenePackage(input: {
+  sceneKey: string;
   label: string;
   sentenceIds: string[];
   dialect: Dialect;
 }): Promise<OfflinePackageRecord> {
-  const existing = abortControllers.get(input.islandKey);
+  const existing = abortControllers.get(input.sceneKey);
   existing?.abort();
   const controller = new AbortController();
-  abortControllers.set(input.islandKey, controller);
+  abortControllers.set(input.sceneKey, controller);
 
   try {
     if (typeof navigator !== "undefined" && "storage" in navigator) {
@@ -170,15 +170,15 @@ export async function downloadIslandPackage(input: {
     }
 
     return await persistPackageDownloads({
-      packageId: input.islandKey,
-      islandKey: input.islandKey,
+      packageId: input.sceneKey,
+      sceneKey: input.sceneKey,
       label: input.label,
       dialect: input.dialect,
       sentenceIds: input.sentenceIds,
       signal: controller,
     });
   } finally {
-    abortControllers.delete(input.islandKey);
+    abortControllers.delete(input.sceneKey);
     setProgress(null);
   }
 }
@@ -204,7 +204,7 @@ export async function downloadAllPackages(input: {
 
     return await persistPackageDownloads({
       packageId: ALL_PACKAGE_ID,
-      islandKey: null,
+      sceneKey: null,
       label: input.label ?? "All audio",
       dialect: input.dialect,
       sentenceIds: input.sentenceIds,
@@ -220,35 +220,35 @@ export function cancelDownload(packageId: string) {
   abortControllers.get(packageId)?.abort();
 }
 
-export async function removeIslandPackage(islandKey: string): Promise<void> {
-  const pkg = await getOfflinePackage(islandKey);
+export async function removeScenePackage(sceneKey: string): Promise<void> {
+  const pkg = await getOfflinePackage(sceneKey);
   if (!pkg) return;
 
   const assets = await listOfflineAssets();
   for (const hash of pkg.textHashes) {
     const asset = assets.find((a) => a.textHash === hash);
     if (!asset) continue;
-    const remaining = asset.islandKeys.filter((k) => k !== islandKey);
+    const remaining = asset.sceneKeys.filter((k) => k !== sceneKey);
     if (remaining.length === 0) {
       // Keep if referenced by __all__ package
       const allPkg = await getOfflinePackage(ALL_PACKAGE_ID);
       if (allPkg?.textHashes.includes(hash)) {
         await saveOfflineAsset(
-          { ...asset, islandKeys: ["__all__"] },
-          { mergeIslandKeys: false }
+          { ...asset, sceneKeys: ["__all__"] },
+          { mergeSceneKeys: false }
         );
       } else {
         await deleteOfflineAsset(hash);
       }
     } else {
       await saveOfflineAsset(
-        { ...asset, islandKeys: remaining },
-        { mergeIslandKeys: false }
+        { ...asset, sceneKeys: remaining },
+        { mergeSceneKeys: false }
       );
     }
   }
 
-  await deleteOfflinePackage(islandKey);
+  await deleteOfflinePackage(sceneKey);
 }
 
 export async function removeAllPackages(): Promise<void> {
@@ -270,8 +270,8 @@ export async function getOfflineInventory() {
   return { packages, totalBytes: bytes };
 }
 
-export async function isIslandDownloaded(islandKey: string): Promise<boolean> {
-  const pkg = await getOfflinePackage(islandKey);
+export async function isSceneDownloaded(sceneKey: string): Promise<boolean> {
+  const pkg = await getOfflinePackage(sceneKey);
   return (
     !!pkg &&
     (pkg.status === "ready" || pkg.status === "stale") &&
@@ -279,12 +279,12 @@ export async function isIslandDownloaded(islandKey: string): Promise<boolean> {
   );
 }
 
-export async function isIslandDownloadStale(
-  islandKey: string,
+export async function isSceneDownloadStale(
+  sceneKey: string,
   sentenceIds: string[],
   dialect: Dialect
 ): Promise<boolean> {
-  const pkg = await getOfflinePackage(islandKey);
+  const pkg = await getOfflinePackage(sceneKey);
   if (!pkg?.manifestFingerprint || sentenceIds.length === 0) return false;
   const { fetchManifestFingerprint } = await import(
     "@/lib/offline/package-staleness"

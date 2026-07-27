@@ -31,7 +31,7 @@ type AuditPair = {
   register: string;
   category: string;
   subtopic: string;
-  islandTitle?: string;
+  sceneTitle?: string;
   siblingIds: string[];
 };
 
@@ -94,11 +94,11 @@ async function buildPairs(): Promise<AuditPair[]> {
   );
   const seedById = new Map<
     string,
-    SeedSentence & { islandTitle?: string }
+    SeedSentence & { sceneTitle?: string }
   >();
-  for (const [, island] of Object.entries(catalog.islands)) {
-    for (const s of island.sentences) {
-      seedById.set(s.id, { ...s, islandTitle: island.title });
+  for (const [, scene] of Object.entries(catalog.scenes)) {
+    for (const s of scene.sentences) {
+      seedById.set(s.id, { ...s, sceneTitle: scene.title });
     }
   }
 
@@ -131,7 +131,7 @@ async function buildPairs(): Promise<AuditPair[]> {
       register: seed.register,
       category: seed.category,
       subtopic: seed.subtopic,
-      islandTitle: seed.islandTitle,
+      sceneTitle: seed.sceneTitle,
       siblingIds: [],
     });
   }

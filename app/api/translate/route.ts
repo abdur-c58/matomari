@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { requireUserSession } from "@/lib/auth/require-user";
 import { getOpenAIClient, getOpenAIModel, isOpenAIConfigured } from "@/lib/ai/openai";
 import { openAIErrorResponse } from "@/lib/ai/errors";
 import { buildTranslationPrompt } from "@/lib/ai/prompts";
@@ -11,18 +11,14 @@ import { persistDurableTranslationBatch } from "@/lib/supabase/durable-translati
 
 export async function POST(request: Request) {
   try {
+    const user = await requireUserSession();
+    if (!user.ok) {
+      return NextResponse.json({ error: user.error }, { status: user.status });
+    }
+    const userId = user.userId;
+
     if (!isOpenAIConfigured()) {
       return NextResponse.json({ error: "AI not configured" }, { status: 503 });
-    }
-
-    const session = await auth();
-    const userId = session?.user?.supabaseUserId ?? null;
-
-    if (ONLINE_FIRST_ENABLED && !userId) {
-      return NextResponse.json(
-        { error: "Sign in required to translate (cloud-first mode)" },
-        { status: 401 }
-      );
     }
 
     const body = await request.json();

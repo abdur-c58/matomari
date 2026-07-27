@@ -127,7 +127,7 @@ async function main() {
   console.log(`  Users updated: ${usersUpdated}`);
   console.log(`  Translations cleared: ${totalReset}`);
   console.log(
-    "\nNext: open Kotoshima, Sync now, then click 'Translate all' to retranslate sentences."
+    "\nNext: open Matomari, Sync now, then click 'Translate all' to retranslate sentences."
   );
 }
 // main

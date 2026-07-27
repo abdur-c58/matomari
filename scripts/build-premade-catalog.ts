@@ -1,27 +1,27 @@
 /**
- * Build public/premade-catalog.json from Documents/FolderForKotoshima.
+ * Build public/premade-catalog.json from Documents/FolderForMatomari.
  *
  * Usage:
  *   npx tsx scripts/build-premade-catalog.ts
- *   npx tsx scripts/build-premade-catalog.ts --source "C:/path/to/FolderForKotoshima"
+ *   npx tsx scripts/build-premade-catalog.ts --source "C:/path/to/FolderForMatomari"
  */
 
 import crypto from "crypto";
 import fs from "fs";
 import path from "path";
 import {
-  applyNarrationDirectivesToCatalogIslands,
+  applyNarrationDirectivesToCatalogScenes,
   parseNarrationDirectivesSidecar,
 } from "../lib/audio/narration-directives";
 import { parsePremadeCatalog } from "../lib/validation/premade-catalog-schema";
-import type { Island, Sentence } from "../types/sentence";
+import type { Scene, Sentence } from "../types/sentence";
 import type { PremadeCatalog, PremadeFolder } from "../types/premade-catalog";
 import { withNamePlaceholder } from "./lib/name-placeholders";
 
 const DEFAULT_SOURCE = path.join(
   process.env.USERPROFILE ?? process.env.HOME ?? "",
   "Documents",
-  "FolderForKotoshima"
+  "FolderForMatomari"
 );
 
 const OUT_PATH = path.join(process.cwd(), "public", "premade-catalog.json");
@@ -43,7 +43,7 @@ const FOLDER_THEME_KANJI: Record<string, string> = {
   eating_out_and_shopping: "食",
 };
 
-/** Featured 300-essentials island display titles by parent folder id + leaf dir name. */
+/** Featured 300-essentials scene display titles by parent folder id + leaf dir name. */
 const ESSENTIALS_TITLES: Record<string, string> = {
   "learn_the_basics|300 Language Essentials": "300 Language Essentials",
   "household_and_daily_life|300 Essentials": "300 Essentials for Daily Life",
@@ -137,7 +137,7 @@ function parseSentencesFromFiles(files: string[]): string[] {
   return lines;
 }
 
-function isLeafIslandDir(dir: string): boolean {
+function isLeafSceneDir(dir: string): boolean {
   const children = fs.readdirSync(dir, { withFileTypes: true });
   const hasSubdirs = children.some((c) => c.isDirectory());
   if (hasSubdirs) return false;
@@ -165,7 +165,7 @@ function isEssentialsLeaf(leafName: string): boolean {
   return /^300(\s|$)/i.test(leafName);
 }
 
-function islandThemeKanji(title: string, featured: boolean, folderKanji: string): string {
+function sceneThemeKanji(title: string, featured: boolean, folderKanji: string): string {
   if (featured) return "三";
   // Prefer a meaningful character from theme when possible; fallback folder kanji
   const map: Record<string, string> = {
@@ -200,9 +200,9 @@ function isNarrationLeaf(leafName: string, title: string): boolean {
 function buildCatalog(sourceRoot: string): PremadeCatalog {
   const englishToId = new Map<string, string>();
   const folders: PremadeFolder[] = [];
-  const islands: Record<string, Island> = {};
-  const islandFolderAssignments: Record<string, string> = {};
-  const usedIslandKeys = new Set<string>();
+  const scenes: Record<string, Scene> = {};
+  const sceneFolderAssignments: Record<string, string> = {};
+  const usedSceneKeys = new Set<string>();
 
   const topDirs = fs
     .readdirSync(sourceRoot, { withFileTypes: true })
@@ -238,7 +238,7 @@ function buildCatalog(sourceRoot: string): PremadeCatalog {
 
     for (const leafName of leafDirs) {
       const leafPath = path.join(topPath, leafName);
-      if (!isLeafIslandDir(leafPath)) continue;
+      if (!isLeafSceneDir(leafPath)) continue;
 
       const files = listSentenceFiles(leafPath);
       const englishLines = parseSentencesFromFiles(files);
@@ -252,11 +252,11 @@ function buildCatalog(sourceRoot: string): PremadeCatalog {
           ? titleCaseWords(leafName)
           : titleCaseWords(leafName));
 
-      let islandKey = `premade_${slugify(title)}`;
-      if (usedIslandKeys.has(islandKey)) {
-        islandKey = `premade_${folderId}_${slugify(leafName)}`;
+      let sceneKey = `premade_${slugify(title)}`;
+      if (usedSceneKeys.has(sceneKey)) {
+        sceneKey = `premade_${folderId}_${slugify(leafName)}`;
       }
-      usedIslandKeys.add(islandKey);
+      usedSceneKeys.add(sceneKey);
 
       const leafDesc = readOptionalDescription(leafPath);
       const description =
@@ -265,7 +265,7 @@ function buildCatalog(sourceRoot: string): PremadeCatalog {
           ? leafDesc ?? `High-impact ${title.toLowerCase()} sentences.`
           : `Practice sentences for ${title}.`);
 
-      // Only use DESCRIPTION.txt for 300 essentials leaves (and folders). Other islands: generated.
+      // Only use DESCRIPTION.txt for 300 essentials leaves (and folders). Other scenes: generated.
       const finalDescription =
         featured && leafDesc
           ? leafDesc
@@ -309,26 +309,26 @@ function buildCatalog(sourceRoot: string): PremadeCatalog {
         };
       });
 
-      islands[islandKey] = {
+      scenes[sceneKey] = {
         title,
         description: finalDescription,
         subtopics: [subtopic],
-        themeKanji: islandThemeKanji(title, featured, themeKanji),
+        themeKanji: sceneThemeKanji(title, featured, themeKanji),
         featured: featured || undefined,
         ...(narration
           ? { format: "narration" as const, speakers: ["A", "B"] as const }
           : {}),
         sentences,
       };
-      islandFolderAssignments[islandKey] = folderId;
+      sceneFolderAssignments[sceneKey] = folderId;
     }
   });
 
   return {
     updatedAt: new Date().toISOString(),
     folders,
-    islands,
-    islandFolderAssignments,
+    scenes,
+    sceneFolderAssignments,
   };
 }
 
@@ -346,20 +346,20 @@ function main() {
 
   const catalog = buildCatalog(sourceRoot);
 
-  const hasNarration = Object.values(catalog.islands).some(
-    (island) => island.format === "narration"
+  const hasNarration = Object.values(catalog.scenes).some(
+    (scene) => scene.format === "narration"
   );
   if (hasNarration) {
     if (!fs.existsSync(NARRATION_DIRECTIVES_PATH)) {
       throw new Error(
-        `Narration island(s) require ${NARRATION_DIRECTIVES_PATH}. Run: npm run annotate-narration-audio`
+        `Narration scene(s) require ${NARRATION_DIRECTIVES_PATH}. Run: npm run annotate-narration-audio`
       );
     }
     const sidecar = parseNarrationDirectivesSidecar(
       JSON.parse(fs.readFileSync(NARRATION_DIRECTIVES_PATH, "utf8"))
     );
-    catalog.islands = applyNarrationDirectivesToCatalogIslands(
-      catalog.islands,
+    catalog.scenes = applyNarrationDirectivesToCatalogScenes(
+      catalog.scenes,
       sidecar,
       { requireFullCoverage: true }
     );
@@ -369,23 +369,23 @@ function main() {
 
   fs.writeFileSync(OUT_PATH, `${JSON.stringify(validated, null, 2)}\n`, "utf8");
 
-  const islandCount = Object.keys(validated.islands).length;
-  const sentenceCount = Object.values(validated.islands).reduce(
+  const sceneCount = Object.keys(validated.scenes).length;
+  const sentenceCount = Object.values(validated.scenes).reduce(
     (n, i) => n + i.sentences.length,
     0
   );
   const uniqueIds = new Set(
-    Object.values(validated.islands).flatMap((i) => i.sentences.map((s) => s.id))
+    Object.values(validated.scenes).flatMap((i) => i.sentences.map((s) => s.id))
   );
-  const withNarrationAudio = Object.values(validated.islands).reduce(
-    (n, island) =>
-      n + island.sentences.filter((s) => Boolean(s.narrationAudio)).length,
+  const withNarrationAudio = Object.values(validated.scenes).reduce(
+    (n, scene) =>
+      n + scene.sentences.filter((s) => Boolean(s.narrationAudio)).length,
     0
   );
 
   console.log(`Wrote ${OUT_PATH}`);
   console.log(
-    `Folders: ${validated.folders.length}, islands: ${islandCount}, sentences: ${sentenceCount}, unique ids: ${uniqueIds.size}, narrationAudio: ${withNarrationAudio}`
+    `Folders: ${validated.folders.length}, scenes: ${sceneCount}, sentences: ${sentenceCount}, unique ids: ${uniqueIds.size}, narrationAudio: ${withNarrationAudio}`
   );
 }
 

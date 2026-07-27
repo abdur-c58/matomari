@@ -92,12 +92,12 @@ export function ActiveRecallModeMobile() {
 
   useEffect(() => {
     if (!sessionComplete || mode !== "return") return;
-    const islandKey =
-      progress.batchConfig?.sourceType === "island"
-        ? progress.batchConfig.islandKey
+    const sceneKey =
+      progress.batchConfig?.sourceType === "scene"
+        ? progress.batchConfig.sceneKey
         : null;
-    if (!islandKey) return;
-    void setProgress(clearReturnReview(progress, islandKey));
+    if (!sceneKey) return;
+    void setProgress(clearReturnReview(progress, sceneKey));
   }, [sessionComplete, mode, progress, setProgress]);
 
   const advance = useCallback(() => {
@@ -223,7 +223,7 @@ export function ActiveRecallModeMobile() {
             }
             completedDescription={
               mode === "return"
-                ? "You're ready to continue studying this island."
+                ? "You're ready to continue studying this scene."
                 : "You worked through all due sentences in this session."
             }
           />

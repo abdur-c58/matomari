@@ -1,5 +1,5 @@
 /**
- * Annotate narration island turns with pauseAfterMs + sparse Fish Audio cues.
+ * Annotate narration scene turns with pauseAfterMs + sparse Fish Audio cues.
  *
  * Output sidecar: scripts/data/narration-audio-directives.json
  * Optionally merges into public/premade-catalog.json (--apply, default).
@@ -25,7 +25,7 @@ import {
   type NarrationPauseMs,
 } from "../lib/audio/fish-audio-cues";
 import {
-  applyNarrationDirectivesToCatalogIslands,
+  applyNarrationDirectivesToCatalogScenes,
   narrationDirectiveKey,
   parseNarrationDirectivesSidecar,
   type NarrationDirectiveRecord,
@@ -52,7 +52,7 @@ const BATCH_SIZE = 18;
 const MODEL = process.env.OPENAI_ANNOTATE_MODEL?.trim() || "gpt-5.4-mini";
 
 type TurnRow = {
-  islandKey: string;
+  sceneKey: string;
   index: number;
   sentenceId: string;
   occurrence: number;
@@ -93,17 +93,17 @@ function chunk<T>(arr: T[], size: number): T[][] {
 }
 
 function buildTurnRows(
-  islands: Record<string, { format?: string; sentences: Sentence[] }>
+  scenes: Record<string, { format?: string; sentences: Sentence[] }>
 ): TurnRow[] {
   const rows: TurnRow[] = [];
-  for (const [islandKey, island] of Object.entries(islands)) {
-    if (island.format !== "narration") continue;
+  for (const [sceneKey, scene] of Object.entries(scenes)) {
+    if (scene.format !== "narration") continue;
     const occurrenceById = new Map<string, number>();
-    island.sentences.forEach((sentence, index) => {
+    scene.sentences.forEach((sentence, index) => {
       const occurrence = occurrenceById.get(sentence.id) ?? 0;
       occurrenceById.set(sentence.id, occurrence + 1);
       rows.push({
-        islandKey,
+        sceneKey,
         index,
         sentenceId: sentence.id,
         occurrence,
@@ -118,7 +118,7 @@ function buildTurnRows(
 function warnSpeakerAlternation(rows: TurnRow[]): void {
   const breaks: number[] = [];
   for (let i = 1; i < rows.length; i++) {
-    if (rows[i]!.islandKey !== rows[i - 1]!.islandKey) continue;
+    if (rows[i]!.sceneKey !== rows[i - 1]!.sceneKey) continue;
     if (rows[i]!.speaker === rows[i - 1]!.speaker) {
       breaks.push(rows[i]!.index);
     }
@@ -154,7 +154,7 @@ function sanitizeAnnotation(
   const fishAudio = parseFishAudioDirectives(fishRaw);
 
   return {
-    islandKey: expected.islandKey,
+    sceneKey: expected.sceneKey,
     sentenceId: expected.sentenceId,
     occurrence: expected.occurrence,
     pauseAfterMs,
@@ -171,7 +171,7 @@ async function annotateBatch(
 ): Promise<NarrationDirectiveRecord[]> {
   const context = batch.map((turn) => {
     const neighbors = allRows
-      .filter((r) => r.islandKey === turn.islandKey)
+      .filter((r) => r.sceneKey === turn.sceneKey)
       .slice(Math.max(0, turn.index - 2), turn.index + 3)
       .map((r) => ({
         index: r.index,
@@ -238,7 +238,7 @@ Return JSON only:
     if (!found) {
       // Safe default if model omitted a turn
       return {
-        islandKey: expected.islandKey,
+        sceneKey: expected.sceneKey,
         sentenceId: expected.sentenceId,
         occurrence: expected.occurrence,
         pauseAfterMs: 800 as NarrationPauseMs,
@@ -280,7 +280,7 @@ async function main() {
   const catalog = parsePremadeCatalog(
     JSON.parse(fs.readFileSync(CATALOG_PATH, "utf8"))
   );
-  const rows = buildTurnRows(catalog.islands);
+  const rows = buildTurnRows(catalog.scenes);
   if (rows.length === 0) throw new Error("No narration turns found in catalog");
   warnSpeakerAlternation(rows);
 
@@ -351,7 +351,7 @@ async function main() {
   const expectedKeys = new Set(
     rows.map((r) =>
       narrationDirectiveKey({
-        islandKey: r.islandKey,
+        sceneKey: r.sceneKey,
         sentenceId: r.sentenceId,
         occurrence: r.occurrence,
       })
@@ -393,14 +393,14 @@ async function main() {
   );
 
   if (apply) {
-    const mergedIslands = applyNarrationDirectivesToCatalogIslands(
-      catalog.islands,
+    const mergedScenes = applyNarrationDirectivesToCatalogScenes(
+      catalog.scenes,
       validatedSidecar,
       { requireFullCoverage: true }
     );
     const nextCatalog = {
       ...catalog,
-      islands: mergedIslands,
+      scenes: mergedScenes,
       updatedAt: new Date().toISOString(),
     };
     const validatedCatalog = parsePremadeCatalog(nextCatalog);

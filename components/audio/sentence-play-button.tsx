@@ -30,6 +30,7 @@ export type SentenceAudioFields = {
   cacheBySpokenScript?: boolean;
   dialect?: Dialect;
   speaker?: NarrationSpeaker;
+  voiceId?: string | null;
   disabled?: boolean;
   className?: string;
   appearance?: "default" | "minimal";
@@ -49,6 +50,7 @@ function buildTtsRequest(
     learnerName: learnerJapaneseName,
     dialect,
     speaker: fields.speaker === "B" ? "B" : "A",
+    voiceId: fields.voiceId ?? undefined,
     register: fields.register,
     tags: fields.tags,
     context_notes: fields.context_notes,

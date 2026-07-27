@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireUserSession } from "@/lib/auth/require-user";
 import { getOpenAIClient, getOpenAIModel, isOpenAIConfigured } from "@/lib/ai/openai";
 import { openAIErrorResponse } from "@/lib/ai/errors";
 import { buildTranscriptSegmentPrompt } from "@/lib/ai/prompts";
@@ -11,6 +12,11 @@ const DEFAULT_MAX_SENTENCES = 12;
 
 export async function POST(request: Request) {
   try {
+    const user = await requireUserSession();
+    if (!user.ok) {
+      return NextResponse.json({ error: user.error }, { status: user.status });
+    }
+
     if (!isOpenAIConfigured()) {
       return NextResponse.json({ error: "AI not configured" }, { status: 503 });
     }

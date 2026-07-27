@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { SharedIslandPreviewScreen } from "@/components/islands/shared-island-preview-screen";
+import { SharedScenePreviewScreen } from "@/components/scenes/shared-scene-preview-screen";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageShell } from "@/components/layout/page-shell";
 
@@ -12,10 +12,10 @@ function Fallback() {
   );
 }
 
-export default function SharedIslandPage() {
+export default function SharedScenePage() {
   return (
     <Suspense fallback={<Fallback />}>
-      <SharedIslandPreviewScreen />
+      <SharedScenePreviewScreen />
     </Suspense>
   );
 }

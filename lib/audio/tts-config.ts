@@ -54,16 +54,21 @@ export function getFishAudioSettings(): FishAudioSettings {
 /** Included in audio cache keys so setting changes regenerate audio. */
 export function getTtsSettingsFingerprint(
   dialect: Dialect = "standard",
-  speaker: NarrationSpeaker = "A"
+  speaker: NarrationSpeaker = "A",
+  voiceOverride?: string | null
 ): string {
   const s = getFishAudioSettings();
+  const voice =
+    voiceOverride?.trim() ||
+    getFishAudioVoiceIdForDialect(dialect, speaker) ||
+    "default";
   const parts = [
     getTtsModel(),
     s.temperature.toFixed(2),
     s.top_p.toFixed(2),
     s.speed.toFixed(2),
     s.volume.toFixed(2),
-    getFishAudioVoiceIdForDialect(dialect, speaker) ?? "default",
+    voice,
     dialect,
     speaker,
   ];
@@ -78,8 +83,9 @@ export function buildTtsCacheKey(
   ttsText: string,
   dialect: Dialect = "standard",
   speaker: NarrationSpeaker = "A",
-  cacheMode: TtsCacheMode = "sentence"
+  cacheMode: TtsCacheMode = "sentence",
+  voiceOverride?: string | null
 ): string {
   const identity = cacheMode === "spoken-script" ? "shared-narration" : sentenceId;
-  return `${getTtsSettingsFingerprint(dialect, speaker)}:${identity}:${ttsText}`;
+  return `${getTtsSettingsFingerprint(dialect, speaker, voiceOverride)}:${identity}:${ttsText}`;
 }

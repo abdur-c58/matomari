@@ -61,7 +61,7 @@
       }
     ]
   },
-  "islands": {
+  "scenes": {
     "travel": {
       "description": "Travel and airport situations",
       "subtopics": ["airport", "hotel"],

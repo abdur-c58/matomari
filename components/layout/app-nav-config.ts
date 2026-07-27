@@ -21,7 +21,7 @@ export type AppNavItem = {
 
 export const primaryNav: AppNavItem[] = [
   { href: "/today", label: "Dashboard", icon: Calendar },
-  { href: "/batch", label: "Islands", icon: MapPinned },
+  { href: "/batch", label: "Scenes", icon: MapPinned },
   { href: "/recall", label: "Active Recall", icon: Brain },
   { href: "/listen?step=shadow", label: "Shadowing", icon: Headphones },
   { href: "/library", label: "Library", icon: Library },

@@ -60,7 +60,7 @@ export function InViewVideo({
         loop
         preload="metadata"
         controls={reduced}
-        aria-label="Kotoshima product walkthrough"
+        aria-label="Matomari product walkthrough"
       />
     </div>
   );

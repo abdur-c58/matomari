@@ -1,6 +1,6 @@
 /**
  * Apply GPT rewrite/remove decisions from _en_scan_chunks/rewrite-decisions.json
- * to public/premade-catalog.json and FolderForKotoshima source txt files.
+ * to public/premade-catalog.json and FolderForMatomari source txt files.
  *
  * - Rewrites update english, recompute hash IDs, strip translation fields
  * - Identical english always shares one id
@@ -10,7 +10,7 @@
  * Usage:
  *   npx tsx scripts/apply-unnatural-english-decisions.ts
  *   npx tsx scripts/apply-unnatural-english-decisions.ts --skip-shared
- *   npx tsx scripts/apply-unnatural-english-decisions.ts --source "C:/path/to/FolderForKotoshima"
+ *   npx tsx scripts/apply-unnatural-english-decisions.ts --source "C:/path/to/FolderForMatomari"
  */
 
 import crypto from "crypto";
@@ -28,7 +28,7 @@ const REPORT_PATH = path.join(ROOT, "_en_scan_chunks", "apply-report.json");
 const DEFAULT_SOURCE = path.join(
   process.env.USERPROFILE ?? process.env.HOME ?? "",
   "Documents",
-  "FolderForKotoshima"
+  "FolderForMatomari"
 );
 
 const TRANSLATION_KEYS: (keyof TranslatedFields)[] = [
@@ -183,16 +183,16 @@ function applyCatalog(
   const englishRemap = new Map<string, string>();
 
   const englishById = new Map<string, string>();
-  for (const island of Object.values(catalog.islands)) {
-    for (const s of island.sentences) {
+  for (const scene of Object.values(catalog.scenes)) {
+    for (const s of scene.sentences) {
       englishById.set(s.id, s.english);
     }
   }
 
   // Pre-index existing english → id so rewrites can join existing seeds
   const existingByNorm = new Map<string, string>();
-  for (const island of Object.values(catalog.islands)) {
-    for (const s of island.sentences) {
+  for (const scene of Object.values(catalog.scenes)) {
+    for (const s of scene.sentences) {
       existingByNorm.set(normalizeEnglish(s.english), s.id);
     }
   }
@@ -247,9 +247,9 @@ function applyCatalog(
     }
   }
 
-  for (const [islandId, island] of Object.entries(catalog.islands)) {
+  for (const [sceneId, scene] of Object.entries(catalog.scenes)) {
     const nextSentences: Sentence[] = [];
-    for (const s of island.sentences) {
+    for (const s of scene.sentences) {
       const d = byId.get(s.id);
       if (!d || d.action === "keep") {
         nextSentences.push(s);
@@ -276,21 +276,21 @@ function applyCatalog(
         })
       );
     }
-    catalog.islands[islandId] = { ...island, sentences: nextSentences };
+    catalog.scenes[sceneId] = { ...scene, sentences: nextSentences };
   }
 
   // Global pass: identical english → same id everywhere
   const canonIdByNorm = new Map<string, string>();
-  for (const island of Object.values(catalog.islands)) {
-    for (const s of island.sentences) {
+  for (const scene of Object.values(catalog.scenes)) {
+    for (const s of scene.sentences) {
       const norm = normalizeEnglish(s.english);
       if (!canonIdByNorm.has(norm)) {
         canonIdByNorm.set(norm, sentenceIdFromEnglish(s.english));
       }
     }
   }
-  for (const island of Object.values(catalog.islands)) {
-    for (const s of island.sentences) {
+  for (const scene of Object.values(catalog.scenes)) {
+    for (const s of scene.sentences) {
       const norm = normalizeEnglish(s.english);
       const canon = canonIdByNorm.get(norm)!;
       if (s.id !== canon) {
@@ -379,13 +379,13 @@ async function main() {
     JSON.parse(fs.readFileSync(CATALOG_PATH, "utf8"))
   );
 
-  const beforeCount = Object.values(catalog.islands).reduce(
+  const beforeCount = Object.values(catalog.scenes).reduce(
     (n, isl) => n + isl.sentences.length,
     0
   );
 
   const applied = applyCatalog(catalog, decisions);
-  const afterCount = Object.values(applied.catalog.islands).reduce(
+  const afterCount = Object.values(applied.catalog.scenes).reduce(
     (n, isl) => n + isl.sentences.length,
     0
   );
@@ -410,8 +410,8 @@ async function main() {
 
   // Sanity: every unique english has one id
   const idByNorm = new Map<string, Set<string>>();
-  for (const island of Object.values(validated.islands)) {
-    for (const s of island.sentences) {
+  for (const scene of Object.values(validated.scenes)) {
+    for (const s of scene.sentences) {
       const norm = normalizeEnglish(s.english);
       if (!idByNorm.has(norm)) idByNorm.set(norm, new Set());
       idByNorm.get(norm)!.add(s.id);

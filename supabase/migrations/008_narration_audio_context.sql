@@ -1,5 +1,5 @@
 -- Narration audio can be content-addressed by final spoken script so identical
--- contextual delivery is reused across sentence and island IDs.
+-- contextual delivery is reused across sentence and scene IDs.
 
 alter table public.tts_generation_jobs
   add column if not exists cache_mode text not null default 'sentence';

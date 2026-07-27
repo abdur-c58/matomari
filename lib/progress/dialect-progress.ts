@@ -14,7 +14,7 @@ export interface DialectStudyProgress {
   sentences: UserProgress["sentences"];
   batchConfig: UserProgress["batchConfig"];
   completedPathwayBatches: UserProgress["completedPathwayBatches"];
-  completedIslands: UserProgress["completedIslands"];
+  completedScenes: UserProgress["completedScenes"];
 }
 
 export function emptyDialectStudyProgress(): DialectStudyProgress {
@@ -22,7 +22,7 @@ export function emptyDialectStudyProgress(): DialectStudyProgress {
     sentences: {},
     batchConfig: null,
     completedPathwayBatches: [],
-    completedIslands: [],
+    completedScenes: [],
   };
 }
 
@@ -31,7 +31,7 @@ export function extractStudySlice(progress: UserProgress): DialectStudyProgress 
     sentences: progress.sentences ?? {},
     batchConfig: progress.batchConfig ?? null,
     completedPathwayBatches: progress.completedPathwayBatches ?? [],
-    completedIslands: progress.completedIslands ?? [],
+    completedScenes: progress.completedScenes ?? [],
   };
 }
 
@@ -44,7 +44,7 @@ export function applyStudySlice(
     sentences: slice.sentences,
     batchConfig: slice.batchConfig,
     completedPathwayBatches: slice.completedPathwayBatches,
-    completedIslands: slice.completedIslands,
+    completedScenes: slice.completedScenes,
   };
 }
 
@@ -53,7 +53,7 @@ function hasStudyData(slice: DialectStudyProgress): boolean {
     Object.keys(slice.sentences).length > 0 ||
     slice.batchConfig != null ||
     slice.completedPathwayBatches.length > 0 ||
-    slice.completedIslands.length > 0
+    slice.completedScenes.length > 0
   );
 }
 
@@ -167,8 +167,8 @@ function mergeDialectSlices(
       ...new Set([...merged.completedPathwayBatches, ...slice.completedPathwayBatches]),
     ].sort((a, b) => a - b);
 
-    merged.completedIslands = [
-      ...new Set([...merged.completedIslands, ...slice.completedIslands]),
+    merged.completedScenes = [
+      ...new Set([...merged.completedScenes, ...slice.completedScenes]),
     ];
   }
 

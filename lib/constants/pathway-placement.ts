@@ -1,5 +1,5 @@
 import type { PlacementLevel } from "@/types/progress";
-import type { IslandFluencyLevel, IslandJlptLevel } from "@/lib/constants/island-generation";
+import type { SceneFluencyLevel, SceneJlptLevel } from "@/lib/constants/scene-generation";
 
 /** First pathway batch to study (not skip) for each self-reported level. */
 export const PLACEMENT_STARTING_BATCH: Record<PlacementLevel, number> = {
@@ -80,7 +80,7 @@ export const PLACEMENT_JLPT_OPTIONS: {
   },
 ];
 
-export const FLUENCY_TO_PLACEMENT: Record<IslandFluencyLevel, PlacementLevel> = {
+export const FLUENCY_TO_PLACEMENT: Record<SceneFluencyLevel, PlacementLevel> = {
   beginner: "beginner",
   elementary: "elementary",
   intermediate: "intermediate",
@@ -88,7 +88,7 @@ export const FLUENCY_TO_PLACEMENT: Record<IslandFluencyLevel, PlacementLevel> = 
   advanced: "advanced",
 };
 
-export const JLPT_TO_PLACEMENT: Record<IslandJlptLevel, PlacementLevel> = {
+export const JLPT_TO_PLACEMENT: Record<SceneJlptLevel, PlacementLevel> = {
   N5: "beginner",
   N4: "elementary",
   N3: "intermediate",

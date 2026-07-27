@@ -15,9 +15,9 @@ function getAllSentences(dataset: Record<string, unknown>) {
   for (const batch of pathway?.batches ?? []) {
     for (const s of batch.sentences ?? []) map.set(String(s.id), s);
   }
-  const islands = dataset.islands as Record<string, { sentences?: Record<string, unknown>[] }>;
-  for (const island of Object.values(islands ?? {})) {
-    for (const s of island.sentences ?? []) map.set(String(s.id), s);
+  const scenes = dataset.scenes as Record<string, { sentences?: Record<string, unknown>[] }>;
+  for (const scene of Object.values(scenes ?? {})) {
+    for (const s of scene.sentences ?? []) map.set(String(s.id), s);
   }
   return map;
 }

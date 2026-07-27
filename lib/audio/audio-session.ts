@@ -37,6 +37,8 @@ export interface TtsRequest {
   dialect?: Dialect;
   /** Narration speaker voice (defaults to A). */
   speaker?: NarrationSpeaker;
+  /** Fish reference_id override from scene.speakerVoices. */
+  voiceId?: string | null;
   register?: string;
   tags?: string[];
   context_notes?: string;
@@ -45,7 +47,7 @@ export interface TtsRequest {
   fishAudio?: FishAudioDirectives;
   /** Free-form Fish instruction tags (preferred). */
   paralinguisticTags?: string[];
-  /** Narration audio reuses identical final scripts across sentence/island IDs. */
+  /** Narration audio reuses identical final scripts across sentence/scene IDs. */
   cacheBySpokenScript?: boolean;
   /** Per-turn playlist wait after this item (narration). */
   pauseAfterMs?: number;
@@ -247,7 +249,7 @@ export class AudioSessionManager {
         document.addEventListener("visibilitychange", this.handleVisibilityChange);
       }
     }
-    // Keep the custom cursor progress rim in sync with island / study playback.
+    // Keep the custom cursor progress rim in sync with scene / study playback.
     attachMarketingCursorAudio(this.audio);
     return this.audio;
   }
@@ -562,6 +564,7 @@ export class AudioSessionManager {
           learnerName: request.learnerName,
           dialect,
           speaker,
+          voiceId: request.voiceId ?? undefined,
           register: request.register,
           tags: request.tags,
           context_notes: request.context_notes,

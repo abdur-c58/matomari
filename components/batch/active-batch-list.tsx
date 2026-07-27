@@ -51,7 +51,7 @@ export function ActiveBatchList({ sentences }: { sentences: Sentence[] }) {
     return (
       <EmptyState
         title="Nothing active yet"
-        description="Pick a pathway batch or island above to start studying."
+        description="Pick a pathway batch or scene above to start studying."
       />
     );
   }

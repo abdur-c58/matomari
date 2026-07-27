@@ -55,7 +55,7 @@ export const metadata: Metadata = {
         url: "/og.png",
         width: 1200,
         height: 630,
-        alt: "Kotoshima — 言島",
+        alt: "Matomari — まとまり",
       },
     ],
   },
@@ -98,7 +98,7 @@ export default function RootLayout({
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var m=localStorage.getItem("kotoshima-theme-mode");m=m==="light"||m==="paper-dark"||m==="true-light"||m==="dark"||m==="system"?m:"system";var sd=window.matchMedia("(prefers-color-scheme: dark)").matches;var t=m==="system"?(sd?"paper-dark":"light"):m;var f=t==="light"||t==="paper-dark"?"washi":"normal";var p=t==="light"||t==="true-light"?"light":"dark";document.documentElement.dataset.theme=t;document.documentElement.dataset.themeMode=m;document.documentElement.dataset.themeFamily=f;document.documentElement.dataset.themePolarity=p;document.documentElement.style.colorScheme=p;}catch(e){}})();`,
+            __html: `(function(){try{var m=localStorage.getItem("matomari-theme-mode");m=m==="light"||m==="paper-dark"||m==="true-light"||m==="dark"||m==="system"?m:"system";var sd=window.matchMedia("(prefers-color-scheme: dark)").matches;var t=m==="system"?(sd?"paper-dark":"light"):m;var f=t==="light"||t==="paper-dark"?"washi":"normal";var p=t==="light"||t==="true-light"?"light":"dark";document.documentElement.dataset.theme=t;document.documentElement.dataset.themeMode=m;document.documentElement.dataset.themeFamily=f;document.documentElement.dataset.themePolarity=p;document.documentElement.style.colorScheme=p;}catch(e){}})();`,
           }}
         />
         <script

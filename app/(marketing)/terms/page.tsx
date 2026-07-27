@@ -9,7 +9,9 @@ export default function TermsPage() {
         Terms of Service
       </h1>
       <p className="mt-4 text-base leading-relaxed text-muted">
-        Placeholder page for {APP_NAME}. Replace with the real terms of service before public launch.
+        Placeholder page for {APP_NAME}. Re-generate the full Terms via your
+        ToS generator with Matomari entity/brand details before public launch —
+        do not treat a find-replace of an older draft as sufficient.
       </p>
       <Link href="/" className="mt-8 inline-block text-sm text-foreground underline underline-offset-2">
         Back to home

@@ -15,28 +15,28 @@ import { markPathwayBatchCompleteAfterRetire } from "./study-focus-service";
 import { scheduleRetirementSrs } from "./srs-service";
 import { getAllSentences } from "@/lib/validation/dataset-schema";
 
-function getBatchSourceKey(config: Pick<BatchConfig, "sourceType" | "pathwayBatchNumber" | "islandKey">): string {
+function getBatchSourceKey(config: Pick<BatchConfig, "sourceType" | "pathwayBatchNumber" | "sceneKey">): string {
   return config.sourceType === "pathway"
     ? String(config.pathwayBatchNumber)
-    : config.islandKey ?? "";
+    : config.sceneKey ?? "";
 }
 
-export function isFormalStudyEligibleIsland(
+export function isFormalStudyEligibleScene(
   dataset: Dataset,
-  islandKey: string | null | undefined
+  sceneKey: string | null | undefined
 ): boolean {
-  if (!islandKey) return false;
-  const island = dataset.islands[islandKey];
-  return Boolean(island && island.format !== "narration");
+  if (!sceneKey) return false;
+  const scene = dataset.scenes[sceneKey];
+  return Boolean(scene && scene.format !== "narration");
 }
 
 function isFormalStudyEligibleConfig(
   dataset: Dataset,
-  config: Pick<BatchConfig, "sourceType" | "islandKey">
+  config: Pick<BatchConfig, "sourceType" | "sceneKey">
 ): boolean {
   return (
-    config.sourceType !== "island" ||
-    isFormalStudyEligibleIsland(dataset, config.islandKey)
+    config.sourceType !== "scene" ||
+    isFormalStudyEligibleScene(dataset, config.sceneKey)
   );
 }
 
@@ -48,7 +48,7 @@ export function clampBatchSize(size: number | undefined | null): number {
 
 function matchesBatchSource(
   sp: SentenceProgress,
-  config: Pick<BatchConfig, "sourceType" | "pathwayBatchNumber" | "islandKey">
+  config: Pick<BatchConfig, "sourceType" | "pathwayBatchNumber" | "sceneKey">
 ): boolean {
   return (
     sp.sourceType === config.sourceType &&
@@ -81,7 +81,7 @@ export function getSentencesFromSource(
   dataset: Dataset,
   config: Pick<
     BatchConfig,
-    "sourceType" | "pathwayBatchNumber" | "islandKey" | "subtopic"
+    "sourceType" | "pathwayBatchNumber" | "sceneKey" | "subtopic"
   >
 ): Sentence[] {
   if (config.sourceType === "pathway" && config.pathwayBatchNumber !== null) {
@@ -91,14 +91,14 @@ export function getSentencesFromSource(
     return batch?.sentences ?? [];
   }
 
-  if (config.sourceType === "island" && config.islandKey) {
-    if (!isFormalStudyEligibleIsland(dataset, config.islandKey)) return [];
-    const island = dataset.islands[config.islandKey];
-    if (!island) return [];
+  if (config.sourceType === "scene" && config.sceneKey) {
+    if (!isFormalStudyEligibleScene(dataset, config.sceneKey)) return [];
+    const scene = dataset.scenes[config.sceneKey];
+    if (!scene) return [];
     if (config.subtopic) {
-      return island.sentences.filter((s) => s.subtopic === config.subtopic);
+      return scene.sentences.filter((s) => s.subtopic === config.subtopic);
     }
-    return island.sentences;
+    return scene.sentences;
   }
 
   return [];
@@ -161,7 +161,7 @@ function buildBatchFromIds(
   const sourceKey =
     config.sourceType === "pathway"
       ? String(config.pathwayBatchNumber)
-      : config.islandKey ?? "";
+      : config.sceneKey ?? "";
 
   for (const id of ids) {
     const existing = sentences[id];
@@ -201,8 +201,8 @@ export function resumeOrInitializeBatch(
     };
   }
 
-  if (normalized.sourceType === "island" && normalized.islandKey) {
-    const snapshot = progress.islandBatchSnapshots?.[normalized.islandKey];
+  if (normalized.sourceType === "scene" && normalized.sceneKey) {
+    const snapshot = progress.sceneBatchSnapshots?.[normalized.sceneKey];
     if (snapshot?.activeSentenceIds.length) {
       return buildBatchFromIds(
         dataset,
@@ -230,7 +230,7 @@ export function getInProgressActiveIdsForSource(
   progress: UserProgress,
   config: Pick<
     BatchConfig,
-    "sourceType" | "pathwayBatchNumber" | "islandKey" | "subtopic"
+    "sourceType" | "pathwayBatchNumber" | "sceneKey" | "subtopic"
   >
 ): string[] {
   const sourceKey = getBatchSourceKey(config);
@@ -277,7 +277,7 @@ export function initializeBatch(
         config.sourceType,
         config.sourceType === "pathway"
           ? String(config.pathwayBatchNumber)
-          : config.islandKey ?? ""
+          : config.sceneKey ?? ""
       )),
       batchStatus: "active",
       firstSeenAt: existing?.firstSeenAt ?? today,
@@ -285,7 +285,7 @@ export function initializeBatch(
       sourceKey:
         config.sourceType === "pathway"
           ? String(config.pathwayBatchNumber)
-          : config.islandKey ?? "",
+          : config.sceneKey ?? "",
     };
   }
 
@@ -341,7 +341,7 @@ export function retireSentence(
         config.sourceType,
         config.sourceType === "pathway"
           ? String(config.pathwayBatchNumber)
-          : config.islandKey ?? ""
+          : config.sceneKey ?? ""
       )),
       batchStatus: "active",
       firstSeenAt: existing?.firstSeenAt ?? today,

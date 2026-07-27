@@ -42,7 +42,7 @@ export function FontPreferencesSection({
               className="mt-2 text-lg text-foreground/90"
               style={{ fontFamily: option.family }}
             >
-              今日の勉強 — Good evening, Kotoshima
+              今日の勉強 — Good evening, Matomari
             </p>
           </button>
         ))}

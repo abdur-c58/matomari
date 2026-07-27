@@ -5,14 +5,14 @@ import { cn } from "@/lib/utils";
 
 type DecoratedStudySurfaceProps = {
   kanji: string;
-  variant?: "island" | "pathway" | "essentials" | "narration";
+  variant?: "scene" | "pathway" | "essentials" | "narration";
   className?: string;
   children: ReactNode;
 };
 
 export function DecoratedStudySurface({
   kanji,
-  variant = "island",
+  variant = "scene",
   className,
   children,
 }: DecoratedStudySurfaceProps) {

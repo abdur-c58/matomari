@@ -165,8 +165,8 @@ async function main() {
     JSON.parse(fs.readFileSync(CATALOG_PATH, "utf8"))
   );
   const seedById = new Map<string, SeedSentence>();
-  for (const island of Object.values(catalog.islands)) {
-    for (const s of island.sentences) {
+  for (const scene of Object.values(catalog.scenes)) {
+    for (const s of scene.sentences) {
       seedById.set(s.id, toSeedPayload(s));
     }
   }

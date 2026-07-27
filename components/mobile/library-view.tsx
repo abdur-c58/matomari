@@ -79,9 +79,9 @@ export function LibraryViewMobile() {
   const filtersPending = deferredFilters !== filters;
 
   const canSelect =
-    deferredFilters.sourceType === "island" ||
-    deferredFilters.islandKey !== null ||
-    deferredFilters.groupBy === "island";
+    deferredFilters.sourceType === "scene" ||
+    deferredFilters.sceneKey !== null ||
+    deferredFilters.groupBy === "scene";
 
   const exitSelectionMode = useCallback(() => {
     setSelectionMode(false);
@@ -137,15 +137,15 @@ export function LibraryViewMobile() {
     [dataset, progress, setProgress]
   );
 
-  const handleRateEntireFilteredIsland = useCallback(() => {
-    if (!dataset || !filters.islandKey) return;
-    const island = dataset.islands[filters.islandKey];
-    if (!island) return;
+  const handleRateEntireFilteredScene = useCallback(() => {
+    if (!dataset || !filters.sceneKey) return;
+    const scene = dataset.scenes[filters.sceneKey];
+    if (!scene) return;
     openBulkDialog(
-      island.sentences.map((s) => s.id),
-      formatLabel(filters.islandKey)
+      scene.sentences.map((s) => s.id),
+      formatLabel(filters.sceneKey)
     );
-  }, [dataset, filters.islandKey, openBulkDialog]);
+  }, [dataset, filters.sceneKey, openBulkDialog]);
 
   const clearFilters = useCallback(() => {
     setFilters({ ...defaultLibraryFilters, search: filters.search });
@@ -176,9 +176,9 @@ export function LibraryViewMobile() {
                   {selectionMode ? "Done" : "Select"}
                 </Button>
               )}
-              {filters.islandKey && !selectionMode && (
-                <Button variant="outline" size="sm" onClick={handleRateEntireFilteredIsland}>
-                  Rate island
+              {filters.sceneKey && !selectionMode && (
+                <Button variant="outline" size="sm" onClick={handleRateEntireFilteredScene}>
+                  Rate scene
                 </Button>
               )}
               {!selectionMode && (
@@ -230,11 +230,11 @@ export function LibraryViewMobile() {
           >
             <AnimatePresence mode="popLayout">
               {groups.map((group) => {
-                const isIslandGroup =
-                  deferredFilters.groupBy === "island" &&
+                const isSceneGroup =
+                  deferredFilters.groupBy === "scene" &&
                   group.key !== "main-pathway";
-                const groupIslandIds = group.sentences
-                  .filter((s) => s.sourceType === "island")
+                const groupSceneIds = group.sentences
+                  .filter((s) => s.sourceType === "scene")
                   .map((s) => s.id);
 
                 return (
@@ -253,13 +253,13 @@ export function LibraryViewMobile() {
                           {group.label}
                         </h2>
                         <div className="flex items-center gap-2">
-                          {isIslandGroup && groupIslandIds.length > 0 && (
+                          {isSceneGroup && groupSceneIds.length > 0 && (
                             <Button
                               variant="ghost"
                               size="sm"
                               className="h-7 px-2 text-xs"
                               onClick={() =>
-                                openBulkDialog(groupIslandIds, formatLabel(group.key))
+                                openBulkDialog(groupSceneIds, formatLabel(group.key))
                               }
                             >
                               Rate all

@@ -98,7 +98,7 @@ export function TranslateAllButton({
           error={error}
           onRetry={error ? runTranslation : undefined}
           title="Translating all sentences…"
-          subtitle="All islands"
+          subtitle="All scenes"
         />
         {error && (
           <Button variant="ghost" className="mt-2" onClick={dismiss}>
@@ -137,7 +137,7 @@ export function TranslateKansaiAllButton() {
           error={error}
           onRetry={error ? runTranslation : undefined}
           title="Translating Kansai…"
-          subtitle="All islands"
+          subtitle="All scenes"
         />
         {error && (
           <Button variant="ghost" className="mt-2" onClick={dismiss}>

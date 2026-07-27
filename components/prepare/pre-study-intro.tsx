@@ -21,7 +21,7 @@ export function PreStudyIntro() {
           You found a 10-minute café vlog on YouTube. Paste the Japanese transcript here,
           tap <span className="font-medium text-foreground">Analyze transcript</span> to
           highlight unfamiliar phrases, review related sentences you already have, then create
-          a small island from the video so you can shadow and recall those lines before
+          a small scene from the video so you can shadow and recall those lines before
           watching.
         </p>
       </div>

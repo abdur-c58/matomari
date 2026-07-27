@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { KotoshimaLogo } from "@/components/brand/kotoshima-logo";
+import { MatomariLogo } from "@/components/brand/matomari-logo";
 import { Button } from "@/components/ui/button";
 import { MarketingAuthCta } from "@/components/marketing/marketing-auth-cta";
 import { MarketingThemeToggle } from "@/components/marketing/theme-toggle";
@@ -20,7 +20,7 @@ export function MarketingNav({ className }: { className?: string }) {
     >
       <div className="pointer-events-auto mx-auto mt-2 flex max-w-[1400px] items-center justify-between gap-4 rounded-2xl border border-border/60 bg-background/75 px-4 py-2 shadow-sm backdrop-blur-xl sm:px-5">
         <Link href="/" className="flex items-center gap-3 text-foreground">
-          <KotoshimaLogo size={36} />
+          <MatomariLogo size={36} />
           <span className="hidden font-display text-lg font-semibold tracking-tight min-[400px]:inline">
             {APP_NAME}
           </span>

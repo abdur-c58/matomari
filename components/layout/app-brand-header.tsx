@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { KotoshimaLogo } from "@/components/brand/kotoshima-logo";
+import { MatomariLogo } from "@/components/brand/matomari-logo";
 import { formatAppGreeting, getTimeOfDayGreeting } from "@/lib/utils/greeting";
 import { cn } from "@/lib/utils";
 
@@ -28,7 +28,7 @@ export function AppBrandHeader({ variant, className }: AppBrandHeaderProps) {
         aria-label="Go to home"
         className="shrink-0 rounded-md transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/20"
       >
-        <KotoshimaLogo size={logoSize} />
+        <MatomariLogo size={logoSize} />
       </Link>
       <p
         className={cn(

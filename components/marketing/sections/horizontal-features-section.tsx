@@ -5,7 +5,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
   AudioIllustration,
-  IslandsIllustration,
+  ScenesIllustration,
   SharingIllustration,
 } from "@/components/marketing/illustrations/feature-illustrations";
 import { MARKETING_DESKTOP_MQ } from "@/components/marketing/motion/easings";
@@ -23,7 +23,7 @@ const accents = [
 ] as const;
 
 const illustrations = [
-  IslandsIllustration,
+  ScenesIllustration,
   AudioIllustration,
   SharingIllustration,
 ] as const;
@@ -370,9 +370,9 @@ export function HorizontalFeaturesSection() {
   return (
     <section
       ref={rootRef}
-      id="islands"
+      id="scenes"
       className="relative overflow-hidden bg-background"
-      aria-label="Islands, audio, and sharing"
+      aria-label="Scenes, audio, and sharing"
     >
       {/* Desktop: pinned, full-screen scene morph */}
       <div

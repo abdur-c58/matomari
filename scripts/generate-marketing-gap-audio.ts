@@ -1,6 +1,6 @@
 /**
  * Generate homepage gap-demo MP3s via Fish Audio.
- * Does not publish to islands/catalog — writes under public/assets/marketing/.
+ * Does not publish to scenes/catalog — writes under public/assets/marketing/.
  *
  * Usage:
  *   npx tsx --env-file=.env.local scripts/generate-marketing-gap-audio.ts
@@ -115,7 +115,7 @@ async function main() {
     console.log(`  → ${phrase.filename} (${buffer.byteLength} bytes raw + pad)`);
   }
 
-  console.log("Done. Homepage-only gap audio; not added to any island.");
+  console.log("Done. Homepage-only gap audio; not added to any scene.");
 }
 
 main().catch((error) => {

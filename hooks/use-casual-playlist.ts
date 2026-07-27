@@ -23,6 +23,7 @@ export type CasualPlaylistOptions = {
   playbackRate?: number;
   dialect?: Dialect;
   albumTitle?: string;
+  speakerVoices?: { A?: string; B?: string } | null;
   onIndexChange?: (sentenceId: string, index: number) => void;
 };
 
@@ -75,6 +76,7 @@ export function useCasualPlaylist() {
       const { playlist, skipped } = buildPlaylistFromSentences(sentences, progress, {
         dialect: options?.dialect,
         translations: userLibrary?.sentenceTranslations,
+        speakerVoices: options?.speakerVoices,
       });
 
       if (playlist.length === 0) {

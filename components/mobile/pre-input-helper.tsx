@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SentenceCard } from "@/components/sentence/sentence-card";
-import { CreateTranscriptIslandDialog } from "@/components/prepare/create-transcript-island-dialog";
+import { CreateTranscriptSceneDialog } from "@/components/prepare/create-transcript-scene-dialog";
 import { PreStudyIntro } from "@/components/prepare/pre-study-intro";
 import { analyzeTranscript, findStudyCandidates } from "@/lib/services/pre-input-service";
 import { fadeUp, staggerContainer } from "@/lib/motion";
@@ -22,7 +22,7 @@ export function PreInputHelperMobile() {
   const [transcript, setTranscript] = useState("");
   const [analyzed, setAnalyzed] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
-  const [islandDialogOpen, setIslandDialogOpen] = useState(false);
+  const [sceneDialogOpen, setSceneDialogOpen] = useState(false);
 
   const unknown = analyzed ? analyzeTranscript(transcript, dataset) : [];
   const candidates = analyzed && dataset ? findStudyCandidates(transcript, dataset) : [];
@@ -69,16 +69,16 @@ export function PreInputHelperMobile() {
           variant="secondary"
           className="mt-2 w-full"
           disabled={transcript.trim().length < 20}
-          onClick={() => setIslandDialogOpen(true)}
+          onClick={() => setSceneDialogOpen(true)}
         >
           <Sparkles className="mr-2 h-4 w-4" />
-          Suggest study sentences & create island
+          Suggest study sentences & create scene
         </Button>
 
-        <CreateTranscriptIslandDialog
+        <CreateTranscriptSceneDialog
           transcript={transcript}
-          open={islandDialogOpen}
-          onOpenChange={setIslandDialogOpen}
+          open={sceneDialogOpen}
+          onOpenChange={setSceneDialogOpen}
         />
 
         {analyzing && (

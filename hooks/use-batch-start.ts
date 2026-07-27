@@ -8,7 +8,7 @@ import {
   clampBatchSize,
   getActiveBatchSentences,
   initializeBatch,
-  isFormalStudyEligibleIsland,
+  isFormalStudyEligibleScene,
 } from "@/lib/services/batch-service";
 import { getNextStudyHref } from "@/lib/services/study-flow-service";
 import type { BatchConfig } from "@/types/progress";
@@ -23,7 +23,7 @@ type ApplyBatchOptions = {
 export function useBatchStart(
   batchSize: number,
   pathwayBatch: string,
-  islandKey: string,
+  sceneKey: string,
   subtopic: string
 ) {
   const router = useRouter();
@@ -38,10 +38,10 @@ export function useBatchStart(
     ) => {
       if (!dataset) return false;
       if (
-        config.sourceType === "island" &&
-        !isFormalStudyEligibleIsland(dataset, config.islandKey)
+        config.sourceType === "scene" &&
+        !isFormalStudyEligibleScene(dataset, config.sceneKey)
       ) {
-        toast.error("Narration islands are for listening, not study sessions.");
+        toast.error("Narration scenes are for listening, not study sessions.");
         return false;
       }
 
@@ -73,7 +73,7 @@ export function useBatchStart(
       const count = result.config.activeSentenceIds.length;
       if (count === 0) {
         toast.error(
-          "No sentences available in this batch. Try another batch or island."
+          "No sentences available in this batch. Try another batch or scene."
         );
         return false;
       }
@@ -110,21 +110,21 @@ export function useBatchStart(
         await applyBatch({
           sourceType: "pathway",
           pathwayBatchNumber: batchNumber,
-          islandKey: null,
+          sceneKey: null,
           subtopic: null,
           batchSize: clampBatchSize(batchSize),
         });
-      } else if (source === "island" && islandKey) {
+      } else if (source === "scene" && sceneKey) {
         await applyBatch({
-          sourceType: "island",
+          sourceType: "scene",
           pathwayBatchNumber: null,
-          islandKey,
+          sceneKey,
           subtopic: subtopic === "all" ? null : subtopic,
           batchSize: clampBatchSize(batchSize),
         });
       }
     })();
-  }, [applyBatch, batchSize, dataset, islandKey, searchParams, subtopic]);
+  }, [applyBatch, batchSize, dataset, sceneKey, searchParams, subtopic]);
 
   return { applyBatch, dataset, progress };
 }

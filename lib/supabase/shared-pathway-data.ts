@@ -42,7 +42,7 @@ export async function fetchSharedPathwayFromDb(): Promise<SharedPathwayPayload |
 
   const parsed = parseDataset({
     main_pathway: rowData.main_pathway,
-    islands: {},
+    scenes: {},
   });
 
   return {

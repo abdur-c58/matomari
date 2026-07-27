@@ -23,7 +23,7 @@ type FlaggedRow = {
   id: string;
   english: string;
   reason: string;
-  islands: string[];
+  scenes: string[];
   occurrences: number;
 };
 
@@ -73,19 +73,19 @@ function buildFlaggedRows(): FlaggedRow[] {
 
   const byId = new Map<
     string,
-    { english: string; islands: Set<string>; occurrences: number }
+    { english: string; scenes: Set<string>; occurrences: number }
   >();
 
-  for (const [islandId, island] of Object.entries(catalog.islands)) {
-    for (const s of island.sentences) {
+  for (const [sceneId, scene] of Object.entries(catalog.scenes)) {
+    for (const s of scene.sentences) {
       if (!reasons.has(s.id)) continue;
       const cur = byId.get(s.id) ?? {
         english: s.english,
-        islands: new Set<string>(),
+        scenes: new Set<string>(),
         occurrences: 0,
       };
       cur.english = s.english;
-      cur.islands.add(island.title || islandId);
+      cur.scenes.add(scene.title || sceneId);
       cur.occurrences += 1;
       byId.set(s.id, cur);
     }
@@ -96,7 +96,7 @@ function buildFlaggedRows(): FlaggedRow[] {
       id,
       english: row.english,
       reason: reasons.get(id) ?? "",
-      islands: [...row.islands].sort(),
+      scenes: [...row.scenes].sort(),
       occurrences: row.occurrences,
     }))
     .sort((a, b) => a.english.localeCompare(b.english));
@@ -118,7 +118,7 @@ async function reviewBatch(
     id: r.id,
     english: r.english,
     flagReason: r.reason,
-    islands: r.islands,
+    scenes: r.scenes,
     occurrences: r.occurrences,
   }));
 

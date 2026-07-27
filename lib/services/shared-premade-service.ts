@@ -1,14 +1,14 @@
 import { getMeta, setMeta } from "@/lib/db/sync-queue-repository";
 import { parsePremadeCatalog } from "@/lib/validation/premade-catalog-schema";
-import type { Island } from "@/types/sentence";
+import type { Scene } from "@/types/sentence";
 import {
   EMPTY_PREMADE_CATALOG,
   type PremadeCatalog,
 } from "@/types/premade-catalog";
 import {
-  isSharedIslandLibraryKey,
+  isSharedSceneLibraryKey,
   systemCreatedBy,
-} from "@/lib/services/island-identity-service";
+} from "@/lib/services/scene-identity-service";
 
 const CACHE_KEY = "sharedPremadeCatalogCache";
 const CACHE_UPDATED_KEY = "sharedPremadeCatalogUpdatedAt";
@@ -17,15 +17,15 @@ export type SharedPremadeResult = PremadeCatalog & {
   source: "network" | "cache";
 };
 
-export function getPremadeIslandKeys(catalog: PremadeCatalog | null): Set<string> {
-  return new Set(Object.keys(catalog?.islands ?? {}));
+export function getPremadeSceneKeys(catalog: PremadeCatalog | null): Set<string> {
+  return new Set(Object.keys(catalog?.scenes ?? {}));
 }
 
-export function isPremadeIslandKey(
+export function isPremadeSceneKey(
   key: string,
   catalog: PremadeCatalog | null
 ): boolean {
-  return Boolean(catalog?.islands[key]);
+  return Boolean(catalog?.scenes[key]);
 }
 
 export function isPremadeFolderId(
@@ -35,17 +35,17 @@ export function isPremadeFolderId(
   return Boolean(catalog?.folders.some((f) => f.id === folderId));
 }
 
-export function filterUserIslands(
-  islands: Record<string, Island>,
+export function filterUserScenes(
+  scenes: Record<string, Scene>,
   premadeKeys: Set<string>
-): Record<string, Island> {
-  const result = { ...islands };
+): Record<string, Scene> {
+  const result = { ...scenes };
   for (const key of premadeKeys) {
     delete result[key];
   }
   for (const key of Object.keys(result)) {
-    // Live membership islands are composed at runtime — never persist them.
-    if (isSharedIslandLibraryKey(key) || result[key]?.readOnly) {
+    // Live membership scenes are composed at runtime — never persist them.
+    if (isSharedSceneLibraryKey(key) || result[key]?.readOnly) {
       delete result[key];
     }
   }
@@ -54,17 +54,17 @@ export function filterUserIslands(
 
 function withPremadeAttribution(catalog: PremadeCatalog): PremadeCatalog {
   const createdBy = systemCreatedBy();
-  const islands = Object.fromEntries(
-    Object.entries(catalog.islands).map(([key, island]) => [
+  const scenes = Object.fromEntries(
+    Object.entries(catalog.scenes).map(([key, scene]) => [
       key,
       {
-        ...island,
-        createdBy: island.createdBy ?? createdBy,
-        provenance: island.provenance ?? { kind: "premade" as const },
+        ...scene,
+        createdBy: scene.createdBy ?? createdBy,
+        provenance: scene.provenance ?? { kind: "premade" as const },
       },
     ])
   );
-  return { ...catalog, islands };
+  return { ...catalog, scenes };
 }
 
 async function readPremadeCache(): Promise<SharedPremadeResult | null> {

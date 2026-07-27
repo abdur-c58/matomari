@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1065 1065" role="img" aria-label="Kotoshima — 言島">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1065 1065" role="img" aria-label="Matomari — まとまり">
   <defs>
-    <mask id="kotoshima-mark" maskUnits="userSpaceOnUse" x="0" y="0" width="1065" height="1065">
+    <mask id="matomari-mark" maskUnits="userSpaceOnUse" x="0" y="0" width="1065" height="1065">
       <image href="readmeimage.png" width="1065" height="1065" preserveAspectRatio="xMidYMid meet" />
     </mask>
   </defs>
@@ -10,5 +10,5 @@
       .logo-ink { fill: #fff; }
     }
   </style>
-  <rect class="logo-ink" width="1065" height="1065" mask="url(#kotoshima-mark)" />
+  <rect class="logo-ink" width="1065" height="1065" mask="url(#matomari-mark)" />
 </svg>

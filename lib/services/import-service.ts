@@ -1,16 +1,20 @@
 import { z } from "zod";
-import type { Dataset, Island, PathwayBatch } from "@/types/sentence";
+import type { Dataset, Scene, PathwayBatch } from "@/types/sentence";
 import {
   datasetSchema,
   getAllSentences,
-  islandSchema,
+  sceneSchema,
   parseDataset,
-  validateIslandUniqueness,
+  validateSceneUniqueness,
 } from "@/lib/validation/dataset-schema";
-import { slugifyIslandKey } from "@/lib/services/dataset-mutation-service";
+import { slugifySceneKey } from "@/lib/services/dataset-mutation-service";
 
-const islandsOnlySchema = z.object({
-  islands: z.record(z.string(), islandSchema),
+const scenesOnlySchema = z.object({
+  scenes: z.record(z.string(), sceneSchema),
+});
+
+const legacyIslandsOnlySchema = z.object({
+  islands: z.record(z.string(), sceneSchema),
 });
 
 export class ImportError extends Error {
@@ -23,7 +27,7 @@ export class ImportError extends Error {
   }
 }
 
-function islandKeyFromFileName(fileName?: string): string | null {
+function sceneKeyFromFileName(fileName?: string): string | null {
   if (!fileName) return null;
   const base = fileName
     .replace(/\.json$/i, "")
@@ -35,44 +39,49 @@ function islandKeyFromFileName(fileName?: string): string | null {
   return base || null;
 }
 
-function emptyPathwayDataset(islands: Record<string, Island>): Dataset {
+function emptyPathwayDataset(scenes: Record<string, Scene>): Dataset {
   return parseDataset({
     main_pathway: { description: "", batches: [] },
-    islands,
+    scenes,
   });
 }
 
-/** Accept full datasets, `{ islands: {...} }`, single island objects, or `{ key: island }`. */
+/** Accept full datasets, `{ scenes: {...} }`, single scene objects, or `{ key: scene }`. */
 export function parseImportPayload(json: unknown, fileName?: string): Dataset {
   if (datasetSchema.safeParse(json).success) {
     return parseDataset(json);
   }
 
-  const islandsOnly = islandsOnlySchema.safeParse(json);
-  if (islandsOnly.success) {
-    return emptyPathwayDataset(islandsOnly.data.islands as Record<string, Island>);
+  const scenesOnly = scenesOnlySchema.safeParse(json);
+  if (scenesOnly.success) {
+    return emptyPathwayDataset(scenesOnly.data.scenes as Record<string, Scene>);
   }
 
-  const singleIsland = islandSchema.safeParse(json);
-  if (singleIsland.success) {
+  const legacyIslands = legacyIslandsOnlySchema.safeParse(json);
+  if (legacyIslands.success) {
+    return emptyPathwayDataset(legacyIslands.data.islands as Record<string, Scene>);
+  }
+
+  const singleScene = sceneSchema.safeParse(json);
+  if (singleScene.success) {
     const key =
-      islandKeyFromFileName(fileName) ?? slugifyIslandKey("island", []);
-    return emptyPathwayDataset({ [key]: singleIsland.data as Island });
+      sceneKeyFromFileName(fileName) ?? slugifySceneKey("scene", []);
+    return emptyPathwayDataset({ [key]: singleScene.data as Scene });
   }
 
   if (json && typeof json === "object" && !Array.isArray(json)) {
     const entries = Object.entries(json as Record<string, unknown>);
     if (entries.length === 1) {
       const [key, value] = entries[0];
-      const island = islandSchema.safeParse(value);
-      if (island.success) {
-        return emptyPathwayDataset({ [key]: island.data as Island });
+      const scene = sceneSchema.safeParse(value);
+      if (scene.success) {
+        return emptyPathwayDataset({ [key]: scene.data as Scene });
       }
     }
   }
 
   throw new ImportError(
-    "Unrecognized JSON format — expected a dataset or island export",
+    "Unrecognized JSON format — expected a dataset or scene export",
     fileName
   );
 }
@@ -111,16 +120,16 @@ function assertNoGlobalIdCollisions(base: Dataset, incoming: Dataset, fileName?:
 export function mergeDatasets(base: Dataset, incoming: Dataset, fileName?: string): Dataset {
   assertNoGlobalIdCollisions(base, incoming, fileName);
 
-  const mergedIslands: Record<string, Island> = { ...base.islands };
-  const islandKeys = Object.keys(mergedIslands);
+  const mergedScenes: Record<string, Scene> = { ...base.scenes };
+  const sceneKeys = Object.keys(mergedScenes);
 
-  for (const [rawKey, island] of Object.entries(incoming.islands)) {
-    validateIslandUniqueness(island);
-    const key = mergedIslands[rawKey]
-      ? slugifyIslandKey(rawKey, islandKeys)
+  for (const [rawKey, scene] of Object.entries(incoming.scenes)) {
+    validateSceneUniqueness(scene);
+    const key = mergedScenes[rawKey]
+      ? slugifySceneKey(rawKey, sceneKeys)
       : rawKey;
-    mergedIslands[key] = island;
-    islandKeys.push(key);
+    mergedScenes[key] = scene;
+    sceneKeys.push(key);
   }
 
   const batchByNumber = new Map(base.main_pathway.batches.map((b) => [b.batch_number, b]));
@@ -146,7 +155,7 @@ export function mergeDatasets(base: Dataset, incoming: Dataset, fileName?: strin
       description: base.main_pathway.description || incoming.main_pathway.description,
       batches: mergedBatches,
     },
-    islands: mergedIslands,
+    scenes: mergedScenes,
   });
 }
 
@@ -168,13 +177,13 @@ export function combineImportPayloads(
   return result!;
 }
 
-export function isIslandOnlyImport(dataset: Dataset): boolean {
+export function isSceneOnlyImport(dataset: Dataset): boolean {
   return (
-    dataset.main_pathway.batches.length === 0 && Object.keys(dataset.islands).length > 0
+    dataset.main_pathway.batches.length === 0 && Object.keys(dataset.scenes).length > 0
   );
 }
 
-/** Single or multi-file import — main pathway is public; imports add islands only. */
+/** Single or multi-file import — main pathway is public; imports add scenes only. */
 export function resolveImportDataset(
   payloads: { json: unknown; fileName?: string }[],
   existing: Dataset | null
@@ -183,35 +192,35 @@ export function resolveImportDataset(
     throw new ImportError("No files to import");
   }
 
-  const baseIslands = existing?.islands ?? {};
+  const baseScenes = existing?.scenes ?? {};
 
   if (payloads.length > 1) {
-    let mergedIslands = { ...baseIslands };
+    let mergedScenes = { ...baseScenes };
     for (const payload of payloads) {
       const incoming = parseImportPayload(payload.json, payload.fileName);
       const next = mergeDatasets(
-        emptyPathwayDataset(mergedIslands),
-        emptyPathwayDataset(incoming.islands),
+        emptyPathwayDataset(mergedScenes),
+        emptyPathwayDataset(incoming.scenes),
         payload.fileName
       );
-      mergedIslands = next.islands;
+      mergedScenes = next.scenes;
     }
-    return emptyPathwayDataset(mergedIslands);
+    return emptyPathwayDataset(mergedScenes);
   }
 
   const incoming = parseImportPayload(payloads[0].json, payloads[0].fileName);
 
   if (existing) {
-    return mergeDatasets(existing, emptyPathwayDataset(incoming.islands), payloads[0].fileName);
+    return mergeDatasets(existing, emptyPathwayDataset(incoming.scenes), payloads[0].fileName);
   }
 
-  return emptyPathwayDataset(incoming.islands);
+  return emptyPathwayDataset(incoming.scenes);
 }
 
 export function summarizeDataset(dataset: Dataset) {
   return {
     batchCount: dataset.main_pathway.batches.length,
-    islandCount: Object.keys(dataset.islands).length,
+    sceneCount: Object.keys(dataset.scenes).length,
     sentenceCount: getAllSentences(dataset).size,
   };
 }

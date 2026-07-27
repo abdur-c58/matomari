@@ -1,6 +1,6 @@
 /**
  * Generate homepage-only narration demo MP3s via Fish Audio.
- * Does not publish to islands/catalog — writes under public/assets/marketing/.
+ * Does not publish to scenes/catalog — writes under public/assets/marketing/.
  *
  * Usage: npx tsx --env-file=.env.local scripts/generate-marketing-narration-audio.ts
  */
@@ -90,7 +90,7 @@ async function main() {
     console.log(`  → ${filename} (${buffer.byteLength} bytes)`);
   }
 
-  console.log("Done. Homepage-only assets written; not added to any island.");
+  console.log("Done. Homepage-only assets written; not added to any scene.");
 }
 
 main().catch((error) => {

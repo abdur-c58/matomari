@@ -140,10 +140,10 @@ function updateSentencesInDataset(
         sentences: batch.sentences.map(apply),
       })),
     },
-    islands: Object.fromEntries(
-      Object.entries(dataset.islands).map(([key, island]) => [
+    scenes: Object.fromEntries(
+      Object.entries(dataset.scenes).map(([key, scene]) => [
         key,
-        { ...island, sentences: island.sentences.map(apply) },
+        { ...scene, sentences: scene.sentences.map(apply) },
       ])
     ),
   };
@@ -212,7 +212,7 @@ export async function translateSentences(
   const all = getAllSentences(dataset);
   const targets = sentenceIds
     .map((id) => all.get(id))
-    .filter((s): s is Sentence & { sourceType: "pathway" | "island"; sourceKey: string } =>
+    .filter((s): s is Sentence & { sourceType: "pathway" | "scene"; sourceKey: string } =>
       Boolean(s)
     );
 

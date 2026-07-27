@@ -7,6 +7,11 @@ import {
   fetchRemoteStatsAdmin,
   pushRemoteDataAdmin,
 } from "@/lib/supabase/server-sync";
+import {
+  assertLibraryWithinEntitlements,
+  EntitlementError,
+  getEffectiveEntitlements,
+} from "@/lib/services/entitlements-service";
 
 type PushItem = {
   table: SyncTable;
@@ -56,9 +61,29 @@ export async function POST(request: Request) {
 
   const results: Array<{ table: SyncTable; ok: boolean; error?: string }> = [];
   let lastError: string | undefined;
-
   let conflict = false;
+  let forbidden = false;
+
+  let entitlements: Awaited<ReturnType<typeof getEffectiveEntitlements>> | null =
+    null;
+
   for (const item of items) {
+    if (item.table === "user_datasets") {
+      try {
+        entitlements ??= await getEffectiveEntitlements(userId);
+        assertLibraryWithinEntitlements(item.payload, entitlements.caps);
+      } catch (err) {
+        const message =
+          err instanceof EntitlementError
+            ? err.message
+            : "Entitlement check failed";
+        results.push({ table: item.table, ok: false, error: message });
+        lastError = message;
+        forbidden = true;
+        continue;
+      }
+    }
+
     const result = await pushRemoteDataAdmin(userId, item.table, item.payload, {
       expectedRevision: item.expectedRevision,
     });
@@ -72,6 +97,6 @@ export async function POST(request: Request) {
   const ok = results.every((result) => result.ok);
   return NextResponse.json(
     { ok, results, error: lastError, conflict },
-    { status: ok ? 200 : conflict ? 409 : 502 }
+    { status: ok ? 200 : forbidden ? 403 : conflict ? 409 : 502 }
   );
 }

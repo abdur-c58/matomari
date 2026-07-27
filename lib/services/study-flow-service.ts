@@ -43,7 +43,7 @@ const STEP_META: Record<
   return_review: {
     title: "Quick review",
     instruction:
-      "Before continuing, check you still remember sentences from this island.",
+      "Before continuing, check you still remember sentences from this scene.",
     label: "Start quick review",
   },
   confirm_meanings: {

@@ -8,7 +8,7 @@ export type LibraryGroupBy =
   | "none"
   | "source"
   | "pathwayBatch"
-  | "island"
+  | "scene"
   | "category"
   | "subtopic"
   | "register"
@@ -40,9 +40,9 @@ export interface LibraryFilters {
   register: string | null;
   tag: string | null;
   status: LibraryStatusFilter;
-  sourceType: "pathway" | "island" | null;
+  sourceType: "pathway" | "scene" | null;
   pathwayBatch: number | null;
-  islandKey: string | null;
+  sceneKey: string | null;
   translated: "yes" | "no" | null;
   meaningConfirmed: boolean | null;
   groupBy: LibraryGroupBy;
@@ -63,7 +63,7 @@ export const defaultLibraryFilters: LibraryFilters = {
   status: null,
   sourceType: null,
   pathwayBatch: null,
-  islandKey: null,
+  sceneKey: null,
   translated: null,
   meaningConfirmed: null,
   groupBy: "none",
@@ -71,7 +71,7 @@ export const defaultLibraryFilters: LibraryFilters = {
 };
 
 export type LibrarySentence = Sentence & {
-  sourceType: "pathway" | "island";
+  sourceType: "pathway" | "scene";
   sourceKey: string;
 };
 
@@ -79,7 +79,7 @@ export interface LibraryMeta {
   categories: string[];
   subtopics: string[];
   tags: string[];
-  islandKeys: string[];
+  sceneKeys: string[];
   pathwayBatches: { number: number; title: string }[];
   registers: string[];
   difficulties: number[];
@@ -93,9 +93,9 @@ export interface LibraryGroup {
 }
 
 export function getLibrarySentences(dataset: Dataset): LibrarySentence[] {
-  // Pathway curriculum is retired from the product surface — library is islands only.
+  // Pathway curriculum is retired from the product surface — library is scenes only.
   return Array.from(getAllSentences(dataset).values()).filter(
-    (s) => s.sourceType === "island"
+    (s) => s.sourceType === "scene"
   );
 }
 
@@ -124,7 +124,7 @@ export function buildLibraryMeta(dataset: Dataset): LibraryMeta {
     categories: [...categories].sort(),
     subtopics: [...subtopics].sort(),
     tags: [...tags].sort(),
-    islandKeys: Object.keys(dataset.islands).sort(),
+    sceneKeys: Object.keys(dataset.scenes).sort(),
     pathwayBatches: [],
     registers: [...registers].sort(),
     difficulties: [...difficulties].sort((a, a2) => a - a2),
@@ -201,7 +201,7 @@ export function filterLibrarySentences(
 
     if (filters.sourceType === "pathway") return false;
     if (filters.pathwayBatch !== null) return false;
-    if (filters.islandKey && s.sourceKey !== filters.islandKey) return false;
+    if (filters.sceneKey && s.sourceKey !== filters.sceneKey) return false;
 
     if (filters.translated === "yes" && !isTranslated(s)) return false;
     if (filters.translated === "no" && isTranslated(s)) return false;
@@ -287,7 +287,7 @@ export function groupLibrarySentences(
 
     switch (groupBy) {
       case "source":
-        add(s.sourceType === "pathway" ? "pathway" : "island", s);
+        add(s.sourceType === "pathway" ? "pathway" : "scene", s);
         break;
       case "pathwayBatch": {
         const key =
@@ -297,8 +297,8 @@ export function groupLibrarySentences(
         add(key, s);
         break;
       }
-      case "island": {
-        const key = s.sourceType === "island" ? s.sourceKey : "main-pathway";
+      case "scene": {
+        const key = s.sourceType === "scene" ? s.sourceKey : "main-pathway";
         add(key, s);
         break;
       }
@@ -336,11 +336,11 @@ export function groupLibrarySentences(
   const labelFor = (key: string): string => {
     switch (groupBy) {
       case "source":
-        return key === "pathway" ? "Main pathway" : "Islands";
+        return key === "pathway" ? "Main pathway" : "Scenes";
       case "pathwayBatch":
-        if (key === "not-pathway") return "Islands & other";
+        if (key === "not-pathway") return "Scenes & other";
         return `Batch ${key.replace("batch-", "")}${batchTitle(key.replace("batch-", "")) ? `: ${batchTitle(key.replace("batch-", ""))}` : ""}`;
-      case "island":
+      case "scene":
         return key === "main-pathway" ? "Main pathway" : formatLabel(key);
       case "register":
         return key.charAt(0).toUpperCase() + key.slice(1);
@@ -386,7 +386,7 @@ export function countActiveFilters(filters: LibraryFilters): number {
   if (filters.status) n++;
   if (filters.sourceType) n++;
   if (filters.pathwayBatch !== null) n++;
-  if (filters.islandKey) n++;
+  if (filters.sceneKey) n++;
   if (filters.translated) n++;
   if (filters.meaningConfirmed !== null) n++;
   if (filters.groupBy !== "none") n++;
@@ -412,12 +412,12 @@ export function describeActiveFilters(
     labels.push(`Lv ${filters.difficultyMin ?? 1}–${filters.difficultyMax ?? 9}`);
   }
   if (filters.sourceType === "pathway") labels.push("Pathway only");
-  if (filters.sourceType === "island") labels.push("Islands only");
+  if (filters.sourceType === "scene") labels.push("Scenes only");
   if (filters.pathwayBatch !== null) {
     const batch = meta.pathwayBatches.find((b) => b.number === filters.pathwayBatch);
     labels.push(batch ? `Batch ${batch.number}` : `Batch ${filters.pathwayBatch}`);
   }
-  if (filters.islandKey) labels.push(formatLabel(filters.islandKey));
+  if (filters.sceneKey) labels.push(formatLabel(filters.sceneKey));
   if (filters.translated === "yes") labels.push("Translated");
   if (filters.translated === "no") labels.push("Untranslated");
   if (filters.meaningConfirmed === true) labels.push("Meaning confirmed");

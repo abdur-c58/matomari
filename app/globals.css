@@ -733,7 +733,7 @@ html[data-theme-family="normal"] body::before {
     border-color: color-mix(in srgb, var(--foreground) 20%, var(--border));
   }
 
-  .group:hover .island-preview {
+  .group:hover .scene-preview {
     opacity: 1;
   }
 }
@@ -1705,11 +1705,11 @@ html[data-theme="paper-dark"] .today-daily-status--hero .today-daily-status-mute
   mix-blend-mode: overlay;
 }
 
-.essentials-island-glow {
+.essentials-scene-glow {
   position: relative;
 }
 
-.essentials-island-glow::before {
+.essentials-scene-glow::before {
   content: "";
   position: absolute;
   inset: -4px;
@@ -1723,16 +1723,16 @@ html[data-theme="paper-dark"] .today-daily-status--hero .today-daily-status-mute
   );
   filter: blur(12px);
   opacity: 0.7;
-  animation: essentials-island-glow-breathe 3.4s ease-in-out infinite;
+  animation: essentials-scene-glow-breathe 3.4s ease-in-out infinite;
   pointer-events: none;
 }
 
-.essentials-island-glow > * {
+.essentials-scene-glow > * {
   position: relative;
   z-index: 1;
 }
 
-.essentials-island-card {
+.essentials-scene-card {
   border-color: color-mix(in srgb, #a11f2a 70%, transparent) !important;
   box-shadow:
     0 0 0 1px color-mix(in srgb, #a11f2a 50%, transparent),
@@ -1744,7 +1744,7 @@ html[data-theme="paper-dark"] .today-daily-status--hero .today-daily-status-mute
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .essentials-island-glow:hover .essentials-island-card {
+  .essentials-scene-glow:hover .essentials-scene-card {
     border-color: #e0707a !important;
     box-shadow:
       0 0 0 1px #e0707a,
@@ -1753,13 +1753,13 @@ html[data-theme="paper-dark"] .today-daily-status--hero .today-daily-status-mute
       var(--shadow-md);
   }
 
-  .essentials-island-glow:hover::before {
+  .essentials-scene-glow:hover::before {
     opacity: 1;
     filter: blur(14px);
   }
 }
 
-@keyframes essentials-island-glow-breathe {
+@keyframes essentials-scene-glow-breathe {
   0%,
   100% {
     opacity: 0.55;
@@ -1771,11 +1771,11 @@ html[data-theme="paper-dark"] .today-daily-status--hero .today-daily-status-mute
   }
 }
 
-.narration-island-glow {
+.narration-scene-glow {
   position: relative;
 }
 
-.narration-island-glow::before {
+.narration-scene-glow::before {
   content: "";
   position: absolute;
   inset: -2px;
@@ -1789,16 +1789,16 @@ html[data-theme="paper-dark"] .today-daily-status--hero .today-daily-status-mute
   );
   filter: blur(6px);
   opacity: 0.55;
-  animation: narration-island-glow-breathe 3.6s ease-in-out infinite;
+  animation: narration-scene-glow-breathe 3.6s ease-in-out infinite;
   pointer-events: none;
 }
 
-.narration-island-glow > * {
+.narration-scene-glow > * {
   position: relative;
   z-index: 1;
 }
 
-.narration-island-card {
+.narration-scene-card {
   border-color: color-mix(in srgb, #9b87c7 55%, transparent) !important;
   box-shadow:
     0 0 0 1px color-mix(in srgb, #9b87c7 28%, transparent),
@@ -1810,7 +1810,7 @@ html[data-theme="paper-dark"] .today-daily-status--hero .today-daily-status-mute
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .narration-island-glow:hover .narration-island-card {
+  .narration-scene-glow:hover .narration-scene-card {
     border-color: #c4b5e0 !important;
     box-shadow:
       0 0 0 1px #c4b5e0,
@@ -1819,13 +1819,13 @@ html[data-theme="paper-dark"] .today-daily-status--hero .today-daily-status-mute
       var(--shadow-md);
   }
 
-  .narration-island-glow:hover::before {
+  .narration-scene-glow:hover::before {
     opacity: 0.8;
     filter: blur(7px);
   }
 }
 
-@keyframes narration-island-glow-breathe {
+@keyframes narration-scene-glow-breathe {
   0%,
   100% {
     opacity: 0.4;
@@ -1885,7 +1885,7 @@ html[data-theme="light"] .decorated-study-surface--narration::before {
   mix-blend-mode: multiply;
 }
 
-html[data-theme="light"] .essentials-island-glow::before {
+html[data-theme="light"] .essentials-scene-glow::before {
   background: radial-gradient(
     120% 100% at 50% 50%,
     color-mix(in srgb, #a11f2a 62%, transparent) 0%,
@@ -1896,14 +1896,14 @@ html[data-theme="light"] .essentials-island-glow::before {
   filter: blur(14px);
 }
 
-html[data-theme="light"] .essentials-island-card {
+html[data-theme="light"] .essentials-scene-card {
   border-color: color-mix(in srgb, #a11f2a 78%, transparent) !important;
   box-shadow:
     0 0 0 1px color-mix(in srgb, #a11f2a 58%, transparent),
     0 0 28px color-mix(in srgb, #a11f2a 34%, transparent);
 }
 
-html[data-theme="light"] .narration-island-glow::before {
+html[data-theme="light"] .narration-scene-glow::before {
   background: radial-gradient(
     120% 110% at 50% 50%,
     color-mix(in srgb, #9b87c7 52%, transparent) 0%,
@@ -1914,7 +1914,7 @@ html[data-theme="light"] .narration-island-glow::before {
   filter: blur(8px);
 }
 
-html[data-theme="light"] .narration-island-card {
+html[data-theme="light"] .narration-scene-card {
   border-color: color-mix(in srgb, #9b87c7 72%, transparent) !important;
   box-shadow:
     0 0 0 1px color-mix(in srgb, #9b87c7 42%, transparent),
@@ -1958,53 +1958,53 @@ html[data-theme="paper-dark"] .decorated-study-surface--narration::before {
   mix-blend-mode: soft-light;
 }
 
-html[data-theme="paper-dark"] .essentials-island-card {
+html[data-theme="paper-dark"] .essentials-scene-card {
   border-color: color-mix(in srgb, #df746d 65%, transparent) !important;
   box-shadow:
     0 0 0 1px color-mix(in srgb, #df746d 35%, transparent),
     0 0 25px color-mix(in srgb, #df746d 22%, transparent);
 }
 
-html[data-theme="paper-dark"] .narration-island-card {
+html[data-theme="paper-dark"] .narration-scene-card {
   border-color: color-mix(in srgb, #a78bdd 62%, transparent) !important;
   box-shadow:
     0 0 0 1px color-mix(in srgb, #a78bdd 32%, transparent),
     0 0 20px color-mix(in srgb, #a78bdd 22%, transparent);
 }
 
-.essentials-island-badge {
+.essentials-scene-badge {
   background: color-mix(in srgb, #a11f2a 35%, transparent);
   color: #fecaca;
 }
 
-.narration-island-badge {
+.narration-scene-badge {
   background: color-mix(in srgb, #9b87c7 30%, transparent);
   color: #ede9fe;
 }
 
-html[data-theme="light"] .essentials-island-badge,
-html[data-theme="true-light"] .essentials-island-badge {
+html[data-theme="light"] .essentials-scene-badge,
+html[data-theme="true-light"] .essentials-scene-badge {
   background: color-mix(in srgb, #a11f2a 16%, transparent);
   color: #a11f2a;
 }
 
-html[data-theme="light"] .narration-island-badge,
-html[data-theme="true-light"] .narration-island-badge {
+html[data-theme="light"] .narration-scene-badge,
+html[data-theme="true-light"] .narration-scene-badge {
   background: color-mix(in srgb, #9b87c7 22%, transparent);
   color: #6f5b9e;
 }
 
-html[data-theme="dark"] .essentials-island-badge {
+html[data-theme="dark"] .essentials-scene-badge {
   background: color-mix(in srgb, #a11f2a 35%, transparent);
   color: #fecaca;
 }
 
-html[data-theme="dark"] .narration-island-badge {
+html[data-theme="dark"] .narration-scene-badge {
   background: color-mix(in srgb, #9b87c7 30%, transparent);
   color: #ede9fe;
 }
 
-html[data-theme="dark"] .narration-island-icon {
+html[data-theme="dark"] .narration-scene-icon {
   background: color-mix(in srgb, #9b87c7 18%, transparent);
   color: #ddd6fe;
 }

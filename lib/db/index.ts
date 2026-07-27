@@ -107,9 +107,9 @@ export const DEFAULT_PROGRESS: UserProgress = {
     notifications: { ...DEFAULT_NOTIFICATION_PREFERENCES, lastSent: {} },
   },
   completedPathwayBatches: [],
-  completedIslands: [],
-  islandFolders: [],
-  islandFolderAssignments: {},
+  completedScenes: [],
+  sceneFolders: [],
+  sceneFolderAssignments: {},
 };
 
 export const DEFAULT_STATS: AppStats = {

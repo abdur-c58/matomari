@@ -2,13 +2,13 @@ import type { DatasetSummary, TutorContext } from "./types";
 import { APP_NAME } from "@/lib/constants/branding";
 
 const METHOD_SUMMARY = `${APP_NAME} is a Japanese learning app using a three-step method:
-1. Batch learning (~20-25 sentences from a pathway or language island)
+1. Batch learning (~20-25 sentences from a pathway or language scene)
 2. Listen & shadow at native speed after confirming meanings
 3. Active recall from English prompts with honest self-rating (1-5 stars)
 Sentences retire from the active batch at 4+ stars and enter spaced repetition review.`;
 
 /**
- * Shared rules for AI-generated study sentences (islands, translation, review).
+ * Shared rules for AI-generated study sentences (scenes, translation, review).
  * One sentences[] entry = one study card; english may hold multiple sentences when natural.
  */
 export const STUDY_SENTENCE_SHAPE_RULES = `STUDY UNIT SHAPE:
@@ -33,7 +33,7 @@ export function buildTutorSystemPrompt(
     `Use Markdown for readability: **bold** for key terms, bullet lists for steps, \`inline code\` for Japanese fragments, and short headings when comparing options.`,
     `Be concise and practical. Do not invent sentences not in the user's dataset when discussing specific content.`,
     ``,
-    `Dataset: ${summary.sentenceCount} sentences across islands: ${summary.islandKeys.join(", ") || "none"}.`,
+    `Dataset: ${summary.sentenceCount} sentences across scenes: ${summary.sceneKeys.join(", ") || "none"}.`,
   ];
 
   if (context.type === "sentence" && summary.focusSentence) {
@@ -61,22 +61,22 @@ export function buildTutorSystemPrompt(
     );
   }
 
-  if (context.type === "island" && summary.focusIsland) {
-    const island = summary.focusIsland;
+  if (context.type === "scene" && summary.focusScene) {
+    const scene = summary.focusScene;
     parts.push(
       ``,
-      `The user is asking about the "${island.key}" language island.`,
-      `Description: ${island.description}`,
-      `Subtopics: ${island.subtopics.join(", ")}`,
-      `Sentences in this island (${island.sentences.length}):`,
-      ...island.sentences.slice(0, 40).map((s) =>
+      `The user is asking about the "${scene.key}" language scene.`,
+      `Description: ${scene.description}`,
+      `Subtopics: ${scene.subtopics.join(", ")}`,
+      `Sentences in this scene (${scene.sentences.length}):`,
+      ...scene.sentences.slice(0, 40).map((s) =>
         s.japanese
           ? `  - [${s.id}] ${s.japanese} — ${s.english}`
           : `  - [${s.id}] ${s.english} (not yet translated)`
       )
     );
-    if (island.sentences.length > 40) {
-      parts.push(`  ... and ${island.sentences.length - 40} more`);
+    if (scene.sentences.length > 40) {
+      parts.push(`  ... and ${scene.sentences.length - 40} more`);
     }
   }
 
@@ -97,7 +97,7 @@ export const PARALINGUISTIC_TAG_RULES = `PARALINGUISTIC TAGS (Fish Audio free-fo
 - Store tags WITHOUT brackets in the paralinguisticTags string array (e.g. ["laughing"], ["weak voice"]).
 - Do NOT put Fish tags inside english text. Keep semantic topic tags in the separate tags array.`;
 
-export function buildIslandGenerationPrompt(
+export function buildSceneGenerationPrompt(
   theme: string,
   sentenceCount: number,
   catalog: Array<{
@@ -114,6 +114,17 @@ export function buildIslandGenerationPrompt(
     levelDescription?: string;
     difficultyRange?: [number, number];
     extraInstructions?: string;
+    /** When generating a mid/late chunk of a large scene. */
+    chunk?: {
+      batchIndex: number;
+      batchCount: number;
+      batchTarget: number;
+      priorSummary?: string;
+      priorTail?: Array<{
+        english: string;
+        speaker?: string;
+      }>;
+    };
   }
 ): string {
   const catalogJson = JSON.stringify(
@@ -129,6 +140,25 @@ export function buildIslandGenerationPrompt(
 
   const extraBlock = options.extraInstructions?.trim()
     ? `\nUSER PREFERENCES (follow closely):\n${options.extraInstructions.trim()}\n`
+    : "";
+
+  const chunk = options.chunk;
+  const chunkBlock = chunk
+    ? `\nCHUNKED GENERATION: This is batch ${chunk.batchIndex + 1} of ${chunk.batchCount}.
+- Produce roughly ${chunk.batchTarget} NEW sentences for THIS batch only (not the full scene).
+- Continue the same scene theme, tone, and difficulty; do not restart the scene from scratch.
+- Do not repeat English lines already covered in prior batches.
+${
+  chunk.priorSummary
+    ? `- Prior batches summary: ${chunk.priorSummary}`
+    : ""
+}
+${
+  chunk.priorTail && chunk.priorTail.length > 0
+    ? `- Last lines from the previous batch (continue after these):\n${JSON.stringify(chunk.priorTail)}`
+    : ""
+}
+- Keep sceneKey and description consistent with the theme; narrationMode (if any) should match the ongoing scene.\n`
     : "";
 
   const naturalMode = options.difficultyMode === "natural";
@@ -151,10 +181,10 @@ Difficulty range: ${options.difficultyRange?.[0] ?? 3} to ${options.difficultyRa
   const formatBlock = narration
     ? `FORMAT: NARRATION (multi-speaker dialogue)
 - Produce a back-and-forth dialogue between Speaker A and Speaker B that fits the theme.
-- Set island fields: "format": "narration", "speakers": ["A", "B"].
+- Set scene fields: "format": "narration", "speakers": ["A", "B"].
 - Define "narrationMode": { "context": "concise description of the scene and relationship", "toneTags": ["1–3 free-form Fish delivery instructions"] }.
-- narrationMode.toneTags apply to EVERY line and should establish this island's shared vocal world (setting, emotional baseline, conversational energy, and relationship). Make them specific enough to this context, but reusable when another island genuinely has the exact same delivery.
-- Per-line paralinguisticTags are reactions layered on top of narrationMode.toneTags. Do not repeat an island-level tone tag on each line.
+- narrationMode.toneTags apply to EVERY line and should establish this scene's shared vocal world (setting, emotional baseline, conversational energy, and relationship). Make them specific enough to this context, but reusable when another scene genuinely has the exact same delivery.
+- Per-line paralinguisticTags are reactions layered on top of narrationMode.toneTags. Do not repeat an scene-level tone tag on each line.
 - Design the dialogue as a performed scene, not a sterile textbook exchange. Include expressive beats wherever the context gives you a reason: audible thinking ("hmm"), laughter, sighs, hesitation, breath changes, whispers, interruptions, or emotionally specific delivery.
 - Prefer short, concrete performance directions. Fish can follow ANY concise natural-language audio tag; the examples are inspiration, not an allowlist. Never invent coughing tags.
 - Make reactions propagate naturally between speakers. If A sounds tired, upset, laughs, whispers, or hesitates, B's next wording and delivery should acknowledge it when a real person would.
@@ -164,7 +194,7 @@ Difficulty range: ${options.difficultyRange?.[0] ?? 3} to ${options.difficultyRa
 - Every sentence MUST include narrationAudio: { "pauseAfterMs": one of 250|400|600|800|1000|1200|1500|2000|2500|3000 }.
 - Choose pauses by conversational beat (quick exchanges shorter; thoughtful replies longer).
 - Use up to two short per-line tags when layered performance is necessary (for example ["weak voice"] or ["thinking", "soft chuckle"]).
-- Do NOT reuse catalog sentences that lack a compatible speaker for narration unless you also set speaker explicitly on the reused entry as {"id":"...","speaker":"A"|"B","narrationAudio":{...}} — prefer NEW dialogue lines for narration islands.`
+- Do NOT reuse catalog sentences that lack a compatible speaker for narration unless you also set speaker explicitly on the reused entry as {"id":"...","speaker":"A"|"B","narrationAudio":{...}} — prefer NEW dialogue lines for narration scenes.`
     : `FORMAT: STANDARD (single-speaker sentence batch)
 - Do NOT include format/speakers/speaker/narrationAudio fields.
 - When reusing catalog sentences, strip any inherited speaker/narrationAudio — reused entries should be {"id":"existing-id"} only.`;
@@ -197,13 +227,13 @@ Difficulty range: ${options.difficultyRange?.[0] ?? 3} to ${options.difficultyRa
       "translated": false
     }`;
 
-  return `Generate a language island for the ${APP_NAME} Japanese learning app.
+  return `Generate a language scene for the ${APP_NAME} Japanese learning app.
 
 Theme: "${theme}"
 Approximate duration: ${options.durationLabel}
 Target sentence count: roughly ${sentenceCount}
 Aim for roughly ${sentenceCount} sentences, but prioritize a natural, complete contextual arc over hitting the exact number — end where the scene/topic naturally concludes, even if that's a bit above or below target.
-${levelBlock}
+${chunkBlock}${levelBlock}
 ${formatBlock}
 ${extraBlock}
 EXISTING SENTENCE CATALOG (reuse by exact id when thematically appropriate${!narration && !naturalMode ? " AND they match the target level" : ""}):
@@ -212,7 +242,7 @@ ${catalogJson || "[]"}
 RULES:
 1. Return valid JSON only with this shape:
 {
-  "islandKey": "snake_case_slug",
+  "sceneKey": "snake_case_slug",
   "description": "string",
   "subtopics": ["string"],
   ${narration ? `"format": "narration",
@@ -227,12 +257,12 @@ RULES:
   ]
 }
 2. For reusedIds: list catalog ids in reusedIds AND in sentences use ONLY {"id": "existing-id"} (plus optional narration speaker/timing overrides for narration format).
-3. For NEW sentences: include ALL required fields. English only — no japanese/reading/romaji. Use id pattern "{islandKey}-001", etc.
+3. For NEW sentences: include ALL required fields. English only — no japanese/reading/romaji. Use id pattern "{sceneKey}-001", etc.
 4. Set translated: false on all new sentences.
-5. NO duplicate english text within the island.
-6. NO duplicate ids within the island.
+5. NO duplicate english text within the scene.
+6. NO duplicate ids within the scene.
 7. When reusing catalog sentences, do NOT reuse two entries with the same japanese translation.
-8. Prefer reusing 20-40% of catalog entries when they fit${!naturalMode ? " and match the target level" : " thematically"} — except narration islands, which should mostly be NEW dialogue.
+8. Prefer reusing 20-40% of catalog entries when they fit${!naturalMode ? " and match the target level" : " thematically"} — except narration scenes, which should mostly be NEW dialogue.
 9. New English sentences must be practical, natural phrases for the theme${!naturalMode ? "" : " — including short authentic reaction expressions when they carry a real conversational beat"}.
 10. subtopics array should list all subtopics used in sentences.
 
@@ -241,17 +271,17 @@ ${PARALINGUISTIC_TAG_RULES}
 ${STUDY_SENTENCE_SHAPE_RULES}`;
 }
 
-export function buildIslandSuggestionsPrompt(input: {
-  existingIslandKeys: string[];
+export function buildSceneSuggestionsPrompt(input: {
+  existingSceneKeys: string[];
   pathwayBatchTitles: string[];
   pathwaySubtopics: string[];
 }): string {
-  return `Suggest language island themes for the ${APP_NAME} Japanese learning app.
+  return `Suggest language scene themes for the ${APP_NAME} Japanese learning app.
 
-The user has a main pathway (core curriculum) and optional topic islands (~20–75 situational sentence sets).
+The user has a main pathway (core curriculum) and optional topic scenes (~20–75 situational sentence sets).
 
-EXISTING ISLANDS (do not duplicate these themes):
-${input.existingIslandKeys.length ? input.existingIslandKeys.map((k) => `- ${k.replace(/_/g, " ")}`).join("\n") : "- none yet"}
+EXISTING SCENES (do not duplicate these themes):
+${input.existingSceneKeys.length ? input.existingSceneKeys.map((k) => `- ${k.replace(/_/g, " ")}`).join("\n") : "- none yet"}
 
 MAIN PATHWAY BATCH TITLES (for context on what they are learning):
 ${input.pathwayBatchTitles.slice(0, 15).map((t) => `- ${t}`).join("\n") || "- none"}
@@ -267,10 +297,10 @@ Return valid JSON only:
 }
 
 RULES:
-1. Suggest 6 practical, distinct island themes a learner would want AFTER pathway basics.
+1. Suggest 6 practical, distinct scene themes a learner would want AFTER pathway basics.
 2. Mix everyday life, travel, work, social, and niche situational topics.
-3. Themes should complement (not repeat) existing islands and pathway subtopics.
-4. Keep theme strings concise (2–6 words) — they will be passed directly to island generation.
+3. Themes should complement (not repeat) existing scenes and pathway subtopics.
+4. Keep theme strings concise (2–6 words) — they will be passed directly to scene generation.
 5. Reasons should be friendly and specific, under 120 characters each.`;
 }
 
@@ -417,7 +447,7 @@ TASK:
 4. Prefer lines with useful grammar, vocabulary, natural spoken phrasing, or emotional/colorful expressions.
 5. Keep each japanese excerpt faithful to the transcript wording (light trimming OK; do not rewrite into textbook Japanese).
 6. Provide a clear English gloss for each line.
-7. Suggest a short island name and description summarizing the content/situation.
+7. Suggest a short scene name and description summarizing the content/situation.
 
 For each sentence:
 - japanese: the study line as it appears (or naturally trimmed) in the transcript
@@ -430,7 +460,7 @@ For each sentence:
 
 Return valid JSON only:
 {
-  "suggestedName": "short island name, 2-6 words",
+  "suggestedName": "short scene name, 2-6 words",
   "description": "1-2 sentences describing the transcript topic/situation",
   "sentences": [
     {
@@ -453,10 +483,10 @@ export function buildSentenceReviewPrompt(input: {
   english: string;
   register?: string;
   contextNotes?: string;
-  islandName?: string;
+  sceneName?: string;
 }): string {
   const context = [
-    input.islandName ? `Island theme: ${input.islandName}` : null,
+    input.sceneName ? `Scene theme: ${input.sceneName}` : null,
     input.register ? `User-selected register: ${input.register}` : null,
     input.contextNotes ? `User context notes: ${input.contextNotes}` : null,
   ]
@@ -486,7 +516,7 @@ Be concise. Skip toneQuestions when the sentence is clear. Do not over-correct n
 
 export function buildSentenceIntentPrompt(input: {
   english: string;
-  islandName?: string;
+  sceneName?: string;
   register?: string;
   conversationHistory?: { role: "user" | "assistant"; content: string }[];
 }): string {
@@ -498,13 +528,13 @@ export function buildSentenceIntentPrompt(input: {
     : "";
 
   const context = [
-    input.islandName ? `Island theme: ${input.islandName}` : null,
+    input.sceneName ? `Scene theme: ${input.sceneName}` : null,
     input.register ? `Preferred register if known: ${input.register}` : null,
   ]
     .filter(Boolean)
     .join("\n");
 
-  return `You help a Japanese learner add a custom English sentence to their study island.
+  return `You help a Japanese learner add a custom English sentence to their study scene.
 
 ${STUDY_SENTENCE_SHAPE_RULES}
 

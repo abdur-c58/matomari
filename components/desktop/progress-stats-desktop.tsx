@@ -75,7 +75,7 @@ export function ProgressStatsDesktop() {
       weak,
       avgDaysToMastery,
       completedBatches: progress.completedPathwayBatches.length,
-      completedIslands: progress.completedIslands.length,
+      completedScenes: progress.completedScenes.length,
       modeChart,
       weakTrend,
       activeThisWeek,
@@ -96,7 +96,7 @@ export function ProgressStatsDesktop() {
             accent="foreground"
           />
           <StatCard title="Batches done" value={String(metrics.completedBatches)} accent="listen" />
-          <StatCard title="Islands done" value={String(metrics.completedIslands)} accent="meaning" />
+          <StatCard title="Scenes done" value={String(metrics.completedScenes)} accent="meaning" />
         </div>
 
         <Card className="mt-4">

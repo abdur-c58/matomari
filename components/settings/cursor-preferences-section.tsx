@@ -15,7 +15,7 @@ export function CursorPreferencesSection({
     <Card className="mb-6 p-4">
       <Label className="text-base">Cursor</Label>
       <p className="mt-1 text-sm leading-relaxed text-muted">
-        Kotoshima uses a custom cursor in the app. Turn this on if you prefer your system
+        Matomari uses a custom cursor in the app. Turn this on if you prefer your system
         cursor instead. Marketing pages always keep the custom cursor.
       </p>
 

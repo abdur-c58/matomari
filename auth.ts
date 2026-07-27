@@ -48,6 +48,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }).catch((err) => {
           console.warn("Profile sync failed:", err);
         });
+        // Ensure subscription row exists for entitlements.
+        void import("@/lib/services/billing/subscription-service").then(
+          ({ ensureUserSubscriptionAdmin }) =>
+            ensureUserSubscriptionAdmin(supabaseUserId).catch((err) => {
+              console.warn("Subscription ensure failed:", err);
+            })
+        );
       }
       return token;
     },

@@ -40,7 +40,7 @@ const chipClass = (active: boolean) =>
 
 const GROUP_OPTIONS: { value: LibraryGroupBy; label: string }[] = [
   { value: "none", label: "No grouping" },
-  { value: "island", label: "Island" },
+  { value: "scene", label: "Scene" },
   { value: "category", label: "Category" },
   { value: "subtopic", label: "Subtopic" },
   { value: "register", label: "Register" },
@@ -184,16 +184,16 @@ export function FilterDrawer({ filters, onChange, meta, activeFilterCount }: Fil
             </div>
           </section>
 
-          {meta.islandKeys.length > 0 && (
+          {meta.sceneKeys.length > 0 && (
             <section>
-              <Label>Island</Label>
+              <Label>Scene</Label>
               <Select
-                value={filters.islandKey ?? "all"}
+                value={filters.sceneKey ?? "all"}
                 onValueChange={(v) =>
                   onChange({
                     ...filters,
-                    islandKey: v === "all" ? null : v,
-                    sourceType: v === "all" ? filters.sourceType : "island",
+                    sceneKey: v === "all" ? null : v,
+                    sourceType: v === "all" ? filters.sourceType : "scene",
                   })
                 }
               >
@@ -201,8 +201,8 @@ export function FilterDrawer({ filters, onChange, meta, activeFilterCount }: Fil
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All islands</SelectItem>
-                  {meta.islandKeys.map((k) => (
+                  <SelectItem value="all">All scenes</SelectItem>
+                  {meta.sceneKeys.map((k) => (
                     <SelectItem key={k} value={k}>
                       {k.replace(/_/g, " ")}
                     </SelectItem>

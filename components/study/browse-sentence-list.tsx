@@ -9,7 +9,7 @@ import { SpeakerChip } from "@/components/study/speaker-chip";
 import { bulkApplySentenceRatings } from "@/lib/services/bulk-rating-service";
 import { suggestRating } from "@/lib/services/rating-service";
 import { groupNarrationTurns } from "@/lib/study/narration-turns";
-import type { IslandBrowseDisplay } from "@/lib/constants/island-browse";
+import type { SceneBrowseDisplay } from "@/lib/constants/scene-browse";
 import { useLongPress } from "@/hooks/use-long-press";
 import { MOBILE_MEDIA_QUERY, useIsMobileViewport } from "@/hooks/use-is-mobile-viewport";
 import { useSwipeable } from "react-swipeable";
@@ -100,7 +100,7 @@ function BrowseSentenceRow({
   selected: boolean;
   isPlaying: boolean;
   isMobile: boolean;
-  displayMode: IslandBrowseDisplay;
+  displayMode: SceneBrowseDisplay;
   expansionStep: number;
   showSpeaker?: boolean;
   onExpand: () => void;
@@ -220,7 +220,7 @@ export function BrowseSentenceList({
   narration = false,
 }: {
   sentences: Sentence[];
-  displayMode: IslandBrowseDisplay;
+  displayMode: SceneBrowseDisplay;
   selectionMode?: boolean;
   isSelected?: (sentenceId: string) => boolean;
   onToggleSelect?: (sentenceId: string, index: number, shiftKey: boolean) => void;
@@ -516,7 +516,7 @@ export function BrowseSentenceList({
 
   if (sentences.length === 0) {
     return (
-      <p className="py-8 text-center text-sm text-muted">No sentences in this island yet.</p>
+      <p className="py-8 text-center text-sm text-muted">No sentences in this scene yet.</p>
     );
   }
 

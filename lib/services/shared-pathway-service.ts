@@ -20,15 +20,15 @@ export function composeDataset(
 ): Dataset {
   return parseDataset({
     main_pathway: mainPathway,
-    islands: {
-      ...(premadeCatalog?.islands ?? {}),
-      ...(library?.islands ?? {}),
+    scenes: {
+      ...(premadeCatalog?.scenes ?? {}),
+      ...(library?.scenes ?? {}),
     },
   });
 }
 
 export function extractUserLibrary(dataset: Dataset): UserLibrary {
-  return { islands: dataset.islands, sentenceTranslations: undefined };
+  return { scenes: dataset.scenes, sentenceTranslations: undefined };
 }
 
 export function normalizeStoredLibrary(raw: unknown): UserLibrary | null {
@@ -36,13 +36,13 @@ export function normalizeStoredLibrary(raw: unknown): UserLibrary | null {
 
   if ("main_pathway" in raw) {
     const legacy = raw as Dataset;
-    return { islands: legacy.islands ?? {} };
+    return { scenes: legacy.scenes ?? {} };
   }
 
-  if ("islands" in raw) {
+  if ("scenes" in raw) {
     const lib = raw as UserLibrary;
     return {
-      islands: lib.islands ?? {},
+      scenes: lib.scenes ?? {},
       sentenceTranslations: lib.sentenceTranslations,
     };
   }

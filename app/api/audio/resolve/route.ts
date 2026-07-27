@@ -10,6 +10,7 @@ import { getAudioMetadataByTextHash } from "@/lib/supabase/server-data";
 import { getSignedAudioUrl } from "@/lib/storage/signed-url";
 import { r2ObjectExists } from "@/lib/storage/r2-client";
 import type { TranslatedFields } from "@/types/sentence";
+import { resolveNarrationVoiceFishId } from "@/lib/constants/narration-voices";
 
 const bodySchema = z.object({
   sentenceId: z.string().min(1),
@@ -19,6 +20,8 @@ const bodySchema = z.object({
   placeholders: z.array(z.any()).optional(),
   dialect: z.enum(["standard", "kansai"]).default("standard"),
   speaker: z.enum(["A", "B"]).default("A"),
+  /** Catalog voice id or Fish reference_id. */
+  voiceId: z.string().min(1).max(128).optional().nullable(),
   register: z.string().optional(),
   tags: z.array(z.string()).optional(),
   context_notes: z.string().optional(),
@@ -71,12 +74,17 @@ export async function POST(request: Request) {
       );
     }
 
+    const resolvedVoiceId =
+      resolveNarrationVoiceFishId(input.voiceId ?? undefined) ??
+      input.voiceId?.trim() ??
+      null;
     const textHash = getTextHash(
       input.sentenceId,
       spoken,
       input.dialect,
       input.speaker,
-      input.cacheBySpokenScript ? "spoken-script" : "sentence"
+      input.cacheBySpokenScript ? "spoken-script" : "sentence",
+      resolvedVoiceId
     );
 
     const meta = await getAudioMetadataByTextHash(textHash);
@@ -132,6 +140,7 @@ export async function POST(request: Request) {
         scope: "canonical",
         canonicalSentenceId,
         cacheMode: input.cacheBySpokenScript ? "spoken-script" : "sentence",
+        voiceId: resolvedVoiceId,
       });
       const url = await getSignedAudioUrl(generated.r2Key);
       if (url) {

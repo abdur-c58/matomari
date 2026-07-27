@@ -30,20 +30,20 @@ function Particles() {
   );
 }
 
-export function IslandsIllustration({ className }: IllustrationProps) {
+export function ScenesIllustration({ className }: IllustrationProps) {
   return (
     <svg
       viewBox="0 0 300 220"
       className={cn("h-full w-full overflow-visible", className)}
       role="img"
-      aria-label="Layered topic islands"
+      aria-label="Layered topic scenes"
     >
       <defs>
-        <linearGradient id="island-gradient" x1="0" y1="0" x2="1" y2="1">
+        <linearGradient id="scene-gradient" x1="0" y1="0" x2="1" y2="1">
           <stop stopColor="var(--mode-meaning)" />
           <stop offset="1" stopColor="var(--mode-listen)" />
         </linearGradient>
-        <filter id="island-glow" x="-50%" y="-50%" width="200%" height="200%">
+        <filter id="scene-glow" x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="9" result="blur" />
           <feMerge>
             <feMergeNode in="blur" />
@@ -59,7 +59,7 @@ export function IslandsIllustration({ className }: IllustrationProps) {
         ry="18"
         fill="var(--mode-meaning)"
         opacity="0.18"
-        filter="url(#island-glow)"
+        filter="url(#scene-glow)"
       />
       <g data-illustration-part className="marketing-svg-layer marketing-svg-layer-back">
         <path
@@ -72,7 +72,7 @@ export function IslandsIllustration({ className }: IllustrationProps) {
       <g data-illustration-part className="marketing-svg-layer marketing-svg-layer-mid">
         <path
           d="M74 87c23-25 49-31 77-17 23 12 39 2 61 7 25 6 39 26 28 44-15 24-54 27-91 22-48-6-103-17-75-56Z"
-          fill="url(#island-gradient)"
+          fill="url(#scene-gradient)"
           stroke="color-mix(in srgb, var(--mode-meaning) 80%, white)"
           strokeWidth="2"
         />
@@ -85,7 +85,7 @@ export function IslandsIllustration({ className }: IllustrationProps) {
           fill="color-mix(in srgb, var(--mode-listen) 78%, white)"
           stroke="var(--mode-listen)"
           strokeWidth="2"
-          filter="url(#island-glow)"
+          filter="url(#scene-glow)"
         />
         <path d="M139 72h40" stroke="white" strokeWidth="5" strokeLinecap="round" opacity=".9" />
         <path d="M139 83h25" stroke="white" strokeWidth="4" strokeLinecap="round" opacity=".65" />

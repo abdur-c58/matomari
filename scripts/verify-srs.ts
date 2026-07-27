@@ -89,7 +89,7 @@ function minimalDataset(sentenceId = "s1"): Dataset {
         },
       ],
     },
-    islands: {},
+    scenes: {},
   };
 }
 
@@ -109,13 +109,13 @@ function minimalProgress(sentenceId = "s1"): UserProgress {
     batchConfig: {
       sourceType: "pathway",
       pathwayBatchNumber: 1,
-      islandKey: null,
+      sceneKey: null,
       subtopic: null,
       batchSize: 5,
       activeSentenceIds: [sentenceId],
     },
     completedPathwayBatches: [],
-    completedIslands: [],
+    completedScenes: [],
   };
 }
 

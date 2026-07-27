@@ -3,7 +3,7 @@ import type { UserProgress } from "@/types/progress";
 import type { AppStats } from "@/types/stats";
 import type { SyncTable } from "@/lib/repositories/types";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { reconcileOwnerShares } from "@/lib/services/island-sharing-service";
+import { reconcileOwnerShares } from "@/lib/services/scene-sharing-service";
 
 export async function pushRemoteDataAdmin(
   userId: string,
@@ -55,14 +55,14 @@ export async function pushRemoteDataAdmin(
     return { ok: false, error: error.message };
   }
 
-  // When the owner deletes an island, cascade-delete orphan share rows (and memberships).
+  // When the owner deletes an scene, cascade-delete orphan share rows (and memberships).
   if (table === "user_datasets" && payload && typeof payload === "object") {
-    const islands = (payload as UserLibrary).islands;
-    if (islands && typeof islands === "object") {
+    const scenes = (payload as UserLibrary).scenes;
+    if (scenes && typeof scenes === "object") {
       try {
-        await reconcileOwnerShares(userId, islands);
+        await reconcileOwnerShares(userId, scenes);
       } catch (reconcileError) {
-        console.warn("Island share reconciliation failed:", reconcileError);
+        console.warn("Scene share reconciliation failed:", reconcileError);
       }
     }
   }

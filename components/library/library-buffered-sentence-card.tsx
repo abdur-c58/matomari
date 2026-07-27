@@ -25,7 +25,7 @@ function emptyProgress(sentenceId: string): SentenceProgress {
     retiredAt: null,
     firstSeenAt: null,
     masteredAt: null,
-    sourceType: "island",
+    sourceType: "scene",
     sourceKey: "",
   };
 }
@@ -70,7 +70,7 @@ export function LibraryBufferedSentenceCard({
     <Card className="overflow-hidden px-2 py-0">
       {visible.map((s) => {
         const sp = progress.sentences[s.id] ?? emptyProgress(s.id);
-        const isSelectable = s.sourceType === "island";
+        const isSelectable = s.sourceType === "scene";
         return (
           <LibrarySentenceRow
             key={s.id}

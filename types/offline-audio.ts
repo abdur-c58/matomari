@@ -1,4 +1,4 @@
-export type OfflinePackageId = string; // islandKey or "__all__"
+export type OfflinePackageId = string; // sceneKey or "__all__"
 
 export interface OfflineAudioAsset {
   textHash: string;
@@ -9,12 +9,12 @@ export interface OfflineAudioAsset {
   blob: Blob;
   r2Key?: string;
   createdAt: string;
-  islandKeys: string[];
+  sceneKeys: string[];
 }
 
 export interface OfflinePackageRecord {
   id: OfflinePackageId;
-  islandKey: string | null;
+  sceneKey: string | null;
   label: string;
   dialect: string;
   textHashes: string[];

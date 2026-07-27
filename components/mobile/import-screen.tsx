@@ -21,7 +21,7 @@ import { toast } from "sonner";
 
 type ImportPhase = "idle" | "importing" | "translating";
 
-type ImportMeta = { batchCount: number; islandCount: number; fileCount: number };
+type ImportMeta = { batchCount: number; sceneCount: number; fileCount: number };
 
 async function readJsonFiles(
   files: FileList | File[]
@@ -53,9 +53,9 @@ export function ImportScreenMobile() {
     (meta: ImportMeta, translatedCount: number) => {
       const filePart = meta.fileCount > 1 ? ` from ${meta.fileCount} files` : "";
       if (translatedCount > 0) {
-        toast.success(`Imported ${meta.islandCount} island${meta.islandCount === 1 ? "" : "s"}${filePart} — translated ${translatedCount} sentences`);
+        toast.success(`Imported ${meta.sceneCount} scene${meta.sceneCount === 1 ? "" : "s"}${filePart} — translated ${translatedCount} sentences`);
       } else {
-        toast.success(`Imported ${meta.islandCount} island${meta.islandCount === 1 ? "" : "s"}${filePart}`);
+        toast.success(`Imported ${meta.sceneCount} scene${meta.sceneCount === 1 ? "" : "s"}${filePart}`);
       }
       router.push("/today");
     },
@@ -112,7 +112,7 @@ export function ImportScreenMobile() {
         const summary = summarizeDataset(saved);
         const meta: ImportMeta = {
           batchCount: summary.batchCount,
-          islandCount: summary.islandCount,
+          sceneCount: summary.sceneCount,
           fileCount: payloads.length,
         };
         const untranslatedTotal = getUntranslatedIds(saved).length;
@@ -173,7 +173,7 @@ export function ImportScreenMobile() {
   if (phase === "translating" || phase === "importing") {
     return (
       <PageShell>
-        <PageHeader title="Import" subtitle="Add personal language islands" backHref="/settings" />
+        <PageHeader title="Import" subtitle="Add personal language scenes" backHref="/settings" />
         <TranslationProgress
           completed={translateProgress.completed}
           total={translateProgress.total}
@@ -192,7 +192,7 @@ export function ImportScreenMobile() {
 
   return (
     <PageShell>
-      <PageHeader title="Import" subtitle="Add personal language islands" backHref="/settings" />
+      <PageHeader title="Import" subtitle="Add personal language scenes" backHref="/settings" />
 
       <Card
         className={cn(
@@ -212,7 +212,7 @@ export function ImportScreenMobile() {
         <div>
           <p className="font-medium">Drop JSON files here</p>
           <p className="text-sm text-muted">
-            Full datasets or island exports — select multiple at once
+            Full datasets or scene exports — select multiple at once
           </p>
         </div>
         <Button variant="secondary" asChild disabled={loading}>
@@ -242,7 +242,7 @@ export function ImportScreenMobile() {
       </div>
 
       <Textarea
-        placeholder='{"islands": {...}} or a single island object'
+        placeholder='{"scenes": {...}} or a single scene object'
         value={paste}
         onChange={(e) => setPaste(e.target.value)}
         className="min-h-[160px] text-sm"

@@ -11,7 +11,7 @@ import {
   shouldRetire,
 } from "./batch-service";
 import {
-  maybeMarkIslandComplete,
+  maybeMarkSceneComplete,
   maybeMarkPathwayBatchComplete,
 } from "./study-focus-service";
 
@@ -60,7 +60,7 @@ export function refillActiveBatchOnce(
           config.sourceType,
           config.sourceType === "pathway"
             ? String(config.pathwayBatchNumber)
-            : config.islandKey ?? ""
+            : config.sceneKey ?? ""
         )),
       batchStatus: "active",
       firstSeenAt: existing?.firstSeenAt ?? today,
@@ -68,7 +68,7 @@ export function refillActiveBatchOnce(
       sourceKey:
         config.sourceType === "pathway"
           ? String(config.pathwayBatchNumber)
-          : config.islandKey ?? "",
+          : config.sceneKey ?? "",
     };
     activeIds.push(nextId);
   }
@@ -107,7 +107,7 @@ export function bulkApplySentenceRatings(
   let updatedCount = 0;
   let retiredCount = 0;
   let masteredCount = 0;
-  const affectedIslandKeys = new Set<string>();
+  const affectedSceneKeys = new Set<string>();
   const affectedPathwayBatches = new Set<number>();
 
   for (const id of uniqueIds) {
@@ -137,8 +137,8 @@ export function bulkApplySentenceRatings(
     sentences[id] = sp;
     updatedCount++;
 
-    if (sourceType === "island") {
-      affectedIslandKeys.add(sourceKey);
+    if (sourceType === "scene") {
+      affectedSceneKeys.add(sourceKey);
     } else {
       const batchNumber = Number(sourceKey);
       if (!Number.isNaN(batchNumber)) {
@@ -165,8 +165,8 @@ export function bulkApplySentenceRatings(
     nextProgress = maybeMarkPathwayBatchComplete(dataset, nextProgress, batchNumber);
   }
 
-  for (const islandKey of affectedIslandKeys) {
-    nextProgress = maybeMarkIslandComplete(dataset, nextProgress, islandKey);
+  for (const sceneKey of affectedSceneKeys) {
+    nextProgress = maybeMarkSceneComplete(dataset, nextProgress, sceneKey);
   }
 
   return {
@@ -177,15 +177,15 @@ export function bulkApplySentenceRatings(
   };
 }
 
-export function rateIslandSentences(
+export function rateSceneSentences(
   dataset: Dataset,
   progress: UserProgress,
-  islandKey: string,
+  sceneKey: string,
   rating: number,
   options?: { subtopic?: string | null }
 ): BulkRatingResult {
-  const island = dataset.islands[islandKey];
-  if (!island) {
+  const scene = dataset.scenes[sceneKey];
+  if (!scene) {
     return {
       progress,
       updatedCount: 0,
@@ -196,8 +196,8 @@ export function rateIslandSentences(
 
   const sentences =
     options?.subtopic != null
-      ? island.sentences.filter((s) => s.subtopic === options.subtopic)
-      : island.sentences;
+      ? scene.sentences.filter((s) => s.subtopic === options.subtopic)
+      : scene.sentences;
 
   return bulkApplySentenceRatings(
     dataset,

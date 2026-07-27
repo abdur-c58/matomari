@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { IslandBrowseDisplay } from "@/lib/constants/island-browse";
+import type { SceneBrowseDisplay } from "@/lib/constants/scene-browse";
 import {
   patchBrowseUiPreferences,
   readBrowseUiPreferences,
@@ -11,7 +11,7 @@ import {
 type ProgressBrowseDefaults = Partial<
   Pick<
     BrowseUiPreferences,
-    "islandBrowseDisplay" | "casualPlaylistPauseMs" | "casualPlaylistPlaybackRate"
+    "sceneBrowseDisplay" | "casualPlaylistPauseMs" | "casualPlaylistPlaybackRate"
   >
 >;
 
@@ -33,10 +33,10 @@ export function useBrowseUiPreferences(progressDefaults?: ProgressBrowseDefaults
     patchBrowseUiPreferences(seeded);
   }, [progressDefaults]);
 
-  const setDisplayMode = useCallback((mode: IslandBrowseDisplay) => {
+  const setDisplayMode = useCallback((mode: SceneBrowseDisplay) => {
     setPrefs((current) => {
-      const next = { ...current, islandBrowseDisplay: mode };
-      patchBrowseUiPreferences({ islandBrowseDisplay: mode });
+      const next = { ...current, sceneBrowseDisplay: mode };
+      patchBrowseUiPreferences({ sceneBrowseDisplay: mode });
       return next;
     });
   }, []);
@@ -56,7 +56,7 @@ export function useBrowseUiPreferences(progressDefaults?: ProgressBrowseDefaults
   );
 
   return {
-    displayMode: prefs.islandBrowseDisplay,
+    displayMode: prefs.sceneBrowseDisplay,
     pauseMs: prefs.casualPlaylistPauseMs,
     playbackRate: prefs.casualPlaylistPlaybackRate,
     setDisplayMode,

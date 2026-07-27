@@ -14,6 +14,7 @@ import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { SyncIndicator } from "@/components/ui/sync-indicator";
 import { AccountCard } from "@/components/auth/account-card";
+import { SubscriptionCard } from "@/components/billing/subscription-card";
 import { AskButton } from "@/components/ai/ask-button";
 import { OnboardingReplaySection } from "@/components/settings/onboarding-replay-section";
 import { SettingsOfflineAudioCard } from "@/components/offline/offline-audio-controls";
@@ -139,6 +140,7 @@ export function SettingsScreenMobile() {
       <PageHeader title="Settings" backHref="/today" />
 
       <AccountCard />
+      <SubscriptionCard />
 
       <Card className="mb-6 p-4">
         <div className="flex items-start justify-between gap-3">

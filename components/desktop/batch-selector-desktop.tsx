@@ -10,8 +10,8 @@ export function BatchSelectorDesktop() {
     <AppGate>
       <PageShell className="max-w-6xl">
         <PageHeader
-          title="Islands"
-          subtitle="Browse premade themes and your own topic islands in one place."
+          title="Scenes"
+          subtitle="Browse premade themes and your own topic scenes in one place."
         />
         <StudyUnitList />
       </PageShell>

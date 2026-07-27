@@ -129,7 +129,7 @@ async function main() {
   console.log(`  Users skipped: ${usersSkipped}`);
   console.log(`  Kansai entries removed: ${totalRemoved}`);
   console.log(
-    "\nNext: open Kotoshima, Sync now, switch to Kansai dialect, then Translate all."
+    "\nNext: open Matomari, Sync now, switch to Kansai dialect, then Translate all."
   );
 }
 

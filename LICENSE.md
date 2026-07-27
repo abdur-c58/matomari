@@ -2,16 +2,16 @@
 
 Copyright (c) 2026 Abdur (abdur-c58). All rights reserved.
 
-## Using Kotoshima
+## Using Matomari
 
-**Kotoshima is free to use** at [https://kotoshima.ink](https://kotoshima.ink).
+**Matomari is free to use** at [https://www.matomari.com](https://www.matomari.com).
 
 You may sign up, study, import your own content, and use the app as intended on
 that site. No permission is needed for normal use of the deployed service.
 
 ## What you may not do
 
-This repository contains the source code for Kotoshima. You may **not**, without
+This repository contains the source code for Matomari. You may **not**, without
 prior written permission from the copyright holder:
 
 - Copy, fork, or republish this codebase as your own product or project
@@ -21,12 +21,12 @@ prior written permission from the copyright holder:
 - Use the codebase to operate a competing service that is substantially derived
   from this project
 
-In short: **use the app at kotoshima.ink — do not clone it and pass it off as
+In short: **use the app at www.matomari.com — do not clone it and pass it off as
 your own.**
 
 ## What you may do
 
-- Use Kotoshima at [https://kotoshima.ink](https://kotoshima.ink)
+- Use Matomari at [https://www.matomari.com](https://www.matomari.com)
 - Read this repository for learning, reference, or contribution discussions
 - Report bugs or suggest improvements
 - Ask for written permission if you want to reuse code or run a derivative

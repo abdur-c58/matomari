@@ -1,6 +1,6 @@
 const DEFAULT_OPENAI_MODEL = "gpt-5.4-mini";
 const DEFAULT_FISH_AUDIO_MODEL = "s2.1-pro-free";
-const DEFAULT_R2_BUCKET_NAME = "shima-audio";
+const DEFAULT_R2_BUCKET_NAME = "matomari-audio";
 
 export function getSupabaseUrl(): string | undefined {
   return process.env.NEXT_PUBLIC_SUPABASE_URL;

@@ -65,7 +65,7 @@ async function main() {
     messages: [
       {
         role: "system",
-        content: `You improve English→Japanese translation prompts for a Japanese learning app (Kotoshima).
+        content: `You improve English→Japanese translation prompts for a Japanese learning app (Matomari).
 Return JSON: { "standardDialectBlock": "...", "philosophyAdditions": "...", "domainRules": "...", "mergedStandardInstructions": "...", "notes": "..." }
 
 mergedStandardInstructions must be a drop-in replacement for the STANDARD dialect + PHILOSOPHY guidance (not JSON schema, not Kansai, not PLACEHOLDERS section which we keep). Keep it concise but sharper than the current prompt. Preserve reading/TTS constraints.`,
@@ -75,7 +75,7 @@ mergedStandardInstructions must be a drop-in replacement for the STANDARD dialec
         content: `App context:
 - Casual-first language learning app for English speakers learning Japanese
 - Each seed includes: id, english, register (casual|polite|formal), difficulty, category (folder), subtopic, tags[], optional context_notes
-- Island titles/folders include travel, airports, hotels, restaurants, shopping, work, daily life, etc.
+- Scene titles/folders include travel, airports, hotels, restaurants, shopping, work, daily life, etc.
 - TTS for standard dialect reads the japanese kanji/kana surface; reading must be 100% kana
 - [name] placeholders are intentional personalization
 

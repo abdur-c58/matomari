@@ -67,10 +67,10 @@ export function applyDialectTranslations(
         sentences: batch.sentences.map(apply),
       })),
     },
-    islands: Object.fromEntries(
-      Object.entries(dataset.islands).map(([key, island]) => [
+    scenes: Object.fromEntries(
+      Object.entries(dataset.scenes).map(([key, scene]) => [
         key,
-        { ...island, sentences: island.sentences.map(apply) },
+        { ...scene, sentences: scene.sentences.map(apply) },
       ])
     ),
   };
@@ -155,7 +155,7 @@ export function getUntranslatedIdsForDialect(
 ): string[] {
   const ids: string[] = [];
   for (const [, sentence] of getAllSentences(dataset)) {
-    // Pathway is retired from the product surface — translate/library are islands only.
+    // Pathway is retired from the product surface — translate/library are scenes only.
     if (sentence.sourceType === "pathway") continue;
     if (getSentenceTranslationFields(sentence.id, dialect, translations, sentence)) {
       continue;
@@ -179,15 +179,15 @@ export function needsRetranslationForDialect(
   );
 }
 
-export function migrateLegacyIslandTranslations(library: UserLibrary): UserLibrary {
+export function migrateLegacySceneTranslations(library: UserLibrary): UserLibrary {
   if (library.sentenceTranslations && Object.keys(library.sentenceTranslations).length > 0) {
     return library;
   }
 
   const sentenceTranslations: Record<string, SentenceDialectTranslations> = {};
 
-  for (const island of Object.values(library.islands)) {
-    for (const sentence of island.sentences) {
+  for (const scene of Object.values(library.scenes)) {
+    for (const sentence of scene.sentences) {
       if (!sentence.japanese?.trim()) continue;
       sentenceTranslations[sentence.id] = {
         standard: {
@@ -232,23 +232,23 @@ export function stripTranslationsFromPathway(
   };
 }
 
-export function stripTranslationsFromIslands(library: UserLibrary): UserLibrary {
-  const islands = Object.fromEntries(
-    Object.entries(library.islands).map(([key, island]) => [
+export function stripTranslationsFromScenes(library: UserLibrary): UserLibrary {
+  const scenes = Object.fromEntries(
+    Object.entries(library.scenes).map(([key, scene]) => [
       key,
       {
-        ...island,
-        sentences: island.sentences.map(stripSentenceToSeed),
+        ...scene,
+        sentences: scene.sentences.map(stripSentenceToSeed),
       },
     ])
   );
 
-  return { ...library, islands };
+  return { ...library, scenes };
 }
 
 export function stripAllTranslationsFromLibrary(library: UserLibrary): UserLibrary {
   return {
-    ...stripTranslationsFromIslands(library),
+    ...stripTranslationsFromScenes(library),
     sentenceTranslations: undefined,
   };
 }

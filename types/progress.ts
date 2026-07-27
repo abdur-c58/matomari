@@ -17,16 +17,16 @@ export interface SentenceProgress {
   retiredAt: string | null;
   firstSeenAt: string | null;
   masteredAt: string | null;
-  sourceType: "pathway" | "island";
+  sourceType: "pathway" | "scene";
   sourceKey: string;
 }
 
-export type BatchSourceType = "pathway" | "island";
+export type BatchSourceType = "pathway" | "scene";
 
 export interface BatchConfig {
   sourceType: BatchSourceType;
   pathwayBatchNumber: number | null;
-  islandKey: string | null;
+  sceneKey: string | null;
   subtopic: string | null;
   batchSize: number;
   activeSentenceIds: string[];
@@ -86,21 +86,21 @@ export interface AppSettings {
    * Marketing pages (home, pricing, legal) always keep the custom cursor.
    */
   useStandardCursor?: boolean;
-  /** Browse display on island/pathway detail pages. */
-  islandBrowseDisplay?: "en" | "jp" | "both";
+  /** Browse display on scene/pathway detail pages. */
+  sceneBrowseDisplay?: "en" | "jp" | "both";
   /** Pause between sentences when playing casual playlists (ms). */
   casualPlaylistPauseMs?: number;
-  /** Playback speed for casual island playlists. */
+  /** Playback speed for casual scene playlists. */
   casualPlaylistPlaybackRate?: number;
 }
 
-export interface IslandBatchSnapshot {
+export interface SceneBatchSnapshot {
   activeSentenceIds: string[];
   switchedAwayAt: string;
   needsReturnReview?: boolean;
 }
 
-export interface IslandFolder {
+export interface SceneFolder {
   id: string;
   name: string;
   createdAt: string;
@@ -113,20 +113,20 @@ export interface UserProgress {
   batchConfig: BatchConfig | null;
   settings: AppSettings;
   completedPathwayBatches: number[];
-  completedIslands: string[];
-  /** ISO timestamps when user last opened or studied a unit (keys: "pathway" | "island:<key>"). */
+  completedScenes: string[];
+  /** ISO timestamps when user last opened or studied a unit (keys: "pathway" | "scene:<key>"). */
   studyUnitLastOpened?: Record<string, string>;
-  /** Saved active batches when switching away from an island mid-study. */
-  islandBatchSnapshots?: Record<string, IslandBatchSnapshot>;
-  /** User-created folders for organizing islands on the Islands page. */
-  islandFolders?: IslandFolder[];
-  /** Island key → folder id; missing key means unfoldered. */
-  islandFolderAssignments?: Record<string, string>;
+  /** Saved active batches when switching away from an scene mid-study. */
+  sceneBatchSnapshots?: Record<string, SceneBatchSnapshot>;
+  /** User-created folders for organizing scenes on the Scenes page. */
+  sceneFolders?: SceneFolder[];
+  /** Scene key → folder id; missing key means unfoldered. */
+  sceneFolderAssignments?: Record<string, string>;
 }
 
 export interface DialectStudyProgress {
   sentences: Record<string, SentenceProgress>;
   batchConfig: BatchConfig | null;
   completedPathwayBatches: number[];
-  completedIslands: string[];
+  completedScenes: string[];
 }

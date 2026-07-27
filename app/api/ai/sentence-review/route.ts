@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireUserSession } from "@/lib/auth/require-user";
 import { getOpenAIClient, getOpenAIModel, isOpenAIConfigured } from "@/lib/ai/openai";
 import { openAIErrorResponse } from "@/lib/ai/errors";
 import { buildSentenceReviewPrompt } from "@/lib/ai/prompts";
@@ -9,6 +10,11 @@ import {
 
 export async function POST(request: Request) {
   try {
+    const user = await requireUserSession();
+    if (!user.ok) {
+      return NextResponse.json({ error: user.error }, { status: user.status });
+    }
+
     if (!isOpenAIConfigured()) {
       return NextResponse.json({ error: "AI not configured" }, { status: 503 });
     }
@@ -21,7 +27,7 @@ export async function POST(request: Request) {
       english: parsed.english,
       register: parsed.register,
       contextNotes: parsed.contextNotes,
-      islandName: parsed.islandName,
+      sceneName: parsed.sceneName,
     });
 
     const completion = await openai.chat.completions.create({

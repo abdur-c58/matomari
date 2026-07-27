@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { KotoshimaLogo } from "@/components/brand/kotoshima-logo";
+import { MatomariLogo } from "@/components/brand/matomari-logo";
 import {
   isMarketingSectionId,
   rememberMarketingSection,
@@ -26,7 +26,7 @@ export function MarketingFooter() {
       <div className="mx-auto flex max-w-[1400px] flex-col gap-8 px-4 py-12 sm:px-8 md:flex-row md:items-start md:justify-between">
         <div className="max-w-sm">
           <div className="flex items-center gap-3">
-            <KotoshimaLogo size={40} />
+            <MatomariLogo size={40} />
             <span className="font-display text-lg font-semibold">{APP_NAME}</span>
           </div>
           <p className="mt-3 text-sm leading-relaxed text-muted">

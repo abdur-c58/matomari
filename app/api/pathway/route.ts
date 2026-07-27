@@ -11,8 +11,8 @@ function loadFallbackPathway() {
   const raw = JSON.parse(fs.readFileSync(filePath, "utf8")) as unknown;
   const parsed = parseDataset(
     "main_pathway" in (raw as object)
-      ? { ...(raw as object), islands: {} }
-      : { main_pathway: raw, islands: {} }
+      ? { ...(raw as object), scenes: {} }
+      : { main_pathway: raw, scenes: {} }
   );
 
   if (!parsed.main_pathway.batches.length) return null;

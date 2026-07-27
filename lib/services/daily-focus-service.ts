@@ -4,7 +4,7 @@ import {
   clampBatchSize,
   getBatchStarterCandidateIds,
   getInProgressActiveIdsForSource,
-  isFormalStudyEligibleIsland,
+  isFormalStudyEligibleScene,
 } from "@/lib/services/batch-service";
 import {
   parseStudyUnitKey,
@@ -12,9 +12,13 @@ import {
   type StudyUnitRef,
 } from "@/lib/services/study-unit-service";
 
-/** First-folder featured island — default study focus when nothing is active. */
-export const DEFAULT_STUDY_ISLAND_KEY = "premade_300_language_essentials";
-export const DEFAULT_STUDY_ISLAND_TITLE = "300 Language Essentials";
+/** First-folder free try / featured scene — default study focus when nothing is active. */
+export const DEFAULT_STUDY_SCENE_KEY = "premade_100_basic_sentences";
+export const DEFAULT_STUDY_SCENE_TITLE = "100 Basic Sentences";
+
+/** Legacy Plus default (300 Essentials) — still used when accessible. */
+export const PLUS_DEFAULT_STUDY_SCENE_KEY = "premade_300_language_essentials";
+export const PLUS_DEFAULT_STUDY_SCENE_TITLE = "300 Language Essentials";
 
 export function getMostRecentStudyUnit(
   dataset: Dataset,
@@ -27,8 +31,8 @@ export function getMostRecentStudyUnit(
   for (const [key] of entries) {
     const ref = parseStudyUnitKey(key);
     if (
-      ref?.kind === "island" &&
-      isFormalStudyEligibleIsland(dataset, ref.key)
+      ref?.kind === "scene" &&
+      isFormalStudyEligibleScene(dataset, ref.key)
     ) {
       return ref;
     }
@@ -36,22 +40,22 @@ export function getMostRecentStudyUnit(
   return null;
 }
 
-export function getDefaultStudyIslandKey(dataset: Dataset): string | null {
-  if (isFormalStudyEligibleIsland(dataset, DEFAULT_STUDY_ISLAND_KEY)) {
-    return DEFAULT_STUDY_ISLAND_KEY;
+export function getDefaultStudySceneKey(dataset: Dataset): string | null {
+  if (isFormalStudyEligibleScene(dataset, DEFAULT_STUDY_SCENE_KEY)) {
+    return DEFAULT_STUDY_SCENE_KEY;
   }
 
-  for (const [key, island] of Object.entries(dataset.islands)) {
+  for (const [key, scene] of Object.entries(dataset.scenes)) {
     if (
-      island.title?.trim() === DEFAULT_STUDY_ISLAND_TITLE &&
-      isFormalStudyEligibleIsland(dataset, key)
+      scene.title?.trim() === DEFAULT_STUDY_SCENE_TITLE &&
+      isFormalStudyEligibleScene(dataset, key)
     ) {
       return key;
     }
   }
 
-  for (const key of Object.keys(dataset.islands)) {
-    if (isFormalStudyEligibleIsland(dataset, key)) return key;
+  for (const key of Object.keys(dataset.scenes)) {
+    if (isFormalStudyEligibleScene(dataset, key)) return key;
   }
   return null;
 }
@@ -63,8 +67,8 @@ function synthesizeConfigFromSource(
 ): BatchConfig | null {
   const batchSize = clampBatchSize(config.batchSize);
 
-  if (config.sourceType === "island" && config.islandKey) {
-    const snapshot = progress.islandBatchSnapshots?.[config.islandKey];
+  if (config.sourceType === "scene" && config.sceneKey) {
+    const snapshot = progress.sceneBatchSnapshots?.[config.sceneKey];
     if (snapshot?.activeSentenceIds.length) {
       return {
         ...config,
@@ -86,17 +90,17 @@ function synthesizeConfigFromSource(
   return null;
 }
 
-function buildIslandBatchConfig(
+function buildSceneBatchConfig(
   dataset: Dataset,
   progress: UserProgress,
-  islandKey: string
+  sceneKey: string
 ): BatchConfig | null {
-  if (!isFormalStudyEligibleIsland(dataset, islandKey)) return null;
+  if (!isFormalStudyEligibleScene(dataset, sceneKey)) return null;
 
   const base = {
-    sourceType: "island" as const,
+    sourceType: "scene" as const,
     pathwayBatchNumber: null,
-    islandKey,
+    sceneKey,
     subtopic: null,
     batchSize: progress.settings.batchSize,
   };
@@ -115,20 +119,20 @@ function buildIslandBatchConfig(
   };
 }
 
-function isUsableIslandConfig(
+function isUsableSceneConfig(
   dataset: Dataset,
   config: BatchConfig | null
 ): config is BatchConfig {
   return Boolean(
     config &&
-      config.sourceType === "island" &&
-      config.islandKey &&
-      isFormalStudyEligibleIsland(dataset, config.islandKey)
+      config.sourceType === "scene" &&
+      config.sceneKey &&
+      isFormalStudyEligibleScene(dataset, config.sceneKey)
   );
 }
 
 /**
- * Always resolve an island study batch when islands exist.
+ * Always resolve an scene study batch when scenes exist.
  * Pathway configs are ignored; default is 300 Language Essentials.
  */
 export function resolveDailyBatchConfig(
@@ -137,24 +141,24 @@ export function resolveDailyBatchConfig(
 ): BatchConfig | null {
   if (!dataset) return null;
 
-  if (isUsableIslandConfig(dataset, progress.batchConfig)) {
+  if (isUsableSceneConfig(dataset, progress.batchConfig)) {
     if (progress.batchConfig.activeSentenceIds.length > 0) {
       return progress.batchConfig;
     }
-    return buildIslandBatchConfig(dataset, progress, progress.batchConfig.islandKey!);
+    return buildSceneBatchConfig(dataset, progress, progress.batchConfig.sceneKey!);
   }
 
   const recent = getMostRecentStudyUnit(dataset, progress);
-  if (recent?.kind === "island") {
-    const recentConfig = buildIslandBatchConfig(dataset, progress, recent.key);
+  if (recent?.kind === "scene") {
+    const recentConfig = buildSceneBatchConfig(dataset, progress, recent.key);
     if (recentConfig && recentConfig.activeSentenceIds.length > 0) {
       return recentConfig;
     }
   }
 
-  const defaultKey = getDefaultStudyIslandKey(dataset);
+  const defaultKey = getDefaultStudySceneKey(dataset);
   if (!defaultKey) return null;
-  return buildIslandBatchConfig(dataset, progress, defaultKey);
+  return buildSceneBatchConfig(dataset, progress, defaultKey);
 }
 
 export function withResolvedDailyBatch(
@@ -164,7 +168,7 @@ export function withResolvedDailyBatch(
   const config = resolveDailyBatchConfig(dataset, progress);
   if (!config) return null;
   if (
-    isUsableIslandConfig(dataset!, progress.batchConfig) &&
+    isUsableSceneConfig(dataset!, progress.batchConfig) &&
     progress.batchConfig.activeSentenceIds.length > 0
   ) {
     return progress;
@@ -174,16 +178,16 @@ export function withResolvedDailyBatch(
 
 export function getReturnReviewIds(
   progress: UserProgress,
-  islandKey?: string | null
+  sceneKey?: string | null
 ): string[] {
   const key =
-    islandKey ??
-    (progress.batchConfig?.sourceType === "island"
-      ? progress.batchConfig.islandKey
+    sceneKey ??
+    (progress.batchConfig?.sourceType === "scene"
+      ? progress.batchConfig.sceneKey
       : null);
   if (!key) return [];
 
-  const snapshot = progress.islandBatchSnapshots?.[key];
+  const snapshot = progress.sceneBatchSnapshots?.[key];
   if (!snapshot?.needsReturnReview) return [];
 
   return snapshot.activeSentenceIds.filter((id) => {
@@ -194,29 +198,29 @@ export function getReturnReviewIds(
 
 export function clearReturnReview(
   progress: UserProgress,
-  islandKey: string
+  sceneKey: string
 ): UserProgress {
-  const snapshot = progress.islandBatchSnapshots?.[islandKey];
+  const snapshot = progress.sceneBatchSnapshots?.[sceneKey];
   if (!snapshot?.needsReturnReview) return progress;
 
   return {
     ...progress,
-    islandBatchSnapshots: {
-      ...progress.islandBatchSnapshots,
-      [islandKey]: { ...snapshot, needsReturnReview: false },
+    sceneBatchSnapshots: {
+      ...progress.sceneBatchSnapshots,
+      [sceneKey]: { ...snapshot, needsReturnReview: false },
     },
   };
 }
 
-export function saveIslandBatchSnapshot(
+export function saveSceneBatchSnapshot(
   progress: UserProgress,
-  islandKey: string
+  sceneKey: string
 ): UserProgress {
   const config = progress.batchConfig;
   if (
     !config ||
-    config.sourceType !== "island" ||
-    config.islandKey !== islandKey ||
+    config.sourceType !== "scene" ||
+    config.sceneKey !== sceneKey ||
     config.activeSentenceIds.length === 0
   ) {
     return progress;
@@ -224,9 +228,9 @@ export function saveIslandBatchSnapshot(
 
   return {
     ...progress,
-    islandBatchSnapshots: {
-      ...progress.islandBatchSnapshots,
-      [islandKey]: {
+    sceneBatchSnapshots: {
+      ...progress.sceneBatchSnapshots,
+      [sceneKey]: {
         activeSentenceIds: [...config.activeSentenceIds],
         switchedAwayAt: new Date().toISOString(),
         needsReturnReview: true,
@@ -238,25 +242,25 @@ export function saveIslandBatchSnapshot(
 export function configsMatch(
   a: Pick<
     BatchConfig,
-    "sourceType" | "pathwayBatchNumber" | "islandKey" | "subtopic"
+    "sourceType" | "pathwayBatchNumber" | "sceneKey" | "subtopic"
   >,
   b: Pick<
     BatchConfig,
-    "sourceType" | "pathwayBatchNumber" | "islandKey" | "subtopic"
+    "sourceType" | "pathwayBatchNumber" | "sceneKey" | "subtopic"
   >
 ): boolean {
   if (a.sourceType !== b.sourceType) return false;
   if (a.sourceType === "pathway") {
     return a.pathwayBatchNumber === b.pathwayBatchNumber;
   }
-  return a.islandKey === b.islandKey && a.subtopic === b.subtopic;
+  return a.sceneKey === b.sceneKey && a.subtopic === b.subtopic;
 }
 
 export function needsStudySwitch(
   progress: UserProgress,
   target: Pick<
     BatchConfig,
-    "sourceType" | "pathwayBatchNumber" | "islandKey" | "subtopic"
+    "sourceType" | "pathwayBatchNumber" | "sceneKey" | "subtopic"
   >
 ): boolean {
   const current = progress.batchConfig;
@@ -282,9 +286,9 @@ export function getSwitchFromLabel(
 ): string {
   const config = progress.batchConfig;
   if (!config) return "current study";
-  if (config.sourceType === "island" && config.islandKey) {
-    const titled = dataset?.islands[config.islandKey]?.title;
-    return titled ?? config.islandKey.replace(/_/g, " ");
+  if (config.sourceType === "scene" && config.sceneKey) {
+    const titled = dataset?.scenes[config.sceneKey]?.title;
+    return titled ?? config.sceneKey.replace(/_/g, " ");
   }
   if (config.sourceType === "pathway" && config.pathwayBatchNumber !== null) {
     const batch = dataset?.main_pathway.batches.find(
@@ -296,12 +300,12 @@ export function getSwitchFromLabel(
 }
 
 export function getSwitchToLabel(
-  target: Pick<BatchConfig, "sourceType" | "pathwayBatchNumber" | "islandKey">,
+  target: Pick<BatchConfig, "sourceType" | "pathwayBatchNumber" | "sceneKey">,
   dataset: Dataset | null
 ): string {
-  if (target.sourceType === "island" && target.islandKey) {
-    const titled = dataset?.islands[target.islandKey]?.title;
-    return titled ?? target.islandKey.replace(/_/g, " ");
+  if (target.sourceType === "scene" && target.sceneKey) {
+    const titled = dataset?.scenes[target.sceneKey]?.title;
+    return titled ?? target.sceneKey.replace(/_/g, " ");
   }
   if (target.sourceType === "pathway" && target.pathwayBatchNumber !== null) {
     const batch = dataset?.main_pathway.batches.find(
@@ -314,11 +318,11 @@ export function getSwitchToLabel(
 
 export function touchStudyUnitFromConfig(
   progress: UserProgress,
-  config: Pick<BatchConfig, "sourceType" | "islandKey">
+  config: Pick<BatchConfig, "sourceType" | "sceneKey">
 ): StudyUnitRef {
   return config.sourceType === "pathway"
     ? { kind: "pathway" }
-    : { kind: "island", key: config.islandKey! };
+    : { kind: "scene", key: config.sceneKey! };
 }
 
 export { studyUnitKey };

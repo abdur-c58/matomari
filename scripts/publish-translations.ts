@@ -235,7 +235,7 @@ async function main() {
 
   let usersUpdated = 0;
   for (const row of rows) {
-    const library = normalizeStoredLibrary(row.data) ?? { islands: {} };
+    const library = normalizeStoredLibrary(row.data) ?? { scenes: {} };
     const merged = mergeSentenceTranslations(
       library.sentenceTranslations,
       translations
@@ -260,7 +260,7 @@ async function main() {
   console.log(`  Pathway standard sentences: ${bakedCount}`);
   console.log(`  Users updated: ${usersUpdated}`);
   console.log(
-    "\nFriends should open Kotoshima and tap Sync now (or hard-refresh) to pull the shared translations."
+    "\nFriends should open Matomari and tap Sync now (or hard-refresh) to pull the shared translations."
   );
 }
 

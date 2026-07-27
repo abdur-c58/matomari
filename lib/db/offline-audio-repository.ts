@@ -26,19 +26,19 @@ export async function getOfflineAssetBySentenceId(
 
 export async function saveOfflineAsset(
   asset: OfflineAudioAsset,
-  options?: { mergeIslandKeys?: boolean }
+  options?: { mergeSceneKeys?: boolean }
 ): Promise<void> {
   const db = await getDB();
-  const merge = options?.mergeIslandKeys !== false;
+  const merge = options?.mergeSceneKeys !== false;
   const existing = merge
     ? await db.get("audioAssets", asset.textHash)
     : null;
-  const islandKeys = Array.from(
-    new Set([...(existing?.islandKeys ?? []), ...asset.islandKeys])
+  const sceneKeys = Array.from(
+    new Set([...(existing?.sceneKeys ?? []), ...asset.sceneKeys])
   );
   await db.put(
     "audioAssets",
-    { ...asset, islandKeys },
+    { ...asset, sceneKeys },
     asset.textHash
   );
 }

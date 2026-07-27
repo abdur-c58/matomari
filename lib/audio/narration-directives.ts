@@ -3,12 +3,12 @@ import {
   parseFishAudioDirectives,
   type NarrationAudioDirectives,
 } from "@/lib/audio/fish-audio-cues";
-import type { Island, NarrationAudio, Sentence } from "@/types/sentence";
+import type { Scene, NarrationAudio, Sentence } from "@/types/sentence";
 
 export type NarrationDirectiveTurnKey = {
-  islandKey: string;
+  sceneKey: string;
   sentenceId: string;
-  /** 0-based occurrence among duplicate sentence IDs in the island order. */
+  /** 0-based occurrence among duplicate sentence IDs in the scene order. */
   occurrence: number;
 };
 
@@ -22,7 +22,7 @@ export type NarrationDirectivesSidecar = {
 };
 
 export function narrationDirectiveKey(turn: NarrationDirectiveTurnKey): string {
-  return `${turn.islandKey}::${turn.sentenceId}::${turn.occurrence}`;
+  return `${turn.sceneKey}::${turn.sentenceId}::${turn.occurrence}`;
 }
 
 export function normalizeNarrationDirectiveRecord(
@@ -31,7 +31,7 @@ export function normalizeNarrationDirectiveRecord(
   if (!raw || typeof raw !== "object") return null;
   const obj = raw as Record<string, unknown>;
   if (
-    typeof obj.islandKey !== "string" ||
+    typeof obj.sceneKey !== "string" ||
     typeof obj.sentenceId !== "string" ||
     typeof obj.occurrence !== "number" ||
     !Number.isInteger(obj.occurrence) ||
@@ -44,7 +44,7 @@ export function normalizeNarrationDirectiveRecord(
   );
   const fishAudio = parseFishAudioDirectives(obj.fishAudio);
   return {
-    islandKey: obj.islandKey,
+    sceneKey: obj.sceneKey,
     sentenceId: obj.sentenceId,
     occurrence: obj.occurrence,
     pauseAfterMs,
@@ -100,34 +100,34 @@ export function toNarrationAudio(
 }
 
 /**
- * Merge sidecar directives onto narration island sentences (by order occurrence).
+ * Merge sidecar directives onto narration scene sentences (by order occurrence).
  * Throws when coverage is incomplete or sidecar keys are unmatched.
  */
-export function applyNarrationDirectivesToCatalogIslands(
-  islands: Record<string, Island>,
+export function applyNarrationDirectivesToCatalogScenes(
+  scenes: Record<string, Scene>,
   sidecar: NarrationDirectivesSidecar,
   options?: { requireFullCoverage?: boolean }
-): Record<string, Island> {
+): Record<string, Scene> {
   const requireFullCoverage = options?.requireFullCoverage !== false;
   const byKey = new Map(
     sidecar.turns.map((t) => [narrationDirectiveKey(t), t] as const)
   );
   const used = new Set<string>();
 
-  const next: Record<string, Island> = {};
+  const next: Record<string, Scene> = {};
 
-  for (const [islandKey, island] of Object.entries(islands)) {
-    if (island.format !== "narration") {
-      next[islandKey] = island;
+  for (const [sceneKey, scene] of Object.entries(scenes)) {
+    if (scene.format !== "narration") {
+      next[sceneKey] = scene;
       continue;
     }
 
     const occurrenceById = new Map<string, number>();
-    const sentences: Sentence[] = island.sentences.map((sentence) => {
+    const sentences: Sentence[] = scene.sentences.map((sentence) => {
       const occurrence = occurrenceById.get(sentence.id) ?? 0;
       occurrenceById.set(sentence.id, occurrence + 1);
       const key = narrationDirectiveKey({
-        islandKey,
+        sceneKey,
         sentenceId: sentence.id,
         occurrence,
       });
@@ -147,7 +147,7 @@ export function applyNarrationDirectivesToCatalogIslands(
       };
     });
 
-    next[islandKey] = { ...island, sentences };
+    next[sceneKey] = { ...scene, sentences };
   }
 
   if (requireFullCoverage) {
@@ -165,17 +165,17 @@ export function applyNarrationDirectivesToCatalogIslands(
 }
 
 export function listNarrationTurnKeys(
-  islands: Record<string, Island>
+  scenes: Record<string, Scene>
 ): NarrationDirectiveTurnKey[] {
   const keys: NarrationDirectiveTurnKey[] = [];
-  for (const [islandKey, island] of Object.entries(islands)) {
-    if (island.format !== "narration") continue;
+  for (const [sceneKey, scene] of Object.entries(scenes)) {
+    if (scene.format !== "narration") continue;
     const occurrenceById = new Map<string, number>();
-    for (const sentence of island.sentences) {
+    for (const sentence of scene.sentences) {
       const occurrence = occurrenceById.get(sentence.id) ?? 0;
       occurrenceById.set(sentence.id, occurrence + 1);
       keys.push({
-        islandKey,
+        sceneKey,
         sentenceId: sentence.id,
         occurrence,
       });

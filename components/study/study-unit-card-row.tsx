@@ -1,9 +1,9 @@
 "use client";
 
 import type { StudyUnitSummary } from "@/lib/services/study-unit-service";
-import type { IslandFolder } from "@/types/progress";
+import type { SceneFolder } from "@/types/progress";
 import { StudyUnitCard } from "@/components/study/study-unit-card";
-import { MoveIslandToFolderMenu } from "@/components/islands/move-island-to-folder-menu";
+import { MoveSceneToFolderMenu } from "@/components/scenes/move-scene-to-folder-menu";
 
 export function StudyUnitCardRow({
   unit,
@@ -12,17 +12,17 @@ export function StudyUnitCardRow({
 }: {
   unit: StudyUnitSummary;
   href: string;
-  folders?: IslandFolder[];
+  folders?: SceneFolder[];
 }) {
-  if (unit.isPathway || unit.ref.kind !== "island" || unit.isPremade || unit.isShared) {
+  if (unit.isPathway || unit.ref.kind !== "scene" || unit.isPremade || unit.isShared) {
     return <StudyUnitCard unit={unit} href={href} />;
   }
 
   return (
     <div className="relative">
       <StudyUnitCard unit={unit} href={href} />
-      <MoveIslandToFolderMenu
-        islandKey={unit.ref.key}
+      <MoveSceneToFolderMenu
+        sceneKey={unit.ref.key}
         isPremade={unit.isPremade}
         className="absolute right-2 top-1/2 z-10 -translate-y-1/2 bg-surface/80 backdrop-blur-sm"
       />

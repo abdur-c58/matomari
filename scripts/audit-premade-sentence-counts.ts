@@ -14,7 +14,7 @@ import type { Dataset } from "../types/sentence";
 const SOURCE = path.join(
   process.env.USERPROFILE ?? process.env.HOME ?? "",
   "Documents",
-  "FolderForKotoshima"
+  "FolderForMatomari"
 );
 
 function normalizeEnglish(text: string): string {
@@ -64,8 +64,8 @@ function main() {
   );
   let catalogRows = 0;
   const catalogIds = new Set<string>();
-  for (const island of Object.values(catalog.islands)) {
-    for (const s of island.sentences) {
+  for (const scene of Object.values(catalog.scenes)) {
+    for (const s of scene.sentences) {
       catalogRows++;
       catalogIds.add(s.id);
     }
@@ -76,7 +76,7 @@ function main() {
   );
   const composed: Dataset = {
     main_pathway: pathway.main_pathway,
-    islands: { ...catalog.islands },
+    scenes: { ...catalog.scenes },
   };
   const all = getAllSentences(composed);
   const library = getLibrarySentences(composed);
@@ -87,14 +87,14 @@ function main() {
   console.log(
     JSON.stringify(
       {
-        folderForKotoshima: {
+        folderForMatomari: {
           exists: fs.existsSync(SOURCE),
           files: files.length,
           lines: sourceLines,
           uniqueIds: sourceIds.size,
         },
         premadeCatalog: {
-          islandCount: Object.keys(catalog.islands).length,
+          sceneCount: Object.keys(catalog.scenes).length,
           rows: catalogRows,
           uniqueIds: catalogIds.size,
         },
@@ -106,7 +106,7 @@ function main() {
         },
         composed: {
           allSentencesUnique: all.size,
-          libraryIslandOnly: library.length,
+          librarySceneOnly: library.length,
           pathwayOnlyInAll: [...all.values()].filter((s) => s.sourceType === "pathway")
             .length,
         },
@@ -117,7 +117,7 @@ function main() {
           extraInCatalog: extraInCatalog.length,
         },
         note:
-          "Library UI count = unique island IDs in composed dataset (premade + user). Translate buttons currently count getAllSentences (includes pathway).",
+          "Library UI count = unique scene IDs in composed dataset (premade + user). Translate buttons currently count getAllSentences (includes pathway).",
       },
       null,
       2

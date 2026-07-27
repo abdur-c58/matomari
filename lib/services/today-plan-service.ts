@@ -132,7 +132,7 @@ export function buildReturnReviewItem(
   return {
     type: "return_review",
     title: "Quick review",
-    description: "Check you still remember sentences from this island",
+    description: "Check you still remember sentences from this scene",
     count: ctx.returnReview.length,
     href: `/recall?ids=${ctx.returnReview.join(",")}&mode=return`,
     priority: 0,

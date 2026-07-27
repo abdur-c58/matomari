@@ -30,7 +30,7 @@ export function buildDatasetSummary(
   const all = getAllSentences(dataset);
 
   const summary: DatasetSummary = {
-    islandKeys: Object.keys(dataset.islands),
+    sceneKeys: Object.keys(dataset.scenes),
     sentenceCount: catalog.length,
     sentenceCatalog: catalog,
   };
@@ -59,14 +59,14 @@ export function buildDatasetSummary(
     }
   }
 
-  if (context.type === "island") {
-    const island = dataset.islands[context.islandKey];
-    if (island) {
-      summary.focusIsland = {
-        key: context.islandKey,
-        description: island.description,
-        subtopics: island.subtopics,
-        sentences: island.sentences.map((s) => ({
+  if (context.type === "scene") {
+    const scene = dataset.scenes[context.sceneKey];
+    if (scene) {
+      summary.focusScene = {
+        key: context.sceneKey,
+        description: scene.description,
+        subtopics: scene.subtopics,
+        sentences: scene.sentences.map((s) => ({
           id: s.id,
           english: s.english,
           difficulty: s.difficulty,
@@ -92,8 +92,8 @@ export function getContextLabel(
     const s = getAllSentences(dataset).get(context.sentenceId);
     return s ? s.english.slice(0, 50) : "Sentence";
   }
-  if (context.type === "island") {
-    return context.islandKey.replace(/_/g, " ");
+  if (context.type === "scene") {
+    return context.sceneKey.replace(/_/g, " ");
   }
   return "Tutor";
 }

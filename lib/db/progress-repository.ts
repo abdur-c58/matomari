@@ -33,9 +33,9 @@ export async function getProgress(): Promise<UserProgress> {
       sentences: progress.sentences ?? {},
       batchConfig: progress.batchConfig ?? null,
       completedPathwayBatches: progress.completedPathwayBatches ?? [],
-      completedIslands: progress.completedIslands ?? [],
-      islandFolders: progress.islandFolders ?? [],
-      islandFolderAssignments: progress.islandFolderAssignments ?? {},
+      completedScenes: progress.completedScenes ?? [],
+      sceneFolders: progress.sceneFolders ?? [],
+      sceneFolderAssignments: progress.sceneFolderAssignments ?? {},
       byDialect: progress.byDialect,
     });
   } catch {

@@ -7,14 +7,14 @@ import {
 } from "@/lib/services/shared-pathway-service";
 import {
   fetchSharedPremadeCatalog,
-  filterUserIslands,
-  getPremadeIslandKeys,
+  filterUserScenes,
+  getPremadeSceneKeys,
 } from "@/lib/services/shared-premade-service";
 import {
   applyDialectTranslations,
   collectTranslationsForDialect,
   mergeSentenceTranslations,
-  migrateLegacyIslandTranslations,
+  migrateLegacySceneTranslations,
   seedStandardTranslationsFromDataset,
 } from "@/lib/services/dialect-translation-service";
 import type { Dialect } from "@/lib/constants/dialect";
@@ -35,10 +35,10 @@ export async function getUserLibrary(): Promise<UserLibrary | null> {
 
     let migrated = library;
     if (isLegacyFullDataset(record.data)) {
-      migrated = migrateLegacyIslandTranslations(library);
+      migrated = migrateLegacySceneTranslations(library);
       await saveUserLibrary(migrated);
     } else {
-      const withTranslations = migrateLegacyIslandTranslations(library);
+      const withTranslations = migrateLegacySceneTranslations(library);
       if (withTranslations.sentenceTranslations !== library.sentenceTranslations) {
         migrated = withTranslations;
         await saveUserLibrary(migrated);
@@ -94,7 +94,7 @@ export async function appendSentenceTranslations(
   updates: Record<string, TranslatedFields>,
   dialect: Dialect
 ): Promise<UserLibrary> {
-  const library = (await getUserLibrary()) ?? { islands: {} };
+  const library = (await getUserLibrary()) ?? { scenes: {} };
   const batchUpdates: Record<string, Partial<Record<Dialect, TranslatedFields>>> = {};
 
   for (const [id, fields] of Object.entries(updates)) {
@@ -115,7 +115,7 @@ export async function saveDataset(data: Dataset): Promise<void> {
     getProgress(),
     fetchSharedPremadeCatalog(),
   ]);
-  const premadeKeys = getPremadeIslandKeys(premadeCatalog);
+  const premadeKeys = getPremadeSceneKeys(premadeCatalog);
   const dialect = getPrimaryTranslation(progress.settings);
   const sentenceTranslations = collectTranslationsForDialect(
     data,
@@ -123,7 +123,7 @@ export async function saveDataset(data: Dataset): Promise<void> {
     existing?.sentenceTranslations ?? {}
   );
   await saveUserLibrary({
-    islands: filterUserIslands(data.islands, premadeKeys),
+    scenes: filterUserScenes(data.scenes, premadeKeys),
     sentenceTranslations,
   });
 }
@@ -138,5 +138,5 @@ export async function hasDataset(): Promise<boolean> {
 
 export async function hasUserLibrary(): Promise<boolean> {
   const library = await getUserLibrary();
-  return library !== null && Object.keys(library.islands).length > 0;
+  return library !== null && Object.keys(library.scenes).length > 0;
 }

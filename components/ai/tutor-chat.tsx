@@ -136,8 +136,8 @@ export function TutorChat({
   const contextHint =
     context.type === "sentence"
       ? "sentence"
-      : context.type === "island"
-        ? "island"
+      : context.type === "scene"
+        ? "scene"
         : "topic";
 
   return (

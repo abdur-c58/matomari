@@ -43,8 +43,8 @@ export function loadContentSeedsFromFiles(): ContentSeed[] {
     const catalog = parsePremadeCatalog(
       JSON.parse(fs.readFileSync(CATALOG_PATH, "utf8"))
     );
-    for (const island of Object.values(catalog.islands)) {
-      for (const s of island.sentences) {
+    for (const scene of Object.values(catalog.scenes)) {
+      for (const s of scene.sentences) {
         byId.set(s.id, {
           legacyId: s.id,
           english: s.english,

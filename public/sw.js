@@ -1,6 +1,6 @@
-/* Kotoshima offline service worker — keep notification handling and add app shell caching. */
+/* Matomari offline service worker — keep notification handling and add app shell caching. */
 
-const CACHE_VERSION = "kotoshima-offline-v2";
+const CACHE_VERSION = "matomari-offline-v2";
 const PRECACHE_URLS = [
   "/offline.html",
   "/manifest.json",

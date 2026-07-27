@@ -21,7 +21,7 @@ import { onboardingSteps } from "@/lib/content/onboarding-steps";
  * also kept in sync with the Supabase-backed progress field so cross-device
  * sign-ins are covered once the remote pull arrives.
  */
-const LS_DONE_KEY = "kotoshima-onboarding-done";
+const LS_DONE_KEY = "matomari-onboarding-done";
 
 function lsGetDone(): boolean {
   try {

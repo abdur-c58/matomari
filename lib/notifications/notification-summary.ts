@@ -10,9 +10,9 @@ export function summarizeNotificationPreferences(prefs: NotificationPreferences)
   if (prefs.reviewReminders.enabled) {
     parts.push("Review reminders");
   }
-  if (prefs.islandReminders.enabled && prefs.islandReminders.islandKeys.length > 0) {
+  if (prefs.sceneReminders.enabled && prefs.sceneReminders.sceneKeys.length > 0) {
     parts.push(
-      `${prefs.islandReminders.islandKeys.length} island${prefs.islandReminders.islandKeys.length === 1 ? "" : "s"}`
+      `${prefs.sceneReminders.sceneKeys.length} scene${prefs.sceneReminders.sceneKeys.length === 1 ? "" : "s"}`
     );
   }
 

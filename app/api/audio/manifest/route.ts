@@ -5,6 +5,11 @@ import { ONLINE_FIRST_ENABLED } from "@/lib/constants/online-first";
 import { listAudioMetadataForSentenceIds } from "@/lib/supabase/server-data";
 import { getSignedAudioUrl } from "@/lib/storage/signed-url";
 import type { AudioManifestItem } from "@/types/audio-manifest";
+import {
+  computeEffectiveTier,
+  getUserSubscriptionAdmin,
+} from "@/lib/services/billing";
+import { hasMinTier } from "@/lib/constants/entitlements";
 
 const querySchema = z.object({
   sentenceIds: z.string().min(1),
@@ -14,10 +19,25 @@ const querySchema = z.object({
 
 /** Build a download/stream manifest for a set of sentence IDs. */
 export async function GET(request: Request) {
-  if (ONLINE_FIRST_ENABLED) {
-    const session = await auth();
-    if (!session?.user?.supabaseUserId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const session = await auth();
+  const userId = session?.user?.supabaseUserId;
+
+  if (ONLINE_FIRST_ENABLED && !userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Offline package manifests require Plus+ (single-track streaming stays open).
+  if (userId) {
+    const sub = await getUserSubscriptionAdmin(userId);
+    const tier = computeEffectiveTier(sub);
+    if (!hasMinTier(tier, "plus")) {
+      return NextResponse.json(
+        {
+          error: "Offline audio packages require Plus.",
+          code: "offline_requires_plus",
+        },
+        { status: 403 }
+      );
     }
   }
 

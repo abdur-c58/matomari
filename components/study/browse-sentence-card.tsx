@@ -2,7 +2,7 @@
 
 import type { Dialect } from "@/lib/constants/dialect";
 import { getDialectLabel } from "@/lib/constants/dialect";
-import type { IslandBrowseDisplay } from "@/lib/constants/island-browse";
+import type { SceneBrowseDisplay } from "@/lib/constants/scene-browse";
 import type { Sentence, TranslatedFields } from "@/types/sentence";
 import type { SentenceProgress } from "@/types/progress";
 import { useApp } from "@/components/providers/app-provider";
@@ -224,7 +224,7 @@ export function BrowseSentenceCard({
 }: {
   sentence: Sentence;
   progress?: SentenceProgress | null;
-  displayMode: IslandBrowseDisplay;
+  displayMode: SceneBrowseDisplay;
   expansionStep: number;
   onExpand: () => void;
   onCollapse: () => void;

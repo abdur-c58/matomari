@@ -66,11 +66,11 @@ async function main() {
   <rect x="${WIDTH / 4}" y="${HEIGHT - 4}" width="${WIDTH / 4}" height="4" fill="#8b5cf6"/>
   <rect x="${WIDTH / 2}" y="${HEIGHT - 4}" width="${WIDTH / 4}" height="4" fill="#f59e0b"/>
   <rect x="${(WIDTH * 3) / 4}" y="${HEIGHT - 4}" width="${WIDTH / 4}" height="4" fill="#10b981"/>
-  <text x="560" y="248" font-family="RHD" font-weight="700" font-size="88" fill="#ffffff">Kotoshima</text>
+  <text x="560" y="248" font-family="RHD" font-weight="700" font-size="88" fill="#ffffff">Matomari</text>
   <text x="560" y="312" font-family="RHD" font-weight="400" font-size="36" fill="#a3a3a3">Japanese Learning</text>
   <line x1="560" y1="348" x2="1120" y2="348" stroke="#262626" stroke-width="2"/>
-  <text x="560" y="404" font-family="RHD" font-weight="400" font-size="28" fill="#737373">Personalized Japanese learning through language islands</text>
-  <text x="560" y="468" font-family="RHD" font-weight="400" font-size="22" fill="#525252">Listen · Shadow · Recall · Language islands</text>
+  <text x="560" y="404" font-family="RHD" font-weight="400" font-size="28" fill="#737373">Personalized Japanese learning through language scenes</text>
+  <text x="560" y="468" font-family="RHD" font-weight="400" font-size="22" fill="#525252">Listen · Shadow · Recall · Language scenes</text>
 </svg>`);
 
   const logoLeft = 80;

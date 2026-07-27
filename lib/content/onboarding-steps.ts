@@ -69,11 +69,11 @@ export const onboardingSteps: OnboardingStep[] = [
     title: "Study — choose your batch",
     body: [
       "Study is where you pick your active batch — about 20–25 sentences you focus on at once.",
-      "Choose from the numbered main pathway or custom topic islands you create or import.",
+      "Choose from the numbered main pathway or custom topic scenes you create or import.",
     ],
     bullets: [
       "Pathway batches follow a curated progression",
-      "Islands let you study themes like café Japanese or travel phrases",
+      "Scenes let you study themes like café Japanese or travel phrases",
     ],
     icon: Layers,
     kanji: "学",
@@ -142,7 +142,7 @@ export const onboardingSteps: OnboardingStep[] = [
       "Progress shows mastery stats, weak-sentence trends, and time spent in each study mode.",
     ],
     bullets: [
-      "Browse pathway and island sentences together",
+      "Browse pathway and scene sentences together",
       "Track weak spots and study streaks over time",
     ],
     icon: Library,
@@ -152,7 +152,7 @@ export const onboardingSteps: OnboardingStep[] = [
     id: "tools",
     title: "Pre-study & Weak sentences",
     body: [
-      "Pre-study (Transcript analyzer) lets you paste a transcript or Japanese text before watching or listening — highlight unknown words and build an island from useful lines.",
+      "Pre-study (Transcript analyzer) lets you paste a transcript or Japanese text before watching or listening — highlight unknown words and build an scene from useful lines.",
       "Weak sentences collects everything you rated 1–2 stars so you can drill problem sentences in one tap.",
     ],
     icon: ClipboardList,
@@ -177,7 +177,7 @@ export const onboardingSteps: OnboardingStep[] = [
     id: "guide_tutor",
     title: "Guide & AI Tutor",
     body: [
-      "The Method Guide explains the Kotoshima approach in depth — daily loop, star ratings, and why each step matters.",
+      "The Method Guide explains the Matomari approach in depth — daily loop, star ratings, and why each step matters.",
       "The AI Tutor answers questions in context: general help from the menu, or sentence-specific help while you study.",
     ],
     bullets: [
@@ -189,7 +189,7 @@ export const onboardingSteps: OnboardingStep[] = [
   },
   {
     id: "install",
-    title: "Add Kotoshima to your home screen",
+    title: "Add Matomari to your home screen",
     body: [
       `${APP_NAME} works best installed as an app — full-screen study, smoother audio, and daily reminders.`,
       "Use the steps below for your device. You can replay this tour anytime from Settings.",

@@ -4,7 +4,7 @@ import { getPlacementStartingBatch } from "./placement-service";
 import { getActiveBatchSentences } from "./batch-service";
 
 export interface StudyFocus {
-  sourceType: "pathway" | "island";
+  sourceType: "pathway" | "scene";
   label: string;
   shortLabel: string;
   detail: string;
@@ -21,7 +21,7 @@ export interface PathwayBatchStat {
   percentComplete: number;
 }
 
-export interface IslandSummary {
+export interface SceneSummary {
   key: string;
   title: string;
   description: string;
@@ -58,14 +58,14 @@ function isSentenceComplete(
   return sp.batchStatus === "retired" || (sp.rating !== null && sp.rating >= 4);
 }
 
-export function isIslandComplete(
+export function isSceneComplete(
   dataset: Dataset,
   progress: UserProgress,
-  islandKey: string
+  sceneKey: string
 ): boolean {
-  const island = dataset.islands[islandKey];
-  if (!island || island.sentences.length === 0) return false;
-  return island.sentences.every((s) => isSentenceComplete(s.id, progress));
+  const scene = dataset.scenes[sceneKey];
+  if (!scene || scene.sentences.length === 0) return false;
+  return scene.sentences.every((s) => isSentenceComplete(s.id, progress));
 }
 
 export function isPathwayBatchComplete(
@@ -133,20 +133,20 @@ export function getSuggestedPathwayBatch(
   return stats[0]?.batchNumber ?? 1;
 }
 
-export function getIslandSummaries(
+export function getSceneSummaries(
   dataset: Dataset,
   progress: UserProgress
-): IslandSummary[] {
-  return Object.entries(dataset.islands).map(([key, island]) => ({
+): SceneSummary[] {
+  return Object.entries(dataset.scenes).map(([key, scene]) => ({
     key,
-    title: island.title?.trim() || formatLabel(key.replace(/^premade_/, "")),
-    description: island.description,
-    sentenceCount: island.sentences.length,
-    studiedCount: island.sentences.filter((s) => isSentenceStudied(s.id, progress)).length,
+    title: scene.title?.trim() || formatLabel(key.replace(/^premade_/, "")),
+    description: scene.description,
+    sentenceCount: scene.sentences.length,
+    studiedCount: scene.sentences.filter((s) => isSentenceStudied(s.id, progress)).length,
     complete:
-      progress.completedIslands.includes(key) ||
-      isIslandComplete(dataset, progress, key),
-    subtopics: island.subtopics,
+      progress.completedScenes.includes(key) ||
+      isSceneComplete(dataset, progress, key),
+    subtopics: scene.subtopics,
   }));
 }
 
@@ -171,19 +171,19 @@ export function getStudyFocusLabel(
     };
   }
 
-  if (config.sourceType === "island" && config.islandKey) {
-    const island = dataset.islands[config.islandKey];
+  if (config.sourceType === "scene" && config.sceneKey) {
+    const scene = dataset.scenes[config.sceneKey];
     const title =
-      island?.title?.trim() ||
-      formatLabel(config.islandKey.replace(/^premade_/, ""));
+      scene?.title?.trim() ||
+      formatLabel(config.sceneKey.replace(/^premade_/, ""));
     const subtopic =
       config.subtopic ? ` · ${formatLabel(config.subtopic)}` : "";
     return {
-      sourceType: "island",
-      label: `Island · ${title}${subtopic}`,
-      shortLabel: "Topic island",
+      sourceType: "scene",
+      label: `Scene · ${title}${subtopic}`,
+      shortLabel: "Topic scene",
       detail: title,
-      detailHref: `/batch/island/${encodeURIComponent(config.islandKey)}`,
+      detailHref: `/batch/scene/${encodeURIComponent(config.sceneKey)}`,
     };
   }
 
@@ -260,17 +260,17 @@ export function maybeMarkPathwayBatchComplete(
   };
 }
 
-export function maybeMarkIslandComplete(
+export function maybeMarkSceneComplete(
   dataset: Dataset,
   progress: UserProgress,
-  islandKey: string
+  sceneKey: string
 ): UserProgress {
-  if (progress.completedIslands.includes(islandKey)) return progress;
-  if (!isIslandComplete(dataset, progress, islandKey)) return progress;
+  if (progress.completedScenes.includes(sceneKey)) return progress;
+  if (!isSceneComplete(dataset, progress, sceneKey)) return progress;
 
   return {
     ...progress,
-    completedIslands: [...progress.completedIslands, islandKey].sort(),
+    completedScenes: [...progress.completedScenes, sceneKey].sort(),
   };
 }
 

@@ -5,21 +5,21 @@ import { useApp } from "@/components/providers/app-provider";
 import {
   filterStudyUnits,
   filterStudyUnitsByOrigin,
-  getIslandStudyUnits,
+  getSceneStudyUnits,
   organizeStudyUnitsForDisplay,
-  type IslandOriginFilter,
+  type SceneOriginFilter,
   type StudyUnitStatusFilter,
 } from "@/lib/services/study-unit-service";
-import { getUserFolders } from "@/lib/services/island-folder-service";
-import { CreateIslandDialog } from "@/components/ai/create-island-dialog";
-import { CreateManualIslandDialog } from "@/components/islands/create-manual-island-dialog";
-import { CreateIslandFolderDialog } from "@/components/islands/create-island-folder-dialog";
+import { getUserFolders } from "@/lib/services/scene-folder-service";
+import { CreateSceneDialog } from "@/components/ai/create-scene-dialog";
+import { CreateManualSceneDialog } from "@/components/scenes/create-manual-scene-dialog";
+import { CreateSceneFolderDialog } from "@/components/scenes/create-scene-folder-dialog";
 import {
-  IslandFolderSection,
-  PremadeIslandFolderSection,
+  SceneFolderSection,
+  PremadeSceneFolderSection,
   UnfolderedStudyUnitsSection,
-} from "@/components/islands/island-folder-section";
-import { useEnsureIslandKanji } from "@/hooks/use-ensure-island-kanji";
+} from "@/components/scenes/scene-folder-section";
+import { useEnsureSceneKanji } from "@/hooks/use-ensure-scene-kanji";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -31,7 +31,7 @@ const STATUS_FILTERS: { value: StudyUnitStatusFilter; label: string }[] = [
   { value: "completed", label: "Completed" },
 ];
 
-const ORIGIN_FILTERS: { value: IslandOriginFilter; label: string }[] = [
+const ORIGIN_FILTERS: { value: SceneOriginFilter; label: string }[] = [
   { value: "all", label: "All" },
   { value: "premade", label: "Premade" },
   { value: "user", label: "Mine" },
@@ -53,13 +53,13 @@ function hasGroupedUnits(grouped: {
 
 export function StudyUnitList() {
   const { dataset, progress, premadeCatalog } = useApp();
-  useEnsureIslandKanji();
+  useEnsureSceneKanji();
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StudyUnitStatusFilter>("all");
-  const [originFilter, setOriginFilter] = useState<IslandOriginFilter>("all");
+  const [originFilter, setOriginFilter] = useState<SceneOriginFilter>("all");
 
   const allUnits = useMemo(
-    () => (dataset ? getIslandStudyUnits(dataset, progress, premadeCatalog) : []),
+    () => (dataset ? getSceneStudyUnits(dataset, progress, premadeCatalog) : []),
     [dataset, progress, premadeCatalog]
   );
 
@@ -94,7 +94,7 @@ export function StudyUnitList() {
         <Input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search islands…"
+          placeholder="Search scenes…"
           className="min-w-[12rem] flex-1 rounded-full border-border/70 bg-surface-raised"
         />
         <div className="inline-flex shrink-0 rounded-full border border-border/70 bg-surface-raised p-0.5">
@@ -135,16 +135,16 @@ export function StudyUnitList() {
         </div>
         {showUserActions && (
           <>
-            <CreateIslandFolderDialog compact />
-            <CreateIslandDialog compact />
-            <CreateManualIslandDialog compact />
+            <CreateSceneFolderDialog compact />
+            <CreateSceneDialog compact />
+            <CreateManualSceneDialog compact />
           </>
         )}
       </div>
 
       <div className="space-y-5">
         {organized.premadeFolders.map(({ folder, grouped }) => (
-          <PremadeIslandFolderSection
+          <PremadeSceneFolderSection
             key={folder.id}
             folder={folder}
             grouped={grouped}
@@ -155,11 +155,11 @@ export function StudyUnitList() {
           grouped={organized.premadeUnfoldered}
           folders={[]}
           showStatusHeaders={showStatusHeaders}
-          title="Other premade islands"
+          title="Other premade scenes"
         />
 
         {organized.userFolders.map(({ folder, grouped }) => (
-          <IslandFolderSection
+          <SceneFolderSection
             key={folder.id}
             folder={folder}
             grouped={grouped}
@@ -175,7 +175,7 @@ export function StudyUnitList() {
         />
 
         {!hasContent && (
-          <p className="py-8 text-center text-sm text-muted">No islands match.</p>
+          <p className="py-8 text-center text-sm text-muted">No scenes match.</p>
         )}
       </div>
     </div>

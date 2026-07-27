@@ -4,16 +4,16 @@ import type {
 } from "@/lib/audio/fish-audio-cues";
 import type { Dialect } from "@/lib/constants/dialect";
 import type {
-  IslandDifficultyMode,
-  IslandDurationTier,
-} from "@/lib/constants/island-generation";
+  SceneDifficultyMode,
+  SceneDurationTier,
+} from "@/lib/constants/scene-generation";
 
 export type Register = "casual" | "polite" | "formal";
 
-/** Dialogue speaker for narration-format islands. */
+/** Dialogue speaker for narration-format scenes. */
 export type NarrationSpeaker = "A" | "B";
 
-export type IslandFormat = "standard" | "narration";
+export type SceneFormat = "standard" | "narration";
 
 /** Per-turn narration delivery — Fish cues compile at TTS time only (not UI text). */
 export interface NarrationAudio {
@@ -26,10 +26,10 @@ export interface NarrationAudio {
 }
 
 /**
- * Island-level delivery direction applied to every narration turn.
+ * Scene-level delivery direction applied to every narration turn.
  * `toneTags` are free-form Fish instructions and combine with per-line tags.
  */
-export interface IslandNarrationMode {
+export interface SceneNarrationMode {
   context: string;
   toneTags: string[];
 }
@@ -49,7 +49,7 @@ export interface SeedSentence {
   tags: string[];
   context_notes?: string;
   translated: boolean;
-  /** Speaker turn for narration islands (A/B). */
+  /** Speaker turn for narration scenes (A/B). */
   speaker?: NarrationSpeaker;
   /**
    * Free-form Fish Audio natural-language bracket tags compiled at TTS time.
@@ -57,7 +57,7 @@ export interface SeedSentence {
    */
   paralinguisticTags?: string[];
   /**
-   * Narration islands only: authored pause + optional legacy Fish cues.
+   * Narration scenes only: authored pause + optional legacy Fish cues.
    * Never injected into japanese / reading / romaji display fields.
    */
   narrationAudio?: NarrationAudio;
@@ -91,57 +91,62 @@ export interface PathwayBatch {
   sentences: Sentence[];
 }
 
-export interface IslandCreatedBy {
+export interface SceneCreatedBy {
   userId: string;
   displayName: string;
 }
 
-export type IslandProvenanceKind =
+export type SceneProvenanceKind =
   | "owned"
   | "shared"
   | "cloned"
   | "premade"
   | "ai";
 
-export interface IslandProvenance {
-  kind: IslandProvenanceKind;
+export interface SceneProvenance {
+  kind: SceneProvenanceKind;
   /** Live share row id when provenance is shared/cloned. */
   shareId?: string;
-  /** Stable island id on the owner's dataset. */
-  sourceIslandId?: string;
-  /** Owner of the live shared source (membership islands). */
+  /** Stable scene id on the owner's dataset. */
+  sourceSceneId?: string;
+  /** Owner of the live shared source (membership scenes). */
   ownerUserId?: string;
   clonedFromShareId?: string;
 }
 
-export interface Island {
+export interface Scene {
   description: string;
   subtopics: string[];
   sentences: Sentence[];
-  /** Optional display title override (defaults to formatted island key). */
+  /** Optional display title override (defaults to formatted scene key). */
   title?: string;
   /** Decorative kanji watermark for study UI (1–2 characters). */
   themeKanji?: string;
-  /** Highlighted premade islands (e.g. 300 Essentials) — orange pathway-style chrome. */
+  /** Highlighted premade scenes (e.g. 300 Essentials) — orange pathway-style chrome. */
   featured?: boolean;
   /** standard = flat list; narration = multi-speaker dialogue. */
-  format?: IslandFormat;
+  format?: SceneFormat;
   /** Speakers used when format is narration (default A, B). */
   speakers?: NarrationSpeaker[];
-  /** Shared contextual delivery direction for every turn in this narration island. */
-  narrationMode?: IslandNarrationMode;
+  /** Shared contextual delivery direction for every turn in this narration scene. */
+  narrationMode?: SceneNarrationMode;
+  /**
+   * Pro: catalog voice ids (or Fish reference ids) per speaker.
+   * When unset, env default A/B pairing is used.
+   */
+  speakerVoices?: { A?: string; B?: string };
   /** Stable UUID for sharing / reconciliation (assigned on create/share). */
   id?: string;
   /** Creator attribution shown as "Created by {displayName}". */
-  createdBy?: IslandCreatedBy;
+  createdBy?: SceneCreatedBy;
   /** matched = level-constrained; natural = mixed/null sentence difficulty. */
-  difficultyMode?: IslandDifficultyMode;
+  difficultyMode?: SceneDifficultyMode;
   /** Approximate generation size tier. */
-  durationTier?: IslandDurationTier;
-  /** How this island entered the library. */
-  provenance?: IslandProvenance;
+  durationTier?: SceneDurationTier;
+  /** How this scene entered the library. */
+  provenance?: SceneProvenance;
   /**
-   * Composed membership islands are read-only (not persisted in user_datasets).
+   * Composed membership scenes are read-only (not persisted in user_datasets).
    * Owner edits flow through live share resolution.
    */
   readOnly?: boolean;
@@ -152,14 +157,14 @@ export interface Dataset {
     description: string;
     batches: PathwayBatch[];
   };
-  islands: Record<string, Island>;
+  scenes: Record<string, Scene>;
 }
 
 export type SentenceDialectTranslations = Partial<Record<Dialect, TranslatedFields>>;
 
-/** Per-user library stored locally and synced — islands only; pathway is public. */
+/** Per-user library stored locally and synced — scenes only; pathway is public. */
 export interface UserLibrary {
-  islands: Record<string, Island>;
+  scenes: Record<string, Scene>;
   /** User-specific translations keyed by sentence id, then dialect. */
   sentenceTranslations?: Record<string, SentenceDialectTranslations>;
 }

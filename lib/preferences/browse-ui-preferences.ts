@@ -1,7 +1,7 @@
 import {
-  DEFAULT_ISLAND_BROWSE_DISPLAY,
-  type IslandBrowseDisplay,
-} from "@/lib/constants/island-browse";
+  DEFAULT_SCENE_BROWSE_DISPLAY,
+  type SceneBrowseDisplay,
+} from "@/lib/constants/scene-browse";
 
 const STORAGE_KEY = "language:browse-ui-v1";
 
@@ -9,7 +9,7 @@ const DEFAULT_CASUAL_PAUSE_MS = 1200;
 const DEFAULT_CASUAL_PLAYBACK_RATE = 1;
 
 export type BrowseUiPreferences = {
-  islandBrowseDisplay: IslandBrowseDisplay;
+  sceneBrowseDisplay: SceneBrowseDisplay;
   casualPlaylistPauseMs: number;
   casualPlaylistPlaybackRate: number;
 };
@@ -18,8 +18,8 @@ function withDefaults(
   partial?: Partial<BrowseUiPreferences>
 ): BrowseUiPreferences {
   return {
-    islandBrowseDisplay:
-      partial?.islandBrowseDisplay ?? DEFAULT_ISLAND_BROWSE_DISPLAY,
+    sceneBrowseDisplay:
+      partial?.sceneBrowseDisplay ?? DEFAULT_SCENE_BROWSE_DISPLAY,
     casualPlaylistPauseMs:
       partial?.casualPlaylistPauseMs ?? DEFAULT_CASUAL_PAUSE_MS,
     casualPlaylistPlaybackRate:

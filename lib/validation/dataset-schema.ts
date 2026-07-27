@@ -9,7 +9,7 @@ import {
   normalizeEnglish,
   normalizeLegacySentence,
 } from "@/lib/sentence-utils";
-import type { Dataset, Island, Sentence } from "@/types/sentence";
+import type { Dataset, Scene, Sentence } from "@/types/sentence";
 
 const registerSchema = z.enum(["casual", "polite", "formal"]);
 
@@ -94,27 +94,27 @@ export const pathwayBatchSchema = z.object({
   sentences: z.array(z.unknown()),
 });
 
-const islandCreatedBySchema = z.object({
+const sceneCreatedBySchema = z.object({
   userId: z.string().min(1),
   displayName: z.string().min(1),
 });
 
-const islandProvenanceSchema = z.object({
+const sceneProvenanceSchema = z.object({
   kind: z.enum(["owned", "shared", "cloned", "premade", "ai"]),
   shareId: z.string().optional(),
-  sourceIslandId: z.string().optional(),
+  sourceSceneId: z.string().optional(),
   ownerUserId: z.string().optional(),
   clonedFromShareId: z.string().optional(),
 });
 
-const islandNarrationModeSchema = z.object({
+const sceneNarrationModeSchema = z.object({
   context: z.string().min(1).max(500),
   toneTags: z
     .array(z.string())
     .transform((tags) => sanitizeParalinguisticTags(tags) ?? []),
 });
 
-export const islandSchema = z.object({
+export const sceneSchema = z.object({
   description: z.string(),
   subtopics: z.array(z.string()),
   sentences: z.array(z.unknown()),
@@ -123,42 +123,51 @@ export const islandSchema = z.object({
   featured: z.boolean().optional(),
   format: z.enum(["standard", "narration"]).optional(),
   speakers: z.array(z.enum(["A", "B"])).optional(),
-  narrationMode: islandNarrationModeSchema.optional(),
+  narrationMode: sceneNarrationModeSchema.optional(),
   id: z.string().uuid().optional(),
-  createdBy: islandCreatedBySchema.optional(),
+  createdBy: sceneCreatedBySchema.optional(),
   difficultyMode: z.enum(["matched", "natural"]).optional(),
   durationTier: z.enum(["quick", "standard", "deep"]).optional(),
-  provenance: islandProvenanceSchema.optional(),
+  provenance: sceneProvenanceSchema.optional(),
   readOnly: z.boolean().optional(),
 });
 
-export const datasetSchema = z.object({
-  main_pathway: z.object({
-    description: z.string(),
-    batches: z.array(pathwayBatchSchema),
-  }),
-  islands: z.record(z.string(), islandSchema).default({}),
-});
+export const datasetSchema = z.preprocess(
+  (val: unknown) => {
+    if (val && typeof val === "object" && "islands" in val && !("scenes" in val)) {
+      const { islands, ...rest } = val as Record<string, unknown>;
+      return { ...rest, scenes: islands };
+    }
+    return val;
+  },
+  z.object({
+    main_pathway: z.object({
+      description: z.string(),
+      batches: z.array(pathwayBatchSchema),
+    }),
+    scenes: z.record(z.string(), sceneSchema).default({}),
+  })
+);
 
 export type DatasetInput = Dataset;
 
-function normalizeIsland(island: z.infer<typeof islandSchema>): Island {
+function normalizeScene(scene: z.infer<typeof sceneSchema>): Scene {
   return {
-    description: island.description,
-    subtopics: island.subtopics,
-    title: island.title,
-    themeKanji: island.themeKanji,
-    featured: island.featured,
-    format: island.format,
-    speakers: island.speakers,
-    narrationMode: island.narrationMode,
-    id: island.id,
-    createdBy: island.createdBy,
-    difficultyMode: island.difficultyMode,
-    durationTier: island.durationTier,
-    provenance: island.provenance,
+    description: scene.description,
+    subtopics: scene.subtopics,
+    title: scene.title,
+    themeKanji: scene.themeKanji,
+    featured: scene.featured,
+    format: scene.format,
+    speakers: scene.speakers,
+    narrationMode: scene.narrationMode,
+    id: scene.id,
+    createdBy: scene.createdBy,
+    difficultyMode: scene.difficultyMode,
+    durationTier: scene.durationTier,
+    provenance: scene.provenance,
     // readOnly is never persisted from imports — only composed at runtime
-    sentences: island.sentences.map((s) => normalizeLegacySentence(s)),
+    sentences: scene.sentences.map((s) => normalizeLegacySentence(s)),
   };
 }
 
@@ -171,18 +180,18 @@ function normalizeDatasetSentences(raw: z.infer<typeof datasetSchema>): Dataset 
         sentences: batch.sentences.map((s) => normalizeLegacySentence(s)),
       })),
     },
-    islands: Object.fromEntries(
-      Object.entries(raw.islands).map(([key, island]) => [key, normalizeIsland(island)])
+    scenes: Object.fromEntries(
+      Object.entries(raw.scenes).map(([key, scene]) => [key, normalizeScene(scene)])
     ),
   };
 }
 
-export function validateIslandUniqueness(island: { sentences: Sentence[] }): void {
+export function validateSceneUniqueness(scene: { sentences: Sentence[] }): void {
   const ids = new Set<string>();
   const japanese = new Set<string>();
   const english = new Set<string>();
 
-  for (const s of island.sentences) {
+  for (const s of scene.sentences) {
     if (ids.has(s.id)) throw new Error(`Duplicate sentence id: ${s.id}`);
     ids.add(s.id);
 
@@ -198,15 +207,15 @@ export function validateIslandUniqueness(island: { sentences: Sentence[] }): voi
   }
 }
 
-/** Narration islands must have complete speaker + pause coverage. */
-export function validateNarrationIsland(island: Island): void {
-  if (island.format !== "narration") return;
+/** Narration scenes must have complete speaker + pause coverage. */
+export function validateNarrationScene(scene: Scene): void {
+  if (scene.format !== "narration") return;
 
-  if (!island.speakers || island.speakers.length === 0) {
-    throw new Error("Narration islands require speakers");
+  if (!scene.speakers || scene.speakers.length === 0) {
+    throw new Error("Narration scenes require speakers");
   }
 
-  for (const s of island.sentences) {
+  for (const s of scene.sentences) {
     if (s.speaker !== "A" && s.speaker !== "B") {
       throw new Error(`Narration sentence "${s.id}" is missing speaker A/B`);
     }
@@ -224,7 +233,7 @@ export function parseDataset(json: unknown): Dataset {
 export function getAllSentences(dataset: DatasetInput) {
   const sentences = new Map<
     string,
-    Sentence & { sourceType: "pathway" | "island"; sourceKey: string }
+    Sentence & { sourceType: "pathway" | "scene"; sourceKey: string }
   >();
 
   for (const batch of dataset.main_pathway.batches) {
@@ -237,9 +246,9 @@ export function getAllSentences(dataset: DatasetInput) {
     }
   }
 
-  for (const [key, island] of Object.entries(dataset.islands)) {
-    for (const s of island.sentences) {
-      sentences.set(s.id, { ...s, sourceType: "island", sourceKey: key });
+  for (const [key, scene] of Object.entries(dataset.scenes)) {
+    for (const s of scene.sentences) {
+      sentences.set(s.id, { ...s, sourceType: "scene", sourceKey: key });
     }
   }
 

@@ -34,36 +34,36 @@ export function getPwaInstallHint(platform: PwaInstallPlatform): PwaInstallHint 
         platform,
         title: "Already on your home screen",
         steps: [
-          "Kotoshima is running as an installed app — you're set up for the best experience.",
+          "Matomari is running as an installed app — you're set up for the best experience.",
           "Open it from your home screen anytime for full-screen study and smoother audio.",
         ],
       };
     case "ios":
       return {
         platform,
-        title: "Add Kotoshima to your home screen",
+        title: "Add Matomari to your home screen",
         steps: [
           "Tap the Share button in Safari (the square with an arrow).",
           "Scroll down and tap Add to Home Screen.",
-          "Tap Add — Kotoshima will open full-screen like a native app.",
+          "Tap Add — Matomari will open full-screen like a native app.",
         ],
       };
     case "android":
       return {
         platform,
-        title: "Install Kotoshima on your home screen",
+        title: "Install Matomari on your home screen",
         steps: [
           "Tap the menu (⋮) in Chrome, or look for Install app in the address bar.",
           "Choose Add to Home screen or Install.",
-          "Open Kotoshima from your home screen for the best study experience.",
+          "Open Matomari from your home screen for the best study experience.",
         ],
       };
     default:
       return {
         platform,
-        title: "Bookmark or install Kotoshima",
+        title: "Bookmark or install Matomari",
         steps: [
-          "On mobile, add kotoshima.ink to your home screen for full-screen study and better audio.",
+          "On mobile, add www.matomari.com to your home screen for full-screen study and better audio.",
           "On desktop, bookmark the site or use your browser's Install app option if offered.",
         ],
       };

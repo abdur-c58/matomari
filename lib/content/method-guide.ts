@@ -51,7 +51,7 @@ export const methodPurpose = {
     {
       title: "Knowledge",
       description:
-        "Build a rolling batch of high-value sentences from normal or narration islands so vocabulary and grammar arrive in context, not isolation.",
+        "Build a rolling batch of high-value sentences from normal or narration scenes so vocabulary and grammar arrive in context, not isolation.",
     },
     {
       title: "Retrieval",
@@ -146,7 +146,7 @@ export const methodOverview = {
       number: 1,
       title: "Batch learning",
       description:
-        "Pick a pathway batch or language island (~20–25 sentences). Work through them as a rolling set — new sentences enter as weak ones retire.",
+        "Pick a pathway batch or language scene (~20–25 sentences). Work through them as a rolling set — new sentences enter as weak ones retire.",
     },
     {
       number: 2,
@@ -194,34 +194,34 @@ export const dailyChecklist: GuideChecklistItem[] = [
   },
 ];
 
-export const normalVsNarrationIslands = {
-  id: "normal-vs-narration-islands",
-  title: "Normal islands vs narration islands",
+export const normalVsNarrationScenes = {
+  id: "normal-vs-narration-scenes",
+  title: "Normal scenes vs narration scenes",
   summary:
-    "Normal islands are sentence sets for direct practice. Narration islands add story-like audio turns for listening flow and context.",
+    "Normal scenes are sentence sets for direct practice. Narration scenes add story-like audio turns for listening flow and context.",
   bullets: [
-    "Normal islands: focused sentence pools around a topic, situation, or skill you want to drill.",
-    "Narration islands: guided audio scenes with connected turns, useful for getting used to rhythm, context, and longer listening.",
-    "Both island types feed the same daily loop: confirm meaning, listen and shadow, then use active recall.",
-    "Use normal islands when you want tight reps. Use narration islands when you want more natural flow around the same kind of language.",
+    "Normal scenes: focused sentence pools around a topic, situation, or skill you want to drill.",
+    "Narration scenes: guided audio scenes with connected turns, useful for getting used to rhythm, context, and longer listening.",
+    "Both scene types feed the same daily loop: confirm meaning, listen and shadow, then use active recall.",
+    "Use normal scenes when you want tight reps. Use narration scenes when you want more natural flow around the same kind of language.",
   ],
 };
 
 export const howToSections: GuideStepSection[] = [
   {
-    id: "normal-vs-narration-islands",
+    id: "normal-vs-narration-scenes",
     accent: "neutral",
-    title: normalVsNarrationIslands.title,
-    summary: normalVsNarrationIslands.summary,
-    bullets: normalVsNarrationIslands.bullets,
+    title: normalVsNarrationScenes.title,
+    summary: normalVsNarrationScenes.summary,
+    bullets: normalVsNarrationScenes.bullets,
   },
   {
     id: "batch",
     accent: "neutral",
     title: "Building your batch",
-    summary: "Choose a pathway or island and start with ~20–25 sentences.",
+    summary: "Choose a pathway or scene and start with ~20–25 sentences.",
     bullets: [
-      "Go to Study and pick a normal island for focused reps or a narration island for connected listening practice.",
+      "Go to Study and pick a normal scene for focused reps or a narration scene for connected listening practice.",
       "Default batch size is adjustable in Settings (10–40 sentences).",
       "Sentences retire from the active batch at 4+ stars and enter the review pool.",
       "New unseen sentences fill the empty slots — your batch rolls forward.",

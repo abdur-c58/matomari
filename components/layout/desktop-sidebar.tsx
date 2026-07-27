@@ -12,6 +12,7 @@ import {
 } from "@/components/layout/app-nav-config";
 import { AppBrandHeader } from "@/components/layout/app-brand-header";
 import { ThemeMenuControl } from "@/components/settings/theme-menu-control";
+import { AdminNavLink } from "@/components/admin/admin-nav-link";
 import { cn } from "@/lib/utils";
 
 export function DesktopSidebar() {
@@ -85,6 +86,7 @@ export function DesktopSidebar() {
 
       <div className="space-y-3 border-t border-border px-3 py-3">
         <ThemeMenuControl />
+        <AdminNavLink />
         {footerNav.map(({ href, label, icon: Icon }) => (
           <Link
             key={href}

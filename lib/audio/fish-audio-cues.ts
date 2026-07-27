@@ -150,7 +150,7 @@ export function sanitizeParalinguisticTags(
   return out.length > 0 ? out : undefined;
 }
 
-/** Combine island-level tone with line-level reactions, preserving stable order. */
+/** Combine scene-level tone with line-level reactions, preserving stable order. */
 export function combineParalinguisticTags(
   ...groups: Array<string[] | null | undefined>
 ): string[] | undefined {

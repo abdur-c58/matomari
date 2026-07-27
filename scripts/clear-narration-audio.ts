@@ -1,5 +1,5 @@
 /**
- * Clear cached TTS audio (R2 + metadata) for narration island sentence IDs only.
+ * Clear cached TTS audio (R2 + metadata) for narration scene sentence IDs only.
  * Pair with STANDARD_TTS_CACHE_VERSION bump after Fish cue rollout.
  *
  * Usage: npx tsx --env-file=.env.local scripts/clear-narration-audio.ts
@@ -17,9 +17,9 @@ async function main() {
   );
 
   const ids = new Set<string>();
-  for (const island of Object.values(catalog.islands)) {
-    if (island.format !== "narration") continue;
-    for (const s of island.sentences) ids.add(s.id);
+  for (const scene of Object.values(catalog.scenes)) {
+    if (scene.format !== "narration") continue;
+    for (const s of scene.sentences) ids.add(s.id);
   }
 
   if (ids.size === 0) {

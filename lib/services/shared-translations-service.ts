@@ -94,7 +94,7 @@ export async function pullSharedTranslationsIntoLibrary(): Promise<boolean> {
     return false;
   }
 
-  const library = (await getUserLibrary()) ?? { islands: {} };
+  const library = (await getUserLibrary()) ?? { scenes: {} };
   const merged = mergeTranslationMaps(library.sentenceTranslations, shared.translations);
 
   const before = JSON.stringify(library.sentenceTranslations ?? {});

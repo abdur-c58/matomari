@@ -21,8 +21,8 @@ import {
   resolveAppliedTheme,
 } from "@/lib/theme/apply-theme";
 
-export const THEME_STORAGE_KEY = "kotoshima-theme-mode";
-const THEME_EVENT = "kotoshima-theme-change";
+export const THEME_STORAGE_KEY = "matomari-theme-mode";
+const THEME_EVENT = "matomari-theme-change";
 const THEME_TRANSITION_MS = 280;
 
 type ThemeContextValue = {

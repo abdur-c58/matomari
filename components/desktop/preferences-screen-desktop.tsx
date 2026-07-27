@@ -98,7 +98,7 @@ export function PreferencesScreenDesktop() {
         <Card className="mb-6 p-4">
           <Label className="text-base">Notifications</Label>
           <p className="mt-1 mb-4 text-sm text-muted leading-relaxed">
-            Daily study nudges, review reminders, and optional per-island alerts.
+            Daily study nudges, review reminders, and optional per-scene alerts.
           </p>
           <NotificationPreferencesSection
             notifications={notifications}

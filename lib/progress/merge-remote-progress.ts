@@ -27,8 +27,8 @@ export function mergeRemoteProgressPreservingLocalUi(
     ...remote,
     settings: {
       ...remote.settings,
-      islandBrowseDisplay:
-        local.settings.islandBrowseDisplay ?? remote.settings.islandBrowseDisplay,
+      sceneBrowseDisplay:
+        local.settings.sceneBrowseDisplay ?? remote.settings.sceneBrowseDisplay,
       casualPlaylistPauseMs:
         local.settings.casualPlaylistPauseMs ?? remote.settings.casualPlaylistPauseMs,
       casualPlaylistPlaybackRate:

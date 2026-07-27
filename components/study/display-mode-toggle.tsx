@@ -1,12 +1,12 @@
 "use client";
 
-import type { IslandBrowseDisplay } from "@/lib/constants/island-browse";
+import type { SceneBrowseDisplay } from "@/lib/constants/scene-browse";
 import { Languages } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const MODES: {
-  value: IslandBrowseDisplay;
+  value: SceneBrowseDisplay;
   label: string;
   shortLabel: string;
 }[] = [
@@ -19,7 +19,7 @@ function ModeGlyph({
   mode,
   className,
 }: {
-  mode: IslandBrowseDisplay;
+  mode: SceneBrowseDisplay;
   className?: string;
 }) {
   if (mode === "en") {
@@ -44,8 +44,8 @@ export function DisplayModeToggle({
   onChange,
   compact = false,
 }: {
-  value: IslandBrowseDisplay;
-  onChange: (mode: IslandBrowseDisplay) => void;
+  value: SceneBrowseDisplay;
+  onChange: (mode: SceneBrowseDisplay) => void;
   compact?: boolean;
 }) {
   return (

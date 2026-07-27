@@ -1,4 +1,4 @@
-import type { Island } from "@/types/sentence";
+import type { Scene } from "@/types/sentence";
 
 export interface PremadeFolder {
   id: string;
@@ -11,13 +11,13 @@ export interface PremadeFolder {
 export interface PremadeCatalog {
   updatedAt: string;
   folders: PremadeFolder[];
-  islands: Record<string, Island>;
-  islandFolderAssignments: Record<string, string>;
+  scenes: Record<string, Scene>;
+  sceneFolderAssignments: Record<string, string>;
 }
 
 export const EMPTY_PREMADE_CATALOG: PremadeCatalog = {
   updatedAt: "1970-01-01T00:00:00.000Z",
   folders: [],
-  islands: {},
-  islandFolderAssignments: {},
+  scenes: {},
+  sceneFolderAssignments: {},
 };

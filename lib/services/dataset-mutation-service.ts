@@ -1,10 +1,10 @@
-import type { Dataset, Island, Sentence } from "@/types/sentence";
+import type { Dataset, Scene, Sentence } from "@/types/sentence";
 import type { z } from "zod";
-import type { generatedIslandSentenceSchema } from "@/lib/ai/schemas";
+import type { generatedSceneSentenceSchema } from "@/lib/ai/schemas";
 import {
   getAllSentences,
-  validateIslandUniqueness,
-  validateNarrationIsland,
+  validateSceneUniqueness,
+  validateNarrationScene,
 } from "@/lib/validation/dataset-schema";
 import { isTranslated, normalizeEnglish } from "@/lib/sentence-utils";
 import {
@@ -12,17 +12,17 @@ import {
   sanitizeParalinguisticTags,
 } from "@/lib/audio/fish-audio-cues";
 
-type GeneratedIslandSentence = z.infer<typeof generatedIslandSentenceSchema>;
+type GeneratedSceneSentence = z.infer<typeof generatedSceneSentenceSchema>;
 
-export { validateIslandUniqueness, validateNarrationIsland };
+export { validateSceneUniqueness, validateNarrationScene };
 
-export function slugifyIslandKey(theme: string, existingKeys: string[] = []): string {
+export function slugifySceneKey(theme: string, existingKeys: string[] = []): string {
   const base = theme
     .toLowerCase()
     .trim()
     .replace(/[^a-z0-9]+/g, "_")
     .replace(/^_|_$/g, "")
-    .slice(0, 40) || "island";
+    .slice(0, 40) || "scene";
 
   if (!existingKeys.includes(base)) return base;
 
@@ -38,10 +38,10 @@ function stripNarrationFields(sentence: Sentence): Sentence {
   return next;
 }
 
-export function resolveIslandSentences(
-  generated: GeneratedIslandSentence[],
+export function resolveSceneSentences(
+  generated: GeneratedSceneSentence[],
   catalog: Map<string, Sentence>,
-  islandKey: string,
+  sceneKey: string,
   globalIds: Set<string>,
   options?: {
     format?: "standard" | "narration";
@@ -142,7 +142,7 @@ export function resolveIslandSentences(
       let id = item.id;
       if (!id || globalIds.has(id) || seenIds.has(id)) {
         do {
-          id = `${islandKey}-${String(newIndex).padStart(3, "0")}`;
+          id = `${sceneKey}-${String(newIndex).padStart(3, "0")}`;
           newIndex++;
         } while (globalIds.has(id) || seenIds.has(id));
       }
@@ -186,82 +186,82 @@ export function resolveIslandSentences(
   }
 
   if (resolved.length === 0) {
-    throw new Error("Island generation produced no valid sentences. Try again.");
+    throw new Error("Scene generation produced no valid sentences. Try again.");
   }
 
   return { sentences: resolved, reusedIds, newCount, skippedCount };
 }
 
-export function addIsland(
+export function addScene(
   dataset: Dataset,
-  islandKey: string,
-  island: Island
+  sceneKey: string,
+  scene: Scene
 ): Dataset {
-  validateIslandUniqueness(island);
-  if (island.format === "narration") {
-    validateNarrationIsland(island);
+  validateSceneUniqueness(scene);
+  if (scene.format === "narration") {
+    validateNarrationScene(scene);
   }
 
-  if (dataset.islands[islandKey]) {
-    throw new Error(`Island "${islandKey}" already exists`);
+  if (dataset.scenes[sceneKey]) {
+    throw new Error(`Scene "${sceneKey}" already exists`);
   }
 
   return {
     ...dataset,
-    islands: {
-      ...dataset.islands,
-      [islandKey]: island,
+    scenes: {
+      ...dataset.scenes,
+      [sceneKey]: scene,
     },
   };
 }
 
-export function appendSentenceToIsland(
+export function appendSentenceToScene(
   dataset: Dataset,
-  islandKey: string,
+  sceneKey: string,
   sentence: Sentence
 ): Dataset {
-  const island = dataset.islands[islandKey];
-  if (!island) {
-    throw new Error(`Island "${islandKey}" not found`);
+  const scene = dataset.scenes[sceneKey];
+  if (!scene) {
+    throw new Error(`Scene "${sceneKey}" not found`);
   }
-  if (island.readOnly) {
-    throw new Error("Shared islands are read-only — clone to edit");
+  if (scene.readOnly) {
+    throw new Error("Shared scenes are read-only — clone to edit");
   }
 
-  const nextIsland = {
-    ...island,
-    subtopics: island.subtopics.includes(sentence.subtopic)
-      ? island.subtopics
-      : [...island.subtopics, sentence.subtopic],
-    sentences: [...island.sentences, sentence],
+  const nextScene = {
+    ...scene,
+    subtopics: scene.subtopics.includes(sentence.subtopic)
+      ? scene.subtopics
+      : [...scene.subtopics, sentence.subtopic],
+    sentences: [...scene.sentences, sentence],
   };
 
-  validateIslandUniqueness(nextIsland);
-  if (nextIsland.format === "narration") {
-    validateNarrationIsland(nextIsland);
+  validateSceneUniqueness(nextScene);
+  if (nextScene.format === "narration") {
+    validateNarrationScene(nextScene);
   }
 
   return {
     ...dataset,
-    islands: {
-      ...dataset.islands,
-      [islandKey]: nextIsland,
+    scenes: {
+      ...dataset.scenes,
+      [sceneKey]: nextScene,
     },
   };
 }
 
-export function setIslandThemeKanji(
+export function setSceneThemeKanji(
   dataset: Dataset,
-  islandKey: string,
+  sceneKey: string,
   themeKanji: string
 ): Dataset {
-  const island = dataset.islands[islandKey];
-  if (!island) return dataset;
+  const scene = dataset.scenes[sceneKey];
+  if (!scene) return dataset;
   return {
     ...dataset,
-    islands: {
-      ...dataset.islands,
-      [islandKey]: { ...island, themeKanji },
+    scenes: {
+      ...dataset.scenes,
+      [sceneKey]: { ...scene, themeKanji },
     },
   };
 }

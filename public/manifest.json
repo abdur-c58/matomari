@@ -1,7 +1,7 @@
 {
-  "name": "Kotoshima",
-  "short_name": "Kotoshima",
-  "description": "Personalized Japanese learning through language islands",
+  "name": "Matomari",
+  "short_name": "Matomari",
+  "description": "Personalized Japanese learning through language scenes",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#d2c5a4",

@@ -4,7 +4,7 @@ import { useCallback, useState } from "react";
 import { Plus } from "lucide-react";
 import { useApp } from "@/components/providers/app-provider";
 import { AIClientError } from "@/lib/ai/ai-client";
-import { createManualSentence } from "@/lib/services/manual-island-service";
+import { createManualSentence } from "@/lib/services/manual-scene-service";
 import { getGlobalSentenceIds } from "@/lib/services/dataset-mutation-service";
 import { getPrimaryTranslation } from "@/lib/preferences/translation-preferences";
 import {
@@ -25,17 +25,17 @@ import type { Register } from "@/types/sentence";
 type ClarifyMessage = { role: "user" | "assistant"; content: string };
 
 export function CustomSentenceComposer({
-  islandKey,
-  islandTitle,
+  sceneKey,
+  sceneTitle,
   variant = "card",
   onSuccess,
 }: {
-  islandKey: string;
-  islandTitle: string;
+  sceneKey: string;
+  sceneTitle: string;
   variant?: "card" | "dialog";
   onSuccess?: () => void;
 }) {
-  const { dataset, progress, appendSentenceToIsland, translateSentenceIds } = useApp();
+  const { dataset, progress, appendSentenceToScene, translateSentenceIds } = useApp();
   const [english, setEnglish] = useState("");
   const [clarifyQuestion, setClarifyQuestion] = useState<string | null>(null);
   const [clarifyAnswer, setClarifyAnswer] = useState("");
@@ -55,7 +55,7 @@ export function CustomSentenceComposer({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           english: text,
-          islandName: islandTitle,
+          sceneName: sceneTitle,
           conversationHistory:
             conversationHistory.length > 0 ? conversationHistory : undefined,
         }),
@@ -77,7 +77,7 @@ export function CustomSentenceComposer({
         suggestedContextNotes?: string;
       }>;
     },
-    [islandTitle]
+    [sceneTitle]
   );
 
   const addSentence = useCallback(
@@ -85,17 +85,17 @@ export function CustomSentenceComposer({
       if (!dataset) return;
 
       const globalIds = getGlobalSentenceIds(dataset);
-      const island = dataset.islands[islandKey];
-      const localIds = new Set(island?.sentences.map((s) => s.id) ?? []);
+      const scene = dataset.scenes[sceneKey];
+      const localIds = new Set(scene?.sentences.map((s) => s.id) ?? []);
 
       const sentence = createManualSentence(
         { english: finalEnglish, register, context_notes: contextNotes },
-        islandKey,
+        sceneKey,
         globalIds,
         localIds
       );
 
-      await appendSentenceToIsland(islandKey, sentence);
+      await appendSentenceToScene(sceneKey, sentence);
       const dialect = getPrimaryTranslation(progress.settings);
       await translateSentenceIds([sentence.id], { dialect });
       toast.success("Sentence added and translated");
@@ -103,7 +103,7 @@ export function CustomSentenceComposer({
       resetClarify();
       onSuccess?.();
     },
-    [appendSentenceToIsland, dataset, islandKey, onSuccess, progress.settings, translateSentenceIds]
+    [appendSentenceToScene, dataset, sceneKey, onSuccess, progress.settings, translateSentenceIds]
   );
 
   const handleSubmit = async () => {
@@ -222,13 +222,13 @@ export function CustomSentenceComposer({
 }
 
 export function AddSentenceDialog({
-  islandKey,
-  islandTitle,
+  sceneKey,
+  sceneTitle,
   open,
   onOpenChange,
 }: {
-  islandKey: string;
-  islandTitle: string;
+  sceneKey: string;
+  sceneTitle: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
@@ -238,12 +238,12 @@ export function AddSentenceDialog({
         <DialogHeader>
           <DialogTitle>Add sentence</DialogTitle>
           <DialogDescription>
-            Add a custom English sentence to {islandTitle}.
+            Add a custom English sentence to {sceneTitle}.
           </DialogDescription>
         </DialogHeader>
         <CustomSentenceComposer
-          islandKey={islandKey}
-          islandTitle={islandTitle}
+          sceneKey={sceneKey}
+          sceneTitle={sceneTitle}
           variant="dialog"
           onSuccess={() => onOpenChange(false)}
         />

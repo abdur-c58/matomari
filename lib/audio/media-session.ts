@@ -42,8 +42,8 @@ export function updateMediaSessionMetadata(
 
   navigator.mediaSession.metadata = new MediaMetadata({
     title: getSentenceTitle(item),
-    album: albumTitle?.trim() || "Kotoshima",
-    artist: "Kotoshima",
+    album: albumTitle?.trim() || "Matomari",
+    artist: "Matomari",
     artwork: [
       { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
       { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },

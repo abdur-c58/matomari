@@ -32,10 +32,10 @@ export function StudyFocusBanner({
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
             <p className="font-display font-semibold text-foreground">
-              Pick an island to study
+              Pick an scene to study
             </p>
             <p className="mt-0.5 text-sm text-muted">
-              The main pathway has been replaced by topic islands.
+              The main pathway has been replaced by topic scenes.
             </p>
           </div>
           <Button variant="ghost" size="sm" asChild className="shrink-0">
@@ -88,7 +88,7 @@ export function StudyFocusBanner({
   );
 }
 
-export function ChooseStudyFocus({ islandCount }: { islandCount: number }) {
+export function ChooseStudyFocus({ sceneCount }: { sceneCount: number }) {
   return (
     <div className="mb-6 space-y-3">
       <div>
@@ -96,23 +96,23 @@ export function ChooseStudyFocus({ islandCount }: { islandCount: number }) {
           Choose your focus
         </h2>
         <p className="mt-1 text-sm text-muted">
-          Pick a topic island to practice situational Japanese.
+          Pick a topic scene to practice situational Japanese.
         </p>
       </div>
       <Link href="/batch">
         <Card variant="interactive" className="border-l-4 border-l-mode-meaning p-4">
           <Map className="mb-2 h-5 w-5 text-mode-meaning" />
-          <p className="font-semibold text-foreground">Study an island</p>
+          <p className="font-semibold text-foreground">Study an scene</p>
           <p className="mt-1 text-xs text-muted">
-            Premade themes and your own islands — situational practice anytime.
+            Premade themes and your own scenes — situational practice anytime.
           </p>
           <p className="mt-2 text-sm text-muted">
-            {islandCount > 0
-              ? `${islandCount} island${islandCount === 1 ? "" : "s"} available`
-              : "Browse premade islands or create your own"}
+            {sceneCount > 0
+              ? `${sceneCount} scene${sceneCount === 1 ? "" : "s"} available`
+              : "Browse premade scenes or create your own"}
           </p>
           <Button variant="secondary" className="mt-3 w-full" size="sm">
-            Browse islands
+            Browse scenes
           </Button>
         </Card>
       </Link>

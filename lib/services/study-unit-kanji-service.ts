@@ -9,15 +9,15 @@ export function getStudyUnitKanji(
 ): string {
   if (!dataset) return "島";
   if (ref.kind === "pathway") return PATHWAY_THEME_KANJI;
-  return dataset.islands[ref.key]?.themeKanji ?? "島";
+  return dataset.scenes[ref.key]?.themeKanji ?? "島";
 }
 
-export async function fetchIslandThemeKanji(input: {
+export async function fetchSceneThemeKanji(input: {
   title: string;
   description: string;
   subtopics?: string[];
 }): Promise<string | null> {
-  const res = await fetch("/api/ai/island-kanji", {
+  const res = await fetch("/api/ai/scene-kanji", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
@@ -32,8 +32,8 @@ export async function fetchIslandThemeKanji(input: {
   return kanji.slice(0, 2);
 }
 
-export function islandsMissingThemeKanji(dataset: Dataset): string[] {
-  return Object.entries(dataset.islands)
-    .filter(([, island]) => !island.themeKanji?.trim())
+export function scenesMissingThemeKanji(dataset: Dataset): string[] {
+  return Object.entries(dataset.scenes)
+    .filter(([, scene]) => !scene.themeKanji?.trim())
     .map(([key]) => key);
 }

@@ -349,7 +349,7 @@ export function GuideExperience() {
           <SectionHeader
             eyebrow="How to use it"
             title="Step-by-step practice"
-            description="Use normal islands for focused reps, then switch to narration islands when you want connected audio and more context."
+            description="Use normal scenes for focused reps, then switch to narration scenes when you want connected audio and more context."
           />
           <div className="mt-8 grid gap-4 md:grid-cols-2">
             {howToSections.map((section) => (

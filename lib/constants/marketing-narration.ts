@@ -1,6 +1,6 @@
 /**
  * Homepage-only narration demo batch.
- * Intentionally NOT part of premade catalog / islands / shared pathway.
+ * Intentionally NOT part of premade catalog / scenes / shared pathway.
  */
 export const marketingNarrationBatch = {
   id: "marketing_home_narration_sick_day",

@@ -1,27 +1,27 @@
 import type { Dataset } from "@/types/sentence";
-import type { IslandFolder, UserProgress } from "@/types/progress";
+import type { SceneFolder, UserProgress } from "@/types/progress";
 import type { PremadeCatalog, PremadeFolder } from "@/types/premade-catalog";
 import {
-  getIslandSummaries,
+  getSceneSummaries,
   getPathwayBatchStats,
-  isIslandComplete,
+  isSceneComplete,
   isPathwayBatchComplete,
 } from "@/lib/services/study-focus-service";
-import { sanitizeIslandFolders } from "@/lib/services/island-folder-service";
-import { isPremadeIslandKey } from "@/lib/services/shared-premade-service";
+import { sanitizeSceneFolders } from "@/lib/services/scene-folder-service";
+import { isPremadeSceneKey } from "@/lib/services/shared-premade-service";
 import { PATHWAY_THEME_KANJI } from "@/lib/services/study-unit-kanji-service";
-import { formatCreatedBy } from "@/lib/services/island-identity-service";
+import { formatCreatedBy } from "@/lib/services/scene-identity-service";
 import { combineParalinguisticTags } from "@/lib/audio/fish-audio-cues";
 
 export type StudyUnitRef =
   | { kind: "pathway" }
-  | { kind: "island"; key: string };
+  | { kind: "scene"; key: string };
 
 export type StudyUnitStatus = "in_progress" | "untouched" | "completed";
 
 export type StudyUnitStatusFilter = "all" | StudyUnitStatus;
 
-export type IslandOriginFilter = "all" | "premade" | "user";
+export type SceneOriginFilter = "all" | "premade" | "user";
 
 export interface StudyUnitSummary {
   ref: StudyUnitRef;
@@ -35,23 +35,23 @@ export interface StudyUnitSummary {
   isPathway: boolean;
   isPremade: boolean;
   isFeatured: boolean;
-  /** Multi-speaker dialogue island (e.g. Q&A). */
+  /** Multi-speaker dialogue scene (e.g. Q&A). */
   isNarration: boolean;
-  /** Live membership / shared read-only island. */
+  /** Live membership / shared read-only scene. */
   isShared: boolean;
   createdByLabel: string | null;
   themeKanji: string;
 }
 
 export function studyUnitKey(ref: StudyUnitRef): string {
-  return ref.kind === "pathway" ? "pathway" : `island:${ref.key}`;
+  return ref.kind === "pathway" ? "pathway" : `scene:${ref.key}`;
 }
 
 export function parseStudyUnitKey(key: string): StudyUnitRef | null {
   if (key === "pathway") return { kind: "pathway" };
-  if (key.startsWith("island:")) {
-    const islandKey = key.slice("island:".length);
-    return islandKey ? { kind: "island", key: islandKey } : null;
+  if (key.startsWith("scene:")) {
+    const sceneKey = key.slice("scene:".length);
+    return sceneKey ? { kind: "scene", key: sceneKey } : null;
   }
   return null;
 }
@@ -108,25 +108,25 @@ export function getStudyUnits(
     themeKanji: PATHWAY_THEME_KANJI,
   };
 
-  const islands = getIslandSummaries(dataset, progress).map((island) => {
-    const ref: StudyUnitRef = { kind: "island", key: island.key };
-    const data = dataset.islands[island.key];
+  const scenes = getSceneSummaries(dataset, progress).map((scene) => {
+    const ref: StudyUnitRef = { kind: "scene", key: scene.key };
+    const data = dataset.scenes[scene.key];
     return {
       ref,
-      title: island.title,
-      description: island.description,
-      sentenceCount: island.sentenceCount,
-      studiedCount: island.studiedCount,
+      title: scene.title,
+      description: scene.description,
+      sentenceCount: scene.sentenceCount,
+      studiedCount: scene.studiedCount,
       complete:
-        island.complete ||
-        isIslandComplete(dataset, progress, island.key),
+        scene.complete ||
+        isSceneComplete(dataset, progress, scene.key),
       status: deriveStatus(
-        island.complete || isIslandComplete(dataset, progress, island.key),
-        island.studiedCount
+        scene.complete || isSceneComplete(dataset, progress, scene.key),
+        scene.studiedCount
       ),
-      lastStudiedAt: deriveLastStudiedAt(progress, ref, island.studiedCount),
+      lastStudiedAt: deriveLastStudiedAt(progress, ref, scene.studiedCount),
       isPathway: false,
-      isPremade: isPremadeIslandKey(island.key, premadeCatalog),
+      isPremade: isPremadeSceneKey(scene.key, premadeCatalog),
       isFeatured: Boolean(data?.featured),
       isNarration: data?.format === "narration",
       isShared: Boolean(data?.readOnly || data?.provenance?.kind === "shared"),
@@ -135,11 +135,11 @@ export function getStudyUnits(
     } satisfies StudyUnitSummary;
   });
 
-  // Pathway kept for silent compose/legacy progress; Islands UI filters it out.
-  return [pathwayUnit, ...islands];
+  // Pathway kept for silent compose/legacy progress; Scenes UI filters it out.
+  return [pathwayUnit, ...scenes];
 }
 
-export function getIslandStudyUnits(
+export function getSceneStudyUnits(
   dataset: Dataset,
   progress: UserProgress,
   premadeCatalog: PremadeCatalog | null = null
@@ -149,7 +149,7 @@ export function getIslandStudyUnits(
 
 export function filterStudyUnitsByOrigin(
   units: StudyUnitSummary[],
-  originFilter: IslandOriginFilter
+  originFilter: SceneOriginFilter
 ): StudyUnitSummary[] {
   if (originFilter === "all") return units;
   return units.filter((unit) => {
@@ -160,14 +160,14 @@ export function filterStudyUnitsByOrigin(
 }
 
 export function getCanonicalStudyUnitOrder(units: StudyUnitSummary[]): StudyUnitSummary[] {
-  const [pathway, ...islands] = units;
-  const sortedIslands = [...islands].sort((a, b) => {
+  const [pathway, ...scenes] = units;
+  const sortedScenes = [...scenes].sort((a, b) => {
     const aTime = a.lastStudiedAt ? new Date(a.lastStudiedAt).getTime() : 0;
     const bTime = b.lastStudiedAt ? new Date(b.lastStudiedAt).getTime() : 0;
     if (bTime !== aTime) return bTime - aTime;
     return a.title.localeCompare(b.title);
   });
-  return pathway ? [pathway, ...sortedIslands] : sortedIslands;
+  return pathway ? [pathway, ...sortedScenes] : sortedScenes;
 }
 
 export function filterStudyUnits(
@@ -187,7 +187,7 @@ export function filterStudyUnits(
 }
 
 export interface GroupedStudyUnits {
-  /** Featured essentials (e.g. 300 islands) — always rendered first. */
+  /** Featured essentials (e.g. 300 scenes) — always rendered first. */
   featured: StudyUnitSummary[];
   inProgress: StudyUnitSummary[];
   untouched: StudyUnitSummary[];
@@ -228,7 +228,7 @@ export interface FolderedStudyUnits {
   pinnedPathway: StudyUnitSummary | null;
   premadeFolders: { folder: PremadeFolder; grouped: GroupedStudyUnits }[];
   premadeUnfoldered: GroupedStudyUnits;
-  userFolders: { folder: IslandFolder; grouped: GroupedStudyUnits }[];
+  userFolders: { folder: SceneFolder; grouped: GroupedStudyUnits }[];
   unfoldered: GroupedStudyUnits;
 }
 
@@ -247,43 +247,43 @@ export function organizeStudyUnitsForDisplay(
   dataset: Dataset,
   premadeCatalog: PremadeCatalog | null = null
 ): FolderedStudyUnits {
-  const sanitized = sanitizeIslandFolders(progress, dataset, premadeCatalog);
-  const userAssignments = sanitized.islandFolderAssignments ?? {};
-  const userFolders = sanitized.islandFolders ?? [];
-  const premadeAssignments = premadeCatalog?.islandFolderAssignments ?? {};
+  const sanitized = sanitizeSceneFolders(progress, dataset, premadeCatalog);
+  const userAssignments = sanitized.sceneFolderAssignments ?? {};
+  const userFolders = sanitized.sceneFolders ?? [];
+  const premadeAssignments = premadeCatalog?.sceneFolderAssignments ?? {};
   const premadeFolders = [...(premadeCatalog?.folders ?? [])].sort(
     (a, b) => a.order - b.order
   );
 
-  const islands = units.filter((u) => !u.isPathway);
+  const scenes = units.filter((u) => !u.isPathway);
 
   const premadeByFolderId = new Map<string, StudyUnitSummary[]>();
-  const premadeUnfolderedIslands: StudyUnitSummary[] = [];
+  const premadeUnfolderedScenes: StudyUnitSummary[] = [];
   const userByFolderId = new Map<string, StudyUnitSummary[]>();
-  const userUnfolderedIslands: StudyUnitSummary[] = [];
+  const userUnfolderedScenes: StudyUnitSummary[] = [];
 
-  for (const island of islands) {
-    if (island.ref.kind !== "island") continue;
+  for (const scene of scenes) {
+    if (scene.ref.kind !== "scene") continue;
 
-    if (island.isPremade) {
-      const folderId = premadeAssignments[island.ref.key];
+    if (scene.isPremade) {
+      const folderId = premadeAssignments[scene.ref.key];
       if (folderId && premadeFolders.some((f) => f.id === folderId)) {
         const bucket = premadeByFolderId.get(folderId) ?? [];
-        bucket.push(island);
+        bucket.push(scene);
         premadeByFolderId.set(folderId, bucket);
       } else {
-        premadeUnfolderedIslands.push(island);
+        premadeUnfolderedScenes.push(scene);
       }
       continue;
     }
 
-    const folderId = userAssignments[island.ref.key];
+    const folderId = userAssignments[scene.ref.key];
     if (folderId && userFolders.some((f) => f.id === folderId)) {
       const bucket = userByFolderId.get(folderId) ?? [];
-      bucket.push(island);
+      bucket.push(scene);
       userByFolderId.set(folderId, bucket);
     } else {
-      userUnfolderedIslands.push(island);
+      userUnfolderedScenes.push(scene);
     }
   }
 
@@ -304,9 +304,9 @@ export function organizeStudyUnitsForDisplay(
   return {
     pinnedPathway: null,
     premadeFolders: premadeFolderSections,
-    premadeUnfoldered: groupStudyUnits(premadeUnfolderedIslands),
+    premadeUnfoldered: groupStudyUnits(premadeUnfolderedScenes),
     userFolders: userFolderSections,
-    unfoldered: groupStudyUnits(userUnfolderedIslands),
+    unfoldered: groupStudyUnits(userUnfolderedScenes),
   };
 }
 
@@ -340,16 +340,16 @@ export function getSentencesForStudyUnit(
     return dataset.main_pathway.batches.flatMap((b) => b.sentences);
   }
 
-  const island = dataset.islands[ref.key];
-  if (!island) return [];
-  if (island.format !== "narration" || !island.narrationMode?.toneTags.length) {
-    return island.sentences;
+  const scene = dataset.scenes[ref.key];
+  if (!scene) return [];
+  if (scene.format !== "narration" || !scene.narrationMode?.toneTags.length) {
+    return scene.sentences;
   }
 
-  return island.sentences.map((sentence) => ({
+  return scene.sentences.map((sentence) => ({
     ...sentence,
     paralinguisticTags: combineParalinguisticTags(
-      island.narrationMode?.toneTags,
+      scene.narrationMode?.toneTags,
       sentence.paralinguisticTags
     ),
   }));

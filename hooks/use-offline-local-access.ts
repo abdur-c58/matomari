@@ -24,7 +24,7 @@ export function useOfflineLocalAccess() {
         const hasLocal =
           Boolean(snapshot.dataset) ||
           Object.keys(snapshot.progress?.sentences ?? {}).length > 0 ||
-          Boolean(snapshot.library && Object.keys(snapshot.library.islands ?? {}).length > 0);
+          Boolean(snapshot.library && Object.keys(snapshot.library.scenes ?? {}).length > 0);
 
         if (!cancelled) {
           setAllowed(hasLocal);

@@ -2,7 +2,7 @@
  * Wipe all TTS audio and all translations (standard + Kansai) everywhere:
  * - R2 + Supabase audio_metadata + local audio cache
  * - Shared main pathway (Supabase + public/main-pathway.json)
- * - Every user_datasets row (island sentences + sentenceTranslations)
+ * - Every user_datasets row (scene sentences + sentenceTranslations)
  *
  * Usage:
  *   npm run clear-all-audio-and-translations
@@ -153,18 +153,18 @@ function countTranslatedPathwaySentences(main_pathway: Dataset["main_pathway"]):
   );
 }
 
-function countIslandTranslatedSentences(data: unknown): number {
+function countSceneTranslatedSentences(data: unknown): number {
   if (!data || typeof data !== "object") return 0;
 
-  const islands =
-    "islands" in data
-      ? (data as { islands: Dataset["islands"] }).islands
+  const scenes =
+    "scenes" in data
+      ? (data as { scenes: Dataset["scenes"] }).scenes
       : null;
-  if (!islands) return 0;
+  if (!scenes) return 0;
 
   let count = 0;
-  for (const island of Object.values(islands)) {
-    for (const sentence of island.sentences) {
+  for (const scene of Object.values(scenes)) {
+    for (const sentence of scene.sentences) {
       if (sentence.translated || Boolean(sentence.japanese?.trim())) {
         count++;
       }
@@ -241,7 +241,7 @@ async function main() {
   console.log(`\nProcessing ${rows.length} user_datasets row(s)…\n`);
 
   let usersUpdated = 0;
-  let islandSentencesStripped = 0;
+  let sceneSentencesStripped = 0;
   let translationEntriesCleared = 0;
 
   for (const row of rows) {
@@ -251,34 +251,34 @@ async function main() {
       continue;
     }
 
-    const islandBefore = countIslandTranslatedSentences(row.data);
+    const sceneBefore = countSceneTranslatedSentences(row.data);
     const translationsBefore = countSentenceTranslations(row.data);
 
     const cleaned = stripAllTranslationsFromLibrary(
-      library ?? { islands: (row.data as Dataset).islands ?? {} }
+      library ?? { scenes: (row.data as Dataset).scenes ?? {} }
     );
 
-    if (islandBefore === 0 && translationsBefore === 0) {
+    if (sceneBefore === 0 && translationsBefore === 0) {
       console.log(`  ${row.user_id}: already clean`);
       continue;
     }
 
     await upsertUserLibrary(cfg, row, cleaned);
     usersUpdated++;
-    islandSentencesStripped += islandBefore;
+    sceneSentencesStripped += sceneBefore;
     translationEntriesCleared += translationsBefore;
     console.log(
-      `  ${row.user_id}: stripped ${islandBefore} island sentence(s), cleared ${translationsBefore} translation map entr${translationsBefore === 1 ? "y" : "ies"}`
+      `  ${row.user_id}: stripped ${sceneBefore} scene sentence(s), cleared ${translationsBefore} translation map entr${translationsBefore === 1 ? "y" : "ies"}`
     );
   }
 
   console.log("\nDone.");
   console.log(`  Audio: R2 objects removed: ${deletedR2}`);
   console.log(`  Users updated: ${usersUpdated}`);
-  console.log(`  Island sentences stripped: ${islandSentencesStripped}`);
+  console.log(`  Scene sentences stripped: ${sceneSentencesStripped}`);
   console.log(`  sentenceTranslations entries cleared: ${translationEntriesCleared}`);
   console.log(
-    "\nNext: open Kotoshima, Sync now, then Translate all / regenerate audio as needed."
+    "\nNext: open Matomari, Sync now, then Translate all / regenerate audio as needed."
   );
 }
 

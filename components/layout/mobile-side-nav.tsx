@@ -14,6 +14,7 @@ import {
 } from "@/components/layout/app-nav-config";
 import { AppBrandHeader } from "@/components/layout/app-brand-header";
 import { ThemeMenuControl } from "@/components/settings/theme-menu-control";
+import { AdminNavLink } from "@/components/admin/admin-nav-link";
 import {
   Sheet,
   SheetClose,
@@ -175,6 +176,7 @@ export function MobileSideNav() {
 
             <div className="mt-5 space-y-3 border-t border-border pt-3">
                 <ThemeMenuControl compact />
+                <AdminNavLink compact onNavigate={() => setOpen(false)} />
                 {footerNav.map(({ href, label, icon }) => (
                   <NavLink
                     key={href}

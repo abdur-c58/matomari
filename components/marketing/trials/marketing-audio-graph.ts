@@ -20,7 +20,7 @@ export class MarketingAudioGraph {
   private audio: HTMLAudioElement | null = null;
   private playGeneration = 0;
   private intendedPlaying = false;
-  private sessionTitle = "Kotoshima";
+  private sessionTitle = "Matomari";
   private keepAliveBound = false;
   private ctxStateBound = false;
 
@@ -101,7 +101,7 @@ export class MarketingAudioGraph {
       if (playing) {
         navigator.mediaSession.metadata = new MediaMetadata({
           title: this.sessionTitle,
-          artist: "Kotoshima",
+          artist: "Matomari",
           album: "Practice",
           artwork: [
             { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
@@ -168,7 +168,7 @@ export class MarketingAudioGraph {
     await this.ensureGraph();
 
     const generation = ++this.playGeneration;
-    this.sessionTitle = options?.title?.trim() || "Kotoshima";
+    this.sessionTitle = options?.title?.trim() || "Matomari";
 
     // Pause without keep-alive treating it as a background interrupt.
     this.intendedPlaying = false;

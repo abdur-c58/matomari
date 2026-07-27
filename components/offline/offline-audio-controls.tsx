@@ -7,57 +7,72 @@ import { toast } from "sonner";
 import {
   cancelDownload,
   downloadAllPackages,
-  downloadIslandPackage,
+  downloadScenePackage,
   formatBytes,
   getOfflineInventory,
-  isIslandDownloaded,
-  isIslandDownloadStale,
+  isSceneDownloaded,
+  isSceneDownloadStale,
   onDownloadProgress,
   removeAllPackages,
-  removeIslandPackage,
+  removeScenePackage,
 } from "@/lib/offline/audio-packages";
 import type { Dialect } from "@/lib/constants/dialect";
 import type { DownloadProgress } from "@/types/offline-audio";
+import { useSceneAccess } from "@/hooks/use-scene-access";
+import { UpgradePrompt } from "@/components/billing/upgrade-prompt";
 
-export function IslandOfflineControls({
-  islandKey,
+export function SceneOfflineControls({
+  sceneKey,
   label,
   sentenceIds,
   dialect,
 }: {
-  islandKey: string;
+  sceneKey: string;
   label: string;
   sentenceIds: string[];
   dialect: Dialect;
 }) {
+  const { allowsOfflinePackages, loaded } = useSceneAccess();
   const [downloaded, setDownloaded] = useState(false);
   const [stale, setStale] = useState(false);
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState<DownloadProgress | null>(null);
 
   const refresh = useCallback(async () => {
-    const hasDownload = await isIslandDownloaded(islandKey);
+    const hasDownload = await isSceneDownloaded(sceneKey);
     setDownloaded(hasDownload);
     if (hasDownload) {
-      setStale(await isIslandDownloadStale(islandKey, sentenceIds, dialect));
+      setStale(await isSceneDownloadStale(sceneKey, sentenceIds, dialect));
     } else {
       setStale(false);
     }
-  }, [islandKey, sentenceIds, dialect]);
+  }, [sceneKey, sentenceIds, dialect]);
 
   useEffect(() => {
     void refresh();
     return onDownloadProgress((p) => {
-      setProgress(p?.packageId === islandKey ? p : p);
+      setProgress(p?.packageId === sceneKey ? p : p);
       if (!p) void refresh();
     });
-  }, [islandKey, refresh]);
+  }, [sceneKey, refresh]);
+
+  if (loaded && !allowsOfflinePackages) {
+    return (
+      <UpgradePrompt
+        className="w-full"
+        title="Offline packages are on Plus"
+        description="Download ready audio for offline study when you upgrade to Plus or Pro."
+        href="/billing/checkout?plan=plus"
+        ctaLabel="Upgrade to Plus"
+      />
+    );
+  }
 
   const handleDownload = async () => {
     setBusy(true);
     try {
-      const record = await downloadIslandPackage({
-        islandKey,
+      const record = await downloadScenePackage({
+        sceneKey,
         label,
         sentenceIds,
         dialect,
@@ -80,8 +95,8 @@ export function IslandOfflineControls({
   const handleRemove = async () => {
     setBusy(true);
     try {
-      await removeIslandPackage(islandKey);
-      toast.success("Removed offline audio for this island");
+      await removeScenePackage(sceneKey);
+      toast.success("Removed offline audio for this scene");
       await refresh();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Remove failed");
@@ -92,7 +107,7 @@ export function IslandOfflineControls({
 
   const active =
     progress?.active &&
-    (progress.packageId === islandKey || progress.packageId === "__all__");
+    (progress.packageId === sceneKey || progress.packageId === "__all__");
 
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -112,16 +127,16 @@ export function IslandOfflineControls({
             </Button>
           )}
           <Button
-          type="button"
-          size="sm"
-          variant="outline"
-          className="rounded-full"
-          disabled={busy}
-          onClick={handleRemove}
-        >
-          <Trash2 className="mr-1 h-3.5 w-3.5" />
-          Remove download
-        </Button>
+            type="button"
+            size="sm"
+            variant="outline"
+            className="rounded-full"
+            disabled={busy}
+            onClick={handleRemove}
+          >
+            <Trash2 className="mr-1 h-3.5 w-3.5" />
+            Remove download
+          </Button>
         </>
       ) : (
         <Button
@@ -143,7 +158,7 @@ export function IslandOfflineControls({
           type="button"
           size="sm"
           variant="ghost"
-          onClick={() => cancelDownload(islandKey)}
+          onClick={() => cancelDownload(sceneKey)}
         >
           Cancel
         </Button>
@@ -159,6 +174,7 @@ export function SettingsOfflineAudioCard({
   sentenceIds: string[];
   dialect: Dialect;
 }) {
+  const { allowsOfflinePackages, loaded } = useSceneAccess();
   const [totalBytes, setTotalBytes] = useState(0);
   const [packageCount, setPackageCount] = useState(0);
   const [busy, setBusy] = useState(false);
@@ -177,6 +193,28 @@ export function SettingsOfflineAudioCard({
       if (!p) void refresh();
     });
   }, [refresh]);
+
+  if (loaded && !allowsOfflinePackages) {
+    return (
+      <div className="space-y-3">
+        <div className="flex items-center gap-3">
+          <HardDrive className="h-5 w-5 shrink-0 text-foreground" />
+          <div>
+            <p className="font-medium">Offline audio</p>
+            <p className="text-sm text-muted">
+              Package ready audio for offline study on Plus or Pro.
+            </p>
+          </div>
+        </div>
+        <UpgradePrompt
+          title="Unlock offline packages"
+          description="Plus and Pro can download scene audio for offline listening."
+          href="/billing/checkout?plan=plus"
+          ctaLabel="Upgrade to Plus"
+        />
+      </div>
+    );
+  }
 
   const handleDownloadAll = async () => {
     setBusy(true);

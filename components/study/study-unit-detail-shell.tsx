@@ -2,16 +2,16 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Lock } from "lucide-react";
 import { useApp } from "@/components/providers/app-provider";
 import { StudyFlowGuide } from "@/components/study/study-flow-guide";
 import { BrowseSentenceList } from "@/components/study/browse-sentence-list";
-import { IslandPlayerToolbar } from "@/components/study/island-player-toolbar";
+import { ScenePlayerToolbar } from "@/components/study/scene-player-toolbar";
 import { PathwayBatchPills } from "@/components/study/pathway-batch-pills";
 import { AddSentenceDialog } from "@/components/study/custom-sentence-composer";
 import type { Sentence } from "@/types/sentence";
 import { useFormalStudyStart } from "@/hooks/use-formal-study-start";
-import { IslandSwitchDialog } from "@/components/study/island-switch-dialog";
+import { SceneSwitchDialog } from "@/components/study/scene-switch-dialog";
 import {
   useCasualPlaylist,
 } from "@/hooks/use-casual-playlist";
@@ -25,38 +25,41 @@ import { getSentencesForStudyUnit, touchStudyUnit } from "@/lib/services/study-u
 import { DecoratedStudySurface } from "@/components/study/decorated-study-surface";
 import { StickyPlayerBar } from "@/components/study/sticky-player-bar";
 import { PlaylistDialectDialog } from "@/components/study/playlist-dialect-dialog";
-import { IslandOfflineControls } from "@/components/offline/offline-audio-controls";
+import { SceneOfflineControls } from "@/components/offline/offline-audio-controls";
+import { SceneExportButton } from "@/components/study/scene-export-button";
 import { PATHWAY_THEME_KANJI } from "@/lib/services/study-unit-kanji-service";
 import type { Dialect } from "@/lib/constants/dialect";
 import { getPrimaryTranslation } from "@/lib/preferences/translation-preferences";
 import { cn } from "@/lib/utils";
-import { CreatedByLabel } from "@/components/islands/created-by-label";
-import { IslandShareControls } from "@/components/islands/island-share-controls";
-import { IslandCloneButton } from "@/components/islands/island-clone-button";
+import { CreatedByLabel } from "@/components/scenes/created-by-label";
+import { SceneShareControls } from "@/components/scenes/scene-share-controls";
+import { SceneCloneButton } from "@/components/scenes/scene-clone-button";
 import { Badge } from "@/components/ui/badge";
+import { useSceneAccess } from "@/hooks/use-scene-access";
 
 export function StudyUnitDetailShell({
   title,
   description,
   isPathway = false,
-  islandKey,
+  sceneKey,
   pathwayBatchNumber: initialBatch,
   showCustomSentence = false,
   themeKanji,
   backHref = "/batch",
-  backLabel = "All islands",
+  backLabel = "All scenes",
 }: {
   title: string;
   description: string;
   isPathway?: boolean;
-  islandKey?: string;
+  sceneKey?: string;
   pathwayBatchNumber?: number;
   showCustomSentence?: boolean;
   themeKanji?: string;
   backHref?: string;
   backLabel?: string;
 }) {
-  const { dataset, progress, setProgress, updateIsland, isPremadeIslandKey } = useApp();
+  const { dataset, progress, setProgress, updateScene, isPremadeSceneKey } = useApp();
+  const { checkAccess, lockMessage, loaded: accessLoaded } = useSceneAccess();
   const { startFormalStudy, switchPrompt, confirmSwitch, cancelSwitch } =
     useFormalStudyStart();
   const {
@@ -70,12 +73,12 @@ export function StudyUnitDetailShell({
 
   const progressBrowseDefaults = useMemo(
     () => ({
-      islandBrowseDisplay: progress.settings.islandBrowseDisplay,
+      sceneBrowseDisplay: progress.settings.sceneBrowseDisplay,
       casualPlaylistPauseMs: progress.settings.casualPlaylistPauseMs,
       casualPlaylistPlaybackRate: progress.settings.casualPlaylistPlaybackRate,
     }),
     [
-      progress.settings.islandBrowseDisplay,
+      progress.settings.sceneBrowseDisplay,
       progress.settings.casualPlaylistPauseMs,
       progress.settings.casualPlaylistPlaybackRate,
     ]
@@ -109,9 +112,9 @@ export function StudyUnitDetailShell({
 
   const unitRef = isPathway
     ? ({ kind: "pathway" } as const)
-    : ({ kind: "island", key: islandKey! } as const);
+    : ({ kind: "scene", key: sceneKey! } as const);
 
-  const touchKey = isPathway ? "pathway" : `island:${islandKey}`;
+  const touchKey = isPathway ? "pathway" : `scene:${sceneKey}`;
   const touchedRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -149,17 +152,17 @@ export function StudyUnitDetailShell({
         {
           sourceType: "pathway",
           pathwayBatchNumber: pathwayBatch,
-          islandKey: null,
+          sceneKey: null,
           subtopic: null,
         },
         unitRef
       );
-    } else if (islandKey) {
+    } else if (sceneKey) {
       await startFormalStudy(
         {
-          sourceType: "island",
+          sourceType: "scene",
           pathwayBatchNumber: null,
-          islandKey,
+          sceneKey,
           subtopic: null,
         },
         unitRef
@@ -176,6 +179,10 @@ export function StudyUnitDetailShell({
         playbackRate,
         albumTitle: title,
         dialect: dialect ?? getPrimaryTranslation(progress.settings),
+        speakerVoices:
+          sceneKey && dataset?.scenes?.[sceneKey]?.speakerVoices
+            ? dataset.scenes[sceneKey].speakerVoices
+            : null,
         onIndexChange: (sentenceId) => {
           setPlayingSentenceId(sentenceId || null);
         },
@@ -192,6 +199,8 @@ export function StudyUnitDetailShell({
       playbackRate,
       progress.settings,
       title,
+      sceneKey,
+      dataset,
     ]
   );
 
@@ -241,18 +250,57 @@ export function StudyUnitDetailShell({
     themeKanji ??
     (isPathway
       ? PATHWAY_THEME_KANJI
-      : islandKey
-        ? dataset?.islands[islandKey]?.themeKanji ?? "島"
+      : sceneKey
+        ? dataset?.scenes[sceneKey]?.themeKanji ?? "島"
         : "島");
 
-  const island = !isPathway && islandKey ? dataset?.islands[islandKey] : undefined;
-  const isNarration = island?.format === "narration";
-  const narratorLabels = (island?.speakers ?? ["A", "B"]).join(" / ");
-  const isShared = Boolean(island?.readOnly || island?.provenance?.kind === "shared");
-  const canEdit = Boolean(islandKey && island && !isShared && !isPremadeIslandKey(islandKey));
-  const shareIdForClone = island?.provenance?.shareId;
+  const scene = !isPathway && sceneKey ? dataset?.scenes[sceneKey] : undefined;
+  const isNarration = scene?.format === "narration";
+  const narratorLabels = (scene?.speakers ?? ["A", "B"]).join(" / ");
+  const isShared = Boolean(scene?.readOnly || scene?.provenance?.kind === "shared");
+  const canEdit = Boolean(sceneKey && scene && !isShared && !isPremadeSceneKey(sceneKey));
+  const shareIdForClone = scene?.provenance?.shareId;
 
   if (!dataset) return null;
+
+  const sceneAccess =
+    !isPathway && sceneKey
+      ? checkAccess(sceneKey)
+      : { accessible: true, reason: "ok" as const };
+  const locked = accessLoaded && !sceneAccess.accessible;
+
+  if (locked) {
+    return (
+      <div className="space-y-4">
+        <Link
+          href={backHref}
+          className="inline-flex items-center gap-1 text-sm text-muted hover:text-foreground"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          {backLabel}
+        </Link>
+        <div className="flex flex-col items-center gap-4 rounded-xl border border-border bg-surface/80 px-6 py-12 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-raised text-muted">
+            <Lock className="h-5 w-5" />
+          </div>
+          <div className="space-y-2">
+            <h1 className="font-display text-2xl font-semibold tracking-tight">
+              {title}
+            </h1>
+            <p className="mx-auto max-w-md text-sm text-muted">
+              {lockMessage(sceneAccess.reason)}
+            </p>
+          </div>
+          <Link
+            href="/billing/checkout"
+            className="inline-flex h-10 items-center justify-center rounded-xl bg-[color:var(--mode-listen)] px-5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+          >
+            Upgrade to access
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -267,11 +315,11 @@ export function StudyUnitDetailShell({
       <DecoratedStudySurface
         kanji={headerKanji}
         variant={
-          isPathway ? "pathway" : isNarration ? "narration" : "island"
+          isPathway ? "pathway" : isNarration ? "narration" : "scene"
         }
         className={cn(
           isPathway && "border-orange-300/40",
-          isNarration && "narration-island-card border-violet-300/60"
+          isNarration && "narration-scene-card border-violet-300/60"
         )}
       >
         <div className="flex flex-wrap items-center gap-2">
@@ -286,36 +334,40 @@ export function StudyUnitDetailShell({
         {!isPathway && description && (
           <p className="mt-1 text-sm text-muted">{description}</p>
         )}
-        <CreatedByLabel createdBy={island?.createdBy} className="mt-1 text-xs text-muted" />
-        {isNarration && island?.narrationMode && (
+        <CreatedByLabel createdBy={scene?.createdBy} className="mt-1 text-xs text-muted" />
+        {isNarration && scene?.narrationMode && (
           <p className="mt-1 text-xs text-muted">
-            Narration tone: {island.narrationMode.context}
+            Narration tone: {scene.narrationMode.context}
           </p>
         )}
         <p className="mt-2 text-xs text-muted">
           {sentences.length} sentences
           {isNarration ? ` · 2 speakers · ${narratorLabels}` : ""}
         </p>
-        {islandKey && island && (
+        {sceneKey && scene && (
           <div className="mt-3 flex flex-wrap gap-2">
             {canEdit && (
-              <IslandShareControls
-                islandKey={islandKey}
-                island={island}
-                onIslandUpdated={(next) => {
-                  void updateIsland(islandKey, next);
+              <SceneShareControls
+                sceneKey={sceneKey}
+                scene={scene}
+                onSceneUpdated={(next) => {
+                  void updateScene(sceneKey, next);
                 }}
               />
             )}
-            {isShared && shareIdForClone && <IslandCloneButton shareId={shareIdForClone} />}
+            {isShared && shareIdForClone && <SceneCloneButton shareId={shareIdForClone} />}
           </div>
         )}
-        {islandKey && (
-          <div className="mt-3">
-            <IslandOfflineControls
-              islandKey={islandKey}
+        {sceneKey && (
+          <div className="mt-3 space-y-3">
+            <SceneOfflineControls
+              sceneKey={sceneKey}
               label={title}
               sentenceIds={sentences.map((s) => s.id)}
+              dialect={getPrimaryTranslation(progress.settings)}
+            />
+            <SceneExportButton
+              sceneKey={sceneKey}
               dialect={getPrimaryTranslation(progress.settings)}
             />
           </div>
@@ -339,7 +391,7 @@ export function StudyUnitDetailShell({
       )}
 
       <StickyPlayerBar>
-        <IslandPlayerToolbar
+        <ScenePlayerToolbar
           displayMode={displayMode}
           onDisplayModeChange={setDisplayMode}
           showCustomSentence={showCustomSentence && canEdit}
@@ -382,16 +434,16 @@ export function StudyUnitDetailShell({
         narration={isNarration}
       />
 
-      {showCustomSentence && canEdit && islandKey && (
+      {showCustomSentence && canEdit && sceneKey && (
         <AddSentenceDialog
-          islandKey={islandKey}
-          islandTitle={title}
+          sceneKey={sceneKey}
+          sceneTitle={title}
           open={addSentenceOpen}
           onOpenChange={setAddSentenceOpen}
         />
       )}
 
-      <IslandSwitchDialog
+      <SceneSwitchDialog
         open={switchPrompt != null}
         fromLabel={switchPrompt?.fromLabel ?? ""}
         toLabel={switchPrompt?.toLabel ?? ""}

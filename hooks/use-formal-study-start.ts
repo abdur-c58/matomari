@@ -6,14 +6,14 @@ import { toast } from "sonner";
 import { useApp } from "@/components/providers/app-provider";
 import {
   clampBatchSize,
-  isFormalStudyEligibleIsland,
+  isFormalStudyEligibleScene,
   resumeOrInitializeBatch,
 } from "@/lib/services/batch-service";
 import {
   getSwitchFromLabel,
   getSwitchToLabel,
   needsStudySwitch,
-  saveIslandBatchSnapshot,
+  saveSceneBatchSnapshot,
 } from "@/lib/services/daily-focus-service";
 import { getNextStudyHref } from "@/lib/services/study-flow-service";
 import { touchStudyUnit, type StudyUnitRef } from "@/lib/services/study-unit-service";
@@ -22,7 +22,7 @@ import type { BatchConfig } from "@/types/progress";
 type SwitchPrompt = {
   config: Pick<
     BatchConfig,
-    "sourceType" | "pathwayBatchNumber" | "islandKey" | "subtopic"
+    "sourceType" | "pathwayBatchNumber" | "sceneKey" | "subtopic"
   >;
   unitRef?: StudyUnitRef;
   fromLabel: string;
@@ -39,17 +39,17 @@ export function useFormalStudyStart() {
     async (
       config: Pick<
         BatchConfig,
-        "sourceType" | "pathwayBatchNumber" | "islandKey" | "subtopic"
+        "sourceType" | "pathwayBatchNumber" | "sceneKey" | "subtopic"
       >,
       unitRef?: StudyUnitRef,
       baseProgress = progress
     ) => {
       if (!dataset) return false;
       if (
-        config.sourceType === "island" &&
-        !isFormalStudyEligibleIsland(dataset, config.islandKey)
+        config.sourceType === "scene" &&
+        !isFormalStudyEligibleScene(dataset, config.sceneKey)
       ) {
-        toast.error("Narration islands are for listening, not study sessions.");
+        toast.error("Narration scenes are for listening, not study sessions.");
         return false;
       }
 
@@ -59,12 +59,12 @@ export function useFormalStudyStart() {
       const current = baseProgress.batchConfig;
       if (
         current &&
-        current.sourceType === "island" &&
-        current.islandKey &&
-        (config.sourceType !== "island" ||
-          config.islandKey !== current.islandKey)
+        current.sourceType === "scene" &&
+        current.sceneKey &&
+        (config.sourceType !== "scene" ||
+          config.sceneKey !== current.sceneKey)
       ) {
-        nextBase = saveIslandBatchSnapshot(baseProgress, current.islandKey);
+        nextBase = saveSceneBatchSnapshot(baseProgress, current.sceneKey);
       }
 
       const result = resumeOrInitializeBatch(
@@ -96,16 +96,16 @@ export function useFormalStudyStart() {
     async (
       config: Pick<
         BatchConfig,
-        "sourceType" | "pathwayBatchNumber" | "islandKey" | "subtopic"
+        "sourceType" | "pathwayBatchNumber" | "sceneKey" | "subtopic"
       >,
       unitRef?: StudyUnitRef
     ) => {
       if (!dataset) return false;
       if (
-        config.sourceType === "island" &&
-        !isFormalStudyEligibleIsland(dataset, config.islandKey)
+        config.sourceType === "scene" &&
+        !isFormalStudyEligibleScene(dataset, config.sceneKey)
       ) {
-        toast.error("Narration islands are for listening, not study sessions.");
+        toast.error("Narration scenes are for listening, not study sessions.");
         return false;
       }
 

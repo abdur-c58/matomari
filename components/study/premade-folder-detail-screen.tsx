@@ -7,11 +7,11 @@ import { useMemo } from "react";
 import { useApp } from "@/components/providers/app-provider";
 import { AppGate, EmptyState } from "@/components/layout/empty-state";
 import { PageShell } from "@/components/layout/page-shell";
-import { StatusSections } from "@/components/islands/island-folder-section";
+import { StatusSections } from "@/components/scenes/scene-folder-section";
 import { DecoratedStudySurface } from "@/components/study/decorated-study-surface";
 import { Badge } from "@/components/ui/badge";
 import {
-  getIslandStudyUnits,
+  getSceneStudyUnits,
   groupStudyUnits,
 } from "@/lib/services/study-unit-service";
 
@@ -24,17 +24,17 @@ export function PremadeFolderDetailScreen() {
 
   const folderUnits = useMemo(() => {
     if (!dataset || !premadeCatalog || !folder) return [];
-    const assignments = premadeCatalog.islandFolderAssignments;
-    return getIslandStudyUnits(dataset, progress, premadeCatalog).filter(
+    const assignments = premadeCatalog.sceneFolderAssignments;
+    return getSceneStudyUnits(dataset, progress, premadeCatalog).filter(
       (unit) =>
-        unit.ref.kind === "island" &&
+        unit.ref.kind === "scene" &&
         unit.isPremade &&
         assignments[unit.ref.key] === folder.id
     );
   }, [dataset, progress, premadeCatalog, folder]);
 
   const grouped = useMemo(() => groupStudyUnits(folderUnits), [folderUnits]);
-  const islandCount = folderUnits.length;
+  const sceneCount = folderUnits.length;
 
   if (!folder) {
     return (
@@ -44,7 +44,7 @@ export function PremadeFolderDetailScreen() {
             title="Folder not found"
             description="This premade folder may have been removed."
             actionHref="/batch"
-            actionLabel="Back to Islands"
+            actionLabel="Back to Scenes"
           />
         </PageShell>
       </AppGate>
@@ -60,7 +60,7 @@ export function PremadeFolderDetailScreen() {
             className="inline-flex items-center gap-1 text-sm text-muted hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" />
-            All islands
+            All scenes
           </Link>
 
           <DecoratedStudySurface
@@ -79,12 +79,12 @@ export function PremadeFolderDetailScreen() {
               <p className="mt-1 text-sm text-muted">{folder.description}</p>
             ) : null}
             <p className="mt-2 text-xs text-muted">
-              {islandCount} {islandCount === 1 ? "island" : "islands"}
+              {sceneCount} {sceneCount === 1 ? "scene" : "scenes"}
             </p>
           </DecoratedStudySurface>
 
-          {islandCount === 0 ? (
-            <p className="py-8 text-center text-sm text-muted">No islands here yet.</p>
+          {sceneCount === 0 ? (
+            <p className="py-8 text-center text-sm text-muted">No scenes here yet.</p>
           ) : (
             <StatusSections
               grouped={grouped}

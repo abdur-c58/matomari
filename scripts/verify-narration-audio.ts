@@ -12,7 +12,7 @@ import {
   stripFishAudioTags,
 } from "../lib/audio/fish-audio-cues";
 import {
-  applyNarrationDirectivesToCatalogIslands,
+  applyNarrationDirectivesToCatalogScenes,
   parseNarrationDirectivesSidecar,
 } from "../lib/audio/narration-directives";
 import { getSpokenScriptFromFields } from "../lib/audio/tts-text";
@@ -113,15 +113,15 @@ console.log("\n=== Catalog / sidecar coverage ===\n");
     const sidecar = parseNarrationDirectivesSidecar(
       JSON.parse(fs.readFileSync(sidecarPath, "utf8"))
     );
-    const narration = Object.entries(catalog.islands).filter(
-      ([, island]) => island.format === "narration"
+    const narration = Object.entries(catalog.scenes).filter(
+      ([, scene]) => scene.format === "narration"
     );
-    assert(narration.length >= 1, `narration islands: ${narration.length}`);
+    assert(narration.length >= 1, `narration scenes: ${narration.length}`);
 
     let catalogWithAudio = 0;
     let leakedFish = 0;
-    for (const [, island] of narration) {
-      for (const s of island.sentences) {
+    for (const [, scene] of narration) {
+      for (const s of scene.sentences) {
         if (s.narrationAudio) catalogWithAudio++;
         const blob = [s.japanese, s.reading, s.romaji, s.english]
           .filter(Boolean)
@@ -143,7 +143,7 @@ console.log("\n=== Catalog / sidecar coverage ===\n");
 
     // Merge must succeed with full coverage
     try {
-      applyNarrationDirectivesToCatalogIslands(catalog.islands, sidecar, {
+      applyNarrationDirectivesToCatalogScenes(catalog.scenes, sidecar, {
         requireFullCoverage: true,
       });
       assert(true, "sidecar full-coverage merge succeeds");

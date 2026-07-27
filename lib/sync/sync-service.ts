@@ -148,7 +148,7 @@ function normalizeRemoteLibrary(payload: unknown): UserLibrary {
   if (isLegacyFullDataset(payload)) {
     return extractUserLibrary(payload);
   }
-  return { islands: {} };
+  return { scenes: {} };
 }
 
 export async function loadLocalSnapshot() {
@@ -310,7 +310,7 @@ export async function pullRemoteIfNewer(): Promise<boolean> {
         ...localProgress,
         settings: {
           ...localProgress.settings,
-          islandBrowseDisplay: browseUi.islandBrowseDisplay,
+          sceneBrowseDisplay: browseUi.sceneBrowseDisplay,
           casualPlaylistPauseMs: browseUi.casualPlaylistPauseMs,
           casualPlaylistPlaybackRate: browseUi.casualPlaylistPlaybackRate,
         },

@@ -1,28 +1,28 @@
 import { z } from "zod";
-import { islandSchema, seedSentenceSchema, sentenceSchema } from "@/lib/validation/dataset-schema";
+import { sceneSchema, seedSentenceSchema, sentenceSchema } from "@/lib/validation/dataset-schema";
 import {
-  DEFAULT_ISLAND_DIFFICULTY_MODE,
-  DEFAULT_ISLAND_DURATION_TIER,
-  DEFAULT_ISLAND_FLUENCY_LEVEL,
-  DEFAULT_ISLAND_GENERATION_FORMAT,
-  DEFAULT_ISLAND_JLPT_LEVEL,
-  DEFAULT_ISLAND_LEVEL_MODE,
-} from "@/lib/constants/island-generation";
+  DEFAULT_SCENE_DIFFICULTY_MODE,
+  DEFAULT_SCENE_DURATION_TIER,
+  DEFAULT_SCENE_FLUENCY_LEVEL,
+  DEFAULT_SCENE_GENERATION_FORMAT,
+  DEFAULT_SCENE_JLPT_LEVEL,
+  DEFAULT_SCENE_LEVEL_MODE,
+} from "@/lib/constants/scene-generation";
 
-const islandLevelModeSchema = z.enum(["fluency", "jlpt"]);
-const islandFluencyLevelSchema = z.enum([
+const sceneLevelModeSchema = z.enum(["fluency", "jlpt"]);
+const sceneFluencyLevelSchema = z.enum([
   "beginner",
   "elementary",
   "intermediate",
   "upper_intermediate",
   "advanced",
 ]);
-const islandJlptLevelSchema = z.enum(["N5", "N4", "N3", "N2", "N1"]);
+const sceneJlptLevelSchema = z.enum(["N5", "N4", "N3", "N2", "N1"]);
 
 const tutorContextSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("general") }),
   z.object({ type: z.literal("sentence"), sentenceId: z.string().min(1) }),
-  z.object({ type: z.literal("island"), islandKey: z.string().min(1) }),
+  z.object({ type: z.literal("scene"), sceneKey: z.string().min(1) }),
 ]);
 
 const chatMessageSchema = z.object({
@@ -46,7 +46,7 @@ const sentenceCatalogEntrySchema = z.object({
 });
 
 const datasetSummarySchema = z.object({
-  islandKeys: z.array(z.string()),
+  sceneKeys: z.array(z.string()),
   sentenceCount: z.number(),
   sentenceCatalog: z.array(sentenceCatalogEntrySchema),
   focusSentence: z
@@ -68,7 +68,7 @@ const datasetSummarySchema = z.object({
       meaningConfirmed: z.boolean().optional(),
     })
     .optional(),
-  focusIsland: z
+  focusScene: z
     .object({
       key: z.string(),
       description: z.string(),
@@ -84,31 +84,31 @@ export const chatRequestSchema = z.object({
   datasetSummary: datasetSummarySchema,
 });
 
-export const islandRequestSchema = z.object({
+export const sceneRequestSchema = z.object({
   theme: z.string().min(2).max(200),
-  sentenceCount: z.number().int().min(5).max(60).optional(),
+  sentenceCount: z.number().int().min(5).max(150).optional(),
   durationTier: z
-    .enum(["quick", "standard", "deep"])
+    .enum(["quick", "standard", "deep", "epic"])
     .optional()
-    .default(DEFAULT_ISLAND_DURATION_TIER),
+    .default(DEFAULT_SCENE_DURATION_TIER),
   difficultyMode: z
     .enum(["matched", "natural"])
     .optional()
-    .default(DEFAULT_ISLAND_DIFFICULTY_MODE),
+    .default(DEFAULT_SCENE_DIFFICULTY_MODE),
   format: z
     .enum(["standard", "narration"])
     .optional()
-    .default(DEFAULT_ISLAND_GENERATION_FORMAT),
+    .default(DEFAULT_SCENE_GENERATION_FORMAT),
   difficultyRange: z.tuple([z.number(), z.number()]).optional(),
-  levelMode: islandLevelModeSchema.optional().default(DEFAULT_ISLAND_LEVEL_MODE),
-  fluencyLevel: islandFluencyLevelSchema.optional().default(DEFAULT_ISLAND_FLUENCY_LEVEL),
-  jlptLevel: islandJlptLevelSchema.optional().default(DEFAULT_ISLAND_JLPT_LEVEL),
+  levelMode: sceneLevelModeSchema.optional().default(DEFAULT_SCENE_LEVEL_MODE),
+  fluencyLevel: sceneFluencyLevelSchema.optional().default(DEFAULT_SCENE_FLUENCY_LEVEL),
+  jlptLevel: sceneJlptLevelSchema.optional().default(DEFAULT_SCENE_JLPT_LEVEL),
   extraInstructions: z.string().max(500).optional(),
   sentenceCatalog: z.array(sentenceSchema),
-  existingIslandKeys: z.array(z.string()).optional(),
+  existingSceneKeys: z.array(z.string()).optional(),
 });
 
-export const generatedIslandSentenceSchema = z.object({
+export const generatedSceneSentenceSchema = z.object({
   id: z.string().min(1),
   english: z.string().min(1).optional(),
   register: z.enum(["casual", "polite", "formal"]).optional(),
@@ -135,8 +135,8 @@ export const generatedIslandSentenceSchema = z.object({
     .optional(),
 });
 
-export const islandGenerationResponseSchema = z.object({
-  islandKey: z.string().min(1),
+export const sceneGenerationResponseSchema = z.object({
+  sceneKey: z.string().min(1),
   description: z.string(),
   subtopics: z.array(z.string()),
   format: z.enum(["standard", "narration"]).optional(),
@@ -148,7 +148,7 @@ export const islandGenerationResponseSchema = z.object({
     })
     .optional(),
   reusedIds: z.array(z.string()),
-  sentences: z.array(generatedIslandSentenceSchema),
+  sentences: z.array(generatedSceneSentenceSchema),
 });
 
 export const translateRequestSchema = z.object({
@@ -179,23 +179,23 @@ export const translateResponseSchema = z.object({
   ),
 });
 
-export const islandSuggestionsRequestSchema = z.object({
-  existingIslandKeys: z.array(z.string()),
+export const sceneSuggestionsRequestSchema = z.object({
+  existingSceneKeys: z.array(z.string()),
   pathwayBatchTitles: z.array(z.string()),
   pathwaySubtopics: z.array(z.string()).optional(),
   refresh: z.boolean().optional().default(false),
 });
 
-export const islandSuggestionSchema = z.object({
+export const sceneSuggestionSchema = z.object({
   theme: z.string().min(2),
   reason: z.string().min(2),
 });
 
-export const islandSuggestionsResponseSchema = z.object({
-  suggestions: z.array(islandSuggestionSchema).min(1).max(8),
+export const sceneSuggestionsResponseSchema = z.object({
+  suggestions: z.array(sceneSuggestionSchema).min(1).max(8),
 });
 
-export const islandPreviewSchema = islandGenerationResponseSchema.extend({
+export const scenePreviewSchema = sceneGenerationResponseSchema.extend({
   newCount: z.number(),
 });
 
@@ -203,7 +203,7 @@ export const sentenceReviewRequestSchema = z.object({
   english: z.string().min(1).max(500),
   register: z.enum(["casual", "polite", "formal"]).optional(),
   contextNotes: z.string().max(300).optional(),
-  islandName: z.string().max(120).optional(),
+  sceneName: z.string().max(120).optional(),
 });
 
 export const sentenceReviewResponseSchema = z.object({
@@ -222,7 +222,7 @@ export const sentenceIntentMessageSchema = z.object({
 
 export const sentenceIntentRequestSchema = z.object({
   english: z.string().min(1).max(500),
-  islandName: z.string().max(120).optional(),
+  sceneName: z.string().max(120).optional(),
   register: z.enum(["casual", "polite", "formal"]).optional(),
   conversationHistory: z.array(sentenceIntentMessageSchema).optional(),
 });
@@ -265,6 +265,6 @@ export const translateNameResponseSchema = z.object({
 });
 
 export type ChatRequest = z.infer<typeof chatRequestSchema>;
-export type IslandRequest = z.infer<typeof islandRequestSchema>;
+export type SceneRequest = z.infer<typeof sceneRequestSchema>;
 
-export { islandSchema };
+export { sceneSchema };

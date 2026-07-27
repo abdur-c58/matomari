@@ -43,8 +43,8 @@ function main() {
   const edits = new Map<string, string>();
   const uniques = new Map<string, string>();
 
-  for (const island of Object.values(catalog.islands)) {
-    for (const s of island.sentences) {
+  for (const scene of Object.values(catalog.scenes)) {
+    for (const s of scene.sentences) {
       if (uniques.has(s.id)) continue;
       uniques.set(s.id, s.english);
       const next = applyNamePlaceholderToEnglish(s.english);
@@ -61,11 +61,11 @@ function main() {
 
   if (dryRun || edits.size === 0) return;
 
-  const nextIslands: PremadeCatalog["islands"] = {};
-  for (const [key, island] of Object.entries(catalog.islands)) {
+  const nextScenes: PremadeCatalog["scenes"] = {};
+  for (const [key, scene] of Object.entries(catalog.scenes)) {
     const seen = new Set<string>();
     const sentences: Sentence[] = [];
-    for (const s of island.sentences) {
+    for (const s of scene.sentences) {
       const newEnglish = edits.get(s.id);
       let sentence: Sentence = newEnglish
         ? { ...s, id: sentenceIdFromEnglish(newEnglish), english: newEnglish }
@@ -90,14 +90,14 @@ function main() {
       seen.add(sentence.id);
       sentences.push(sentence);
     }
-    nextIslands[key] = { ...island, sentences };
+    nextScenes[key] = { ...scene, sentences };
   }
 
   let rows = 0;
   const unique = new Set<string>();
   let withName = 0;
-  for (const island of Object.values(nextIslands)) {
-    for (const s of island.sentences) {
+  for (const scene of Object.values(nextScenes)) {
+    for (const s of scene.sentences) {
       rows++;
       unique.add(s.id);
       if (s.english.includes("[name]")) withName++;
@@ -107,7 +107,7 @@ function main() {
   const next: PremadeCatalog = {
     ...catalog,
     updatedAt: new Date().toISOString(),
-    islands: nextIslands,
+    scenes: nextScenes,
   };
   fs.writeFileSync(OUT_PATH, JSON.stringify(next, null, 2) + "\n");
   console.log(`\nWrote ${OUT_PATH}`);

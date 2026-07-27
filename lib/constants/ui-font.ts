@@ -17,7 +17,7 @@ export const UI_FONT_OPTIONS: {
   {
     value: "red-hat-display",
     label: "Red Hat Display",
-    description: "Geometric sans — the original Kotoshima typeface",
+    description: "Geometric sans — the original Matomari typeface",
     family: '"Red Hat Display", system-ui, sans-serif',
   },
 ];

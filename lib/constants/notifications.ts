@@ -3,7 +3,7 @@ export type ReminderFrequency = "daily" | "every_2_days" | "weekly";
 export interface NotificationLastSent {
   daily?: string;
   review?: string;
-  islands?: Record<string, string>;
+  scenes?: Record<string, string>;
 }
 
 export interface NotificationPreferences {
@@ -18,9 +18,9 @@ export interface NotificationPreferences {
     enabled: boolean;
     frequency: ReminderFrequency;
   };
-  islandReminders: {
+  sceneReminders: {
     enabled: boolean;
-    islandKeys: string[];
+    sceneKeys: string[];
     frequency: ReminderFrequency;
   };
   lastSent: NotificationLastSent;
@@ -36,9 +36,9 @@ export const DEFAULT_NOTIFICATION_PREFERENCES: NotificationPreferences = {
     enabled: false,
     frequency: "daily",
   },
-  islandReminders: {
+  sceneReminders: {
     enabled: false,
-    islandKeys: [],
+    sceneKeys: [],
     frequency: "every_2_days",
   },
   lastSent: {},

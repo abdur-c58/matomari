@@ -2,21 +2,21 @@ import type { Dataset } from "@/types/sentence";
 import type { UserProgress } from "@/types/progress";
 import { buildDatasetSummary } from "./context-builder";
 import { buildFullSentenceCatalog } from "@/lib/services/dataset-mutation-service";
-import type { ChatMessage, IslandGenerationPreview, IslandSuggestion, SentenceReviewResult, TranscriptSegmentResult, TutorContext } from "./types";
+import type { ChatMessage, SceneGenerationPreview, SceneSuggestion, SentenceReviewResult, TranscriptSegmentResult, TutorContext } from "./types";
 import type {
-  IslandDifficultyMode,
-  IslandDurationTier,
-  IslandFluencyLevel,
-  IslandGenerationFormat,
-  IslandJlptLevel,
-  IslandLevelMode,
-} from "@/lib/constants/island-generation";
+  SceneDifficultyMode,
+  SceneDurationTier,
+  SceneFluencyLevel,
+  SceneGenerationFormat,
+  SceneJlptLevel,
+  SceneLevelMode,
+} from "@/lib/constants/scene-generation";
 import {
-  DEFAULT_ISLAND_DIFFICULTY_MODE,
-  DEFAULT_ISLAND_DURATION_TIER,
-  DEFAULT_ISLAND_GENERATION_FORMAT,
-  resolveIslandSentenceTarget,
-} from "@/lib/constants/island-generation";
+  DEFAULT_SCENE_DIFFICULTY_MODE,
+  DEFAULT_SCENE_DURATION_TIER,
+  DEFAULT_SCENE_GENERATION_FORMAT,
+  resolveSceneSentenceTarget,
+} from "@/lib/constants/scene-generation";
 
 export class AIClientError extends Error {
   constructor(
@@ -61,39 +61,39 @@ export async function* streamChat(
   }
 }
 
-export async function generateIsland(
+export async function generateScene(
   theme: string,
   dataset: Dataset,
   options?: {
     sentenceCount?: number;
-    durationTier?: IslandDurationTier;
-    difficultyMode?: IslandDifficultyMode;
-    format?: IslandGenerationFormat;
+    durationTier?: SceneDurationTier;
+    difficultyMode?: SceneDifficultyMode;
+    format?: SceneGenerationFormat;
     difficultyRange?: [number, number];
-    levelMode?: IslandLevelMode;
-    fluencyLevel?: IslandFluencyLevel;
-    jlptLevel?: IslandJlptLevel;
+    levelMode?: SceneLevelMode;
+    fluencyLevel?: SceneFluencyLevel;
+    jlptLevel?: SceneJlptLevel;
     extraInstructions?: string;
   }
-): Promise<IslandGenerationPreview> {
-  const durationTier = options?.durationTier ?? DEFAULT_ISLAND_DURATION_TIER;
-  const res = await fetch("/api/ai/island", {
+): Promise<SceneGenerationPreview> {
+  const durationTier = options?.durationTier ?? DEFAULT_SCENE_DURATION_TIER;
+  const res = await fetch("/api/ai/scene", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       theme,
       sentenceCount:
-        options?.sentenceCount ?? resolveIslandSentenceTarget(durationTier),
+        options?.sentenceCount ?? resolveSceneSentenceTarget(durationTier),
       durationTier,
-      difficultyMode: options?.difficultyMode ?? DEFAULT_ISLAND_DIFFICULTY_MODE,
-      format: options?.format ?? DEFAULT_ISLAND_GENERATION_FORMAT,
+      difficultyMode: options?.difficultyMode ?? DEFAULT_SCENE_DIFFICULTY_MODE,
+      format: options?.format ?? DEFAULT_SCENE_GENERATION_FORMAT,
       difficultyRange: options?.difficultyRange,
       levelMode: options?.levelMode,
       fluencyLevel: options?.fluencyLevel,
       jlptLevel: options?.jlptLevel,
       extraInstructions: options?.extraInstructions?.trim() || undefined,
       sentenceCatalog: buildFullSentenceCatalog(dataset),
-      existingIslandKeys: Object.keys(dataset.islands),
+      existingSceneKeys: Object.keys(dataset.scenes),
     }),
   });
 
@@ -108,20 +108,20 @@ export async function generateIsland(
   return res.json();
 }
 
-export async function fetchIslandSuggestions(
+export async function fetchSceneSuggestions(
   dataset: Dataset,
   options?: { refresh?: boolean }
-): Promise<IslandSuggestion[]> {
+): Promise<SceneSuggestion[]> {
   const pathwayBatchTitles = dataset.main_pathway.batches.map((b) => b.batch_title);
   const pathwaySubtopics = dataset.main_pathway.batches.flatMap((b) =>
     b.sentences.map((s) => s.subtopic)
   );
 
-  const res = await fetch("/api/ai/island-suggestions", {
+  const res = await fetch("/api/ai/scene-suggestions", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      existingIslandKeys: Object.keys(dataset.islands),
+      existingSceneKeys: Object.keys(dataset.scenes),
       pathwayBatchTitles,
       pathwaySubtopics,
       refresh: options?.refresh ?? false,
@@ -136,7 +136,7 @@ export async function fetchIslandSuggestions(
     throw new AIClientError(err.error ?? "Request failed", "REQUEST_FAILED");
   }
 
-  const data = (await res.json()) as { suggestions: IslandSuggestion[] };
+  const data = (await res.json()) as { suggestions: SceneSuggestion[] };
   return data.suggestions;
 }
 
@@ -144,7 +144,7 @@ export async function reviewSentence(input: {
   english: string;
   register?: "casual" | "polite" | "formal";
   contextNotes?: string;
-  islandName?: string;
+  sceneName?: string;
 }): Promise<SentenceReviewResult> {
   const res = await fetch("/api/ai/sentence-review", {
     method: "POST",
@@ -153,7 +153,7 @@ export async function reviewSentence(input: {
       english: input.english,
       register: input.register,
       contextNotes: input.contextNotes?.trim() || undefined,
-      islandName: input.islandName?.trim() || undefined,
+      sceneName: input.sceneName?.trim() || undefined,
     }),
   });
 

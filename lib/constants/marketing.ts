@@ -1,6 +1,6 @@
 export const MARKETING_VIDEO = {
-  src: "/assets/marketing/kotoshima-promo.mp4",
-  poster: "/assets/marketing/kotoshima-promo-poster.jpg",
+  src: "/assets/marketing/matomari-promo.mp4",
+  poster: "/assets/marketing/matomari-promo-poster.jpg",
   width: 1920,
   height: 1080,
   durationSeconds: 52.5,
@@ -10,16 +10,16 @@ export const marketingHero = {
   eyebrow: "",
   title: "A daily loop built around your life.",
   subtitle:
-    "Tell Kotoshima what you need Japanese for. AI shapes real sentences around your goals, interests, level, and daily life.",
+    "Tell Matomari what you need Japanese for. AI shapes real sentences around your goals, interests, level, and daily life.",
   primaryCta: "Sign in with Google",
   secondaryCta: "See how it works",
-  brandJp: "言島",
+  brandJp: "まとまり",
 } as const;
 
 export const marketingProblem = {
   eyebrow: "The gap",
   title: "Textbooks teach grammar. Life asks different questions.",
-  body: "Kotoshima trains the sentences real situations actually call for — the ones you'd normally only pick up after months of mistakes and corrections. Learn them straight, and be ready to say it when it counts.",
+  body: "Matomari trains the sentences real situations actually call for — the ones you'd normally only pick up after months of mistakes and corrections. Learn them straight, and be ready to say it when it counts.",
   gapDemo: {
     stages: [
       {
@@ -49,7 +49,7 @@ export const marketingProblem = {
     closing: [
       "You don't need fluency to walk into these moments with confidence.",
       "You need the right sentences — ready before you need them.",
-      "That's what Kotoshima trains: not grammar drills, but the moments themselves.",
+      "That's what Matomari trains: not grammar drills, but the moments themselves.",
     ],
     bridge: "Here's what we mean.",
     pictureThis: "Picture this",
@@ -90,10 +90,10 @@ export const marketingDailyLoop = {
 
 export const marketingHorizontalFeatures = [
   {
-    id: "islands",
+    id: "scenes",
     eyebrow: "AI-personalized learning",
-    title: "Turn your world into an island.",
-    body: "Describe the Japanese you need — a trip, your job, a hobby, a relationship, or something entirely your own. AI builds a focused island around your level and preferred depth.",
+    title: "Turn your world into an scene.",
+    body: "Describe the Japanese you need — a trip, your job, a hobby, a relationship, or something entirely your own. AI builds a focused scene around your level and preferred depth.",
     points: [
       "Start from an idea or choose a premade foundation",
       "Match your level, format, and session depth",
@@ -109,7 +109,7 @@ export const marketingHorizontalFeatures = [
   },
   {
     id: "sharing",
-    eyebrow: "Island sharing",
+    eyebrow: "Scene sharing",
     title: "Create a link. Copy it.",
     body: "Share what you've built with a friend, a study group, or your classroom — they can try it instantly, no account needed to preview.",
     points: [
@@ -123,7 +123,7 @@ export const marketingHorizontalFeatures = [
 export const marketingNarration = {
   eyebrow: "AI-generated conversations",
   title: "Two voices. One scene. Casual speech.",
-  body: "Describe a conversation/theme you want to handle. Kotoshima generates a natural two-person scene you can listen to, shadow, and say out loud.",
+  body: "Describe a conversation/theme you want to handle. Matomari generates a natural two-person scene you can listen to, shadow, and say out loud.",
   points: [
     "Build scenes for your real plans and relationships",
     "Choose your level, tone, and conversation depth",
@@ -135,7 +135,7 @@ export const marketingNarration = {
 export const marketingVideo = {
   eyebrow: "Product walkthrough",
   title: "Watch the loop in motion.",
-  body: "See a personal idea become an AI-built island, then move through audio, daily practice, progress, and sharing.",
+  body: "See a personal idea become an AI-built scene, then move through audio, daily practice, progress, and sharing.",
 } as const;
 
 export const marketingSocialProofPlaceholder = {
@@ -154,16 +154,16 @@ export {
 
 export const marketingCta = {
   title: "Build Japanese around your life.",
-  body: "Tell Kotoshima what you want to say. Get a focused island shaped to your needs, then practice it until it comes naturally.",
+  body: "Tell Matomari what you want to say. Get a focused scene shaped to your needs, then practice it until it comes naturally.",
   primaryCta: "Sign in with Google",
 } as const;
 
 export const marketingFooter = {
-  tagline: "Personalized Japanese learning through language islands",
+  tagline: "Personalized Japanese learning through language scenes",
   links: [
     { label: "The gap", href: "/", section: "problem" },
     { label: "Features", href: "/", section: "features" },
-    { label: "Islands", href: "/", section: "islands" },
+    { label: "Scenes", href: "/", section: "scenes" },
     { label: "Narration", href: "/", section: "narration" },
     { label: "Walkthrough", href: "/", section: "walkthrough" },
     { label: "Pricing", href: "/", section: "pricing" },

@@ -1,9 +1,9 @@
-import type { IslandNarrationMode, Sentence } from "@/types/sentence";
+import type { SceneNarrationMode, Sentence } from "@/types/sentence";
 
 export type TutorContext =
   | { type: "general" }
   | { type: "sentence"; sentenceId: string }
-  | { type: "island"; islandKey: string };
+  | { type: "scene"; sceneKey: string };
 
 export interface ChatMessage {
   role: "user" | "assistant";
@@ -26,7 +26,7 @@ export interface SentenceCatalogEntry {
 }
 
 export interface DatasetSummary {
-  islandKeys: string[];
+  sceneKeys: string[];
   sentenceCount: number;
   sentenceCatalog: SentenceCatalogEntry[];
   focusSentence?: SentenceCatalogEntry & {
@@ -35,7 +35,7 @@ export interface DatasetSummary {
     rating?: number | null;
     meaningConfirmed?: boolean;
   };
-  focusIsland?: {
+  focusScene?: {
     key: string;
     description: string;
     subtopics: string[];
@@ -43,8 +43,8 @@ export interface DatasetSummary {
   };
 }
 
-export interface IslandGenerationPreview {
-  islandKey: string;
+export interface SceneGenerationPreview {
+  sceneKey: string;
   description: string;
   subtopics: string[];
   sentences: Sentence[];
@@ -52,13 +52,13 @@ export interface IslandGenerationPreview {
   newCount: number;
   format?: "standard" | "narration";
   speakers?: Array<"A" | "B">;
-  narrationMode?: IslandNarrationMode;
+  narrationMode?: SceneNarrationMode;
   difficultyMode?: "matched" | "natural";
   durationTier?: "quick" | "standard" | "deep";
   skippedCount?: number;
 }
 
-export interface IslandSuggestion {
+export interface SceneSuggestion {
   theme: string;
   reason: string;
 }

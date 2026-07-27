@@ -48,55 +48,55 @@ export function clearUploadProgress(): void {
 
 export function describeDatasetPayload(payload: unknown): {
   sentenceCount: number;
-  islandCount: number;
+  sceneCount: number;
 } {
   if (!payload || typeof payload !== "object") {
-    return { sentenceCount: 0, islandCount: 0 };
+    return { sentenceCount: 0, sceneCount: 0 };
   }
 
   const data = payload as Dataset | UserLibrary;
-  const islands = data.islands ?? {};
+  const scenes = data.scenes ?? {};
 
-  if (!("main_pathway" in data) && Object.keys(islands).length === 0) {
-    return { sentenceCount: 0, islandCount: 0 };
+  if (!("main_pathway" in data) && Object.keys(scenes).length === 0) {
+    return { sentenceCount: 0, sceneCount: 0 };
   }
 
   try {
     if ("main_pathway" in data) {
       return {
         sentenceCount: getAllSentences(data as Dataset).size,
-        islandCount: Object.keys(islands).length,
+        sceneCount: Object.keys(scenes).length,
       };
     }
 
-    const islandSentences = Object.values(islands).reduce(
-      (n, island) => n + island.sentences.length,
+    const sceneSentences = Object.values(scenes).reduce(
+      (n, scene) => n + scene.sentences.length,
       0
     );
     return {
-      sentenceCount: islandSentences,
-      islandCount: Object.keys(islands).length,
+      sentenceCount: sceneSentences,
+      sceneCount: Object.keys(scenes).length,
     };
   } catch {
-    return { sentenceCount: 0, islandCount: 0 };
+    return { sentenceCount: 0, sceneCount: 0 };
   }
 }
 
-function formatCounts(sentenceCount: number, islandCount: number): string {
+function formatCounts(sentenceCount: number, sceneCount: number): string {
   const parts: string[] = [];
   if (sentenceCount > 0) {
     parts.push(`${sentenceCount} sentence${sentenceCount === 1 ? "" : "s"}`);
   }
-  if (islandCount > 0) {
-    parts.push(`${islandCount} island${islandCount === 1 ? "" : "s"}`);
+  if (sceneCount > 0) {
+    parts.push(`${sceneCount} scene${sceneCount === 1 ? "" : "s"}`);
   }
   return parts.join(" · ");
 }
 
 export function labelForSyncTable(table: SyncTable, payload: unknown): string {
   if (table === "user_datasets") {
-    const { sentenceCount, islandCount } = describeDatasetPayload(payload);
-    const counts = formatCounts(sentenceCount, islandCount);
+    const { sentenceCount, sceneCount } = describeDatasetPayload(payload);
+    const counts = formatCounts(sentenceCount, sceneCount);
     return counts ? `Uploading ${counts}` : "Uploading library";
   }
   if (table === "user_progress") return "Uploading study progress";
@@ -105,8 +105,8 @@ export function labelForSyncTable(table: SyncTable, payload: unknown): string {
 
 export function subtitleForSyncTable(table: SyncTable, payload: unknown): string | undefined {
   if (table !== "user_datasets") return "Saving to cloud";
-  const { sentenceCount, islandCount } = describeDatasetPayload(payload);
-  if (sentenceCount === 0 && islandCount === 0) return "Saving to cloud";
+  const { sentenceCount, sceneCount } = describeDatasetPayload(payload);
+  if (sentenceCount === 0 && sceneCount === 0) return "Saving to cloud";
   return "Saving library to cloud";
 }
 

@@ -31,10 +31,20 @@ export function getTextHash(
   ttsText: string,
   dialect: Dialect = "standard",
   speaker: NarrationSpeaker = "A",
-  cacheMode: TtsCacheMode = "sentence"
+  cacheMode: TtsCacheMode = "sentence",
+  voiceOverride?: string | null
 ): string {
   return createHash("sha256")
-    .update(buildTtsCacheKey(sentenceId, ttsText, dialect, speaker, cacheMode))
+    .update(
+      buildTtsCacheKey(
+        sentenceId,
+        ttsText,
+        dialect,
+        speaker,
+        cacheMode,
+        voiceOverride
+      )
+    )
     .digest("hex");
 }
 
@@ -119,16 +129,20 @@ export async function generateServerAudio(
     canonicalSentenceId?: string | null;
     userSentenceId?: string | null;
     cacheMode?: TtsCacheMode;
+    /** Fish reference_id override (Pro voice selection). */
+    voiceId?: string | null;
   }
 ): Promise<{ buffer: Buffer; hash: string; cached: boolean; r2Key: string }> {
   const dialect = options?.dialect ?? "standard";
   const speaker = options?.speaker ?? "A";
+  const voiceOverride = options?.voiceId?.trim() || null;
   const hash = getTextHash(
     sentenceId,
     ttsText,
     dialect,
     speaker,
-    options?.cacheMode
+    options?.cacheMode,
+    voiceOverride
   );
   const r2Key = getAudioR2Key(hash);
   const force = options?.force === true;
@@ -175,7 +189,8 @@ export async function generateServerAudio(
   }
 
   const apiKey = getFishAudioApiKey();
-  const voiceId = getFishAudioVoiceIdForDialect(dialect, speaker);
+  const voiceId =
+    voiceOverride || getFishAudioVoiceIdForDialect(dialect, speaker);
 
   if (!apiKey) {
     throw new Error("TTS_NOT_CONFIGURED");

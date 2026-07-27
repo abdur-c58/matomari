@@ -16,7 +16,8 @@ import {
 export function sentenceToTtsRequest(
   sentence: Sentence,
   dialect: Dialect,
-  translations?: Record<string, SentenceDialectTranslations>
+  translations?: Record<string, SentenceDialectTranslations>,
+  speakerVoices?: { A?: string; B?: string } | null
 ): TtsRequest | null {
   const fields = getSentenceTranslationFields(
     sentence.id,
@@ -26,6 +27,9 @@ export function sentenceToTtsRequest(
   );
   if (!fields?.japanese?.trim()) return null;
 
+  const speaker = sentence.speaker === "B" ? "B" : "A";
+  const voiceId = speakerVoices?.[speaker];
+
   return {
     sentenceId: sentence.id,
     japanese: fields.japanese,
@@ -33,7 +37,8 @@ export function sentenceToTtsRequest(
     phonetic_reading: fields.phonetic_reading,
     placeholders: fields.placeholders ?? sentence.placeholders,
     dialect,
-    speaker: sentence.speaker === "B" ? "B" : "A",
+    speaker,
+    ...(voiceId ? { voiceId } : {}),
     register: sentence.register,
     tags: sentence.tags,
     context_notes: sentence.context_notes,
@@ -57,6 +62,7 @@ export function buildPlaylistFromSentences(
   options?: {
     dialect?: Dialect;
     translations?: Record<string, SentenceDialectTranslations>;
+    speakerVoices?: { A?: string; B?: string } | null;
   }
 ): { playlist: TtsRequest[]; skipped: number } {
   const dialect = options?.dialect ?? getPrimaryTranslation(progress.settings);
@@ -65,7 +71,12 @@ export function buildPlaylistFromSentences(
   let skipped = 0;
 
   for (const sentence of sentences) {
-    const item = sentenceToTtsRequest(sentence, dialect, translations);
+    const item = sentenceToTtsRequest(
+      sentence,
+      dialect,
+      translations,
+      options?.speakerVoices
+    );
     if (item) playlist.push(item);
     else skipped++;
   }
@@ -81,6 +92,7 @@ export function buildPlaylistFromUnits(
     pathwayBatchNumber?: number | null;
     dialect?: Dialect;
     translations?: Record<string, SentenceDialectTranslations>;
+    speakerVoices?: { A?: string; B?: string } | null;
   }
 ): { playlist: TtsRequest[]; skipped: number } {
   const sentences: Sentence[] = [];
@@ -101,5 +113,6 @@ export function buildPlaylistFromUnits(
   return buildPlaylistFromSentences(unique, progress, {
     dialect: options?.dialect,
     translations: options?.translations,
+    speakerVoices: options?.speakerVoices,
   });
 }

@@ -13,7 +13,7 @@ export type BufferedVisibleOptions = {
    * Larger = more preloaded buffer before the user hits the end.
    */
   rootMarginPx?: number;
-  /** Bump this when the list identity changes (filters, island key, etc.). */
+  /** Bump this when the list identity changes (filters, scene key, etc.). */
   resetKey?: string | number;
 };
 

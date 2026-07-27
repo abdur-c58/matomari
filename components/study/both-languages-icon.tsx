@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 /**
- * Overlapping JP / EN cards for the island browse "both" display mode.
+ * Overlapping JP / EN cards for the scene browse "both" display mode.
  * Inline SVG so currentColor follows the toggle button state.
  */
 export function BothLanguagesIcon({

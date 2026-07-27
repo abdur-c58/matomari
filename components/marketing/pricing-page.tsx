@@ -1,15 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
+import { useSession } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 import { MarketingFooter } from "@/components/marketing/marketing-footer";
 import { MarketingNav } from "@/components/marketing/marketing-nav";
-import { useIsFinePointer } from "@/components/marketing/motion/use-prefers-reduced-motion";
-import { marketingPricingTiers } from "@/lib/constants/marketing-pricing";
+import { PricingComparisonTable } from "@/components/marketing/pricing-comparison-table";
+import { PaddlePricingTierCards } from "@/components/marketing/paddle-pricing-tier-cards";
+import { PaddleProvider } from "@/components/billing/paddle-provider";
+import {
+  isPaidTier,
+  type PaddleCatalogTier,
+  type PaidPlanId,
+} from "@/lib/constants/paddle-tiers";
+import {
+  hasMinTier,
+  type SubscriptionTierId,
+} from "@/lib/constants/entitlements";
+import type { BillingPeriod } from "@/lib/constants/pricing";
+import { usePaddlePricePreview } from "@/hooks/use-paddle-price-preview";
+import { usePaddleCheckout } from "@/hooks/use-paddle-checkout";
+import { usePaddle } from "@/components/billing/paddle-provider";
 import { cn } from "@/lib/utils";
-
-type BillingPeriod = "monthly" | "semiannual" | "annual";
 
 const billingOptions: {
   value: BillingPeriod;
@@ -17,184 +31,113 @@ const billingOptions: {
   note: string;
 }[] = [
   { value: "monthly", label: "Monthly", note: "Pay month to month" },
-  { value: "semiannual", label: "6 months", note: "Save 25%" },
-  { value: "annual", label: "Annual", note: "Save 42%" },
+  { value: "annual", label: "Annual", note: "Save with yearly billing" },
 ];
 
-/** Dummy Plus prices — monthly comes from marketingPricingTiers.plus.priceMonthly. */
-const plusPrices: Record<
-  BillingPeriod,
-  { monthly: number; billed: string; saving?: string }
-> = {
-  monthly: {
-    monthly: marketingPricingTiers.plus.priceMonthly,
-    billed: "Billed monthly",
-  },
-  semiannual: {
-    monthly: 9,
-    billed: "$54 billed every 6 months",
-    saving: "Save $18",
-  },
-  annual: {
-    monthly: 7,
-    billed: "$84 billed annually",
-    saving: "Save $60",
-  },
-};
-
-const freeFeatures = [...marketingPricingTiers.free.features];
-const plusFeatures = [...marketingPricingTiers.plus.features];
-
-function PriceCard({
-  plan,
-  period,
+function PricingPageInner({
+  tiers,
+  countryCode,
 }: {
-  plan: "free" | "plus";
-  period: BillingPeriod;
+  tiers: PaddleCatalogTier[];
+  countryCode?: string;
 }) {
-  const finePointer = useIsFinePointer();
-  const plus = plan === "plus";
-  const price = plusPrices[period];
-  const features = plus ? plusFeatures : freeFeatures;
-
-  return (
-    <motion.article
-      className={cn(
-        "pricing-plan-card group relative flex min-h-[38rem] flex-col overflow-hidden rounded-[2rem] border p-6 sm:p-8",
-        plus
-          ? "pricing-plan-card--plus border-[color:var(--mode-listen)] bg-surface"
-          : "border-border bg-surface/75"
-      )}
-      initial={{ opacity: 0, y: 44, rotateX: 8 }}
-      animate={{ opacity: 1, y: 0, rotateX: 0 }}
-      transition={{
-        type: "spring",
-        stiffness: 115,
-        damping: 18,
-        delay: plus ? 0.1 : 0,
-      }}
-      whileHover={
-        finePointer
-          ? {
-              y: -10,
-              rotateY: plus ? -2 : 2,
-              rotateX: 1,
-              transition: { type: "spring", stiffness: 220, damping: 18 },
-            }
-          : undefined
-      }
-      whileTap={finePointer ? undefined : { scale: 0.985 }}
-    >
-      {plus && (
-        <>
-          <div className="pricing-plan-border" aria-hidden />
-          <div className="pricing-plan-sheen" aria-hidden />
-        </>
-      )}
-
-      <div className="relative z-[1]">
-        <div>
-          <p
-            className="text-[11px] font-semibold uppercase tracking-[0.22em]"
-            style={{
-              color: plus
-                ? "var(--mode-listen)"
-                : "var(--mode-review)",
-            }}
-          >
-            {plus ? "More room to grow" : "Start here"}
-          </p>
-          <h2 className="mt-3 font-display text-4xl font-semibold tracking-[-0.045em]">
-            {plus ? "Plus" : "Free"}
-          </h2>
-        </div>
-
-        <div className="mt-9 min-h-[7.5rem]">
-          {plus ? (
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.div
-                key={period}
-                initial={{ opacity: 0, y: 16, filter: "blur(5px)" }}
-                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                exit={{ opacity: 0, y: -12, filter: "blur(5px)" }}
-                transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <div className="flex items-end gap-2">
-                  <span className="font-display text-6xl font-semibold tracking-[-0.07em]">
-                    ${price.monthly}
-                  </span>
-                  <span className="pb-2 text-sm text-muted">/ month</span>
-                </div>
-                <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <p className="text-sm text-muted">{price.billed}</p>
-                  {price.saving && (
-                    <span className="rounded-full bg-[color:var(--mode-review)]/12 px-2 py-0.5 text-[11px] font-semibold text-[color:var(--mode-review)]">
-                      {price.saving}
-                    </span>
-                  )}
-                </div>
-              </motion.div>
-            </AnimatePresence>
-          ) : (
-            <>
-              <div className="flex items-end gap-2">
-                <span className="font-display text-6xl font-semibold tracking-[-0.07em]">
-                    ${marketingPricingTiers.free.priceMonthly}
-                  </span>
-                <span className="pb-2 text-sm text-muted">forever</span>
-              </div>
-              <p className="mt-2 text-sm text-muted">
-                No billing period. No card required.
-              </p>
-            </>
-          )}
-        </div>
-
-        <p className="mt-5 text-sm leading-relaxed text-muted">
-          {plus
-            ? "For learners who want broader libraries and deeper visibility into long-term progress."
-            : "A complete daily practice loop for building useful Japanese one sentence at a time."}
-        </p>
-      </div>
-
-      <ul className="relative z-[1] mt-8 space-y-4 border-t border-border pt-7">
-        {features.map((feature, index) => (
-          <motion.li
-            key={feature}
-            className="text-sm leading-relaxed text-foreground/90"
-            initial={{ opacity: 0, x: -12 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.22 + index * 0.055 }}
-          >
-            {feature}
-          </motion.li>
-        ))}
-      </ul>
-
-      <div className="relative z-[1] mt-auto pt-9">
-        {plus ? (
-          <button
-            type="button"
-            disabled
-            className="flex h-12 w-full cursor-not-allowed items-center justify-center rounded-2xl border border-[color:var(--mode-listen)]/40 bg-[color:var(--mode-listen)]/10 text-sm font-semibold text-[color:var(--mode-listen)] opacity-80"
-          >
-            Plus is a pricing preview
-          </button>
-        ) : (
-          <Link
-            href="/today"
-            className="pricing-free-cta flex h-12 w-full items-center justify-center rounded-2xl bg-cta text-sm font-semibold text-cta-foreground shadow-sm transition-transform active:translate-y-0"
-          >
-            Continue with Free
-          </Link>
-        )}
-      </div>
-    </motion.article>
+  const searchParams = useSearchParams();
+  const { status } = useSession();
+  const { error: paddleError } = usePaddle();
+  const [period, setPeriod] = useState<BillingPeriod>(() => {
+    const interval = searchParams.get("interval");
+    return interval === "monthly" ? "monthly" : "annual";
+  });
+  const [effectiveTier, setEffectiveTier] =
+    useState<SubscriptionTierId>("free");
+  const [subscriptionLoaded, setSubscriptionLoaded] = useState(false);
+  const autoCheckoutAttempted = useRef(false);
+  const [subscribeLoading, setSubscribeLoading] = useState<PaidPlanId | null>(
+    null
   );
-}
 
-export function PricingPageExperience() {
-  const [period, setPeriod] = useState<BillingPeriod>("annual");
+  const { prices, loading: pricesLoading, initialLoading: pricesInitialLoading, error: pricesError } =
+    usePaddlePricePreview({ tiers, period, countryCode });
+  const { openCheckout } = usePaddleCheckout();
+
+  useEffect(() => {
+    if (status !== "authenticated") {
+      setEffectiveTier("free");
+      setSubscriptionLoaded(true);
+      return;
+    }
+    let cancelled = false;
+    void fetch("/api/billing/subscription")
+      .then(async (res) => {
+        if (!res.ok) return;
+        const data = (await res.json()) as {
+          effectiveTier?: SubscriptionTierId;
+        };
+        if (!cancelled) setEffectiveTier(data.effectiveTier ?? "free");
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setSubscriptionLoaded(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [status]);
+
+  useEffect(() => {
+    const interval = searchParams.get("interval");
+    if (interval === "monthly" || interval === "annual") {
+      setPeriod(interval);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (!subscriptionLoaded || autoCheckoutAttempted.current) return;
+
+    const plan = searchParams.get("plan");
+    const interval = searchParams.get("interval");
+    if (plan !== "plus" && plan !== "pro") return;
+    if (status !== "authenticated") return;
+    if (hasMinTier(effectiveTier, plan)) return;
+
+    const tier = tiers.find((t) => t.id === plan);
+    if (!tier || !isPaidTier(tier)) return;
+
+    autoCheckoutAttempted.current = true;
+    const checkoutPeriod: BillingPeriod =
+      interval === "monthly" ? "monthly" : "annual";
+    setSubscribeLoading(plan);
+    void openCheckout({ tier, period: checkoutPeriod }).finally(() => {
+      setSubscribeLoading(null);
+    });
+  }, [
+    subscriptionLoaded,
+    searchParams,
+    status,
+    tiers,
+    effectiveTier,
+    openCheckout,
+  ]);
+
+  async function handleSubscribe(tier: PaddleCatalogTier) {
+    if (!isPaidTier(tier)) return;
+    setSubscribeLoading(tier.id);
+    try {
+      await openCheckout({ tier, period });
+    } finally {
+      setSubscribeLoading(null);
+    }
+  }
+
+  const subscriberLabel =
+    effectiveTier === "pro"
+      ? "You’re on Pro"
+      : effectiveTier === "plus"
+        ? "You’re on Plus"
+        : null;
+
+  const configError = paddleError;
+  const displayError = configError ?? pricesError;
 
   return (
     <div className="marketing-page pricing-page relative min-h-dvh overflow-hidden bg-background text-foreground">
@@ -217,23 +160,46 @@ export function PricingPageExperience() {
           transition={{ type: "spring", stiffness: 100, damping: 17 }}
         >
           <span className="inline-flex rounded-full border border-border bg-surface/70 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.18em] text-muted backdrop-blur-md">
-            Dummy pricing preview · no checkout
+            Secure checkout · Paddle
           </span>
+          {subscriberLabel && (
+            <p className="mt-4 inline-flex rounded-full border border-[color:var(--mode-listen)]/35 bg-[color:var(--mode-listen)]/10 px-3 py-1 text-xs font-semibold text-[color:var(--mode-listen)]">
+              {subscriberLabel}
+            </p>
+          )}
           <h1 className="marketing-giant-type mt-7 text-[clamp(3.2rem,8vw,6.8rem)]">
             Pick your pace.
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-muted sm:text-lg">
-            Start with the complete learning loop for free. Plus is a concept
-            preview for learners who want more capacity—the prices and features
-            below are placeholders, not a live offer.
+            Start free. Move to Plus for Essentials and narration. Pro adds voice
+            control, exports, and room for a serious library.
           </p>
+          {countryCode && (
+            <p className="mt-3 text-xs text-muted">
+              Prices localized for {countryCode}
+            </p>
+          )}
         </motion.header>
 
+        {displayError && (
+          <p
+            role="alert"
+            className="mx-auto mt-6 max-w-lg rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-center text-sm text-destructive"
+          >
+            {displayError}
+          </p>
+        )}
+
         <motion.div
-          className="mx-auto mt-10 grid max-w-2xl grid-cols-3 rounded-2xl border border-border bg-surface/75 p-1.5 shadow-md backdrop-blur-xl"
+          className="mx-auto mt-10 grid max-w-md grid-cols-2 rounded-2xl border border-border bg-surface/75 p-1.5 shadow-md backdrop-blur-xl"
           initial={{ opacity: 0, scale: 0.94 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ type: "spring", stiffness: 130, damping: 18, delay: 0.12 }}
+          transition={{
+            type: "spring",
+            stiffness: 130,
+            damping: 18,
+            delay: 0.12,
+          }}
           role="group"
           aria-label="Billing period"
         >
@@ -264,7 +230,7 @@ export function PricingPageExperience() {
                 </span>
                 <span
                   className={cn(
-                    "relative z-[1] mt-0.5 block text-[10px] transition-colors md:text-[9px]",
+                    "relative z-[1] mt-0.5 block text-[10px] transition-colors",
                     selected ? "text-background/70" : "text-muted"
                   )}
                 >
@@ -275,9 +241,28 @@ export function PricingPageExperience() {
           })}
         </motion.div>
 
-        <section className="pricing-card-stage mt-12 grid gap-6 md:grid-cols-2">
-          <PriceCard plan="free" period={period} />
-          <PriceCard plan="plus" period={period} />
+        <section className="mt-12">
+          <PaddlePricingTierCards
+            tiers={tiers}
+            prices={prices}
+            pricesLoading={pricesLoading}
+            pricesInitialLoading={pricesInitialLoading}
+            effectiveTier={effectiveTier}
+            onSubscribe={(tier) => void handleSubscribe(tier)}
+            subscribeLoading={subscribeLoading}
+          />
+        </section>
+
+        <section className="mt-12 sm:mt-14">
+          <h2 className="text-center font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+            Compare plans
+          </h2>
+          <p className="mx-auto mt-2 max-w-lg text-center text-sm text-muted">
+            Caps and gated features side by side — scan what changes as you upgrade.
+          </p>
+          <div className="mt-8">
+            <PricingComparisonTable />
+          </div>
         </section>
 
         <motion.aside
@@ -286,8 +271,15 @@ export function PricingPageExperience() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
         >
-          This page is intentionally a dummy pricing concept. No payment,
-          subscription, entitlement, or Plus plan currently exists.
+          Cancel anytime — paid access continues through the end of the billing
+          period. Manage invoices and payment methods from{" "}
+          <Link
+            href="/settings"
+            className="font-medium text-foreground underline decoration-foreground/30 underline-offset-4"
+          >
+            Settings
+          </Link>
+          .
         </motion.aside>
       </main>
 
@@ -295,5 +287,19 @@ export function PricingPageExperience() {
         <MarketingFooter />
       </div>
     </div>
+  );
+}
+
+export function PricingPageExperience({
+  tiers,
+  countryCode,
+}: {
+  tiers: PaddleCatalogTier[];
+  countryCode?: string;
+}) {
+  return (
+    <PaddleProvider>
+      <PricingPageInner tiers={tiers} countryCode={countryCode} />
+    </PaddleProvider>
   );
 }

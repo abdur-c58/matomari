@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useApp } from "@/components/providers/app-provider";
 import {
-  isFormalStudyEligibleIsland,
+  isFormalStudyEligibleScene,
   resumeOrInitializeBatch,
 } from "@/lib/services/batch-service";
 import {
@@ -12,23 +12,23 @@ import {
 } from "@/lib/services/daily-focus-service";
 import { touchStudyUnit } from "@/lib/services/study-unit-service";
 
-function hasActiveIslandBatch(
+function hasActiveSceneBatch(
   dataset: NonNullable<ReturnType<typeof useApp>["dataset"]>,
   progress: ReturnType<typeof useApp>["progress"]
 ): boolean {
   const config = progress.batchConfig;
   return Boolean(
     config &&
-      config.sourceType === "island" &&
-      config.islandKey &&
-      isFormalStudyEligibleIsland(dataset, config.islandKey) &&
+      config.sourceType === "scene" &&
+      config.sceneKey &&
+      isFormalStudyEligibleScene(dataset, config.sceneKey) &&
       config.activeSentenceIds.length > 0
   );
 }
 
 /**
- * Ensure there is always an active island batch.
- * Pathway / empty / missing focus resolves to 300 Language Essentials (or recent island).
+ * Ensure there is always an active scene batch.
+ * Pathway / empty / missing focus resolves to 300 Language Essentials (or recent scene).
  */
 export function useAutoResumeDailyFocus() {
   const { dataset, progress, setProgress } = useApp();
@@ -36,7 +36,7 @@ export function useAutoResumeDailyFocus() {
 
   useEffect(() => {
     if (!dataset || inFlightRef.current) return;
-    if (hasActiveIslandBatch(dataset, progress)) return;
+    if (hasActiveSceneBatch(dataset, progress)) return;
 
     const resolved = resolveDailyBatchConfig(dataset, progress);
     if (!resolved || resolved.activeSentenceIds.length === 0) return;
@@ -50,7 +50,7 @@ export function useAutoResumeDailyFocus() {
           {
             sourceType: resolved.sourceType,
             pathwayBatchNumber: resolved.pathwayBatchNumber,
-            islandKey: resolved.islandKey,
+            sceneKey: resolved.sceneKey,
             subtopic: resolved.subtopic,
             batchSize: resolved.batchSize,
           },

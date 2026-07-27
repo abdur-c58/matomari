@@ -21,7 +21,7 @@ import {
 } from "@/lib/notifications/notification-service";
 import { toast } from "sonner";
 
-function formatIslandLabel(key: string): string {
+function formatSceneLabel(key: string): string {
   return key.replace(/_/g, " ");
 }
 
@@ -35,7 +35,7 @@ export function NotificationPreferencesSection({
   dataset: Dataset | null;
 }) {
   const supported = isNotificationSupported();
-  const islandKeys = Object.keys(dataset?.islands ?? {});
+  const sceneKeys = Object.keys(dataset?.scenes ?? {});
 
   const patch = (partial: Partial<NotificationPreferences>) =>
     onChange({ ...notifications, ...partial });
@@ -59,14 +59,14 @@ export function NotificationPreferencesSection({
     patch({ masterEnabled: false });
   };
 
-  const toggleIsland = (key: string) => {
-    const selected = new Set(notifications.islandReminders.islandKeys);
+  const toggleScene = (key: string) => {
+    const selected = new Set(notifications.sceneReminders.sceneKeys);
     if (selected.has(key)) selected.delete(key);
     else selected.add(key);
     patch({
-      islandReminders: {
-        ...notifications.islandReminders,
-        islandKeys: [...selected],
+      sceneReminders: {
+        ...notifications.sceneReminders,
+        sceneKeys: [...selected],
       },
     });
   };
@@ -74,7 +74,7 @@ export function NotificationPreferencesSection({
   if (!supported) {
     return (
       <p className="text-sm text-muted">
-        Notifications are not available in this browser. Add Kotoshima to your home screen on
+        Notifications are not available in this browser. Add Matomari to your home screen on
         mobile for the best experience.
       </p>
     );
@@ -92,7 +92,7 @@ export function NotificationPreferencesSection({
           <div>
             <Label className="text-base">Enable notifications</Label>
             <p className="mt-1 text-sm text-muted leading-relaxed">
-              Reminders for daily study and spaced repetition reviews. Works best when Kotoshima
+              Reminders for daily study and spaced repetition reviews. Works best when Matomari
               is installed as an app.
             </p>
           </div>
@@ -106,7 +106,7 @@ export function NotificationPreferencesSection({
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="font-medium text-foreground">Daily study reminder</p>
-                <p className="text-sm text-muted">A nudge to open Kotoshima each day</p>
+                <p className="text-sm text-muted">A nudge to open Matomari each day</p>
               </div>
               <Switch
                 checked={notifications.dailyStudy.enabled}
@@ -184,31 +184,31 @@ export function NotificationPreferencesSection({
           <div className="space-y-3 rounded-xl border border-border p-4">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="font-medium text-foreground">Island review reminders</p>
+                <p className="font-medium text-foreground">Scene review reminders</p>
                 <p className="text-sm text-muted">
-                  Optional reminders for reviews due in specific islands
+                  Optional reminders for reviews due in specific scenes
                 </p>
               </div>
               <Switch
-                checked={notifications.islandReminders.enabled}
+                checked={notifications.sceneReminders.enabled}
                 onCheckedChange={(enabled) =>
                   patch({
-                    islandReminders: { ...notifications.islandReminders, enabled },
+                    sceneReminders: { ...notifications.sceneReminders, enabled },
                   })
                 }
               />
             </div>
-            {notifications.islandReminders.enabled && (
+            {notifications.sceneReminders.enabled && (
               <>
                 <div>
                   <Label className="text-xs text-muted">Frequency</Label>
                   <Select
-                    value={notifications.islandReminders.frequency}
+                    value={notifications.sceneReminders.frequency}
                     onValueChange={(frequency) =>
                       patch({
-                        islandReminders: {
-                          ...notifications.islandReminders,
-                          frequency: frequency as NotificationPreferences["islandReminders"]["frequency"],
+                        sceneReminders: {
+                          ...notifications.sceneReminders,
+                          frequency: frequency as NotificationPreferences["sceneReminders"]["frequency"],
                         },
                       })
                     }
@@ -225,20 +225,20 @@ export function NotificationPreferencesSection({
                     </SelectContent>
                   </Select>
                 </div>
-                {islandKeys.length === 0 ? (
+                {sceneKeys.length === 0 ? (
                   <p className="text-sm text-muted">
-                    Create or import islands in Study to choose which ones get reminders.
+                    Create or import scenes in Study to choose which ones get reminders.
                   </p>
                 ) : (
                   <div className="space-y-2">
-                    <Label className="text-xs text-muted">Islands to notify</Label>
-                    {islandKeys.map((key) => {
-                      const selected = notifications.islandReminders.islandKeys.includes(key);
+                    <Label className="text-xs text-muted">Scenes to notify</Label>
+                    {sceneKeys.map((key) => {
+                      const selected = notifications.sceneReminders.sceneKeys.includes(key);
                       return (
                         <button
                           key={key}
                           type="button"
-                          onClick={() => toggleIsland(key)}
+                          onClick={() => toggleScene(key)}
                           className={cn(
                             "flex w-full items-center justify-between rounded-xl border px-3 py-2.5 text-left text-sm transition-colors",
                             selected
@@ -246,7 +246,7 @@ export function NotificationPreferencesSection({
                               : "border-border hover:border-foreground/30"
                           )}
                         >
-                          <span className="font-medium capitalize">{formatIslandLabel(key)}</span>
+                          <span className="font-medium capitalize">{formatSceneLabel(key)}</span>
                           <span className="text-xs text-muted">
                             {selected ? "On" : "Off"}
                           </span>

@@ -105,7 +105,7 @@ function TranslateAllButtonDesktopInner({
                 ? "Translating Kansai…"
                 : "Translating all sentences…"
             }
-            subtitle="All islands"
+            subtitle="All scenes"
           />
           {error && (
             <Button variant="ghost" className="mt-2 w-full" onClick={dismiss}>

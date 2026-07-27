@@ -1,19 +1,24 @@
 "use client";
 
 import Link from "next/link";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useSession } from "next-auth/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { MarketingAuthCta } from "@/components/marketing/marketing-auth-cta";
-import {
-  MARKETING_DESKTOP_MQ,
-} from "@/components/marketing/motion/easings";
+import { PricingComparisonTable } from "@/components/marketing/pricing-comparison-table";
+import { MARKETING_DESKTOP_MQ } from "@/components/marketing/motion/easings";
 import { revealOnMobile } from "@/components/marketing/motion/mobile-scroll-reveal";
 import { useGsapContext } from "@/components/marketing/motion/use-gsap-context";
+import {
+  hasMinTier,
+  type SubscriptionTierId,
+} from "@/lib/constants/entitlements";
 import {
   marketingPricingSection,
   marketingPricingTiers,
 } from "@/lib/constants/marketing-pricing";
+import { formatUsd } from "@/lib/constants/pricing";
 import { cn } from "@/lib/utils";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -21,11 +26,35 @@ gsap.registerPlugin(ScrollTrigger);
 const tiers = [
   marketingPricingTiers.free,
   marketingPricingTiers.plus,
+  marketingPricingTiers.pro,
 ] as const;
 
 export function PricingSection() {
   const rootRef = useRef<HTMLElement>(null);
   const copy = marketingPricingSection;
+  const { status } = useSession();
+  const [effectiveTier, setEffectiveTier] =
+    useState<SubscriptionTierId>("free");
+
+  useEffect(() => {
+    if (status !== "authenticated") {
+      setEffectiveTier("free");
+      return;
+    }
+    let cancelled = false;
+    void fetch("/api/billing/subscription")
+      .then(async (res) => {
+        if (!res.ok) return;
+        const data = (await res.json()) as {
+          effectiveTier?: SubscriptionTierId;
+        };
+        if (!cancelled) setEffectiveTier(data.effectiveTier ?? "free");
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [status]);
 
   useGsapContext(rootRef, () => {
     const root = rootRef.current;
@@ -61,7 +90,7 @@ export function PricingSection() {
           {
             y: 56,
             opacity: 0.2,
-            rotateY: index === 0 ? 6 : -6,
+            rotateY: index === 0 ? 6 : index === 2 ? -6 : 0,
             z: -40,
           },
           {
@@ -95,13 +124,19 @@ export function PricingSection() {
     return () => mm.revert();
   }, []);
 
+  const subscriberLabel =
+    effectiveTier === "pro"
+      ? "You’re on Pro"
+      : effectiveTier === "plus"
+        ? "You’re on Plus"
+        : null;
+
   return (
-    // DUMMY PRICING — swap marketingPricingTiers when real billing ships.
     <section
       ref={rootRef}
       id="pricing"
       className="marketing-scene relative px-4 py-14 sm:px-8 md:py-24"
-      data-placeholder="pricing-dummy"
+      data-placeholder="pricing-sim"
     >
       <div className="mx-auto max-w-[1400px]">
         <div className="mx-auto max-w-2xl text-center">
@@ -111,6 +146,14 @@ export function PricingSection() {
           >
             {copy.tag}
           </p>
+          {subscriberLabel && (
+            <p
+              data-pricing-intro
+              className="mt-4 inline-flex rounded-full border border-[color:var(--mode-listen)]/35 bg-[color:var(--mode-listen)]/10 px-3 py-1 text-xs font-semibold text-[color:var(--mode-listen)]"
+            >
+              {subscriberLabel}
+            </p>
+          )}
           <p
             data-pricing-intro
             className="mt-5 text-[11px] font-semibold uppercase tracking-[0.22em] text-muted"
@@ -131,49 +174,49 @@ export function PricingSection() {
           </p>
         </div>
 
-        <div className="mt-8 grid gap-4 sm:mt-10 sm:gap-5 md:mt-12 md:grid-cols-2 md:gap-6">
+        <div className="mt-8 grid gap-4 sm:mt-10 md:mt-12 md:grid-cols-3 md:gap-5">
           {tiers.map((tier) => {
+            const isPro = tier.id === "pro";
             const isPlus = tier.id === "plus";
+            const manageInstead =
+              (isPlus && hasMinTier(effectiveTier, "plus")) ||
+              (isPro && hasMinTier(effectiveTier, "pro"));
+
             return (
               <article
                 key={tier.id}
                 data-pricing-card
                 className={cn(
-                  "marketing-depth-shell relative flex flex-col rounded-[1.5rem] border p-5 sm:p-6 md:p-8",
-                  isPlus
+                  "marketing-depth-shell relative flex flex-col rounded-[1.5rem] border p-5 sm:p-6",
+                  isPro
                     ? "border-[color:var(--mode-listen)] bg-surface shadow-sm"
-                    : "border-border bg-surface/70"
+                    : isPlus
+                      ? "border-[color:var(--mode-review)]/45 bg-surface/90"
+                      : "border-border bg-surface/70"
                 )}
               >
-                {isPlus && (
-                  <div
-                    className="pointer-events-none absolute inset-0 rounded-[1.5rem] opacity-70"
-                    aria-hidden
-                    style={{
-                      background:
-                        "radial-gradient(ellipse at 80% 0%, color-mix(in srgb, var(--mode-listen) 16%, transparent), transparent 55%)",
-                    }}
-                  />
-                )}
-
                 <div className="relative z-[1]">
                   <p
                     className="text-[11px] font-semibold uppercase tracking-[0.22em]"
                     style={{
-                      color: isPlus
+                      color: isPro
                         ? "var(--mode-listen)"
-                        : "var(--mode-review)",
+                        : isPlus
+                          ? "var(--mode-review)"
+                          : "var(--mode-meaning)",
                     }}
                   >
                     {tier.eyebrow}
                   </p>
-                  <h3 className="mt-2 font-display text-3xl font-semibold tracking-tight md:text-4xl">
+                  <h3 className="mt-2 font-display text-3xl font-semibold tracking-tight">
                     {tier.name}
                   </h3>
 
                   <div className="mt-5 flex items-end gap-2">
-                    <span className="font-display text-5xl font-semibold tracking-[-0.06em] md:text-6xl">
-                      {tier.priceLabel}
+                    <span className="font-display text-5xl font-semibold tracking-[-0.06em]">
+                      {tier.id === "free"
+                        ? "$0"
+                        : formatUsd(tier.priceMonthly)}
                     </span>
                     <span className="pb-1.5 text-sm text-muted">
                       {tier.priceSuffix}
@@ -185,48 +228,45 @@ export function PricingSection() {
                   </p>
                 </div>
 
-                <ul className="relative z-[1] mt-6 space-y-2.5 border-t border-border pt-5 sm:mt-7 sm:space-y-3 sm:pt-6">
-                  {tier.features.map((feature) => (
-                    <li
-                      key={feature}
-                      className="flex items-start gap-2.5 text-sm leading-relaxed text-foreground/90"
-                    >
-                      <span
-                        className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full"
-                        style={{
-                          background: isPlus
-                            ? "var(--mode-listen)"
-                            : "var(--foreground)",
-                        }}
-                        aria-hidden
+                <div className="relative z-[1] mt-auto pt-6">
+                  {tier.id === "free" ? (
+                    tier.cta.href ? (
+                      <MarketingAuthCta
+                        size="sm"
+                        magnetic={false}
+                        signedOutLabel="Sign in with Google"
+                        signedInLabel="Open Dashboard"
+                        className="w-full"
                       />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="relative z-[1] mt-auto pt-6 sm:pt-8">
-                  {tier.cta.href ? (
-                    <MarketingAuthCta
-                      size="sm"
-                      magnetic={false}
-                      signedOutLabel={tier.cta.label}
-                      signedInLabel="Open Dashboard"
-                      className="w-full"
-                    />
+                    ) : null
+                  ) : manageInstead ? (
+                    <Link
+                      href="/settings"
+                      className="flex h-10 w-full items-center justify-center rounded-xl border border-border text-sm font-semibold text-foreground transition-colors hover:bg-surface-raised"
+                    >
+                      Manage in Settings
+                    </Link>
                   ) : (
-                    <button
-                      type="button"
-                      disabled
-                      className="flex h-10 w-full cursor-not-allowed items-center justify-center rounded-xl border border-[color:var(--mode-listen)]/35 bg-[color:var(--mode-listen)]/10 text-sm font-semibold text-[color:var(--mode-listen)] opacity-80"
+                    <Link
+                      href={`/pricing?plan=${tier.id}`}
+                      className={cn(
+                        "flex h-10 w-full items-center justify-center rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90",
+                        isPro
+                          ? "bg-[color:var(--mode-listen)]"
+                          : "bg-[color:var(--mode-review)]"
+                      )}
                     >
                       {tier.cta.label}
-                    </button>
+                    </Link>
                   )}
                 </div>
               </article>
             );
           })}
+        </div>
+
+        <div className="mt-10 sm:mt-12" data-pricing-intro>
+          <PricingComparisonTable />
         </div>
 
         <p

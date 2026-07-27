@@ -31,7 +31,7 @@ export function formatOpenAIError(error: unknown): { message: string; status: nu
   if (error instanceof ZodError) {
     return {
       message:
-        "AI returned an invalid island shape (often from catalog reuse). Try generating again.",
+        "AI returned an invalid scene shape (often from catalog reuse). Try generating again.",
       status: 400,
     };
   }
