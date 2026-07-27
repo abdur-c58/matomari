@@ -1,11 +1,3 @@
-export const MARKETING_VIDEO = {
-  src: "/assets/marketing/matomari-promo.mp4",
-  poster: "/assets/marketing/matomari-promo-poster.jpg",
-  width: 1920,
-  height: 1080,
-  durationSeconds: 52.5,
-} as const;
-
 export const marketingHero = {
   eyebrow: "",
   title: "A daily loop built around your life.",
@@ -132,12 +124,6 @@ export const marketingNarration = {
   ],
 } as const;
 
-export const marketingVideo = {
-  eyebrow: "Product walkthrough",
-  title: "Watch the loop in motion.",
-  body: "See a personal idea become an AI-built scene, then move through audio, daily practice, progress, and sharing.",
-} as const;
-
 export const marketingSocialProofPlaceholder = {
   tag: "[SOCIAL_PROOF_TODO]",
   eyebrow: "Still in development",
@@ -165,7 +151,6 @@ export const marketingFooter = {
     { label: "Features", href: "/", section: "features" },
     { label: "Scenes", href: "/", section: "scenes" },
     { label: "Narration", href: "/", section: "narration" },
-    { label: "Walkthrough", href: "/", section: "walkthrough" },
     { label: "Pricing", href: "/", section: "pricing" },
     { label: "Sign in", href: "/today" },
     { label: "Privacy", href: "/privacy" },

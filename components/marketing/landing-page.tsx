@@ -19,7 +19,6 @@ import { ProblemSection } from "@/components/marketing/sections/problem-section"
 import { FeatureShowcaseSection } from "@/components/marketing/sections/feature-showcase-section";
 import { HorizontalFeaturesSection } from "@/components/marketing/sections/horizontal-features-section";
 import { NarrationSection } from "@/components/marketing/sections/narration-section";
-import { VideoShowcaseSection } from "@/components/marketing/sections/video-showcase-section";
 import { SocialProofSection } from "@/components/marketing/sections/social-proof-section";
 import { PricingSection } from "@/components/marketing/sections/pricing-section";
 import { CtaSection } from "@/components/marketing/sections/cta-section";
@@ -115,7 +114,6 @@ export function LandingPage() {
           <FeatureShowcaseSection />
           <HorizontalFeaturesSection />
           <NarrationSection />
-          <VideoShowcaseSection />
           <SocialProofSection />
           <PricingSection />
           <CtaSection />

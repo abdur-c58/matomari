@@ -1,10 +1,13 @@
 import sharp from "sharp";
-import { readFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { TRANSPARENT_OUT, WHITE_BG, writeBrandCoreAssets } from "./brand-asset-utils";
 
 const ROOT = path.join(import.meta.dirname, "..");
-const OUT = path.join(ROOT, "public", "og.png");
+const OUT_PNG = path.join(ROOT, "public", "og.png");
+const OUT_JPG = path.join(ROOT, "public", "og.jpg");
+const OUT_APP_JPG = path.join(ROOT, "app", "opengraph-image.jpg");
+const OUT_TWITTER_JPG = path.join(ROOT, "app", "twitter-image.jpg");
 const FONT_BOLD = path.join(
   ROOT,
   "node_modules",
@@ -75,7 +78,7 @@ async function main() {
   const logoLeft = 92;
   const logoTop = Math.round((HEIGHT - logoHeight) / 2);
 
-  await sharp({
+  const composed = await sharp({
     create: {
       width: WIDTH,
       height: HEIGHT,
@@ -88,9 +91,20 @@ async function main() {
       { input: textSvg, left: 0, top: 0 },
     ])
     .png()
-    .toFile(OUT);
+    .toBuffer();
 
-  console.log(`Wrote ${OUT} (${WIDTH}x${HEIGHT})`);
+  const jpeg = await sharp(composed)
+    .jpeg({ quality: 78, mozjpeg: true, chromaSubsampling: "4:2:0" })
+    .toBuffer();
+
+  await Promise.all([
+    sharp(composed).png().toFile(OUT_PNG),
+    writeFile(OUT_JPG, jpeg),
+    writeFile(OUT_APP_JPG, jpeg),
+    writeFile(OUT_TWITTER_JPG, jpeg),
+  ]);
+
+  console.log(`Wrote ${OUT_JPG} + app opengraph/twitter (${WIDTH}x${HEIGHT}, ${jpeg.length} bytes jpeg)`);
   console.log(`Logo: ${logoWidth}x${logoHeight}px at (${logoLeft}, ${logoTop})`);
 }
 

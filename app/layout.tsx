@@ -38,7 +38,9 @@ export const viewport: Viewport = {
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ??
   (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
-const ogImageUrl = new URL("/og.png", siteUrl).toString();
+
+/** Stable absolute JPEG URL — ~50KB, 1200×630, crawler-friendly. */
+const ogImageUrl = new URL("/og.jpg", siteUrl).toString();
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -58,9 +60,10 @@ export const metadata: Metadata = {
     images: [
       {
         url: ogImageUrl,
+        secureUrl: ogImageUrl,
         width: 1200,
         height: 630,
-        type: "image/png",
+        type: "image/jpeg",
         alt: "Matomari — まとまり",
       },
     ],
@@ -103,13 +106,6 @@ export default function RootLayout({
   return (
     <html lang="en" className="antialiased" data-ui-font="bitter" suppressHydrationWarning>
       <head>
-        <meta property="og:image" content={ogImageUrl} />
-        <meta property="og:image:secure_url" content={ogImageUrl} />
-        <meta property="og:image:type" content="image/png" />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content="Matomari — まとまり" />
-        <meta name="twitter:image" content={ogImageUrl} />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var m=localStorage.getItem("matomari-theme-mode");m=m==="light"||m==="paper-dark"||m==="true-light"||m==="dark"||m==="system"?m:"system";var sd=window.matchMedia("(prefers-color-scheme: dark)").matches;var t=m==="system"?(sd?"paper-dark":"light"):m;var f=t==="light"||t==="paper-dark"?"washi":"normal";var p=t==="light"||t==="true-light"?"light":"dark";document.documentElement.dataset.theme=t;document.documentElement.dataset.themeMode=m;document.documentElement.dataset.themeFamily=f;document.documentElement.dataset.themePolarity=p;document.documentElement.style.colorScheme=p;}catch(e){}})();`,

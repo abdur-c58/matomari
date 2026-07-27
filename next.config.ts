@@ -4,6 +4,11 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
+        source: "/og.png",
+        destination: "/og.jpg",
+        permanent: true,
+      },
+      {
         source: "/batch/island/:key",
         destination: "/batch/scene/:key",
         permanent: true,
@@ -42,6 +47,32 @@ const nextConfig: NextConfig = {
           {
             key: "Service-Worker-Allowed",
             value: "/",
+          },
+        ],
+      },
+      {
+        source: "/og.jpg",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=86400, stale-while-revalidate=604800",
+          },
+          {
+            key: "Content-Type",
+            value: "image/jpeg",
+          },
+        ],
+      },
+      {
+        source: "/brand/matomari-logo.svg",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+          {
+            key: "Content-Type",
+            value: "image/svg+xml; charset=utf-8",
           },
         ],
       },
