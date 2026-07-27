@@ -33,11 +33,23 @@ export function usePaddle(): PaddleContextValue {
   return useContext(PaddleContext);
 }
 
-export function PaddleProvider({ children }: { children: ReactNode }) {
+export function PaddleProvider({
+  children,
+  enabled = true,
+}: {
+  children: ReactNode;
+  enabled?: boolean;
+}) {
   const [paddle, setPaddle] = useState<Paddle | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!enabled) {
+      setPaddle(null);
+      setError(null);
+      return;
+    }
+
     let cancelled = false;
 
     async function boot() {
@@ -62,7 +74,7 @@ export function PaddleProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [enabled]);
 
   const value = useMemo(
     () => ({ paddle, ready: Boolean(paddle), error }),

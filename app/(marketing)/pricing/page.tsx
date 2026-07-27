@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default async function PricingPage() {
   const countryCode = countryFromRequestHeaders(await headers());
-  const tiers = getPaddleCatalogTiers();
+  const { tiers, pricesConfigured } = getPaddleCatalogTiers();
 
   return (
     <Suspense
@@ -21,7 +21,11 @@ export default async function PricingPage() {
         <div className="p-6 text-center text-sm text-muted">Loading pricing…</div>
       }
     >
-      <PricingPageExperience tiers={tiers} countryCode={countryCode} />
+      <PricingPageExperience
+        tiers={tiers}
+        countryCode={countryCode}
+        pricesConfigured={pricesConfigured}
+      />
     </Suspense>
   );
 }

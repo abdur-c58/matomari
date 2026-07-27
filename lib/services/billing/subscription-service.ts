@@ -29,8 +29,10 @@ function mapRow(data: {
   user_id: string;
   tier: SubscriptionTierId;
   status: SubscriptionStatus;
-  paddle_customer_id: string | null;
-  paddle_subscription_id: string | null;
+  paddle_customer_id?: string | null;
+  paddle_subscription_id?: string | null;
+  stripe_customer_id?: string | null;
+  stripe_subscription_id?: string | null;
   current_period_end: string | null;
   cancel_at_period_end: boolean;
   free_unlocked_scene_keys?: string[] | null;
@@ -43,8 +45,10 @@ function mapRow(data: {
     userId: data.user_id,
     tier: data.tier,
     status: data.status,
-    paddleCustomerId: data.paddle_customer_id,
-    paddleSubscriptionId: data.paddle_subscription_id,
+    paddleCustomerId:
+      data.paddle_customer_id ?? data.stripe_customer_id ?? null,
+    paddleSubscriptionId:
+      data.paddle_subscription_id ?? data.stripe_subscription_id ?? null,
     currentPeriodEnd: data.current_period_end,
     cancelAtPeriodEnd: data.cancel_at_period_end,
     freeUnlockedSceneKeys: unlocked,
@@ -53,25 +57,41 @@ function mapRow(data: {
   };
 }
 
+type SubscriptionDbRow = Parameters<typeof mapRow>[0];
+
 const SELECT_COLS_FULL =
   "user_id, tier, status, paddle_customer_id, paddle_subscription_id, current_period_end, cancel_at_period_end, free_unlocked_scene_keys, unlocked_scene_keys, updated_at";
 
 const SELECT_COLS_LEGACY =
   "user_id, tier, status, paddle_customer_id, paddle_subscription_id, current_period_end, cancel_at_period_end, free_unlocked_scene_keys, updated_at";
 
+const SELECT_COLS_STRIPE =
+  "user_id, tier, status, stripe_customer_id, stripe_subscription_id, current_period_end, cancel_at_period_end, free_unlocked_scene_keys, unlocked_scene_keys, updated_at";
+
+const SELECT_COLS_STRIPE_LEGACY =
+  "user_id, tier, status, stripe_customer_id, stripe_subscription_id, current_period_end, cancel_at_period_end, free_unlocked_scene_keys, updated_at";
+
 async function selectSubscription(
   supabase: NonNullable<ReturnType<typeof createAdminClient>>,
   userId: string
 ) {
-  const full = await supabase
-    .from("user_subscriptions")
-    .select(SELECT_COLS_FULL)
-    .eq("user_id", userId)
-    .maybeSingle();
-  if (!full.error) return full;
+  const variants = [
+    SELECT_COLS_FULL,
+    SELECT_COLS_LEGACY,
+    SELECT_COLS_STRIPE,
+    SELECT_COLS_STRIPE_LEGACY,
+  ];
+  for (const cols of variants) {
+    const result = await supabase
+      .from("user_subscriptions")
+      .select(cols)
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (!result.error) return result;
+  }
   return supabase
     .from("user_subscriptions")
-    .select(SELECT_COLS_LEGACY)
+    .select(SELECT_COLS_FULL)
     .eq("user_id", userId)
     .maybeSingle();
 }
@@ -101,7 +121,7 @@ export async function ensureUserSubscriptionAdmin(
 
   const { data: existing } = await selectSubscription(supabase, userId);
 
-  if (existing) return mapRow(existing);
+  if (existing) return mapRow(existing as SubscriptionDbRow);
 
   const now = new Date().toISOString();
   const { data, error } = await supabase
@@ -236,7 +256,6 @@ export async function upsertUserSubscriptionAdmin(params: {
     user_id: params.userId,
     tier: params.tier,
     status: params.status,
-    paddle_subscription_id: params.paddleSubscriptionId ?? null,
     current_period_end: params.currentPeriodEnd ?? null,
     cancel_at_period_end: params.cancelAtPeriodEnd ?? false,
     updated_at: now,
@@ -248,6 +267,12 @@ export async function upsertUserSubscriptionAdmin(params: {
     row.paddle_customer_id = existing.paddleCustomerId;
   } else if (params.paddleCustomerId === null) {
     row.paddle_customer_id = null;
+  }
+
+  if (params.paddleSubscriptionId !== undefined) {
+    row.paddle_subscription_id = params.paddleSubscriptionId;
+  } else if (params.paddleSubscriptionId === null) {
+    row.paddle_subscription_id = null;
   }
 
   const unlockedParam =
@@ -303,21 +328,30 @@ export async function listSubscriptionsByUserIdsAdmin(
     .select(SELECT_COLS_FULL)
     .in("user_id", unique);
 
-  if (error) {
-    const legacy = await supabase
-      .from("user_subscriptions")
-      .select(SELECT_COLS_LEGACY)
-      .in("user_id", unique);
-    if (legacy.error || !legacy.data) return map;
-    for (const row of legacy.data) {
-      map.set(row.user_id, mapRow(row));
+  if (!error && data) {
+    for (const row of data) {
+      map.set(row.user_id, mapRow(row as SubscriptionDbRow));
     }
     return map;
   }
-  if (!data) return map;
-  for (const row of data) {
-    map.set(row.user_id, mapRow(row));
+
+  for (const cols of [
+    SELECT_COLS_LEGACY,
+    SELECT_COLS_STRIPE,
+    SELECT_COLS_STRIPE_LEGACY,
+  ]) {
+    const legacy = await supabase
+      .from("user_subscriptions")
+      .select(cols)
+      .in("user_id", unique);
+    if (!legacy.error && legacy.data) {
+      for (const row of legacy.data as unknown as SubscriptionDbRow[]) {
+        map.set(row.user_id, mapRow(row));
+      }
+      return map;
+    }
   }
+
   return map;
 }
 

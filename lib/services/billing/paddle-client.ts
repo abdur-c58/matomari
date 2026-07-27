@@ -3,6 +3,7 @@ import {
   Paddle,
   type EventEntity,
 } from "@paddle/paddle-node-sdk";
+import { normalizePaddleWebhookSecret } from "@/lib/paddle/env";
 
 let paddleSingleton: Paddle | null = null;
 
@@ -31,7 +32,7 @@ export function getPaddleWebhookSecret(): string {
   if (!secret) {
     throw new Error("Missing PADDLE_WEBHOOK_SECRET");
   }
-  return secret;
+  return normalizePaddleWebhookSecret(secret);
 }
 
 export async function unmarshalPaddleEvent(

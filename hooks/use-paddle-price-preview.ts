@@ -73,8 +73,10 @@ export function usePaddlePricePreview(params: {
   tiers: PaddleCatalogTier[];
   period: BillingPeriod;
   countryCode?: string;
+  enabled?: boolean;
 }) {
   const { paddle, ready } = usePaddle();
+  const enabled = params.enabled !== false;
   const [cache, setCache] = useState<PriceCache>({});
   const [loadingPeriods, setLoadingPeriods] = useState<
     Partial<Record<BillingPeriod, boolean>>
@@ -105,7 +107,11 @@ export function usePaddlePricePreview(params: {
       setLoadingPeriods((prev) => ({ ...prev, [period]: true }));
 
       try {
-        const priceIds = priceIdsForPeriod(period);
+        const priceIds = priceIdsForPeriod(period).filter((p) => p.priceId);
+        if (priceIds.length === 0) {
+          setLoadingPeriods((prev) => ({ ...prev, [period]: false }));
+          return;
+        }
         const preview = await paddle.PricePreview({
           items: priceIds.map(({ priceId }) => ({ priceId, quantity: 1 })),
           ...(params.countryCode
@@ -133,6 +139,7 @@ export function usePaddlePricePreview(params: {
   );
 
   useEffect(() => {
+    if (!enabled) return;
     if (!ready || !paddle) return;
 
     const generation = ++fetchGeneration.current;
@@ -143,11 +150,12 @@ export function usePaddlePricePreview(params: {
     void Promise.all(
       BILLING_PERIODS.map((period) => fetchPeriod(period, generation))
     );
-  }, [paddle, ready, fetchPeriod]);
+  }, [paddle, ready, fetchPeriod, enabled]);
 
-  const prices = cache[params.period] ?? {};
-  const loading = loadingPeriods[params.period] ?? true;
-  const initialLoading = BILLING_PERIODS.some((p) => loadingPeriods[p]);
+  const prices = enabled ? (cache[params.period] ?? {}) : {};
+  const loading = enabled ? (loadingPeriods[params.period] ?? true) : false;
+  const initialLoading =
+    enabled && BILLING_PERIODS.some((p) => loadingPeriods[p]);
 
   return {
     prices,

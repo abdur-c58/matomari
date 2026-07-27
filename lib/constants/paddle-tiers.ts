@@ -3,6 +3,7 @@
  * Price IDs are resolved server-side from env — never hardcode pri_… here.
  */
 import { ENTITLEMENTS } from "@/lib/constants/entitlements";
+import { paddlePriceIdsFromEnv } from "@/lib/paddle/env";
 
 export type PaidPlanId = "plus" | "pro";
 
@@ -25,68 +26,78 @@ export interface PaddleFreeTier {
 
 export type PaddleCatalogTier = PaddleFreeTier | PaddlePaidTier;
 
-function requireServerEnv(name: string): string {
-  const value = process.env[name]?.trim();
-  if (!value) {
-    throw new Error(`Missing required env var: ${name}`);
-  }
-  return value;
-}
+export type PaddleCatalogResult = {
+  tiers: PaddleCatalogTier[];
+  /** False when any PADDLE_PRICE_* env var is missing (page still renders). */
+  pricesConfigured: boolean;
+};
 
-/** Marketing copy + Paddle price IDs for the pricing page (server-only). */
-export function getPaddleCatalogTiers(): PaddleCatalogTier[] {
-  const plusMonthly = requireServerEnv("PADDLE_PRICE_PLUS_MONTHLY");
-  const plusAnnual = requireServerEnv("PADDLE_PRICE_PLUS_ANNUAL");
-  const proMonthly = requireServerEnv("PADDLE_PRICE_PRO_MONTHLY");
-  const proAnnual = requireServerEnv("PADDLE_PRICE_PRO_ANNUAL");
+const FREE_TIER: PaddleFreeTier = {
+  id: "free",
+  name: "Free",
+  eyebrow: "Start here",
+  description:
+    "A complete daily practice loop — enough room to build useful Japanese one sentence at a time.",
+  features: [
+    `${ENTITLEMENTS.free.maxScenes} custom scenes`,
+    `${ENTITLEMENTS.free.maxSentencesPerScene} sentences per scene`,
+    "Daily practice loop & dashboard queue",
+    "Basic Sentences premade (try)",
+  ],
+};
 
-  return [
-    {
-      id: "free",
-      name: "Free",
-      eyebrow: "Start here",
-      description:
-        "A complete daily practice loop — enough room to build useful Japanese one sentence at a time.",
-      features: [
-        `${ENTITLEMENTS.free.maxScenes} custom scenes`,
-        `${ENTITLEMENTS.free.maxSentencesPerScene} sentences per scene`,
-        "Daily practice loop & dashboard queue",
-        "Basic Sentences premade (try)",
-      ],
+/** Marketing copy + Paddle price IDs for the pricing page (server-only, never throws). */
+export function getPaddleCatalogTiers(): PaddleCatalogResult {
+  const ids = paddlePriceIdsFromEnv();
+
+  const plusTier: PaddlePaidTier = {
+    id: "plus",
+    name: "Plus",
+    eyebrow: "More room",
+    description:
+      "Unlock Essentials packs, narration scenes, and room to grow a bigger library.",
+    features: [
+      `Up to ${ENTITLEMENTS.plus.maxScenes} scenes`,
+      `Up to ${ENTITLEMENTS.plus.maxSentencesPerScene} sentences per scene`,
+      "Essentials premade packs (300)",
+      "Narration scenes & offline audio",
+    ],
+    priceId: {
+      month: ids.plusMonthly ?? "",
+      year: ids.plusAnnual ?? "",
     },
-    {
-      id: "plus",
-      name: "Plus",
-      eyebrow: "More room",
-      description:
-        "Unlock Essentials packs, narration scenes, and room to grow a bigger library.",
-      features: [
-        `Up to ${ENTITLEMENTS.plus.maxScenes} scenes`,
-        `Up to ${ENTITLEMENTS.plus.maxSentencesPerScene} sentences per scene`,
-        "Essentials premade packs (300)",
-        "Narration scenes & offline audio",
-      ],
-      priceId: { month: plusMonthly, year: plusAnnual },
+  };
+
+  const proTier: PaddlePaidTier = {
+    id: "pro",
+    name: "Pro",
+    eyebrow: "Full toolkit",
+    description:
+      "Voice control, exportable scenes, and space for a serious long-term library.",
+    features: [
+      `Up to ${ENTITLEMENTS.pro.maxScenes} scenes`,
+      `Up to ${ENTITLEMENTS.pro.maxSentencesPerScene} sentences per scene`,
+      "Narration voice selection",
+      "PDF + audio exports & priority AI queue",
+    ],
+    priceId: {
+      month: ids.proMonthly ?? "",
+      year: ids.proAnnual ?? "",
     },
-    {
-      id: "pro",
-      name: "Pro",
-      eyebrow: "Full toolkit",
-      description:
-        "Voice control, exportable scenes, and space for a serious long-term library.",
-      features: [
-        `Up to ${ENTITLEMENTS.pro.maxScenes} scenes`,
-        `Up to ${ENTITLEMENTS.pro.maxSentencesPerScene} sentences per scene`,
-        "Narration voice selection",
-        "PDF + audio exports & priority AI queue",
-      ],
-      priceId: { month: proMonthly, year: proAnnual },
-    },
-  ];
+  };
+
+  return {
+    pricesConfigured: ids.configured,
+    tiers: [FREE_TIER, plusTier, proTier],
+  };
 }
 
 export function isPaidTier(
   tier: PaddleCatalogTier
 ): tier is PaddlePaidTier {
   return tier.id !== "free";
+}
+
+export function paidTierPricesConfigured(tier: PaddlePaidTier): boolean {
+  return Boolean(tier.priceId.month && tier.priceId.year);
 }

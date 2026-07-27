@@ -37,9 +37,11 @@ const billingOptions: {
 function PricingPageInner({
   tiers,
   countryCode,
+  pricesConfigured,
 }: {
   tiers: PaddleCatalogTier[];
   countryCode?: string;
+  pricesConfigured: boolean;
 }) {
   const searchParams = useSearchParams();
   const { status } = useSession();
@@ -57,7 +59,7 @@ function PricingPageInner({
   );
 
   const { prices, loading: pricesLoading, initialLoading: pricesInitialLoading, error: pricesError } =
-    usePaddlePricePreview({ tiers, period, countryCode });
+    usePaddlePricePreview({ tiers, period, countryCode, enabled: pricesConfigured });
   const { openCheckout } = usePaddleCheckout();
 
   useEffect(() => {
@@ -136,7 +138,9 @@ function PricingPageInner({
         ? "You’re on Plus"
         : null;
 
-  const configError = paddleError;
+  const configError = !pricesConfigured
+    ? "Paid plan prices are not configured on the server yet. Add PADDLE_PRICE_* env vars in Vercel and redeploy."
+    : paddleError;
   const displayError = configError ?? pricesError;
 
   return (
@@ -293,13 +297,19 @@ function PricingPageInner({
 export function PricingPageExperience({
   tiers,
   countryCode,
+  pricesConfigured,
 }: {
   tiers: PaddleCatalogTier[];
   countryCode?: string;
+  pricesConfigured: boolean;
 }) {
   return (
-    <PaddleProvider>
-      <PricingPageInner tiers={tiers} countryCode={countryCode} />
+    <PaddleProvider enabled={pricesConfigured}>
+      <PricingPageInner
+        tiers={tiers}
+        countryCode={countryCode}
+        pricesConfigured={pricesConfigured}
+      />
     </PaddleProvider>
   );
 }

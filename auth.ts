@@ -19,6 +19,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             clientSecret: googleClientSecret,
             authorization: {
               params: {
+                // openid + email + profile (Google's default OIDC set).
+                // "Profile" is why Google shows name/photo consent — we use both in-app.
+                scope: "openid email profile",
                 prompt: "select_account",
               },
             },
