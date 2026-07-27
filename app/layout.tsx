@@ -60,6 +60,7 @@ export const metadata: Metadata = {
         url: ogImageUrl,
         width: 1200,
         height: 630,
+        type: "image/png",
         alt: "Matomari — まとまり",
       },
     ],
@@ -103,6 +104,8 @@ export default function RootLayout({
     <html lang="en" className="antialiased" data-ui-font="bitter" suppressHydrationWarning>
       <head>
         <meta property="og:image" content={ogImageUrl} />
+        <meta property="og:image:secure_url" content={ogImageUrl} />
+        <meta property="og:image:type" content="image/png" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:image:alt" content="Matomari — まとまり" />
