@@ -4,11 +4,11 @@ import { LegalPageShell, LegalSection } from "@/components/legal/legal-page-shel
 import { APP_NAME } from "@/lib/constants/branding";
 import {
   formatLegalDate,
-  LEGAL_CONTACT_EMAIL,
   LEGAL_EFFECTIVE_DATE,
   LEGAL_OPERATOR,
   LEGAL_OPERATOR_DBA,
   LEGAL_SITE_URL,
+  LEGAL_SUPPORT_PATH,
 } from "@/lib/constants/legal";
 import {
   PLUS_PRICE_ANNUAL_USD,
@@ -80,9 +80,8 @@ export default function TermsPage() {
         <p>
           You are responsible for maintaining access to your Google account and for
           all activity that occurs under your {APP_NAME} account. Notify us promptly
-          at{" "}
-          <a href={`mailto:${LEGAL_CONTACT_EMAIL}`}>{LEGAL_CONTACT_EMAIL}</a> if you
-          believe your account has been compromised.
+          via our <Link href={LEGAL_SUPPORT_PATH}>support page</Link> if you believe
+          your account has been compromised.
         </p>
         <p>
           You may not share, sell, or transfer your account. One person per account
@@ -353,13 +352,10 @@ export default function TermsPage() {
       </LegalSection>
 
       <LegalSection title="19. Contact">
-        <p>
-          Questions about these Terms or the Service? Contact us:
-        </p>
+        <p>Questions about these Terms or the Service? Contact us:</p>
         <ul>
           <li>
-            Email:{" "}
-            <a href={`mailto:${LEGAL_CONTACT_EMAIL}`}>{LEGAL_CONTACT_EMAIL}</a>
+            Support: <Link href={LEGAL_SUPPORT_PATH}>matomari.com/support</Link>
           </li>
           <li>
             Website: <a href={LEGAL_SITE_URL}>{LEGAL_SITE_URL}</a>

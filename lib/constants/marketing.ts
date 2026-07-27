@@ -152,6 +152,7 @@ export const marketingFooter = {
     { label: "Scenes", href: "/", section: "scenes" },
     { label: "Narration", href: "/", section: "narration" },
     { label: "Pricing", href: "/", section: "pricing" },
+    { label: "Support", href: "/support" },
     { label: "Sign in", href: "/today" },
     { label: "Privacy", href: "/privacy" },
     { label: "Terms", href: "/terms" },

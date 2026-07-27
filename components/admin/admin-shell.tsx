@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Activity, HeartPulse, Shield, Users } from "lucide-react";
+import { Activity, HeartPulse, Inbox, Shield, Users } from "lucide-react";
 import type { StaffRole } from "@/lib/auth/require-staff";
 import { DesktopPageShell } from "@/components/layout/desktop-page-shell";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 
 const staffLinks = [
   { href: "/admin/users", label: "Users", icon: Users, adminOnly: false },
+  { href: "/admin/support", label: "Support", icon: Inbox, adminOnly: false },
   { href: "/admin/health", label: "System health", icon: HeartPulse, adminOnly: true },
   { href: "/admin/activity", label: "Activity log", icon: Activity, adminOnly: true },
 ] as const;
