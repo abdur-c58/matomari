@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { unmarshalPaddleEvent } from "@/lib/services/billing/paddle-client";
 import { paddleBillingProvider } from "@/lib/services/billing";
+import { claimPaddleWebhookEvent } from "@/lib/services/billing/paddle-webhook-dedup";
 
 /**
  * Signed Paddle Billing webhooks (Paddle-Signature + endpoint secret).
@@ -29,6 +30,11 @@ export async function POST(request: Request) {
   }
 
   try {
+    const shouldProcess = await claimPaddleWebhookEvent(event.eventId, event.eventType);
+    if (!shouldProcess) {
+      return NextResponse.json({ received: true, duplicate: true });
+    }
+
     await paddleBillingProvider.handlePaddleEvent(event);
     return NextResponse.json({ received: true });
   } catch (err) {

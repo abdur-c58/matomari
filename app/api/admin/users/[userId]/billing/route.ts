@@ -12,6 +12,7 @@ const ALLOWED: Record<
     "comp_access" | "revoke_access" | "refund_issued" | "subscription_override"
   >
 > = {
+  grant: "comp_access",
   comp: "comp_access",
   revoke: "revoke_access",
   refund: "refund_issued",
@@ -35,7 +36,7 @@ export async function POST(request: Request, context: RouteContext) {
   const actionType = body.action ? ALLOWED[body.action] : undefined;
   if (!actionType) {
     return NextResponse.json(
-      { error: "action must be one of: comp, revoke, refund, override" },
+      { error: "action must be one of: grant, comp, revoke, refund, override" },
       { status: 400 }
     );
   }

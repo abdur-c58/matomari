@@ -71,6 +71,38 @@ export function tierFromPaddlePriceId(
   return map[priceId] ?? null;
 }
 
+/** Map a Paddle Price ID to monthly vs annual (null if unknown). */
+export function intervalFromPaddlePriceId(
+  priceId: string | null | undefined
+): BillingInterval | null {
+  if (!priceId) return null;
+  const trimmed = priceId.trim();
+  const annualIds = [
+    process.env.PADDLE_PRICE_PLUS_ANNUAL,
+    process.env.PADDLE_PRICE_PRO_ANNUAL,
+  ]
+    .map((id) => id?.trim())
+    .filter(Boolean) as string[];
+  const monthlyIds = [
+    process.env.PADDLE_PRICE_PLUS_MONTHLY,
+    process.env.PADDLE_PRICE_PRO_MONTHLY,
+  ]
+    .map((id) => id?.trim())
+    .filter(Boolean) as string[];
+  if (annualIds.includes(trimmed)) return "annual";
+  if (monthlyIds.includes(trimmed)) return "monthly";
+  return null;
+}
+
+export function planAndIntervalFromPaddlePriceId(
+  priceId: string | null | undefined
+): { plan: "plus" | "pro"; interval: BillingInterval } | null {
+  const plan = tierFromPaddlePriceId(priceId);
+  const interval = intervalFromPaddlePriceId(priceId);
+  if (!plan || !interval) return null;
+  return { plan, interval };
+}
+
 export function formatUsd(amount: number): string {
   return amount % 1 === 0 ? `$${amount}` : `$${amount.toFixed(2)}`;
 }

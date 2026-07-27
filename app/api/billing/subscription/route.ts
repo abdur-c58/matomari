@@ -6,6 +6,10 @@ import {
   getUserSubscriptionAdmin,
 } from "@/lib/services/billing";
 import {
+  isPaidPaddleSubscription,
+  subscriptionBillingSource,
+} from "@/lib/services/billing/admin-subscription";
+import {
   getEntitlementCaps,
   PLUS_PRICE_MONTHLY_USD,
   PRO_PRICE_MONTHLY_USD,
@@ -21,6 +25,9 @@ export async function GET() {
   const subscription = await getUserSubscriptionAdmin(user.userId);
   const effectiveTier = computeEffectiveTier(subscription);
   const caps = getEntitlementCaps(effectiveTier);
+  const billingSource = subscriptionBillingSource(subscription);
+  const canChangePlan =
+    isPaidPaddleSubscription(subscription) && subscription?.status === "active";
 
   return NextResponse.json({
     simulation: BILLING_SIMULATION_MODE,
@@ -31,5 +38,7 @@ export async function GET() {
     subscription,
     effectiveTier,
     caps,
+    billingSource,
+    canChangePlan,
   });
 }

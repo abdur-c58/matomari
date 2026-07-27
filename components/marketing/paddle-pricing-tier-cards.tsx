@@ -7,10 +7,7 @@ import {
   type PaddleCatalogTier,
   type PaidPlanId,
 } from "@/lib/constants/paddle-tiers";
-import {
-  hasMinTier,
-  type SubscriptionTierId,
-} from "@/lib/constants/entitlements";
+import type { SubscriptionTierId } from "@/lib/constants/entitlements";
 import type { BillingPeriod } from "@/lib/constants/pricing";
 import type { PaddleTierPrice } from "@/hooks/use-paddle-price-preview";
 import { PaddlePriceCountup } from "@/components/marketing/paddle-price-countup";
@@ -141,10 +138,13 @@ export function PaddlePricingTierCards({
         const isPro = tier.id === "pro";
         const isPlus = tier.id === "plus";
         const paid = isPaidTier(tier);
-        const manageInstead =
+        const onCurrentTier = effectiveTier === tier.id;
+        const manageInstead = paid && onCurrentTier;
+        const canSwitchTier =
           paid &&
-          ((isPlus && hasMinTier(effectiveTier, "plus")) ||
-            (isPro && hasMinTier(effectiveTier, "pro")));
+          !onCurrentTier &&
+          ((tier.id === "pro" && effectiveTier === "plus") ||
+            (tier.id === "plus" && effectiveTier === "pro"));
 
         const derivedPrice =
           paid && (tier.id === "plus" || tier.id === "pro")
@@ -293,8 +293,14 @@ export function PaddlePricingTierCards({
                   )}
                 >
                   {subscribeLoading === tier.id
-                    ? "Opening checkout…"
-                    : `Subscribe to ${tier.name}`}
+                    ? canSwitchTier
+                      ? "Updating plan…"
+                      : "Opening checkout…"
+                    : canSwitchTier
+                      ? tier.id === "pro"
+                        ? "Upgrade to Pro"
+                        : "Switch to Plus"
+                      : `Subscribe to ${tier.name}`}
                 </button>
               )}
             </div>

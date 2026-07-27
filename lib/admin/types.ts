@@ -1,13 +1,14 @@
 /** Paddle billing is connected via env keys (test mode first). */
 export const BILLING_STATUS = {
-  live: true,
+  live: false,
   paddle: true,
   simulation: false,
   message:
-    "Paddle billing is active (test or live keys from env). Comp, revoke, and overrides still update user_subscriptions directly.",
+    "Paddle billing uses env keys (sandbox or production). Admin grants update user_subscriptions directly; paid revokes also cancel in Paddle.",
 } as const;
 
 import type { SubscriptionTierId } from "@/lib/constants/entitlements";
+import type { SubscriptionBillingSource } from "@/lib/services/billing/admin-subscription";
 
 export type AdminUserListItem = {
   userId: string;
@@ -28,6 +29,9 @@ export type AdminUserDetail = AdminUserListItem & {
   paddleCustomerId: string | null;
   paddleSubscriptionId: string | null;
   cancelAtPeriodEnd: boolean;
+  billingSource: SubscriptionBillingSource;
+  isPaidSubscription: boolean;
+  isAdminGrant: boolean;
   usage: {
     sceneCount: number;
     sentenceCount: number;

@@ -21,7 +21,10 @@ import {
 } from "@/lib/constants/entitlements";
 import type { BillingPeriod } from "@/lib/constants/pricing";
 import { usePaddlePricePreview } from "@/hooks/use-paddle-price-preview";
-import { usePaddleCheckout } from "@/hooks/use-paddle-checkout";
+import { useBillingPlanAction } from "@/hooks/use-billing-plan-action";
+import { PlanChangeConfirmDialog } from "@/components/billing/plan-change-confirm-dialog";
+import type { ChangePlanPreview } from "@/lib/services/billing/types";
+import { toast } from "sonner";
 import { usePaddle } from "@/components/billing/paddle-provider";
 import { cn } from "@/lib/utils";
 
@@ -57,6 +60,10 @@ function PricingPageInner({
   const [subscribeLoading, setSubscribeLoading] = useState<PaidPlanId | null>(
     null
   );
+  const [planPreviewOpen, setPlanPreviewOpen] = useState(false);
+  const [planPreview, setPlanPreview] = useState<ChangePlanPreview | null>(null);
+  const [pendingPlan, setPendingPlan] = useState<PaidPlanId | null>(null);
+  const [planChangeLoading, setPlanChangeLoading] = useState(false);
 
   const {
     prices,
@@ -70,7 +77,42 @@ function PricingPageInner({
     countryCode,
     enabled: pricesConfigured,
   });
-  const { openCheckout } = usePaddleCheckout();
+  const { selectPlan, changePlan, previewPlanChange } = useBillingPlanAction();
+
+  async function beginPlanChange(plan: PaidPlanId) {
+    setPlanChangeLoading(true);
+    try {
+      const preview = await previewPlanChange(plan);
+      setPlanPreview(preview);
+      setPendingPlan(plan);
+      setPlanPreviewOpen(true);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not preview plan change");
+    } finally {
+      setPlanChangeLoading(false);
+    }
+  }
+
+  async function confirmPlanChange() {
+    if (!pendingPlan) return;
+    setPlanChangeLoading(true);
+    try {
+      await changePlan(pendingPlan);
+      toast.success(
+        pendingPlan === "pro"
+          ? "Upgraded to Pro. Prorated billing was applied."
+          : "Switched to Plus. Prorated billing was applied."
+      );
+      setEffectiveTier(pendingPlan);
+      setPlanPreviewOpen(false);
+      setPlanPreview(null);
+      setPendingPlan(null);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Plan change failed");
+    } finally {
+      setPlanChangeLoading(false);
+    }
+  }
 
   useEffect(() => {
     if (status !== "authenticated") {
@@ -119,7 +161,17 @@ function PricingPageInner({
     const checkoutPeriod: BillingPeriod =
       interval === "monthly" ? "monthly" : "annual";
     setSubscribeLoading(plan);
-    void openCheckout({ tier, period: checkoutPeriod }).finally(() => {
+    void selectPlan({ tier, period: checkoutPeriod })
+      .then(async (result) => {
+        if ("needsConfirm" in result && result.needsConfirm) {
+          await beginPlanChange(result.plan);
+          return;
+        }
+        if (result.changed) {
+          setEffectiveTier(plan);
+        }
+      })
+      .finally(() => {
       setSubscribeLoading(null);
     });
   }, [
@@ -128,14 +180,23 @@ function PricingPageInner({
     status,
     tiers,
     effectiveTier,
-    openCheckout,
+    selectPlan,
   ]);
 
   async function handleSubscribe(tier: PaddleCatalogTier) {
     if (!isPaidTier(tier)) return;
     setSubscribeLoading(tier.id);
     try {
-      await openCheckout({ tier, period });
+      const result = await selectPlan({ tier, period });
+      if ("needsConfirm" in result && result.needsConfirm) {
+        await beginPlanChange(result.plan);
+        return;
+      }
+      if (result.changed) {
+        setEffectiveTier(tier.id);
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not update plan");
     } finally {
       setSubscribeLoading(null);
     }
@@ -302,6 +363,18 @@ function PricingPageInner({
       <div className="relative z-[2]">
         <MarketingFooter />
       </div>
+
+      <PlanChangeConfirmDialog
+        open={planPreviewOpen}
+        preview={planPreview}
+        loading={planChangeLoading}
+        onCancel={() => {
+          setPlanPreviewOpen(false);
+          setPlanPreview(null);
+          setPendingPlan(null);
+        }}
+        onConfirm={() => void confirmPlanChange()}
+      />
     </div>
   );
 }

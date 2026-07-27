@@ -5,6 +5,10 @@ import {
   hasMinTier,
   type SubscriptionTierId,
 } from "@/lib/constants/entitlements";
+import {
+  isAdminGrantExpired,
+  isAdminGrantedSubscription,
+} from "@/lib/services/billing/admin-subscription";
 import { resolveFreeUnlockedSceneKeys } from "@/lib/services/scene-access-service";
 import { fetchRemoteLibraryAdmin } from "@/lib/supabase/server-sync";
 import { fetchRemoteProgressAdmin } from "@/lib/supabase/server-sync";
@@ -101,6 +105,13 @@ export function computeEffectiveTier(
   sub: UserSubscriptionRow | null
 ): SubscriptionTierId {
   if (!sub || !hasMinTier(sub.tier, "plus")) return "free";
+  if (
+    sub.status === "active" &&
+    isAdminGrantedSubscription(sub) &&
+    isAdminGrantExpired(sub)
+  ) {
+    return "free";
+  }
   if (sub.status === "active") return sub.tier;
   if (
     sub.status === "canceled" &&
@@ -253,6 +264,15 @@ export async function getUserSubscriptionAdmin(
 
   if (hasMinTier(sub.tier, "plus") && sub.status === "past_due") {
     sub = (await finalizePaymentFailedDowngrade(userId)) ?? sub;
+  }
+
+  if (
+    hasMinTier(sub.tier, "plus") &&
+    sub.status === "active" &&
+    isAdminGrantedSubscription(sub) &&
+    isAdminGrantExpired(sub)
+  ) {
+    sub = (await finalizeDowngradeToFree(userId)) ?? sub;
   }
 
   const effective = computeEffectiveTier(sub);

@@ -8,8 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { BILLING_STATUS, type AdminUserDetail } from "@/lib/admin/types";
+import { type AdminUserDetail } from "@/lib/admin/types";
 import type { AppRole } from "@/lib/supabase/profiles-data";
+import { AdminSubscriptionControls } from "@/components/admin/admin-subscription-controls";
 
 function formatDate(value: string | null) {
   if (!value) return "—";
@@ -25,7 +26,6 @@ export function AdminUserDetailScreen({ userId }: { userId: string }) {
   const [meRole, setMeRole] = useState<AppRole | null>(null);
   const [loading, setLoading] = useState(true);
   const [savingRole, setSavingRole] = useState(false);
-  const [billingAction, setBillingAction] = useState<string | null>(null);
   const [nextRole, setNextRole] = useState<AppRole>("user");
   const [error, setError] = useState<string | null>(null);
 
@@ -72,40 +72,6 @@ export function AdminUserDetailScreen({ userId }: { userId: string }) {
       toast.error(err instanceof Error ? err.message : "Role update failed");
     } finally {
       setSavingRole(false);
-    }
-  }
-
-  async function runBilling(
-    action: "comp" | "revoke" | "override",
-    tier?: "plus" | "pro" | "free"
-  ) {
-    setBillingAction(action);
-    try {
-      const res = await fetch(`/api/admin/users/${userId}/billing`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action,
-          details:
-            action === "override" || action === "comp"
-              ? { tier: tier ?? "plus" }
-              : undefined,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Billing action failed");
-      toast.success(
-        action === "comp"
-          ? `Comp ${tier === "pro" ? "Pro" : "Plus"} access granted`
-          : action === "revoke"
-            ? "Access revoked to Free"
-            : `${tier === "pro" ? "Pro" : "Plus"} override applied`
-      );
-      await load();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Billing action failed");
-    } finally {
-      setBillingAction(null);
     }
   }
 
@@ -254,59 +220,7 @@ export function AdminUserDetailScreen({ userId }: { userId: string }) {
 
         <Separator />
 
-        <div className="space-y-2">
-          <p className="text-sm text-muted">{BILLING_STATUS.message}</p>
-          <div className="flex flex-wrap gap-2">
-            <Button
-              type="button"
-              variant="secondary"
-              loading={billingAction === "comp"}
-              onClick={() => void runBilling("comp", "plus")}
-            >
-              Comp Plus
-            </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              loading={billingAction === "comp"}
-              onClick={() => void runBilling("comp", "pro")}
-            >
-              Comp Pro
-            </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              loading={billingAction === "revoke"}
-              onClick={() => void runBilling("revoke")}
-            >
-              Revoke access
-            </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              disabled
-              title="Refunds require Paddle Dashboard"
-            >
-              Issue refund
-            </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              loading={billingAction === "override"}
-              onClick={() => void runBilling("override", "plus")}
-            >
-              Override → Plus
-            </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              loading={billingAction === "override"}
-              onClick={() => void runBilling("override", "pro")}
-            >
-              Override → Pro
-            </Button>
-          </div>
-        </div>
+        <AdminSubscriptionControls user={user} onUpdated={load} />
       </Card>
     </div>
   );

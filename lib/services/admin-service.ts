@@ -22,7 +22,18 @@ import {
   type AdminUserListItem,
 } from "@/lib/admin/types";
 import {
+  computeAdminGrantPeriodEnd,
+  isPaidPaddleSubscription,
+  normalizeAdminGrantTier,
+  parseAdminGrantDuration,
+  subscriptionBillingSource,
+  ADMIN_SUBSCRIPTION_PREFIX,
+} from "@/lib/services/billing/admin-subscription";
+import { getPaddleBillingStatus } from "@/lib/paddle/billing-status";
+import { paddleBillingProvider } from "@/lib/services/billing";
+import {
   computeEffectiveTier,
+  finalizeDowngradeToFree,
   getUserSubscriptionAdmin,
   listSubscriptionsByUserIdsAdmin,
   upsertUserSubscriptionAdmin,
@@ -193,6 +204,9 @@ export async function getAdminUserDetail(
     paddleCustomerId: sub?.paddleCustomerId ?? null,
     paddleSubscriptionId: sub?.paddleSubscriptionId ?? null,
     cancelAtPeriodEnd: sub?.cancelAtPeriodEnd ?? false,
+    billingSource: subscriptionBillingSource(sub),
+    isPaidSubscription: isPaidPaddleSubscription(sub),
+    isAdminGrant: subscriptionBillingSource(sub) === "admin",
     profileUpdatedAt: profile?.updatedAt ?? auth?.createdAt ?? new Date(0).toISOString(),
     usage,
   };
@@ -299,82 +313,76 @@ export async function applyAdminBillingAction(params: {
   }
 
   const existing = await getUserSubscriptionAdmin(params.targetUserId);
-  const periodEnd = new Date();
-  periodEnd.setUTCDate(periodEnd.getUTCDate() + 30);
 
-  const { result: subscription, audit } = await runStaffAction({
+  try {
+    const { result: subscription, audit } = await runStaffAction({
     actorUserId: params.actorUserId,
     actionType: params.actionType,
     targetUserId: params.targetUserId,
     details: {
       previousTier: existing?.tier ?? "free",
       previousStatus: existing?.status ?? "active",
+      previousBillingSource: subscriptionBillingSource(existing),
       ...params.details,
       simulation: false,
     },
     execute: async () => {
-      if (params.actionType === "comp_access") {
-        const compTier =
-          params.details?.tier === "pro" ? "pro" : "plus";
-        return upsertUserSubscriptionAdmin({
-          userId: params.targetUserId,
-          tier: compTier,
-          status: "active",
-          paddleCustomerId:
-            existing?.paddleCustomerId ??
-            `pad_cus_comp_${randomUUID().replace(/-/g, "").slice(0, 16)}`,
-          paddleSubscriptionId: `pad_sub_comp_${randomUUID().replace(/-/g, "").slice(0, 16)}`,
-          currentPeriodEnd: periodEnd.toISOString(),
-          cancelAtPeriodEnd: false,
-        });
-      }
       if (params.actionType === "revoke_access") {
-        return upsertUserSubscriptionAdmin({
-          userId: params.targetUserId,
-          tier: "free",
-          status: "active",
-          paddleCustomerId: existing?.paddleCustomerId ?? null,
-          paddleSubscriptionId: null,
-          currentPeriodEnd: null,
-          cancelAtPeriodEnd: false,
-        });
+        if (isPaidPaddleSubscription(existing)) {
+          await paddleBillingProvider.cancelSubscriptionImmediate({
+            userId: params.targetUserId,
+          });
+          return getUserSubscriptionAdmin(params.targetUserId);
+        }
+        return finalizeDowngradeToFree(params.targetUserId);
       }
-      // subscription_override — set tier from details.tier
-      const nextTier =
-        params.details?.tier === "pro" ||
-        params.details?.tier === "plus" ||
-        params.details?.tier === "free"
-          ? params.details.tier
-          : "plus";
-      if (nextTier === "plus" || nextTier === "pro") {
-        return upsertUserSubscriptionAdmin({
-          userId: params.targetUserId,
-          tier: nextTier,
-          status: "active",
-          paddleCustomerId:
-            existing?.paddleCustomerId ??
-            `pad_cus_ovr_${randomUUID().replace(/-/g, "").slice(0, 16)}`,
-          paddleSubscriptionId: `pad_sub_ovr_${randomUUID().replace(/-/g, "").slice(0, 16)}`,
-          currentPeriodEnd: periodEnd.toISOString(),
-          cancelAtPeriodEnd: false,
-        });
+
+      if (isPaidPaddleSubscription(existing)) {
+        throw new Error(
+          "User has a paid Paddle subscription — revoke it first before granting admin access"
+        );
       }
+
+      const grantTier = normalizeAdminGrantTier(params.details?.tier);
+      const parsedDuration =
+        params.actionType === "comp_access" || params.actionType === "subscription_override"
+          ? parseAdminGrantDuration(
+              params.details?.duration ??
+                (params.actionType === "comp_access" ? "30d" : "30d")
+            )
+          : null;
+
+      if (!parsedDuration) {
+        throw new Error("Invalid grant duration — use 7d, 30d, 90d, 365d, lifetime, or days");
+      }
+
+      const periodEnd = computeAdminGrantPeriodEnd(parsedDuration.days);
+
       return upsertUserSubscriptionAdmin({
         userId: params.targetUserId,
-        tier: "free",
+        tier: grantTier,
         status: "active",
         paddleCustomerId: existing?.paddleCustomerId ?? null,
-        paddleSubscriptionId: null,
-        currentPeriodEnd: null,
+        paddleSubscriptionId: `${ADMIN_SUBSCRIPTION_PREFIX}${randomUUID().replace(/-/g, "").slice(0, 16)}`,
+        currentPeriodEnd: periodEnd,
         cancelAtPeriodEnd: false,
+        unlockedSceneKeys: [],
+        preserveCustomerId: true,
       });
     },
   });
 
-  if (!subscription) {
-    return { ok: false, error: "Failed to update subscription", status: 500, audit };
+    if (!subscription) {
+      return { ok: false, error: "Failed to update subscription", status: 500, audit };
+    }
+    return { ok: true, subscription, audit };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : "Billing action failed",
+      status: 400,
+    };
   }
-  return { ok: true, subscription, audit };
 }
 
 /** @deprecated Use applyAdminBillingAction — kept for any leftover imports */
@@ -392,9 +400,23 @@ export async function stubBillingAction(params: {
 
 export async function getAdminSystemHealth() {
   const health = await fetchSystemHealthAdmin();
+  const paddle = getPaddleBillingStatus();
   return {
     ...health,
-    billing: BILLING_STATUS,
+    billing: {
+      ...BILLING_STATUS,
+      environment: paddle.environment,
+      isLive: paddle.isLive,
+      configured: paddle.configured,
+      keysMatchEnvironment: paddle.keysMatchEnvironment,
+      issues: paddle.issues,
+      liveMigrationChecklist: paddle.liveMigrationChecklist,
+      message: paddle.isLive
+        ? "Paddle production — live payments enabled."
+        : paddle.configured
+          ? "Paddle sandbox — safe for testing. Switch env vars to go live."
+          : "Paddle not fully configured — check env vars.",
+    },
   };
 }
 

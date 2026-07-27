@@ -2,6 +2,8 @@ import type { BillingInterval } from "@/lib/constants/pricing";
 import type {
   BillingWebhookEvent,
   CancelSubscriptionResult,
+  ChangePlanResult,
+  ChangePlanPreview,
   CheckoutSession,
 } from "@/lib/services/billing/types";
 
@@ -28,6 +30,26 @@ export interface BillingProvider {
   cancelSubscriptionImmediate(params: {
     userId: string;
   }): Promise<CancelSubscriptionResult>;
+
+  /**
+   * Swap Plus ↔ Pro on an existing Paddle subscription (same billing interval).
+   * Upgrades charge a prorated difference immediately; downgrades credit immediately.
+   */
+  changeSubscriptionPlan(params: {
+    userId: string;
+    plan: "plus" | "pro";
+  }): Promise<ChangePlanResult>;
+
+  previewSubscriptionPlanChange(params: {
+    userId: string;
+    plan: "plus" | "pro";
+  }): Promise<ChangePlanPreview>;
+
+  /** Re-fetch a subscription from Paddle and sync the local row (cron backstop). */
+  syncSubscriptionFromPaddleRemote(params: {
+    userId: string;
+    subscriptionId: string;
+  }): Promise<void>;
 
   handleWebhookEvent(event: BillingWebhookEvent): Promise<void>;
 

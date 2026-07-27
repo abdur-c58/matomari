@@ -32,3 +32,23 @@ export type CancelSubscriptionResult = {
   currentPeriodEnd: string | null;
   status: SubscriptionStatus;
 };
+
+export type ChangePlanResult = {
+  plan: "plus" | "pro";
+  interval: "monthly" | "annual";
+  /** User is charged/credited now (prorated). */
+  effectiveImmediately: true;
+  currentPeriodEnd: string | null;
+  status: SubscriptionStatus;
+};
+
+export type ChangePlanPreview = {
+  plan: "plus" | "pro";
+  interval: "monthly" | "annual";
+  chargeAmount: string;
+  creditAmount: string;
+  currencyCode: string;
+  chargeLabel: string;
+  creditLabel: string;
+  netLabel: string;
+};

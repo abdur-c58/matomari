@@ -18,6 +18,9 @@ import {
   PRO_PRICE_MONTHLY_USD,
 } from "@/lib/constants/pricing";
 import type { UserSubscriptionRow } from "@/lib/services/billing";
+import type { ChangePlanPreview } from "@/lib/services/billing/types";
+import { useBillingPlanAction } from "@/hooks/use-billing-plan-action";
+import { PlanChangeConfirmDialog } from "@/components/billing/plan-change-confirm-dialog";
 
 type SubResponse = {
   simulation: boolean;
@@ -28,6 +31,8 @@ type SubResponse = {
   subscription: UserSubscriptionRow | null;
   effectiveTier: SubscriptionTierId;
   caps: EntitlementCaps;
+  billingSource?: "none" | "admin" | "paddle";
+  canChangePlan?: boolean;
 };
 
 function formatDate(value: string | null) {
@@ -48,11 +53,15 @@ function tierLabel(tier: SubscriptionTierId) {
 export function SubscriptionCard() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { changePlan, previewPlanChange } = useBillingPlanAction();
   const upgraded = searchParams.get("upgraded") === "1";
   const [data, setData] = useState<SubResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [acting, setActing] = useState(false);
   const [confirming, setConfirming] = useState(upgraded);
+  const [planPreviewOpen, setPlanPreviewOpen] = useState(false);
+  const [planPreview, setPlanPreview] = useState<ChangePlanPreview | null>(null);
+  const [pendingPlan, setPendingPlan] = useState<"plus" | "pro" | null>(null);
   const pollAttempts = useRef(0);
 
   const load = useCallback(async () => {
@@ -120,6 +129,42 @@ export function SubscriptionCard() {
       await load();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Cancel failed");
+    } finally {
+      setActing(false);
+    }
+  }
+
+  async function startSwitchPlan(plan: "plus" | "pro") {
+    setActing(true);
+    try {
+      const preview = await previewPlanChange(plan);
+      setPlanPreview(preview);
+      setPendingPlan(plan);
+      setPlanPreviewOpen(true);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Plan change failed");
+    } finally {
+      setActing(false);
+    }
+  }
+
+  async function confirmSwitchPlan() {
+    if (!pendingPlan) return;
+    setActing(true);
+    try {
+      await changePlan(pendingPlan);
+      const label = pendingPlan === "pro" ? "Pro" : "Plus";
+      toast.success(
+        pendingPlan === "pro"
+          ? `Upgraded to ${label}. Prorated billing was applied.`
+          : `Switched to ${label}. Prorated billing was applied.`
+      );
+      setPlanPreviewOpen(false);
+      setPlanPreview(null);
+      setPendingPlan(null);
+      await load();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Plan change failed");
     } finally {
       setActing(false);
     }
@@ -234,12 +279,27 @@ export function SubscriptionCard() {
             </Button>
           </>
         )}
-        {effective === "plus" && (
-          <Button type="button" size="sm" asChild>
-            <Link href="/billing/checkout?plan=pro">
-              Upgrade to Pro (
-              {data.proPriceLabel ?? formatUsd(PRO_PRICE_MONTHLY_USD)}/mo)
-            </Link>
+        {effective === "plus" && data.canChangePlan && (
+          <Button
+            type="button"
+            size="sm"
+            loading={acting}
+            onClick={() => void startSwitchPlan("pro")}
+          >
+            Upgrade to Pro (
+            {data.proPriceLabel ?? formatUsd(PRO_PRICE_MONTHLY_USD)}/mo)
+          </Button>
+        )}
+        {effective === "pro" && data.canChangePlan && (
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            loading={acting}
+            onClick={() => void startSwitchPlan("plus")}
+          >
+            Switch to Plus (
+            {data.plusPriceLabel ?? formatUsd(PLUS_PRICE_MONTHLY_USD)}/mo)
           </Button>
         )}
         {isPaid && (
@@ -274,6 +334,18 @@ export function SubscriptionCard() {
           <Link href="/pricing">View plans</Link>
         </Button>
       </div>
+
+      <PlanChangeConfirmDialog
+        open={planPreviewOpen}
+        preview={planPreview}
+        loading={acting}
+        onCancel={() => {
+          setPlanPreviewOpen(false);
+          setPlanPreview(null);
+          setPendingPlan(null);
+        }}
+        onConfirm={() => void confirmSwitchPlan()}
+      />
     </Card>
   );
 }

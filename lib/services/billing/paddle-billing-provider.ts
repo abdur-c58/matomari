@@ -4,15 +4,26 @@ import type { BillingProvider } from "@/lib/services/billing/billing-provider";
 import type {
   BillingWebhookEvent,
   CancelSubscriptionResult,
+  ChangePlanPreview,
+  ChangePlanResult,
   CheckoutSession,
 } from "@/lib/services/billing/types";
+import { handlePaddleAdjustmentEvent } from "@/lib/services/billing/paddle-adjustment-handler";
+import { resolveUserIdForPaddleIds } from "@/lib/services/billing/paddle-user-resolve";
+import { formatPaddleMoney } from "@/lib/paddle/format-money";
 import {
+  intervalFromPaddlePriceId,
   paddlePriceIdForPlan,
   tierFromPaddlePriceId,
   type BillingInterval,
 } from "@/lib/constants/pricing";
 import { hasMinTier, type SubscriptionTierId } from "@/lib/constants/entitlements";
 import {
+  isAdminGrantedSubscription,
+  isPaidPaddleSubscription,
+} from "@/lib/services/billing/admin-subscription";
+import {
+  computeEffectiveTier,
   finalizeDowngradeToFree,
   finalizePaymentFailedDowngrade,
   getUserSubscriptionAdmin,
@@ -20,6 +31,104 @@ import {
   type SubscriptionStatus,
 } from "@/lib/services/billing/subscription-service";
 import { getPaddle } from "@/lib/services/billing/paddle-client";
+
+type PaddleSubSnapshot = {
+  id: string;
+  customerId: string;
+  status: string;
+  items?: Array<{ price?: { id?: string } | null }> | null;
+  customData?: Record<string, unknown> | null;
+  currentBillingPeriod?: { endsAt?: string | null } | null;
+  nextBilledAt?: string | null;
+  scheduledChange?: { action?: string | null } | null;
+};
+
+async function applyPaddleSubscriptionSnapshot(
+  userId: string,
+  data: PaddleSubSnapshot,
+  opts?: { clearUnlockKeys?: boolean }
+) {
+  if (data.status === "past_due") {
+    await finalizePaymentFailedDowngrade(userId, {
+      customerId: data.customerId,
+      subscriptionId: data.id,
+    });
+    return;
+  }
+  if (data.status === "paused" || data.status === "canceled") {
+    await finalizeDowngradeToFree(userId);
+    return;
+  }
+
+  const cancelAtPeriodEnd = cancelScheduled(data);
+  const status = mapPaddleStatus(data.status);
+
+  await syncSubscriptionRow({
+    userId,
+    customerId: data.customerId,
+    subscriptionId: data.id,
+    tier: tierFromSubscriptionLike(data),
+    status,
+    currentPeriodEnd: periodEndIso(
+      data.currentBillingPeriod?.endsAt,
+      data.nextBilledAt
+    ),
+    cancelAtPeriodEnd,
+    clearUnlockKeys: opts?.clearUnlockKeys,
+  });
+}
+
+async function preparePlanChange(params: {
+  userId: string;
+  plan: "plus" | "pro";
+}) {
+  const sub = await getUserSubscriptionAdmin(params.userId);
+  if (!sub?.paddleSubscriptionId) {
+    throw new Error("No Paddle subscription on file");
+  }
+  if (isAdminGrantedSubscription(sub)) {
+    throw new Error(
+      "Admin-granted access cannot be changed via Paddle — contact support or use Admin."
+    );
+  }
+  if (sub.status !== "active" || !hasMinTier(sub.tier, "plus")) {
+    throw new Error("An active paid subscription is required to change plans");
+  }
+
+  const paddle = getPaddle();
+  const paddleSub = await paddle.subscriptions.get(sub.paddleSubscriptionId);
+  const currentPriceId = priceIdFromSubscriptionItems(paddleSub.items);
+  const currentInterval = intervalFromPaddlePriceId(currentPriceId);
+  if (!currentInterval) {
+    throw new Error("Could not determine your current billing interval");
+  }
+
+  const currentTier = tierFromPaddlePriceId(currentPriceId) ?? sub.tier;
+  if (currentTier === params.plan) {
+    throw new Error(`You are already on ${params.plan === "pro" ? "Pro" : "Plus"}`);
+  }
+
+  const newPriceId = paddlePriceIdForPlan(params.plan, currentInterval);
+  const existingCustom =
+    (paddleSub.customData as Record<string, unknown> | null) ?? {};
+
+  const updateBody = {
+    items: [{ priceId: newPriceId, quantity: 1 }],
+    prorationBillingMode: "prorated_immediately" as const,
+    customData: {
+      ...existingCustom,
+      userId: params.userId,
+      plan: params.plan,
+      interval: currentInterval,
+    },
+  };
+
+  return {
+    subscriptionId: sub.paddleSubscriptionId,
+    currentInterval,
+    updateBody,
+  };
+}
 
 function normalizePaidPlan(plan?: string | null): "plus" | "pro" {
   return plan === "pro" ? "pro" : "plus";
@@ -77,6 +186,18 @@ function cancelScheduled(sub: {
   scheduledChange?: { action?: string | null } | null;
 }): boolean {
   return sub.scheduledChange?.action === "cancel";
+}
+
+async function resolveUserIdFromPaddleSubscription(data: {
+  id: string;
+  customerId: string;
+  customData?: Record<string, unknown> | null;
+}): Promise<string | null> {
+  return resolveUserIdForPaddleIds({
+    customerId: data.customerId,
+    subscriptionId: data.id,
+    customData: data.customData ?? null,
+  });
 }
 
 async function ensurePaddleCustomer(params: {
@@ -159,6 +280,24 @@ export class PaddleBillingProvider implements BillingProvider {
     plan?: "plus" | "pro";
     interval?: BillingInterval;
   }): Promise<CheckoutSession> {
+    const existing = await getUserSubscriptionAdmin(params.userId);
+    if (
+      isAdminGrantedSubscription(existing) &&
+      computeEffectiveTier(existing) !== "free"
+    ) {
+      throw new Error(
+        "You have complimentary access. Contact support before starting a paid subscription."
+      );
+    }
+    if (
+      isPaidPaddleSubscription(existing) &&
+      computeEffectiveTier(existing) !== "free"
+    ) {
+      throw new Error(
+        "You already have a paid subscription. Change your plan in Settings instead of starting a new checkout."
+      );
+    }
+
     const paddle = getPaddle();
     const plan = normalizePaidPlan(params.plan);
     const interval = normalizeInterval(params.interval);
@@ -259,6 +398,93 @@ export class PaddleBillingProvider implements BillingProvider {
     };
   }
 
+  async changeSubscriptionPlan(params: {
+    userId: string;
+    plan: "plus" | "pro";
+  }): Promise<ChangePlanResult> {
+    const { subscriptionId, currentInterval, updateBody } =
+      await preparePlanChange(params);
+
+    const paddle = getPaddle();
+    const updated = await paddle.subscriptions.update(subscriptionId, updateBody);
+
+    const periodEnd = periodEndIso(
+      updated.currentBillingPeriod?.endsAt,
+      updated.nextBilledAt
+    );
+    const cancelAtPeriodEnd = cancelScheduled(updated);
+
+    await syncSubscriptionRow({
+      userId: params.userId,
+      customerId: updated.customerId,
+      subscriptionId: updated.id,
+      tier: params.plan,
+      status: mapPaddleStatus(updated.status),
+      currentPeriodEnd: periodEnd,
+      cancelAtPeriodEnd,
+      clearUnlockKeys: hasMinTier(params.plan, "plus"),
+    });
+
+    return {
+      plan: params.plan,
+      interval: currentInterval,
+      effectiveImmediately: true,
+      currentPeriodEnd: periodEnd,
+      status: mapPaddleStatus(updated.status),
+    };
+  }
+
+  async previewSubscriptionPlanChange(params: {
+    userId: string;
+    plan: "plus" | "pro";
+  }): Promise<ChangePlanPreview> {
+    const { subscriptionId, currentInterval, updateBody } =
+      await preparePlanChange(params);
+
+    const paddle = getPaddle();
+    const preview = await paddle.subscriptions.previewUpdate(
+      subscriptionId,
+      updateBody
+    );
+
+    const currencyCode = preview.currencyCode ?? "USD";
+    const chargeAmount = preview.updateSummary?.charge?.amount ?? "0";
+    const creditAmount = preview.updateSummary?.credit?.amount ?? "0";
+    const chargeLabel = formatPaddleMoney(chargeAmount, currencyCode);
+    const creditLabel = formatPaddleMoney(creditAmount, currencyCode);
+    const netMinor = Number(chargeAmount) - Number(creditAmount);
+    const netLabel = formatPaddleMoney(
+      String(Number.isFinite(netMinor) ? netMinor : 0),
+      currencyCode
+    );
+
+    return {
+      plan: params.plan,
+      interval: currentInterval,
+      chargeAmount,
+      creditAmount,
+      currencyCode,
+      chargeLabel,
+      creditLabel,
+      netLabel,
+    };
+  }
+
+  async syncSubscriptionFromPaddleRemote(params: {
+    userId: string;
+    subscriptionId: string;
+  }): Promise<void> {
+    const paddle = getPaddle();
+    const remote = await paddle.subscriptions.get(params.subscriptionId);
+    const userId =
+      customDataString(
+        remote.customData as Record<string, unknown> | null,
+        "userId"
+      ) ?? params.userId;
+
+    await applyPaddleSubscriptionSnapshot(userId, remote);
+  }
+
   async handleWebhookEvent(event: BillingWebhookEvent): Promise<void> {
     const { userId } = event.data;
     if (!userId) return;
@@ -343,6 +569,18 @@ export class PaddleBillingProvider implements BillingProvider {
         break;
       }
 
+      case EventName.SubscriptionPaused: {
+        const data = event.data;
+        const userId =
+          (await resolveUserIdFromPaddleSubscription(data)) ?? null;
+        if (!userId) {
+          console.warn("paddle subscription.paused missing userId", data.id);
+          return;
+        }
+        await finalizeDowngradeToFree(userId);
+        break;
+      }
+
       case EventName.SubscriptionActivated:
       case EventName.SubscriptionCreated:
       case EventName.SubscriptionTrialing:
@@ -350,44 +588,16 @@ export class PaddleBillingProvider implements BillingProvider {
       case EventName.SubscriptionResumed: {
         const data = event.data;
         const userId =
-          customDataString(
-            data.customData as Record<string, unknown> | null,
-            "userId"
-          ) || null;
+          (await resolveUserIdFromPaddleSubscription(data)) ?? null;
         if (!userId) {
           console.warn("paddle subscription event missing userId", data.id);
           return;
         }
 
-        if (data.status === "past_due") {
-          await finalizePaymentFailedDowngrade(userId, {
-            customerId: data.customerId,
-            subscriptionId: data.id,
-          });
-          break;
-        }
-
-        const cancelAtPeriodEnd = cancelScheduled(data);
-        const status = mapPaddleStatus(data.status);
-
-        await syncSubscriptionRow({
-          userId,
-          customerId: data.customerId,
-          subscriptionId: data.id,
-          tier: tierFromSubscriptionLike({
-            items: data.items,
-            customData: data.customData as Record<string, unknown> | null,
-          }),
-          status,
-          currentPeriodEnd: periodEndIso(
-            data.currentBillingPeriod?.endsAt,
-            data.nextBilledAt
-          ),
-          cancelAtPeriodEnd,
+        await applyPaddleSubscriptionSnapshot(userId, data, {
           clearUnlockKeys:
             event.eventType === EventName.SubscriptionActivated ||
-            event.eventType === EventName.SubscriptionCreated ||
-            status === "active",
+            event.eventType === EventName.SubscriptionCreated,
         });
         break;
       }
@@ -395,15 +605,18 @@ export class PaddleBillingProvider implements BillingProvider {
       case EventName.SubscriptionCanceled: {
         const data = event.data;
         const userId =
-          customDataString(
-            data.customData as Record<string, unknown> | null,
-            "userId"
-          ) || null;
+          (await resolveUserIdFromPaddleSubscription(data)) ?? null;
         if (!userId) {
           console.warn("paddle subscription.canceled missing userId", data.id);
           return;
         }
         await finalizeDowngradeToFree(userId);
+        break;
+      }
+
+      case EventName.AdjustmentCreated:
+      case EventName.AdjustmentUpdated: {
+        await handlePaddleAdjustmentEvent(event.data);
         break;
       }
 

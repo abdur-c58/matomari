@@ -4,6 +4,7 @@ import {
   processStaleTranslationsBatch,
   reconcileCanonicalContent,
 } from "@/lib/cloud/sentence-invalidation";
+import { reconcilePaddleSubscriptions } from "@/lib/services/billing/billing-reconcile";
 
 function authorize(request: Request): boolean {
   const secret = process.env.CRON_SECRET?.trim();
@@ -17,10 +18,11 @@ function authorize(request: Request): boolean {
 }
 
 /**
- * Daily content invalidation:
+ * Daily maintenance (single Vercel cron — Hobby allows once/day):
  * 1. Reconcile catalog/pathway English against canonical_sentences
  * 2. Mark changed sentences' translations stale
  * 3. Retranslate a limited stale batch and enqueue TTS via durable writes
+ * 4. Re-sync Paddle subscriptions if a webhook was missed
  */
 export async function GET(request: Request) {
   if (!authorize(request)) {
@@ -43,11 +45,13 @@ export async function GET(request: Request) {
 
     const retranslate = await processStaleTranslationsBatch(retranslateLimit);
     const stale = await countStaleTranslations();
+    const billing = await reconcilePaddleSubscriptions();
 
     return NextResponse.json({
       reconcile,
       retranslate,
       stale,
+      billing,
     });
   } catch (e) {
     return NextResponse.json(

@@ -10,13 +10,19 @@ type HealthPayload = {
   staffUsers: number;
   usersWithDatasets: number;
   usersActiveLast7Days: number;
-  billingLive: false;
+  billingLive: boolean;
   mrrEstimate: null;
   errorRateOverview: null;
   apiCostTracking: null;
   billing: {
-    live: false;
-    paddle: false;
+    live: boolean;
+    paddle: boolean;
+    environment: "sandbox" | "production";
+    isLive: boolean;
+    configured: boolean;
+    keysMatchEnvironment: boolean;
+    issues: string[];
+    liveMigrationChecklist: string[];
     message: string;
   };
 };
@@ -55,6 +61,8 @@ export function AdminHealthScreen() {
 
   if (!health) return null;
 
+  const billing = health.billing;
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-3">
@@ -75,9 +83,27 @@ export function AdminHealthScreen() {
         <h3 className="text-sm font-semibold text-foreground">Billing & observability</h3>
         <dl className="space-y-2 text-sm">
           <div className="flex justify-between gap-3">
-            <dt className="text-muted">Billing live</dt>
+            <dt className="text-muted">Paddle environment</dt>
             <dd>
-              <Badge variant="outline">No</Badge>
+              <Badge variant={billing.isLive ? "warning" : "outline"}>
+                {billing.environment}
+              </Badge>
+            </dd>
+          </div>
+          <div className="flex justify-between gap-3">
+            <dt className="text-muted">Keys configured</dt>
+            <dd>
+              <Badge variant={billing.configured ? "default" : "destructive"}>
+                {billing.configured ? "Yes" : "Incomplete"}
+              </Badge>
+            </dd>
+          </div>
+          <div className="flex justify-between gap-3">
+            <dt className="text-muted">Key/env match</dt>
+            <dd>
+              <Badge variant={billing.keysMatchEnvironment ? "default" : "destructive"}>
+                {billing.keysMatchEnvironment ? "OK" : "Mismatch"}
+              </Badge>
             </dd>
           </div>
           <div className="flex justify-between gap-3">
@@ -93,7 +119,24 @@ export function AdminHealthScreen() {
             <dd className="text-muted">Not logged in-app yet</dd>
           </div>
         </dl>
-        <p className="text-xs text-muted">{health.billing.message}</p>
+        <p className="text-xs text-muted">{billing.message}</p>
+        {billing.issues.length > 0 && (
+          <ul className="list-disc space-y-1 pl-5 text-xs text-destructive">
+            {billing.issues.map((issue) => (
+              <li key={issue}>{issue}</li>
+            ))}
+          </ul>
+        )}
+        {!billing.isLive && billing.liveMigrationChecklist.length > 0 && (
+          <div className="rounded-lg border border-border bg-surface-raised p-3">
+            <p className="text-xs font-semibold text-foreground">Go-live checklist</p>
+            <ol className="mt-2 list-decimal space-y-1 pl-4 text-xs text-muted">
+              {billing.liveMigrationChecklist.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ol>
+          </div>
+        )}
       </Card>
     </div>
   );
