@@ -11,16 +11,20 @@ import {
   hasMinTier,
   type SubscriptionTierId,
 } from "@/lib/constants/entitlements";
+import type { BillingPeriod } from "@/lib/constants/pricing";
 import type { PaddleTierPrice } from "@/hooks/use-paddle-price-preview";
 import { PaddlePriceCountup } from "@/components/marketing/paddle-price-countup";
+import { formatAnimatedAmount } from "@/lib/paddle/price-display";
 import { cn } from "@/lib/utils";
 
 function TierPriceBlock({
   tierId,
+  period,
   price,
   loading,
 }: {
   tierId: PaddleCatalogTier["id"];
+  period: BillingPeriod;
   price?: PaddleTierPrice;
   loading: boolean;
 }) {
@@ -59,6 +63,7 @@ function TierPriceBlock({
           price={price}
           className="font-display text-4xl font-semibold tracking-[-0.06em] sm:text-5xl"
         />
+        <span className="pb-1.5 text-sm text-muted">/ mo</span>
       </div>
       <p className="mt-1.5 text-sm text-muted">{price.billingLabel}</p>
     </motion.div>
@@ -67,7 +72,9 @@ function TierPriceBlock({
 
 export function PaddlePricingTierCards({
   tiers,
+  period,
   prices,
+  pricesByPeriod,
   pricesLoading,
   pricesInitialLoading,
   effectiveTier,
@@ -76,7 +83,11 @@ export function PaddlePricingTierCards({
   compact = false,
 }: {
   tiers: PaddleCatalogTier[];
+  period: BillingPeriod;
   prices: Partial<Record<PaidPlanId, PaddleTierPrice>>;
+  pricesByPeriod: Partial<
+    Record<BillingPeriod, Partial<Record<PaidPlanId, PaddleTierPrice>>>
+  >;
   pricesLoading: boolean;
   pricesInitialLoading?: boolean;
   effectiveTier: SubscriptionTierId;
@@ -84,6 +95,36 @@ export function PaddlePricingTierCards({
   subscribeLoading?: PaidPlanId | null;
   compact?: boolean;
 }) {
+  function derivedTierPrice(tierId: PaidPlanId): PaddleTierPrice | undefined {
+    if (period !== "annual") return pricesByPeriod.monthly?.[tierId];
+
+    const monthly = pricesByPeriod.monthly?.[tierId];
+    const annual = pricesByPeriod.annual?.[tierId];
+    if (!monthly || !annual) return undefined;
+
+    const monthlyEq = Math.round((annual.amount / 12) * 100) / 100;
+    return {
+      total: formatAnimatedAmount(monthlyEq, monthly.displayParts),
+      billingLabel: annual.billingLabel,
+      amount: monthlyEq,
+      displayParts: monthly.displayParts,
+    };
+  }
+
+  function discountPct(tierId: PaidPlanId): number | null {
+    const monthly = pricesByPeriod.monthly?.[tierId];
+    const annual = pricesByPeriod.annual?.[tierId];
+    if (!monthly || !annual) return null;
+    if (!Number.isFinite(monthly.amount) || monthly.amount <= 0) return null;
+
+    const monthlyEq = annual.amount / 12;
+    const raw = (1 - monthlyEq / monthly.amount) * 100;
+    if (!Number.isFinite(raw)) return null;
+
+    const clamped = Math.max(0, Math.min(95, raw));
+    return Math.round(clamped);
+  }
+
   return (
     <div
       className={cn(
@@ -100,6 +141,14 @@ export function PaddlePricingTierCards({
           ((isPlus && hasMinTier(effectiveTier, "plus")) ||
             (isPro && hasMinTier(effectiveTier, "pro")));
 
+        const derivedPrice =
+          paid && (tier.id === "plus" || tier.id === "pro")
+            ? derivedTierPrice(tier.id)
+            : undefined;
+
+        const showAnnualGlow = period === "annual" && tier.id === "pro";
+        const savePct = showAnnualGlow ? discountPct("pro") : null;
+
         return (
           <article
             key={tier.id}
@@ -112,6 +161,14 @@ export function PaddlePricingTierCards({
                   ? "border-[color:var(--mode-review)]/45 bg-surface"
                   : "border-border bg-surface/75"
             )}
+            style={
+              showAnnualGlow
+                ? {
+                    boxShadow:
+                      "0 0 0 1px color-mix(in srgb, var(--mode-listen) 35%, transparent), 0 0 28px color-mix(in srgb, var(--mode-listen) 55%, transparent)",
+                  }
+                : undefined
+            }
           >
             {isPro && !compact && (
               <div
@@ -122,6 +179,17 @@ export function PaddlePricingTierCards({
                     "radial-gradient(ellipse at 80% 0%, color-mix(in srgb, var(--mode-listen) 16%, transparent), transparent 55%)",
                 }}
               />
+            )}
+
+            {showAnnualGlow && savePct !== null && (
+              <div className="absolute right-4 top-4 z-[3] flex flex-col items-end gap-1">
+                <span className="rounded-full border border-[color:var(--mode-listen)]/40 bg-[color:var(--mode-listen)]/10 px-3 py-1 text-[11px] font-semibold text-[color:var(--mode-listen)]">
+                  {savePct}% off
+                </span>
+                <span className="rounded-full bg-foreground/10 px-3 py-1 text-[11px] font-semibold text-foreground">
+                  Recommended
+                </span>
+              </div>
             )}
 
             <div className="relative z-[1]">
@@ -151,7 +219,8 @@ export function PaddlePricingTierCards({
               <div className="mt-6 min-h-[5.5rem]">
                 <TierPriceBlock
                   tierId={tier.id}
-                  price={paid ? prices[tier.id] : undefined}
+                  period={period}
+                  price={paid ? derivedPrice : undefined}
                   loading={paid && pricesLoading}
                 />
               </div>

@@ -58,8 +58,18 @@ function PricingPageInner({
     null
   );
 
-  const { prices, loading: pricesLoading, initialLoading: pricesInitialLoading, error: pricesError } =
-    usePaddlePricePreview({ tiers, period, countryCode, enabled: pricesConfigured });
+  const {
+    prices,
+    pricesByPeriod,
+    loading: pricesLoading,
+    initialLoading: pricesInitialLoading,
+    error: pricesError,
+  } = usePaddlePricePreview({
+    tiers,
+    period,
+    countryCode,
+    enabled: pricesConfigured,
+  });
   const { openCheckout } = usePaddleCheckout();
 
   useEffect(() => {
@@ -248,7 +258,9 @@ function PricingPageInner({
         <section className="mt-12">
           <PaddlePricingTierCards
             tiers={tiers}
+            period={period}
             prices={prices}
+            pricesByPeriod={pricesByPeriod}
             pricesLoading={pricesLoading}
             pricesInitialLoading={pricesInitialLoading}
             effectiveTier={effectiveTier}

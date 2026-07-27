@@ -159,6 +159,10 @@ export function usePaddlePricePreview(params: {
 
   return {
     prices,
+    pricesByPeriod: enabled ? cache : ({} as PriceCache),
+    loadingByPeriod: enabled ? loadingPeriods : ({} as Partial<
+      Record<BillingPeriod, boolean>
+    >),
     loading,
     initialLoading,
     error,
