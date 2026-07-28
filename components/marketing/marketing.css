@@ -11,8 +11,6 @@
   Prevents a one-frame flash of full-opacity / stacked layouts on refresh.
 */
 @media (prefers-reduced-motion: no-preference) {
-  .marketing-page:not([data-motion-ready="true"]) [data-hero-enter],
-  .marketing-page:not([data-motion-ready="true"]) [data-hero-visual],
   .marketing-page:not([data-motion-ready="true"]) [data-problem-title],
   .marketing-page:not([data-motion-ready="true"]) [data-problem-body],
   .marketing-page:not([data-motion-ready="true"]) [data-problem-bridge],

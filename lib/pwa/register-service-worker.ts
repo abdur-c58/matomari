@@ -21,6 +21,23 @@ function canForceReloadForNewWorker(): boolean {
   }
 }
 
+async function clearAppCaches(): Promise<void> {
+  if (typeof window === "undefined" || !("caches" in window)) return;
+  const keys = await caches.keys();
+  await Promise.all(keys.map((key) => caches.delete(key)));
+}
+
+export async function cleanupAppServiceWorkers(): Promise<void> {
+  if (typeof window === "undefined" || !("serviceWorker" in navigator)) return;
+  try {
+    const regs = await navigator.serviceWorker.getRegistrations();
+    await Promise.all(regs.map((reg) => reg.unregister()));
+    await clearAppCaches();
+  } catch {
+    // ignore cleanup failures
+  }
+}
+
 export async function registerAppServiceWorker(): Promise<ServiceWorkerRegistration | null> {
   if (typeof window === "undefined" || !("serviceWorker" in navigator)) {
     return null;
@@ -34,16 +51,7 @@ export async function registerAppServiceWorker(): Promise<ServiceWorkerRegistrat
     window.location.hostname === "127.0.0.1";
 
   if (isLocalDev) {
-    try {
-      const regs = await navigator.serviceWorker.getRegistrations();
-      await Promise.all(regs.map((reg) => reg.unregister()));
-      if ("caches" in window) {
-        const keys = await caches.keys();
-        await Promise.all(keys.map((key) => caches.delete(key)));
-      }
-    } catch {
-      // ignore cleanup failures
-    }
+    await cleanupAppServiceWorkers();
     return null;
   }
 
