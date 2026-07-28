@@ -71,13 +71,10 @@ export function splashImagePath(theme: SplashTheme, id: string): string {
   return `/splash/${theme}/${id}.png`;
 }
 
-/** For Next.js `metadata.appleWebApp.startupImage` — must use Metadata API (manual `<head>` is dropped). */
+/** For Next.js `metadata.appleWebApp.startupImage` — always light washi (not system dark). */
 export function buildAppleStartupImages(): { url: string; media: string }[] {
-  const themes: SplashTheme[] = ["light", "dark"];
-  return themes.flatMap((theme) =>
-    APPLE_SPLASH_SCREENS.map((screen) => ({
-      url: splashImagePath(theme, screen.id),
-      media: `(prefers-color-scheme: ${theme}) and ${screen.media}`,
-    }))
-  );
+  return APPLE_SPLASH_SCREENS.map((screen) => ({
+    url: splashImagePath("light", screen.id),
+    media: screen.media,
+  }));
 }

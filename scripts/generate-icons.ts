@@ -4,12 +4,9 @@ import path from "node:path";
 import {
   APP_DIR,
   ICONS_DIR,
-  PARCHMENT_BG,
-  WHITE_BG,
-  BLACK_BG,
-  SQUARE_OUT,
   FAVICON_SOURCE_OUT,
   renderIcon,
+  resizeSquare,
   writeBrandCoreAssets,
 } from "./brand-asset-utils";
 
@@ -31,37 +28,48 @@ const TAB_SIZES = {
 
 async function main() {
   await mkdir(ICONS_DIR, { recursive: true });
-  const { squareTransparent, faviconSource } = await writeBrandCoreAssets();
-  const preparedMeta = await sharp(squareTransparent).metadata();
+  const { squareSource, faviconSource } = await writeBrandCoreAssets();
+  const preparedMeta = await sharp(squareSource).metadata();
   console.log(`Prepared brand icon canvas: ${preparedMeta.width}x${preparedMeta.height}`);
 
+  // iOS / PWA home-screen icons: parchment logo with background (not fake-transparent).
   for (const [filename, size] of Object.entries(PWA_SIZES)) {
-    const buffer = await renderIcon(squareTransparent, size, WHITE_BG, 0);
+    const buffer = await resizeSquare(squareSource, size);
     await writeFile(path.join(ICONS_DIR, filename), buffer);
-    console.log(`Wrote public/icons/${filename} (${size}x${size}, transparent logo)`);
+    console.log(`Wrote public/icons/${filename} (${size}x${size}, source logo + background)`);
   }
 
   for (const [filename, size] of Object.entries(TAB_SIZES)) {
-    const buffer = await renderIcon(faviconSource, size, PARCHMENT_BG, TAB_PADDING_RATIO);
+    const buffer = await renderIcon(faviconSource, size, {
+      r: 246,
+      g: 240,
+      b: 229,
+      alpha: 1,
+    }, TAB_PADDING_RATIO);
     await writeFile(path.join(ICONS_DIR, filename), buffer);
     console.log(`Wrote public/icons/${filename} (${size}x${size}, dedicated favicon)`);
   }
 
-  const appIcon = await renderIcon(squareTransparent, 512, {
-    r: 0,
-    g: 0,
-    b: 0,
-    alpha: 0,
-  });
+  const appIcon = await resizeSquare(squareSource, 512);
   await writeFile(path.join(APP_DIR, "icon.png"), appIcon);
-  console.log("Wrote app/icon.png (512x512, transparent app icon)");
+  console.log("Wrote app/icon.png (512x512, source logo + background)");
 
-  const appleIcon = await renderIcon(squareTransparent, 180, WHITE_BG, 0);
+  const appleIcon = await resizeSquare(squareSource, 180);
   await writeFile(path.join(APP_DIR, "apple-icon.png"), appleIcon);
-  console.log("Wrote app/apple-icon.png (180x180, transparent logo)");
+  console.log("Wrote app/apple-icon.png (180x180, source logo + background)");
 
-  const favicon32 = await renderIcon(FAVICON_SOURCE_OUT, 32, PARCHMENT_BG, TAB_PADDING_RATIO);
-  const favicon16 = await renderIcon(FAVICON_SOURCE_OUT, 16, PARCHMENT_BG, TAB_PADDING_RATIO);
+  const favicon32 = await renderIcon(FAVICON_SOURCE_OUT, 32, {
+    r: 246,
+    g: 240,
+    b: 229,
+    alpha: 1,
+  }, TAB_PADDING_RATIO);
+  const favicon16 = await renderIcon(FAVICON_SOURCE_OUT, 16, {
+    r: 246,
+    g: 240,
+    b: 229,
+    alpha: 1,
+  }, TAB_PADDING_RATIO);
   try {
     const toIco = (await import("to-ico")).default;
     const ico = await toIco([favicon16, favicon32]);

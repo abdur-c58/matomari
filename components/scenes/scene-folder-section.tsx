@@ -158,11 +158,13 @@ export function StatusSections({
 export function PremadeSceneFolderSection({
   folder,
   grouped,
+  sceneCount: sceneCountOverride,
 }: {
   folder: PremadeFolder;
   grouped: GroupedStudyUnits;
+  sceneCount?: number;
 }) {
-  const sceneCount = countScenesInFolder(grouped);
+  const sceneCount = sceneCountOverride ?? countScenesInFolder(grouped);
 
   return (
     <section>

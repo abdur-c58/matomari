@@ -147,10 +147,10 @@ export const marketingCta = {
 export const marketingFooter = {
   tagline: "Personalized Japanese learning through language scenes",
   links: [
+    { label: "Narration", href: "/", section: "narration" },
     { label: "The gap", href: "/", section: "problem" },
     { label: "Features", href: "/", section: "features" },
     { label: "Scenes", href: "/", section: "scenes" },
-    { label: "Narration", href: "/", section: "narration" },
     { label: "Pricing", href: "/", section: "pricing" },
     { label: "Support", href: "/support" },
     { label: "Sign in", href: "/today" },

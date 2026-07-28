@@ -226,7 +226,11 @@ export function groupStudyUnits(units: StudyUnitSummary[]): GroupedStudyUnits {
 
 export interface FolderedStudyUnits {
   pinnedPathway: StudyUnitSummary | null;
-  premadeFolders: { folder: PremadeFolder; grouped: GroupedStudyUnits }[];
+  premadeFolders: {
+    folder: PremadeFolder;
+    grouped: GroupedStudyUnits;
+    sceneCount: number;
+  }[];
   premadeUnfoldered: GroupedStudyUnits;
   userFolders: { folder: SceneFolder; grouped: GroupedStudyUnits }[];
   unfoldered: GroupedStudyUnits;
@@ -241,11 +245,39 @@ function groupedHasUnits(grouped: GroupedStudyUnits): boolean {
   );
 }
 
+function bucketPremadeScenes(
+  scenes: StudyUnitSummary[],
+  premadeFolders: PremadeFolder[],
+  premadeAssignments: Record<string, string>
+): {
+  byFolderId: Map<string, StudyUnitSummary[]>;
+  unfoldered: StudyUnitSummary[];
+} {
+  const byFolderId = new Map<string, StudyUnitSummary[]>();
+  const unfoldered: StudyUnitSummary[] = [];
+
+  for (const scene of scenes) {
+    if (scene.ref.kind !== "scene" || !scene.isPremade) continue;
+
+    const folderId = premadeAssignments[scene.ref.key];
+    if (folderId && premadeFolders.some((f) => f.id === folderId)) {
+      const bucket = byFolderId.get(folderId) ?? [];
+      bucket.push(scene);
+      byFolderId.set(folderId, bucket);
+    } else {
+      unfoldered.push(scene);
+    }
+  }
+
+  return { byFolderId, unfoldered };
+}
+
 export function organizeStudyUnitsForDisplay(
   units: StudyUnitSummary[],
   progress: UserProgress,
   dataset: Dataset,
-  premadeCatalog: PremadeCatalog | null = null
+  premadeCatalog: PremadeCatalog | null = null,
+  allUnits: StudyUnitSummary[] = units
 ): FolderedStudyUnits {
   const sanitized = sanitizeSceneFolders(progress, dataset, premadeCatalog);
   const userAssignments = sanitized.sceneFolderAssignments ?? {};
@@ -256,26 +288,23 @@ export function organizeStudyUnitsForDisplay(
   );
 
   const scenes = units.filter((u) => !u.isPathway);
+  const allScenes = allUnits.filter((u) => !u.isPathway);
 
-  const premadeByFolderId = new Map<string, StudyUnitSummary[]>();
-  const premadeUnfolderedScenes: StudyUnitSummary[] = [];
+  const premadeAll = bucketPremadeScenes(
+    allScenes,
+    premadeFolders,
+    premadeAssignments
+  );
+  const premadeFiltered = bucketPremadeScenes(
+    scenes,
+    premadeFolders,
+    premadeAssignments
+  );
   const userByFolderId = new Map<string, StudyUnitSummary[]>();
   const userUnfolderedScenes: StudyUnitSummary[] = [];
 
   for (const scene of scenes) {
-    if (scene.ref.kind !== "scene") continue;
-
-    if (scene.isPremade) {
-      const folderId = premadeAssignments[scene.ref.key];
-      if (folderId && premadeFolders.some((f) => f.id === folderId)) {
-        const bucket = premadeByFolderId.get(folderId) ?? [];
-        bucket.push(scene);
-        premadeByFolderId.set(folderId, bucket);
-      } else {
-        premadeUnfolderedScenes.push(scene);
-      }
-      continue;
-    }
+    if (scene.ref.kind !== "scene" || scene.isPremade) continue;
 
     const folderId = userAssignments[scene.ref.key];
     if (folderId && userFolders.some((f) => f.id === folderId)) {
@@ -287,12 +316,11 @@ export function organizeStudyUnitsForDisplay(
     }
   }
 
-  const premadeFolderSections = premadeFolders
-    .map((folder) => ({
-      folder,
-      grouped: groupStudyUnits(premadeByFolderId.get(folder.id) ?? []),
-    }))
-    .filter(({ grouped }) => groupedHasUnits(grouped));
+  const premadeFolderSections = premadeFolders.map((folder) => ({
+    folder,
+    grouped: groupStudyUnits(premadeFiltered.byFolderId.get(folder.id) ?? []),
+    sceneCount: (premadeAll.byFolderId.get(folder.id) ?? []).length,
+  }));
 
   const userFolderSections = userFolders
     .map((folder) => ({
@@ -304,7 +332,7 @@ export function organizeStudyUnitsForDisplay(
   return {
     pinnedPathway: null,
     premadeFolders: premadeFolderSections,
-    premadeUnfoldered: groupStudyUnits(premadeUnfolderedScenes),
+    premadeUnfoldered: groupStudyUnits(premadeFiltered.unfoldered),
     userFolders: userFolderSections,
     unfoldered: groupStudyUnits(userUnfolderedScenes),
   };

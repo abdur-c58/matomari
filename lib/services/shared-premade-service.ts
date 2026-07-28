@@ -92,7 +92,12 @@ export async function fetchSharedPremadeCatalog(options?: {
   force?: boolean;
 }): Promise<PremadeCatalog> {
   const cached = await readPremadeCache();
-  const since = options?.force ? null : cached?.updatedAt;
+  const cacheMissingFolderMeta =
+    Boolean(cached) &&
+    cached!.folders.length === 0 &&
+    Object.keys(cached!.scenes).length > 0;
+  const since =
+    options?.force || cacheMissingFolderMeta ? null : cached?.updatedAt;
 
   try {
     const url = since
@@ -115,6 +120,11 @@ export async function fetchSharedPremadeCatalog(options?: {
     }
 
     const catalog = parsePremadeCatalog(body);
+    const hasContent =
+      catalog.folders.length > 0 || Object.keys(catalog.scenes).length > 0;
+    if (!hasContent && cached) {
+      return withPremadeAttribution(cached);
+    }
     await writePremadeCache(catalog);
     return withPremadeAttribution(catalog);
   } catch {

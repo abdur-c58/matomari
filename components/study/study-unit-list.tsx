@@ -71,9 +71,15 @@ export function StudyUnitList() {
   const organized = useMemo(
     () =>
       dataset
-        ? organizeStudyUnitsForDisplay(filtered, progress, dataset, premadeCatalog)
+        ? organizeStudyUnitsForDisplay(
+            filtered,
+            progress,
+            dataset,
+            premadeCatalog,
+            allUnits
+          )
         : null,
-    [filtered, progress, dataset, premadeCatalog]
+    [filtered, allUnits, progress, dataset, premadeCatalog]
   );
 
   const userFolders = getUserFolders(progress);
@@ -143,20 +149,24 @@ export function StudyUnitList() {
       </div>
 
       <div className="space-y-5">
-        {organized.premadeFolders.map(({ folder, grouped }) => (
-          <PremadeSceneFolderSection
-            key={folder.id}
-            folder={folder}
-            grouped={grouped}
-          />
-        ))}
+        {originFilter !== "user" &&
+          organized.premadeFolders.map(({ folder, grouped, sceneCount }) => (
+            <PremadeSceneFolderSection
+              key={folder.id}
+              folder={folder}
+              grouped={grouped}
+              sceneCount={sceneCount}
+            />
+          ))}
 
-        <UnfolderedStudyUnitsSection
-          grouped={organized.premadeUnfoldered}
-          folders={[]}
-          showStatusHeaders={showStatusHeaders}
-          title="Other premade scenes"
-        />
+        {originFilter !== "user" && (
+          <UnfolderedStudyUnitsSection
+            grouped={organized.premadeUnfoldered}
+            folders={[]}
+            showStatusHeaders={showStatusHeaders}
+            title="Other premade scenes"
+          />
+        )}
 
         {organized.userFolders.map(({ folder, grouped }) => (
           <SceneFolderSection

@@ -115,10 +115,10 @@ export function LandingPage() {
         <MotionReadyFallback pageRef={pageRef} />
         <main>
           <HeroSection />
+          <NarrationSection />
           <ProblemSection />
           <FeatureShowcaseSection />
           <HorizontalFeaturesSection />
-          <NarrationSection />
           <SocialProofSection />
           <PricingSection />
           <CtaSection />

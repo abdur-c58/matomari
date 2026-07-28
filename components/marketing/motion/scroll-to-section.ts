@@ -4,10 +4,10 @@ import type Lenis from "lenis";
 
 export const MARKETING_SECTION_IDS = [
   "hero",
+  "narration",
   "problem",
   "features",
   "scenes",
-  "narration",
   "social-proof",
   "pricing",
   "cta",
@@ -17,10 +17,10 @@ export type MarketingSectionId = (typeof MARKETING_SECTION_IDS)[number];
 
 export const MARKETING_SECTION_LINKS = [
   { id: "hero", label: "Home" },
+  { id: "narration", label: "Narration" },
   { id: "problem", label: "The gap" },
   { id: "features", label: "Daily loop" },
   { id: "scenes", label: "Scenes" },
-  { id: "narration", label: "Narration" },
   { id: "social-proof", label: "Social" },
   { id: "pricing", label: "Pricing" },
   { id: "cta", label: "Start" },

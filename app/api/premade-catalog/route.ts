@@ -5,6 +5,26 @@ import { parsePremadeCatalog } from "@/lib/validation/premade-catalog-schema";
 import { EMPTY_PREMADE_CATALOG } from "@/types/premade-catalog";
 import { fetchSharedPremadeFromDb } from "@/lib/supabase/shared-premade-data";
 
+function mergePremadeCatalog(
+  primary: ReturnType<typeof parsePremadeCatalog>,
+  fallback: ReturnType<typeof parsePremadeCatalog>
+) {
+  const hasFolders = primary.folders.length > 0;
+  const hasAssignments = Object.keys(primary.sceneFolderAssignments).length > 0;
+  if (hasFolders && hasAssignments) return primary;
+
+  return {
+    ...primary,
+    folders: hasFolders ? primary.folders : fallback.folders,
+    sceneFolderAssignments: hasAssignments
+      ? primary.sceneFolderAssignments
+      : {
+          ...fallback.sceneFolderAssignments,
+          ...primary.sceneFolderAssignments,
+        },
+  };
+}
+
 function loadFallbackPremadeCatalog() {
   const filePath = path.join(process.cwd(), "public", "premade-catalog.json");
   if (!fs.existsSync(filePath)) {
@@ -28,7 +48,10 @@ export async function GET(request: Request) {
 
   const fromDb = await fetchSharedPremadeFromDb();
   const fallback = loadFallbackPremadeCatalog();
-  const payload = fromDb ?? fallback.catalog;
+  const payload = mergePremadeCatalog(
+    fromDb ?? fallback.catalog,
+    fallback.catalog
+  );
   const updatedAt = fromDb?.updatedAt ?? fallback.updatedAt;
 
   if (since && since >= updatedAt) {
