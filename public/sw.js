@@ -1,6 +1,6 @@
 /* Matomari offline service worker — keep notification handling and add app shell caching. */
 
-const CACHE_VERSION = "matomari-offline-v3";
+const CACHE_VERSION = "matomari-offline-v4";
 const PRECACHE_URLS = [
   "/offline.html",
   "/manifest.json",
@@ -24,6 +24,20 @@ function isStaticAsset(pathname) {
     pathname.endsWith(".png") ||
     pathname.endsWith(".jpg") ||
     pathname.endsWith(".webp")
+  );
+}
+
+function isNextDynamicRequest(request, url) {
+  // Next App Router internal data/flight requests must never be cached or
+  // rewritten by the SW. If we serve a cached HTML/RSC variant to the wrong
+  // request shape, the client cannot hydrate and shows "This page couldn't load".
+  return (
+    url.searchParams.has("_rsc") ||
+    request.headers.has("RSC") ||
+    request.headers.has("Next-Router-State-Tree") ||
+    request.headers.has("Next-Router-Prefetch") ||
+    request.headers.has("Next-Url") ||
+    request.headers.get("accept")?.includes("text/x-component")
   );
 }
 
@@ -59,29 +73,6 @@ async function networkFirstNavigation(request) {
   }
 }
 
-async function staleWhileRevalidate(request) {
-  const cache = await caches.open(CACHE_VERSION);
-  const cached = await cache.match(request);
-
-  const networkPromise = fetch(request)
-    .then((response) => {
-      if (response.ok) {
-        void cache.put(request, response.clone());
-      }
-      return response;
-    })
-    .catch(() => null);
-
-  if (cached) {
-    void networkPromise;
-    return cached;
-  }
-
-  const response = await networkPromise;
-  if (response) return response;
-  return Response.error();
-}
-
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches
@@ -115,6 +106,9 @@ self.addEventListener("fetch", (event) => {
   // Always let Next.js / Turbopack serve its own modules fresh.
   if (url.pathname.startsWith("/_next/")) return;
 
+  // Do not intercept App Router RSC / prefetch / router-state requests.
+  if (isNextDynamicRequest(request, url)) return;
+
   if (request.mode === "navigate") {
     event.respondWith(networkFirstNavigation(request));
     return;
@@ -124,8 +118,6 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(cacheFirst(request));
     return;
   }
-
-  event.respondWith(staleWhileRevalidate(request));
 });
 
 self.addEventListener("message", (event) => {
