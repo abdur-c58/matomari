@@ -47,9 +47,14 @@ async function main() {
     console.log(`Wrote public/icons/${filename} (${size}x${size}, dedicated favicon)`);
   }
 
-  const appIcon = await renderIcon(faviconSource, 32, PARCHMENT_BG, TAB_PADDING_RATIO);
+  const appIcon = await renderIcon(squareTransparent, 512, {
+    r: 0,
+    g: 0,
+    b: 0,
+    alpha: 0,
+  });
   await writeFile(path.join(APP_DIR, "icon.png"), appIcon);
-  console.log("Wrote app/icon.png (32x32, dedicated favicon)");
+  console.log("Wrote app/icon.png (512x512, transparent app icon)");
 
   const appleIcon = await renderIcon(squareTransparent, 180, WHITE_BG, 0);
   await writeFile(path.join(APP_DIR, "apple-icon.png"), appleIcon);

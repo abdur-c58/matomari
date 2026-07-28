@@ -32,6 +32,12 @@ function CellValue({ cell }: { cell: PricingCell }) {
   );
 }
 
+function cellLabel(cell: PricingCell): string {
+  if (cell.kind === "check") return "Included";
+  if (cell.kind === "dash") return "Not included";
+  return cell.value;
+}
+
 export function PricingComparisonTable({
   className,
 }: {
@@ -126,7 +132,7 @@ export function PricingComparisonTable({
         </table>
       </motion.div>
 
-      {/* Mobile: horizontally scrollable with sticky feature labels */}
+      {/* Mobile: stacked cards so every plan is visible at once */}
       <motion.div
         className="md:hidden"
         initial={{ opacity: 0, y: 20 }}
@@ -134,56 +140,37 @@ export function PricingComparisonTable({
         viewport={{ once: true, margin: "-40px" }}
         transition={{ type: "spring", stiffness: 110, damping: 18, delay: 0.06 }}
       >
-        <p className="mb-2 text-xs text-muted">Swipe sideways to compare tiers</p>
-        <div className="overflow-x-auto rounded-2xl border border-border bg-surface/70 [-webkit-overflow-scrolling:touch]">
-          <table className="w-max min-w-full border-collapse text-left">
-            <thead>
-              <tr className="border-b border-border bg-surface-raised/40">
-                <th className="sticky left-0 z-[1] min-w-[11rem] bg-surface-raised/95 px-3 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted backdrop-blur-sm">
-                  Feature
-                </th>
-                <th className="min-w-[4.5rem] px-3 py-3 text-center text-[10px] font-semibold uppercase tracking-[0.14em] text-muted">
-                  Free
-                </th>
-                <th className="min-w-[4.5rem] px-3 py-3 text-center text-[10px] font-semibold uppercase tracking-[0.14em] text-muted">
-                  Plus
-                </th>
-                <th className="min-w-[4.5rem] px-3 py-3 text-center text-[10px] font-semibold uppercase tracking-[0.14em] text-muted">
-                  Pro
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {differentiating.map((row, index) => (
-                <tr
-                  key={row.label}
-                  className={cn(
-                    "border-b border-border/70 last:border-0",
-                    index % 2 === 1 && "bg-foreground/[0.02]"
-                  )}
-                >
-                  <th
-                    scope="row"
-                    className={cn(
-                      "sticky left-0 z-[1] max-w-[11rem] px-3 py-3 text-left text-xs font-medium text-foreground backdrop-blur-sm",
-                      index % 2 === 1 ? "bg-background/95" : "bg-surface/95"
-                    )}
+        <div className="space-y-3">
+          {differentiating.map((row) => (
+            <div
+              key={row.label}
+              className="rounded-2xl border border-border bg-surface/70 p-4"
+            >
+              <h3 className="text-sm font-medium text-foreground">{row.label}</h3>
+              <div className="mt-3 space-y-2">
+                {[
+                  { label: "Free", cell: row.free },
+                  { label: "Plus", cell: row.plus },
+                  { label: "Pro", cell: row.pro },
+                ].map(({ label, cell }) => (
+                  <div
+                    key={label}
+                    className="flex items-center justify-between gap-4 rounded-xl bg-background/55 px-3 py-2.5"
                   >
-                    {row.label}
-                  </th>
-                  <td className="px-3 py-3 text-center">
-                    <CellValue cell={row.free} />
-                  </td>
-                  <td className="px-3 py-3 text-center">
-                    <CellValue cell={row.plus} />
-                  </td>
-                  <td className="px-3 py-3 text-center">
-                    <CellValue cell={row.pro} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    <span className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
+                      {label}
+                    </span>
+                    <div
+                      className="flex items-center gap-2 text-right"
+                      aria-label={`${label}: ${cellLabel(cell)}`}
+                    >
+                      <CellValue cell={cell} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       </motion.div>
     </div>

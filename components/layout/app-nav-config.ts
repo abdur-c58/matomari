@@ -4,6 +4,7 @@ import {
   BookOpen,
   Brain,
   Calendar,
+  CreditCard,
   Headphones,
   Library,
   MapPinned,
@@ -35,6 +36,7 @@ export const toolsNav: AppNavItem[] = [
 
 export const footerNav: AppNavItem[] = [
   { href: "/settings", label: "Settings", icon: Settings },
+  { href: "/plans", label: "Plans", icon: CreditCard },
   { href: "/guide", label: "Guide", icon: BookOpen },
   { href: "/import", label: "Import", icon: Upload },
 ];

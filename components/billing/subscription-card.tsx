@@ -266,13 +266,13 @@ export function SubscriptionCard() {
         {!isPaid && (
           <>
             <Button type="button" size="sm" asChild>
-              <Link href="/billing/checkout?plan=plus">
+              <Link href="/plans">
                 {paymentFailed ? "Resubscribe to Plus" : "Upgrade to Plus"} (
                 {data.plusPriceLabel ?? formatUsd(PLUS_PRICE_MONTHLY_USD)}/mo)
               </Link>
             </Button>
             <Button type="button" size="sm" variant="secondary" asChild>
-              <Link href="/billing/checkout?plan=pro">
+              <Link href="/plans">
                 {paymentFailed ? "Resubscribe to Pro" : "Upgrade to Pro"} (
                 {data.proPriceLabel ?? formatUsd(PRO_PRICE_MONTHLY_USD)}/mo)
               </Link>
@@ -331,7 +331,7 @@ export function SubscriptionCard() {
           </p>
         )}
         <Button type="button" size="sm" variant="ghost" asChild>
-          <Link href="/pricing">View plans</Link>
+          <Link href="/plans">View plans</Link>
         </Button>
       </div>
 
