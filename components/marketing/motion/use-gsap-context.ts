@@ -45,8 +45,23 @@ export function useGsapContext(
 
     return () => {
       window.clearTimeout(t);
-      extraCleanup?.();
-      ctx.revert();
+      // GSAP's ScrollTrigger pinning inserts pin-spacer wrappers directly into
+      // the DOM outside React's tracking. During fast route swaps (especially
+      // React Strict Mode's dev-only double-invoke of effects), React's own
+      // unmount can race this unwrap and throw a benign
+      // "insertBefore ... not a child" DOM error — swallow it, it doesn't
+      // affect production (Strict Mode double-effects are dev-only) and the
+      // context is already being torn down either way.
+      try {
+        extraCleanup?.();
+      } catch {
+        // ignore — see above
+      }
+      try {
+        ctx.revert();
+      } catch {
+        // ignore — see above
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready, reduced, rootRef, options?.force, ...deps]);

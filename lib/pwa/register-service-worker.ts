@@ -1,5 +1,26 @@
 "use client";
 
+// Cross-navigation guard: without this, a local variable reset on every page
+// load can't prevent a reload<->register<->reload loop if the browser keeps
+// seeing a "new" service worker (e.g. transient version skew across Vercel's
+// edge network right after a deploy). That loop is what produces the browser's
+// generic "This page couldn't load" network-failure interstitial in production.
+const SW_RELOAD_GUARD_KEY = "matomari-sw-reloaded-at";
+const SW_RELOAD_GUARD_WINDOW_MS = 15_000;
+
+function canForceReloadForNewWorker(): boolean {
+  try {
+    const last = Number(window.sessionStorage.getItem(SW_RELOAD_GUARD_KEY) ?? "0");
+    if (Date.now() - last < SW_RELOAD_GUARD_WINDOW_MS) return false;
+    window.sessionStorage.setItem(SW_RELOAD_GUARD_KEY, String(Date.now()));
+    return true;
+  } catch {
+    // If sessionStorage is unavailable, err on the side of not reloading —
+    // silently running an update in the background beats an infinite loop.
+    return false;
+  }
+}
+
 export async function registerAppServiceWorker(): Promise<ServiceWorkerRegistration | null> {
   if (typeof window === "undefined" || !("serviceWorker" in navigator)) {
     return null;
@@ -49,6 +70,7 @@ export async function registerAppServiceWorker(): Promise<ServiceWorkerRegistrat
     let refreshing = false;
     navigator.serviceWorker.addEventListener("controllerchange", () => {
       if (refreshing) return;
+      if (!canForceReloadForNewWorker()) return;
       refreshing = true;
       window.location.reload();
     });
