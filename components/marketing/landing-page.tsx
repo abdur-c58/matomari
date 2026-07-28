@@ -16,42 +16,18 @@ import {
 } from "@/components/marketing/motion/scroll-to-section";
 import { HeroSection } from "@/components/marketing/sections/hero-section";
 import { MarketingSectionRail } from "@/components/marketing/marketing-section-rail";
-import dynamic from "next/dynamic";
 
-// Reserve viewport-ish height while each lazy chunk loads so sections don't
-// pop into existence and shift the page — that's what read as "not smooth".
-function SectionPlaceholder({ minHeight }: { minHeight: string }) {
-  return <div aria-hidden style={{ minHeight }} />;
-}
-
-const ProblemSection = dynamic(
-  () => import("@/components/marketing/sections/problem-section").then((m) => m.ProblemSection),
-  { ssr: false, loading: () => <SectionPlaceholder minHeight="100vh" /> }
-);
-const FeatureShowcaseSection = dynamic(
-  () => import("@/components/marketing/sections/feature-showcase-section").then((m) => m.FeatureShowcaseSection),
-  { ssr: false, loading: () => <SectionPlaceholder minHeight="100vh" /> }
-);
-const HorizontalFeaturesSection = dynamic(
-  () => import("@/components/marketing/sections/horizontal-features-section").then((m) => m.HorizontalFeaturesSection),
-  { ssr: false, loading: () => <SectionPlaceholder minHeight="100vh" /> }
-);
-const NarrationSection = dynamic(
-  () => import("@/components/marketing/sections/narration-section").then((m) => m.NarrationSection),
-  { ssr: false, loading: () => <SectionPlaceholder minHeight="60vh" /> }
-);
-const SocialProofSection = dynamic(
-  () => import("@/components/marketing/sections/social-proof-section").then((m) => m.SocialProofSection),
-  { ssr: false, loading: () => <SectionPlaceholder minHeight="60vh" /> }
-);
-const PricingSection = dynamic(
-  () => import("@/components/marketing/sections/pricing-section").then((m) => m.PricingSection),
-  { ssr: false, loading: () => <SectionPlaceholder minHeight="100vh" /> }
-);
-const CtaSection = dynamic(
-  () => import("@/components/marketing/sections/cta-section").then((m) => m.CtaSection),
-  { ssr: false, loading: () => <SectionPlaceholder minHeight="40vh" /> }
-);
+// These are server-rendered on purpose. With `ssr: false` each section mounted
+// client-side at a slightly different time, which caused visible pop-in and
+// made every section schedule its own ScrollTrigger refresh — together that
+// stalled the main thread badly enough to freeze desktop browsers.
+import { ProblemSection } from "@/components/marketing/sections/problem-section";
+import { FeatureShowcaseSection } from "@/components/marketing/sections/feature-showcase-section";
+import { HorizontalFeaturesSection } from "@/components/marketing/sections/horizontal-features-section";
+import { NarrationSection } from "@/components/marketing/sections/narration-section";
+import { SocialProofSection } from "@/components/marketing/sections/social-proof-section";
+import { PricingSection } from "@/components/marketing/sections/pricing-section";
+import { CtaSection } from "@/components/marketing/sections/cta-section";
 
 function LandingScrollBootstrap() {
   const { lenis, ready } = useSmoothScroll();

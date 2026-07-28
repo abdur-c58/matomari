@@ -231,6 +231,27 @@ export function MarketingCustomCursor() {
       const exiting = highlightPhase === "exit";
       const morphing = highlighting || exiting;
 
+      // Fully idle: pointer parked, nothing morphing/animating. Skip all layout
+      // reads and style writes — this loop otherwise runs forever at 60fps and
+      // is pure wasted main-thread + GPU work on desktop.
+      if (
+        !morphing &&
+        !isMarketingCursorAudioPlaying() &&
+        Math.abs(targetX - posX.value) < 0.01 &&
+        Math.abs(targetY - posY.value) < 0.01 &&
+        Math.abs(targetX - haloX.value) < 0.05 &&
+        Math.abs(targetY - haloY.value) < 0.05 &&
+        Math.abs(targetX - wispTwoX.value) < 0.05 &&
+        Math.abs(targetY - wispTwoY.value) < 0.05 &&
+        Math.abs(stretchX.value - 1) < 0.002 &&
+        Math.abs(squeezeY.value - 1) < 0.002 &&
+        wispOneOpacity.value < 0.002 &&
+        wispTwoOpacity.value < 0.002
+      ) {
+        raf = window.requestAnimationFrame(render);
+        return;
+      }
+
       if (highlighting && highlightHost) {
         const rect = highlightHost.getBoundingClientRect();
         const baseLeft = rect.left - appliedDriftX;

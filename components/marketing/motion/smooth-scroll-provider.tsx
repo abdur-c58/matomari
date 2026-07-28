@@ -11,6 +11,7 @@ import Lenis from "lenis";
 import "lenis/dist/lenis.css";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { cancelScrollRefresh, scheduleScrollRefresh } from "./scroll-refresh";
 import {
   useIsDesktopMarketing,
   useIsFinePointer,
@@ -48,7 +49,6 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
     let instance: Lenis | null = null;
     let ticker: ((time: number) => void) | null = null;
-    let resizeTimer = 0;
 
     // Native scroll on mobile / touch / reduced motion — Lenis only for
     // desktop fine-pointer wheel. Touch tablets ≥768px must not get Lenis.
@@ -84,18 +84,19 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
       instance?.raf(time * 1000);
     };
     gsap.ticker.add(ticker);
-    gsap.ticker.lagSmoothing(0);
+    // Keep lag smoothing on: with it disabled, one slow frame produces a huge
+    // catch-up delta and every scrub timeline lurches forward at once.
+    gsap.ticker.lagSmoothing(500, 33);
     if (!cancelled) setValue({ lenis: instance, ready: true });
 
     const onResize = () => {
-      window.clearTimeout(resizeTimer);
-      resizeTimer = window.setTimeout(() => ScrollTrigger.refresh(), 160);
+      scheduleScrollRefresh();
     };
     window.addEventListener("resize", onResize);
 
     return () => {
       cancelled = true;
-      window.clearTimeout(resizeTimer);
+      cancelScrollRefresh();
       window.removeEventListener("resize", onResize);
       if (ticker) gsap.ticker.remove(ticker);
       gsap.ticker.lagSmoothing(500, 33);

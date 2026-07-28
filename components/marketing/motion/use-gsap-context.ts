@@ -3,6 +3,7 @@
 import { useLayoutEffect, type RefObject } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { scheduleScrollRefresh } from "./scroll-refresh";
 import { useSmoothScroll } from "./smooth-scroll-provider";
 import { usePrefersReducedMotion } from "./use-prefers-reduced-motion";
 
@@ -40,11 +41,11 @@ export function useGsapContext(
       page.dataset.motionReady = "true";
     }
 
-    // Single deferred refresh per context — no per-instance load listeners.
-    const t = window.setTimeout(() => ScrollTrigger.refresh(), 180);
+    // One shared, debounced refresh for the whole page — a refresh per section
+    // stacks into a main-thread stall once pinned sections exist.
+    scheduleScrollRefresh();
 
     return () => {
-      window.clearTimeout(t);
       // GSAP's ScrollTrigger pinning inserts pin-spacer wrappers directly into
       // the DOM outside React's tracking. During fast route swaps (especially
       // React Strict Mode's dev-only double-invoke of effects), React's own
