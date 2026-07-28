@@ -15,14 +15,37 @@ import {
   scrollToMarketingSection,
 } from "@/components/marketing/motion/scroll-to-section";
 import { HeroSection } from "@/components/marketing/sections/hero-section";
-import { ProblemSection } from "@/components/marketing/sections/problem-section";
-import { FeatureShowcaseSection } from "@/components/marketing/sections/feature-showcase-section";
-import { HorizontalFeaturesSection } from "@/components/marketing/sections/horizontal-features-section";
-import { NarrationSection } from "@/components/marketing/sections/narration-section";
-import { SocialProofSection } from "@/components/marketing/sections/social-proof-section";
-import { PricingSection } from "@/components/marketing/sections/pricing-section";
-import { CtaSection } from "@/components/marketing/sections/cta-section";
 import { MarketingSectionRail } from "@/components/marketing/marketing-section-rail";
+import dynamic from "next/dynamic";
+
+const ProblemSection = dynamic(
+  () => import("@/components/marketing/sections/problem-section").then((m) => m.ProblemSection),
+  { ssr: false }
+);
+const FeatureShowcaseSection = dynamic(
+  () => import("@/components/marketing/sections/feature-showcase-section").then((m) => m.FeatureShowcaseSection),
+  { ssr: false }
+);
+const HorizontalFeaturesSection = dynamic(
+  () => import("@/components/marketing/sections/horizontal-features-section").then((m) => m.HorizontalFeaturesSection),
+  { ssr: false }
+);
+const NarrationSection = dynamic(
+  () => import("@/components/marketing/sections/narration-section").then((m) => m.NarrationSection),
+  { ssr: false }
+);
+const SocialProofSection = dynamic(
+  () => import("@/components/marketing/sections/social-proof-section").then((m) => m.SocialProofSection),
+  { ssr: false }
+);
+const PricingSection = dynamic(
+  () => import("@/components/marketing/sections/pricing-section").then((m) => m.PricingSection),
+  { ssr: false }
+);
+const CtaSection = dynamic(
+  () => import("@/components/marketing/sections/cta-section").then((m) => m.CtaSection),
+  { ssr: false }
+);
 
 function LandingScrollBootstrap() {
   const { lenis, ready } = useSmoothScroll();

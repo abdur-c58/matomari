@@ -8,11 +8,19 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import dynamic from "next/dynamic";
 import type { ChatMessage, TutorContext } from "@/lib/ai/types";
-import { TutorSheet } from "./tutor-sheet";
-import { DesktopTutorPanel } from "./desktop-tutor-panel";
 import { useTutorChatSend } from "./tutor-chat";
 import { MOBILE_MEDIA_QUERY, useIsMobileViewport } from "@/hooks/use-is-mobile-viewport";
+
+const TutorSheet = dynamic(
+  () => import("./tutor-sheet").then((m) => m.TutorSheet),
+  { ssr: false }
+);
+const DesktopTutorPanel = dynamic(
+  () => import("./desktop-tutor-panel").then((m) => m.DesktopTutorPanel),
+  { ssr: false }
+);
 
 interface TutorContextValue {
   openTutor: (context: TutorContext) => void;
@@ -96,7 +104,7 @@ export function TutorProvider({ children }: { children: ReactNode }) {
     <TutorCtx.Provider value={{ openTutor, tutorOpen: open, closeTutor }}>
       <TutorChatCtx.Provider value={chatState}>
         {children}
-        {isMobile && (
+        {isMobile && open && (
           <TutorSheet open={open} onOpenChange={setOpen} {...chatProps} />
         )}
       </TutorChatCtx.Provider>
@@ -108,6 +116,7 @@ export function TutorProvider({ children }: { children: ReactNode }) {
 export function TutorPanelSlot() {
   const chat = useContext(TutorChatCtx);
   if (!chat) return null;
+  if (!chat.open) return null;
 
   return (
     <DesktopTutorPanel
