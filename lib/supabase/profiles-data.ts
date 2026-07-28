@@ -7,16 +7,19 @@ export type ProfileRow = {
   displayName: string;
   avatarUrl: string | null;
   role: AppRole;
+  canGrantSubscriptions: boolean;
   updatedAt: string;
 };
 
-const PROFILE_SELECT = "user_id, display_name, avatar_url, role, updated_at";
+const PROFILE_SELECT =
+  "user_id, display_name, avatar_url, role, can_grant_subscriptions, updated_at";
 
 function mapProfile(data: {
   user_id: string;
   display_name: string;
   avatar_url: string | null;
   role: AppRole | null;
+  can_grant_subscriptions?: boolean | null;
   updated_at: string;
 }): ProfileRow {
   return {
@@ -24,6 +27,7 @@ function mapProfile(data: {
     displayName: data.display_name,
     avatarUrl: data.avatar_url,
     role: data.role ?? "user",
+    canGrantSubscriptions: Boolean(data.can_grant_subscriptions),
     updatedAt: data.updated_at,
   };
 }

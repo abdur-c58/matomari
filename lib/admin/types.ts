@@ -26,6 +26,7 @@ export type AdminUserListItem = {
 
 export type AdminUserDetail = AdminUserListItem & {
   avatarUrl: string | null;
+  canGrantSubscriptions: boolean;
   paddleCustomerId: string | null;
   paddleSubscriptionId: string | null;
   cancelAtPeriodEnd: boolean;

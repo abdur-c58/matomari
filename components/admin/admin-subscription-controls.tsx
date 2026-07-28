@@ -36,9 +36,11 @@ function billingSourceLabel(source: AdminUserDetail["billingSource"]) {
 
 export function AdminSubscriptionControls({
   user,
+  canGrantSubscriptions,
   onUpdated,
 }: {
   user: AdminUserDetail;
+  canGrantSubscriptions: boolean;
   onUpdated: () => Promise<void>;
 }) {
   const [grantTier, setGrantTier] = useState<GrantTier>("plus");
@@ -219,7 +221,7 @@ export function AdminSubscriptionControls({
           <Button
             type="button"
             loading={billingAction === "grant"}
-            disabled={user.isPaidSubscription}
+            disabled={user.isPaidSubscription || !canGrantSubscriptions}
             onClick={() => void runGrant()}
           >
             Grant {grantTier === "pro" ? "Pro" : "Plus"}
@@ -228,6 +230,10 @@ export function AdminSubscriptionControls({
         {user.isPaidSubscription ? (
           <p className="text-xs text-destructive">
             Revoke the paid Paddle subscription before granting admin access.
+          </p>
+        ) : !canGrantSubscriptions ? (
+          <p className="text-xs text-muted">
+            Only the owner or an owner-approved admin can grant subscriptions.
           </p>
         ) : (
           <p className="text-xs text-muted">

@@ -1,6 +1,6 @@
 /* Matomari offline service worker — keep notification handling and add app shell caching. */
 
-const CACHE_VERSION = "matomari-offline-v2";
+const CACHE_VERSION = "matomari-offline-v3";
 const PRECACHE_URLS = [
   "/offline.html",
   "/manifest.json",
@@ -44,22 +44,10 @@ async function cacheFirst(request) {
 }
 
 async function networkFirstNavigation(request) {
-  const cache = await caches.open(CACHE_VERSION);
-
   try {
-    const response = await fetch(request);
-    if (response.ok) {
-      await cache.put(request, response.clone());
-    }
-    return response;
+    return await fetch(request);
   } catch {
-    const cached = await cache.match(request);
-    if (cached) return cached;
-
-    const startUrl = new URL("/", self.location.origin).toString();
-    const cachedStart = await cache.match(startUrl);
-    if (cachedStart) return cachedStart;
-
+    const cache = await caches.open(CACHE_VERSION);
     const offline = await cache.match("/offline.html");
     if (offline) return offline;
 

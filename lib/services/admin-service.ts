@@ -17,6 +17,10 @@ import {
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { StaffRole } from "@/lib/auth/require-staff";
 import {
+  canGrantSubscriptions as actorCanGrantSubscriptions,
+  isSubscriptionGrantOwner,
+} from "@/lib/auth/subscription-grant-permissions";
+import {
   BILLING_STATUS,
   type AdminUserDetail,
   type AdminUserListItem,
@@ -67,6 +71,7 @@ async function setProfileRoleAdmin(
     displayName: data.display_name,
     avatarUrl: data.avatar_url,
     role: data.role ?? "user",
+    canGrantSubscriptions: false,
     updatedAt: data.updated_at,
   };
 }
@@ -195,6 +200,7 @@ export async function getAdminUserDetail(
     displayName: profile?.displayName ?? auth?.email?.split("@")[0] ?? "User",
     avatarUrl: profile?.avatarUrl ?? null,
     role: profile?.role ?? "user",
+    canGrantSubscriptions: profile?.canGrantSubscriptions ?? false,
     signupAt: auth?.createdAt ?? null,
     lastActiveAt: usage.lastActiveAt ?? auth?.lastSignInAt ?? profile?.updatedAt ?? null,
     subscriptionStatus: sub?.status ?? "none",
@@ -269,7 +275,22 @@ export async function changeUserRole(params: {
       previousRole,
       nextRole: params.nextRole,
     },
-    execute: async () => setProfileRoleAdmin(params.targetUserId, params.nextRole),
+    execute: async () => {
+      const updated = await setProfileRoleAdmin(params.targetUserId, params.nextRole);
+      if (params.nextRole !== "admin") {
+        const supabase = createAdminClient();
+        if (supabase) {
+          await supabase
+            .from("profiles")
+            .update({
+              can_grant_subscriptions: false,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("user_id", params.targetUserId);
+        }
+      }
+      return fetchProfileAdmin(params.targetUserId);
+    },
   });
 
   if (!profile) {
@@ -313,6 +334,14 @@ export async function applyAdminBillingAction(params: {
   }
 
   const existing = await getUserSubscriptionAdmin(params.targetUserId);
+  const actorProfile = await fetchProfileAdmin(params.actorUserId);
+  const actorIsGrantOwner = isSubscriptionGrantOwner({
+    userId: params.actorUserId,
+  });
+  const actorMayGrantSubscriptions = actorCanGrantSubscriptions({
+    userId: params.actorUserId,
+    profile: actorProfile,
+  });
 
   try {
     const { result: subscription, audit } = await runStaffAction({
@@ -323,6 +352,7 @@ export async function applyAdminBillingAction(params: {
       previousTier: existing?.tier ?? "free",
       previousStatus: existing?.status ?? "active",
       previousBillingSource: subscriptionBillingSource(existing),
+      actorCanGrantSubscriptions: actorMayGrantSubscriptions,
       ...params.details,
       simulation: false,
     },
@@ -335,6 +365,16 @@ export async function applyAdminBillingAction(params: {
           return getUserSubscriptionAdmin(params.targetUserId);
         }
         return finalizeDowngradeToFree(params.targetUserId);
+      }
+
+      if (
+        (params.actionType === "comp_access" ||
+          params.actionType === "subscription_override") &&
+        !actorMayGrantSubscriptions
+      ) {
+        throw new Error(
+          "Only the owner or an owner-approved admin can grant subscriptions"
+        );
       }
 
       if (isPaidPaddleSubscription(existing)) {
@@ -383,6 +423,68 @@ export async function applyAdminBillingAction(params: {
       status: 400,
     };
   }
+}
+
+export async function setUserSubscriptionGrantCapability(params: {
+  actorUserId: string;
+  actorEmail?: string | null;
+  targetUserId: string;
+  enabled: boolean;
+}): Promise<
+  | { ok: true; profile: ProfileRow | null; audit: AdminAuditLogRow | null }
+  | { ok: false; error: string; status: number }
+> {
+  if (
+    !isSubscriptionGrantOwner({
+      userId: params.actorUserId,
+      email: params.actorEmail ?? null,
+    })
+  ) {
+    return {
+      ok: false,
+      error: "Only the owner can assign subscription-granting power",
+      status: 403,
+    };
+  }
+
+  const target = await fetchProfileAdmin(params.targetUserId);
+  if (!target) {
+    return { ok: false, error: "Target user not found", status: 404 };
+  }
+  if (target.role !== "admin") {
+    return {
+      ok: false,
+      error: "Only admins can hold subscription-granting power",
+      status: 400,
+    };
+  }
+
+  const supabase = createAdminClient();
+  if (!supabase) {
+    return { ok: false, error: "Database unavailable", status: 503 };
+  }
+
+  const { result: profile, audit } = await runStaffAction({
+    actorUserId: params.actorUserId,
+    actionType: "subscription_override",
+    targetUserId: params.targetUserId,
+    details: {
+      grantedCapability: "can_grant_subscriptions",
+      enabled: params.enabled,
+    },
+    execute: async () => {
+      await supabase
+        .from("profiles")
+        .update({
+          can_grant_subscriptions: params.enabled,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("user_id", params.targetUserId);
+      return fetchProfileAdmin(params.targetUserId);
+    },
+  });
+
+  return { ok: true, profile, audit };
 }
 
 /** @deprecated Use applyAdminBillingAction — kept for any leftover imports */

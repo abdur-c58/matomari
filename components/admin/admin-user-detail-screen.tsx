@@ -24,8 +24,11 @@ function formatDate(value: string | null) {
 export function AdminUserDetailScreen({ userId }: { userId: string }) {
   const [user, setUser] = useState<AdminUserDetail | null>(null);
   const [meRole, setMeRole] = useState<AppRole | null>(null);
+  const [meCanGrantSubscriptions, setMeCanGrantSubscriptions] = useState(false);
+  const [meIsGrantOwner, setMeIsGrantOwner] = useState(false);
   const [loading, setLoading] = useState(true);
   const [savingRole, setSavingRole] = useState(false);
+  const [savingGrantCapability, setSavingGrantCapability] = useState(false);
   const [nextRole, setNextRole] = useState<AppRole>("user");
   const [error, setError] = useState<string | null>(null);
 
@@ -44,6 +47,8 @@ export function AdminUserDetailScreen({ userId }: { userId: string }) {
       setUser(userData.user);
       setNextRole(userData.user.role);
       setMeRole(meData.role);
+      setMeCanGrantSubscriptions(Boolean(meData.canGrantSubscriptions));
+      setMeIsGrantOwner(Boolean(meData.isSubscriptionGrantOwner));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load user");
     } finally {
@@ -72,6 +77,33 @@ export function AdminUserDetailScreen({ userId }: { userId: string }) {
       toast.error(err instanceof Error ? err.message : "Role update failed");
     } finally {
       setSavingRole(false);
+    }
+  }
+
+  async function saveGrantCapability(enabled: boolean) {
+    if (!user || !meIsGrantOwner) return;
+    setSavingGrantCapability(true);
+    try {
+      const res = await fetch(
+        `/api/admin/users/${userId}/subscription-grant-capability`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ enabled }),
+        }
+      );
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Capability update failed");
+      toast.success(
+        enabled
+          ? "Subscription-granting power enabled"
+          : "Subscription-granting power removed"
+      );
+      await load();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Capability update failed");
+    } finally {
+      setSavingGrantCapability(false);
     }
   }
 
@@ -122,6 +154,11 @@ export function AdminUserDetailScreen({ userId }: { userId: string }) {
                 <Badge variant={user.role === "admin" ? "warning" : "outline"}>
                   {user.role}
                 </Badge>
+                {user.canGrantSubscriptions && (
+                  <Badge className="ml-2" variant="secondary">
+                    can grant subscriptions
+                  </Badge>
+                )}
               </dd>
             </div>
             <div className="flex justify-between gap-3">
@@ -189,7 +226,7 @@ export function AdminUserDetailScreen({ userId }: { userId: string }) {
         <h3 className="text-sm font-semibold text-foreground">Actions</h3>
 
         {isAdmin ? (
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
             <div className="space-y-1.5 sm:w-48">
               <label className="text-xs font-medium text-muted" htmlFor="role-select">
                 Change role
@@ -213,14 +250,39 @@ export function AdminUserDetailScreen({ userId }: { userId: string }) {
             >
               Save role
             </Button>
+            {meIsGrantOwner && (
+              <Button
+                type="button"
+                variant="secondary"
+                loading={savingGrantCapability}
+                disabled={user.role !== "admin"}
+                onClick={() =>
+                  void saveGrantCapability(!user.canGrantSubscriptions)
+                }
+              >
+                {user.canGrantSubscriptions
+                  ? "Remove grant power"
+                  : "Allow subscription grants"}
+              </Button>
+            )}
           </div>
         ) : (
           <p className="text-sm text-muted">Role changes require the admin role.</p>
         )}
 
+        {meIsGrantOwner && (
+          <p className="text-xs text-muted">
+            Only you can assign subscription-granting power, and only to admins.
+          </p>
+        )}
+
         <Separator />
 
-        <AdminSubscriptionControls user={user} onUpdated={load} />
+        <AdminSubscriptionControls
+          user={user}
+          canGrantSubscriptions={meCanGrantSubscriptions}
+          onUpdated={load}
+        />
       </Card>
     </div>
   );
