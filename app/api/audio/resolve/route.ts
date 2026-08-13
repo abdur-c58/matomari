@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { auth } from "@/auth";
+import { requireUserSession } from "@/lib/auth/require-user";
 import { getTextHash, generateServerAudio } from "@/lib/audio/generate-audio";
 import { getSpokenScriptFromFields } from "@/lib/audio/tts-text";
 import { ONLINE_FIRST_ENABLED } from "@/lib/constants/online-first";
@@ -39,9 +39,9 @@ const bodySchema = z.object({
 export async function POST(request: Request) {
   try {
     if (ONLINE_FIRST_ENABLED) {
-      const session = await auth();
-      if (!session?.user?.supabaseUserId) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      const user = await requireUserSession();
+      if (!user.ok) {
+        return NextResponse.json({ error: user.error }, { status: user.status });
       }
     }
 

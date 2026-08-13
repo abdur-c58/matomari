@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { requireUserSession } from "@/lib/auth/require-user";
 import { ONLINE_FIRST_ENABLED } from "@/lib/constants/online-first";
 import { getAudioMetadataByTextHash } from "@/lib/supabase/server-data";
 import { getAudioR2Key, getR2Object, r2ObjectExists } from "@/lib/storage/r2-client";
@@ -13,9 +13,9 @@ type RouteContext = { params: Promise<{ hash: string }> };
  */
 export async function GET(request: Request, context: RouteContext) {
   if (ONLINE_FIRST_ENABLED) {
-    const session = await auth();
-    if (!session?.user?.supabaseUserId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const user = await requireUserSession();
+    if (!user.ok) {
+      return NextResponse.json({ error: user.error }, { status: user.status });
     }
   }
 

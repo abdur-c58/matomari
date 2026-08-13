@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { requireUserSession } from "@/lib/auth/require-user";
 import { countPendingTtsJobs } from "@/lib/supabase/tts-jobs";
 
 export async function GET() {
-  const session = await auth();
-  if (!session?.user?.supabaseUserId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const user = await requireUserSession();
+  if (!user.ok) {
+    return NextResponse.json({ error: user.error }, { status: user.status });
   }
 
   try {
